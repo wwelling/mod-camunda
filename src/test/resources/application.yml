@@ -1,0 +1,41 @@
+logging:
+  file: logs/mod-camunda-tests.log
+  level:
+    org:
+      hibernate: INFO
+      springframework:
+        security: INFO
+        web: INFO
+  path:
+
+server:
+  port: 9100
+
+spring:
+  data.rest:
+    returnBodyOnCreate: true
+    returnBodyOnUpdate: true
+  datasource:
+    platform: h2
+    url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: folio
+    password: folio
+  h2:
+    console: 
+      enabled: true
+      path: /h2console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties.hibernate.jdbc.lob.non_contextual_creation: true
+    generate-ddl: true
+    hibernate.ddl-auto: create-drop
+    open-in-view: true
+    show-sql: false
+  profiles:
+    active: default
+  thymeleaf:
+    mode: TEXT
+    suffix: .sql
+
+additional.domain.packages:

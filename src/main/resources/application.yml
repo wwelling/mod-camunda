@@ -1,0 +1,47 @@
+logging:
+  file: logs/mod-camunda.log
+  level:
+    org:
+      hibernate: INFO
+      springframework:
+        security: INFO
+        web: INFO
+  path:
+
+server:
+  port: 9000
+
+spring:
+  data.rest:
+    returnBodyOnCreate: true
+    returnBodyOnUpdate: true
+  datasource:
+    platform: h2
+    url: jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    # platform: postgres
+    # driverClassName: org.postgresql.Driver
+    # url: jdbc:postgresql://localhost:5432/mod-camunda
+    
+    username: folio
+    password: folio
+  h2:
+    console: 
+      enabled: true
+      path: /h2console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    # database-platform: org.hibernate.dialect.PostgreSQLDialect
+    
+    properties.hibernate.jdbc.lob.non_contextual_creation: true
+    generate-ddl: true
+    hibernate.ddl-auto: create-drop
+    open-in-view: true
+    show-sql: false
+  profiles:
+    active: default
+  thymeleaf:
+    mode: TEXT
+    suffix: .sql
+
+additional.domain.packages:

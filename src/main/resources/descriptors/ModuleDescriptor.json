@@ -1,0 +1,25 @@
+{
+  "id": "@project.artifactId@-@project.version@",
+  "name": "Workflow Module",
+  "provides": [
+    {
+      "id": "_tenant",
+      "version": "1.0",
+      "interfaceType" : "system",
+      "handlers" : [
+        {
+          "methods" : [ "POST", "DELETE" ],
+          "pathPattern" : "/_/tenant"
+        }
+      ]
+    }
+  ],
+  "permissionSets" : [],
+  "launchDescriptor": {
+    "dockerImage": "@project.artifactId@:@project.version@",
+    "dockerArgs": {
+      "HostConfig": { "PortBindings": { "8081/tcp":  [{ "HostPort": "%p" }] } }
+    },
+    "dockerPull" : false
+  }
+}
