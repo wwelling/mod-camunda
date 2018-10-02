@@ -1,6 +1,6 @@
 
 buildMvn {
-  publishAPI = 'yes'
+  publishAPI = 'no'
   mvnDeploy = 'yes'
   runLintRamlCop = 'yes'
 }
