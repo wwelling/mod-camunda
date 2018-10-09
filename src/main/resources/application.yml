@@ -22,17 +22,17 @@ spring:
     # platform: postgres
     # driverClassName: org.postgresql.Driver
     # url: jdbc:postgresql://localhost:5432/mod-camunda
-    
+
     username: folio
     password: folio
   h2:
-    console: 
+    console:
       enabled: true
       path: /h2console
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     # database-platform: org.hibernate.dialect.PostgreSQLDialect
-    
+
     properties.hibernate.jdbc.lob.non_contextual_creation: true
     generate-ddl: true
     hibernate.ddl-auto: create-drop
@@ -46,6 +46,7 @@ spring:
 
 camunda:
   bpm:
+    filter.create: My Tasks
     admin-user:
       id: bboring
       password: password
