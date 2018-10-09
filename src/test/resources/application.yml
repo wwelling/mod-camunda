@@ -38,4 +38,13 @@ spring:
     mode: TEXT
     suffix: .sql
 
-additional.domain.packages:
+additional:
+  domain-packages:
+  schema-scripts:
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.identity.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
