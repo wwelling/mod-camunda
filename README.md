@@ -10,7 +10,7 @@ Steps to run TestProcess1
 
 1. Run the application `mvn clean spring-boot:run`
 1. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
-1. Log in as admin username: `bboring`, password: `password`
+1. Log in as admin username: `admin`, password: `admin`
 1. Select Tasklist from the Dashboard
 1. In top right corner click "Start process", select "TestProcess1", click "start"
 1. Refresh Tasklist page or click "My Tasks" and you should see a new task generated
