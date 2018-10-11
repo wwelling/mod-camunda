@@ -9,15 +9,17 @@ See the file ["LICENSE"](LICENSE) for more information.
 Steps to run TestProcess1
 
 1. Run the application `mvn clean spring-boot:run`
-1. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
-1. Log in as admin username: `admin`, password: `admin`
-1. Select Tasklist from the Dashboard
-1. In top right corner click "Start process", select "TestProcess1", click "start"
-1. Refresh Tasklist page or click "All Tasks" and you should see a new task generated
-1. Select "Task1" and click "Claim" in top right corner of task form
+2. Register 'TestProcess1' using REST POST
+    1. ```bash curl -X POST -F "deployment-name=TestProcess1" -F "deployment-source=process application"  -F "data=@src/main/resources/workflows/TestProcess1.bpmn" http://localhost:9000/rest/deployment/create```
+3. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
+4. Log in as admin username: `admin`, password: `admin`
+5. Select Tasklist from the Dashboard
+6. In top right corner click "Start process", select "TestProcess1", click "start"
+7. Refresh Tasklist page or click "All Tasks" and you should see a new task generated
+8. Select "Task1" and click "Claim" in top right corner of task form
     1. Task should have two variable fields pre-populated. You can change these if you would like
-    1. Task has boolean option "Throw Error?" to check if you want to generate the error handling task
-1. "Complete" the task
+    2. Task has boolean option "Throw Error?" to check if you want to generate the error handling task
+9.  "Complete" the task
 
 ### Notes about TestProcess1
 * Manual Start Event
