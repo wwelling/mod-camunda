@@ -9,7 +9,7 @@ See the file ["LICENSE"](LICENSE) for more information.
 Steps to run TestProcess1
 
 1. Run the application `mvn clean spring-boot:run`
-2. Register 'TestProcess1' using REST POST
+2. Register 'TestProcess1' using REST API
     1. ```curl -X POST -F "deployment-name=TestProcess1" -F "deployment-source=process application"  -F "data=@src/main/resources/workflows/TestProcess1.bpmn" http://localhost:9000/rest/deployment/create```
 3. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
 4. Log in as admin username: `admin`, password: `admin`
