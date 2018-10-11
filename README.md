@@ -13,7 +13,7 @@ Steps to run TestProcess1
 1. Log in as admin username: `admin`, password: `admin`
 1. Select Tasklist from the Dashboard
 1. In top right corner click "Start process", select "TestProcess1", click "start"
-1. Refresh Tasklist page or click "My Tasks" and you should see a new task generated
+1. Refresh Tasklist page or click "All Tasks" and you should see a new task generated
 1. Select "Task1" and click "Claim" in top right corner of task form
     1. Task should have two variable fields pre-populated. You can change these if you would like
     1. Task has boolean option "Throw Error?" to check if you want to generate the error handling task
