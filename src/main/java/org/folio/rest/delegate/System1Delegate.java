@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class System1Delegate implements JavaDelegate {
 
-  private final static Logger log = LoggerFactory.getLogger(System1Delegate.class);
+  private static final Logger log = LoggerFactory.getLogger(System1Delegate.class);
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -19,9 +19,17 @@ public class System1Delegate implements JavaDelegate {
     String instanceId = execution.getProcessInstanceId();
     String definitionId = execution.getProcessDefinitionId();
 
-    RepositoryService repositoryService = execution.getProcessEngineServices().getRepositoryService();
-    String processName = repositoryService.createProcessDefinitionQuery().processDefinitionId(definitionId)
-        .singleResult().getName();
+    // @formatter:off
+    RepositoryService repositoryService = execution
+        .getProcessEngineServices()
+        .getRepositoryService();
+    
+    String processName = repositoryService
+        .createProcessDefinitionQuery()
+        .processDefinitionId(definitionId)
+        .singleResult()
+        .getName();
+    // @formatter:on
 
     log.info("Process: {}, Instance: {}", processName, instanceId);
 
