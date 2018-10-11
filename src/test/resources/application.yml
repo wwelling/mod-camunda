@@ -39,6 +39,7 @@ spring:
   thymeleaf:
     mode: TEXT
     suffix: .sql
+  jersey.application-path: camunda
 
 camunda:
   bpm:
