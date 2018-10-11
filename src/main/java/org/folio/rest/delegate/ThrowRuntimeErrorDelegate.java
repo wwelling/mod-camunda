@@ -1,17 +1,18 @@
 package org.folio.rest.delegate;
 
-import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.RepositoryService;
+import java.util.ArrayList;
+
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-
 @Service
-@Slf4j
 public class ThrowRuntimeErrorDelegate implements JavaDelegate {
+
+  private final static Logger log = LoggerFactory.getLogger(System1Delegate.class);
 
   @Override
   public void execute(DelegateExecution execution) {
@@ -25,4 +26,5 @@ public class ThrowRuntimeErrorDelegate implements JavaDelegate {
       throw new BpmnError("RUNTIME_ERROR", message);
     }
   }
+
 }
