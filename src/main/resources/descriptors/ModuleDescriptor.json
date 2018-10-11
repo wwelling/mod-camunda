@@ -3,6 +3,36 @@
   "name": "Workflow Module",
   "provides": [
     {
+      "id": "process",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/deployment",
+          "permissionsRequired": ["process.collection.get"],
+          "permissionsDesired": ["process.domain.*", "process.domain.all"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/deployment/{id}",
+          "permissionsRequired": ["process.item.get"],
+          "permissionsDesired": ["process.domain.*", "process.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/deployment/create",
+          "permissionsRequired": ["process.item.post"],
+          "permissionsDesired": ["process.domain.*", "process.domain.all"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/camunda/deployment/{id}",
+          "permissionsRequired": ["process.item.delete"],
+          "permissionsDesired": ["process.domain.*", "process.domain.all"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.0",
       "interfaceType" : "system",
@@ -14,7 +44,49 @@
       ]
     }
   ],
-  "permissionSets" : [],
+  "permissionSets" : [
+  	{
+      "permissionName": "process.collection.get",
+      "displayName": "Process - get processes collection",
+      "description": "Get processes collection"
+    },
+    {
+      "permissionName": "process.item.get",
+      "displayName": "Process - get individual process from storage",
+      "description": "Get individual wizard"
+    },
+    {
+      "permissionName": "process.item.post",
+      "displayName": "Process - create process",
+      "description": "Create process"
+    },
+    {
+      "permissionName": "process.item.delete",
+      "displayName": "Process - delete process",
+      "description": "Delete process"
+    },
+    {
+      "permissionName": "process.allops",
+      "displayName": "Process module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the processes modules, but no domain permissions",
+      "subPermissions": [
+        "process.collection.get",
+        "process.item.get",
+        "process.item.delete"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "processes.all",
+      "displayName": "Processes module - all permissions and all processes domains",
+      "description": "Entire set of permissions needed to use the processes modules on any processes domain",
+      "subPermissions": [
+        "processes.allops",
+        "processes.domain.all"
+      ],
+      "visible": false
+    }
+  ],
   "launchDescriptor": {
     "dockerImage": "@project.artifactId@:@project.version@",
     "dockerArgs": {

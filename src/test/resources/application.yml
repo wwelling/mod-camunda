@@ -39,9 +39,11 @@ spring:
   thymeleaf:
     mode: TEXT
     suffix: .sql
+  jersey.application-path: camunda
 
 camunda:
   bpm:
+    auto-deployment-enabled: false
     database:
       schema-update: false
     filter:
@@ -51,8 +53,8 @@ camunda:
       password: admin
       first-name: Camunda
       last-name: Admin
-      email: admin@mailinator.com
-      # authorization.enabled: true
+      email: cadmin@mailinator.com
+    # authorization.enabled: true
 
 tenant:
   header-name: X-Okapi-Tenant
