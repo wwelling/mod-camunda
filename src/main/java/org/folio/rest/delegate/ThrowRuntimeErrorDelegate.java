@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ThrowRuntimeErrorDelegate implements JavaDelegate {
 
-  private static final Logger log = LoggerFactory.getLogger(System1Delegate.class);
+  private static final Logger log = LoggerFactory.getLogger(ThrowRuntimeErrorDelegate.class);
 
   @Override
   public void execute(DelegateExecution execution) {
