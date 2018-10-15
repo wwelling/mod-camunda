@@ -10,7 +10,7 @@ Steps to run TestProcess1
 
 1. Run the application `mvn clean spring-boot:run`
 2. Register 'TestProcess1' using REST API
-    1. ```curl -X POST -H "X-Okapi-Tenant: tamu" -F "tenant-id=tamu" -F "deployment-name=TestProcess1" -F "deployment-source=process application" -F "data=@src/main/resources/workflows/TestProcess1.bpmn" http://localhost:9000/camunda/deployment/create```
+    1. ```curl -X POST -H "X-Okapi-Tenant: diku" -F "tenant-id=diku" -F "deployment-name=TestProcess1" -F "deployment-source=process application" -F "data=@src/main/resources/workflows/TestProcess1.bpmn" http://localhost:9000/camunda/deployment/create```
 3. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
 4. Log in as admin username: `admin`, password: `admin`
 5. Select Tasklist from the Dashboard
@@ -35,3 +35,10 @@ Steps to run TestProcess1
 * Throw Runtime Error task is a Java Class implementation (just another way of doing things other than Delegate Expression) which is found at `org.folio.rest.delegate.ThrowRuntimeErrorDelegate`
   * This task intentionally throws a runtime IndexOutOfBoundsException
   * We catch this exception and start an error handling sub-process
+
+## Additional information
+
+### Issue tracker
+
+See project [FOLIO](https://issues.folio.org/browse/FOLIO)
+at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker/).
