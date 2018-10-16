@@ -14,6 +14,12 @@ import java.util.Random;
 public class MasterSendStartMessageDelegate implements JavaDelegate {
 
   private static final Logger log = LoggerFactory.getLogger(MasterSendStartMessageDelegate.class);
+  private static final String EVENT_PATH = "eventPath";
+  private static final String SEND_MESSAGE = "sendMessage";
+  private static final String SEND_TASK = "sendTask";
+  private static final String START_MESSAGE_2 = "Message_StartProcess2";
+  private static final String START_MESSAGE_3 = "Message_StartProcess3";
+
 
   @Autowired
   private RuntimeService runtimeService;
@@ -22,25 +28,25 @@ public class MasterSendStartMessageDelegate implements JavaDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     log.info("Executing Master Send Message");
 
-    String eventPath = execution.getVariable("eventPath").toString();
+    String eventPath = execution.getVariable(EVENT_PATH).toString();
 
     Random ran = new Random();
     int bk = ran.nextInt(10000) + 10000;
     String businessKey = "pk" + Integer.toString(bk);
 
-    if (eventPath.equals("sendMessage")) {
+    if (eventPath.equals(SEND_MESSAGE)) {
       execution.setVariable("process2BusinessKey", businessKey);
       runtimeService
-        .createMessageCorrelation("Message_StartProcess2")
+        .createMessageCorrelation(START_MESSAGE_2)
         .processInstanceBusinessKey(businessKey)
         .setVariable("masterStartVariable", "masterStartVariableValue")
         .correlateStartMessage();
     }
 
-    if (eventPath.equals("sendTask")) {
+    if (eventPath.equals(SEND_TASK)) {
       execution.setVariable("process3BusinessKey", businessKey);
       runtimeService
-        .createMessageCorrelation("Message_StartProcess3")
+        .createMessageCorrelation(START_MESSAGE_3)
         .processInstanceBusinessKey(businessKey)
         .setVariable("masterStartVariable", "masterStartVariableValue")
         .correlateStartMessage();
