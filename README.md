@@ -8,10 +8,10 @@ See the file ["LICENSE"](LICENSE) for more information.
 # Table of Contents
 1. [App Deployment](#deploy-and-run-the-application)
 2. Processes
-    1. [Test Master Proceess](#camunda-"test-master-process")
-    2. [Test Process 1](#camunda-"test-process-1")
-    3. [Test Process 2](#camunda-"test-process-2")
-    4. [Test Process 3](#camunda-"test-process-3")
+    1. [Test Master Processes](#test-master-process)
+    2. [Test Process 1](#test-process-1)
+    3. [Test Process 2](#test-process-2)
+    4. [Test Process 3](#test-process-3)
 3. [Camunda APIs](#camunda-apis)
 4. [Additional Information](#additional-information)
 5. [Issue Tracker](#issue-tracker)
@@ -22,7 +22,7 @@ See the file ["LICENSE"](LICENSE) for more information.
 3. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
 4. Log in as admin username: `admin`, password: `admin`
 
-## Camunda "Test Master Process"
+## Test Master Process
 This is the master process which can start the other processes as well as send events.
 1. Navigate to the Camunda Tasklist
 2. Start "Test Master Process"
@@ -43,7 +43,7 @@ This is the master process which can start the other processes as well as send e
     6. Selecting "Call Activity" will will start "Test Process 1"
 5. If you selected options 3-6, you will have the option to "Retry" the process. This just loops back to the first dropdown and allows you to select a new event.
 
-## Camunda "Test Process 1"
+## Test Process 1
 Steps to run TestProcess1
 
 1. Run the application `mvn clean spring-boot:run`
@@ -74,7 +74,7 @@ Steps to run TestProcess1
   * This task intentionally throws a runtime IndexOutOfBoundsException
   * We catch this exception and start an error handling sub-process
 
-## Camunda "Test Process 2"
+## Test Process 2
 Process can be started via the following methods
 * Manually via Camunda Tasklist
 * Message Start Event sent from "Test Process Master"
@@ -112,7 +112,7 @@ After starting, this process has the following activities
 * User Task with a Timer Event
     * Timer event is set to trigger (and interrupt the task) after 5 minutes to complete the instance
 
-## Camunda "Test Process 3"
+## Test Process 3
 After starting, this process has the following activities
 * Receive Task
     * Message Name: "Message_ReceiveTask1"
