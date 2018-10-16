@@ -88,14 +88,32 @@ After starting, this process has the following activities
     * Decision takes in a variable created in the first delegate and maps a simple String output
     * Decision table is tenant aware via `${execution.tenantId}`
 * (Catch) Intermediate Message Event 
+    * Message Name: "Message_ReceiveEvent1"
     * Token waits here until a message is received that correlates to the active instance
+    * Message is sent from "Test Master Process" but can also be sent from REST API `localhost:9000/camunda/message` with below payload
+```
+{
+  "messageName" : "Message_ReceiveEvent1",
+  "businessKey" : "pk11224",
+  "tenantId" : "diku"
+}
+```
 * User Task with a Timer Event
     * Timer event is set to trigger (and interrupt the task) after 5 minutes to complete the instance
 
 ## Camunda "Test Process 3"
 After starting, this process has the following activities
 * Receive Task
+    * Message Name: "Message_ReceiveTask1"
     * Similar to Catch Intermediate Message Event
+    * Message is sent from "Test Master Process" but can also be sent from REST API `localhost:9000/camunda/message` with below payload
+```
+{
+  "messageName" : "Message_ReceiveTask1",
+  "businessKey" : "pk19668",
+  "tenantId" : "diku"
+}
+```
 * External Task
     * Topic: ExternalTask1
 
