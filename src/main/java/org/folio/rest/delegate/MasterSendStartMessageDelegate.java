@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 @Service
 public class MasterSendStartMessageDelegate implements JavaDelegate {
@@ -19,7 +19,7 @@ public class MasterSendStartMessageDelegate implements JavaDelegate {
   private static final String SEND_TASK = "sendTask";
   private static final String START_MESSAGE_2 = "Message_StartProcess2";
   private static final String START_MESSAGE_3 = "Message_StartProcess3";
-
+  private static final SecureRandom rand = new SecureRandom();
 
   @Autowired
   private RuntimeService runtimeService;
@@ -30,8 +30,7 @@ public class MasterSendStartMessageDelegate implements JavaDelegate {
 
     String eventPath = execution.getVariable(EVENT_PATH).toString();
 
-    Random ran = new Random();
-    int bk = ran.nextInt(10000) + 10000;
+    int bk = rand.nextInt(100000);
     String businessKey = "pk" + Integer.toString(bk);
 
     if (eventPath.equals(SEND_MESSAGE)) {

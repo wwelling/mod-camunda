@@ -13,7 +13,6 @@ public class MasterSendImeDelegate implements JavaDelegate {
 
   private static final Logger log = LoggerFactory.getLogger(MasterSendImeDelegate.class);
   private static final String RECEIVE_MESSAGE_1 = "Message_ReceiveEvent1";
-  private static final String TENANT_ID = "diku";
 
   @Autowired
   private RuntimeService runtimeService;
@@ -24,7 +23,7 @@ public class MasterSendImeDelegate implements JavaDelegate {
 
     runtimeService
       .createMessageCorrelation(RECEIVE_MESSAGE_1)
-      .tenantId(TENANT_ID)
+      .tenantId(execution.getTenantId())
       .processInstanceBusinessKey(execution.getVariable("process2BusinessKey").toString())
       .setVariable("masterMessageTaskVariable", "masterMessageTaskVariable")
       .correlate();
