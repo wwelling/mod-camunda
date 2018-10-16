@@ -5,6 +5,17 @@ Copyright (C) 2016-2018 The Open Library Foundation
 This software is distributed under the terms of the Apache License, Version 2.0.
 See the file ["LICENSE"](LICENSE) for more information.
 
+# Table of Contents
+1. [App Deployment](#deploy-and-run-the-application)
+2. Processes
+    1. [Test Master Proceess](#camunda-"test-master-process")
+    2. [Test Process 1](#camunda-"test-process-1")
+    3. [Test Process 2](#camunda-"test-process-2")
+    4. [Test Process 3](#camunda-"test-process-3")
+3. [Camunda APIs](#camunda-apis)
+4. [Additional Information](#additional-information)
+5. [Issue Tracker](#issue-tracker)
+
 ## Deploy and run the application
 1. Run the application `mvn clean spring-boot:run`
 2. Deploy all the processes by running scripts/deploy.sh file
@@ -116,6 +127,30 @@ After starting, this process has the following activities
 ```
 * External Task
     * Topic: ExternalTask1
+
+## Camunda APIs
+* Process/Decision Deployment
+    * [https://docs.camunda.org/manual/7.9/reference/rest/deployment/](https://docs.camunda.org/manual/7.9/reference/rest/deployment/)
+    * GET
+        * /camunda/deployment
+        * /camunda/deployment/{id}
+    * POST
+        * /camunda/deployment/create
+    * DELETE
+        * /camunda/deployment/{id}
+* Tasks
+    * [https://docs.camunda.org/manual/7.9/reference/rest/task/](https://docs.camunda.org/manual/7.9/reference/rest/task/)
+    * GET
+        * /camunda/task
+        * /camunda/task/{id}
+    * POST 
+        * /camunda/task/{id}/claim
+        * /camunda/task/{id}/complete
+* Message Events
+    * [https://docs.camunda.org/manual/7.9/reference/rest/message/](https://docs.camunda.org/manual/7.9/reference/rest/message/)
+    * POST
+        * /camunda/message
+
 
 ## Additional information
 
