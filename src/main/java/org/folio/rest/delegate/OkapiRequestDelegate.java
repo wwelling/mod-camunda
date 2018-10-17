@@ -17,15 +17,15 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
 
   private static final String REQUEST_URL = "url";
   private static final String REQUEST_METHOD = "method";
-  private static final String REQUEST_PAYLOAD = "requestPayload";
+  private static final String REQUEST_PAYLOAD = "payload";
   private static final String REQUEST_URI_VARIABLES = "uriVariables";
 
-  private static final String REQUEST_CONTENT_TYPE = "requestContentType";
+  private static final String REQUEST_CONTENT_TYPE = "contentType";
 
   private static final String RESPONSE_STATUS = "responseStatus";
   private static final String RESPONSE_BODY = "responseBody";
 
-  @Value("tenant.headerName")
+  @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
 
   public OkapiRequestDelegate(RestTemplateBuilder restTemplateBuilder) {
@@ -41,6 +41,9 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
 
     String url = execution.getVariable(REQUEST_URL).toString();
     String method = execution.getVariable(REQUEST_METHOD).toString();
+
+    String responseStatusName = execution.getVariable(RESPONSE_STATUS).toString();
+    String responseBodyname = execution.getVariable(RESPONSE_BODY).toString();
 
     // optional
     Object[] uriVariables = execution.getVariable(REQUEST_URI_VARIABLES) != null
@@ -88,11 +91,8 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
     }
 
     if (response != null) {
-
-      execution.setVariable(RESPONSE_STATUS, response.getStatusCode());
-
-      execution.setVariable(RESPONSE_BODY, response.getBody());
-
+      execution.setVariable(responseStatusName, response.getStatusCode());
+      execution.setVariable(responseBodyname, response.getBody());
     }
 
   }
