@@ -94,6 +94,9 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${eventPath == "callActivity"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="Task_1qa8va3" name="Call Test Process 1" calledElement="Process_1" camunda:calledElementTenantId="${execution.getTenantId()}">
+      <bpmn:extensionElements>
+        <camunda:in sourceExpression="hello" target="startVariable" />
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1k6pir3</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1b0w1uf</bpmn:outgoing>
     </bpmn:callActivity>
