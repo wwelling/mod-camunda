@@ -33,6 +33,36 @@
       ]
     },
     {
+      "id": "process-definition",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/process-definition",
+          "permissionsRequired": ["process-definition.collection.get"],
+          "permissionsDesired": ["process-definition.domain.*", "process-definition.domain.all"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/process-definition/{id}",
+          "permissionsRequired": ["process-definition.item.get"],
+          "permissionsDesired": ["process-definition.domain.*", "process-definition.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/process-definition/{id}/start",
+          "permissionsRequired": ["process-definition.start.post"],
+          "permissionsDesired": ["process-definition.domain.*", "process-definition.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/process-definition/key/{key}/tenant-id/{tenant-id}/start",
+          "permissionsRequired": ["process-definition.start.post"],
+          "permissionsDesired": ["process-definition.domain.*", "process-definition.domain.all"]
+        }
+      ]
+    },
+    {
       "id": "decision-definition",
       "version": "1.0",
       "handlers": [
@@ -150,6 +180,42 @@
       "subPermissions": [
         "process.allops",
         "process.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "process-definition.collection.get",
+      "displayName": "Process definition - get process-definition collection",
+      "description": "Get process-definition collection"
+    },
+    {
+      "permissionName": "process-definition.item.get",
+      "displayName": "Process definition - get individual process-definition from storage",
+      "description": "Get individual process-definition"
+    },
+    {
+      "permissionName": "process-definition.start.post",
+      "displayName": "Process definition - start process-definition by id or key and tenant-id",
+      "description": "Start process-definition"
+    },
+    {
+      "permissionName": "process-definition.allops",
+      "displayName": "Process definition module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the process definition modules, but no domain permissions",
+      "subPermissions": [
+        "process-definition.collection.get",
+        "process-definition.item.get",
+        "process-definition.start.post"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "process-definition.all",
+      "displayName": "Process definition module - all permissions and all process definition domains",
+      "description": "Entire set of permissions needed to use the process definition modules on any process definition domain",
+      "subPermissions": [
+        "process-definition.allops",
+        "process-definition.domain.all"
       ],
       "visible": false
     },
