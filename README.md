@@ -138,6 +138,11 @@ After starting, this process has the following activities
         * /camunda/deployment/create
     * DELETE
         * /camunda/deployment/{id}
+* Decision Definition
+    * [https://docs.camunda.org/manual/7.9/reference/rest/decision-definition/](https://docs.camunda.org/manual/7.9/reference/rest/decision-definition/)
+    * GET
+        * /camunda/decision-definition
+        * /camunda/decision-definition/{id}
 * Tasks
     * [https://docs.camunda.org/manual/7.9/reference/rest/task/](https://docs.camunda.org/manual/7.9/reference/rest/task/)
     * GET
@@ -145,6 +150,7 @@ After starting, this process has the following activities
         * /camunda/task/{id}
     * POST 
         * /camunda/task/{id}/claim
+        * /camunda/task/{id}/unclaim
         * /camunda/task/{id}/complete
 * Message Events
     * [https://docs.camunda.org/manual/7.9/reference/rest/message/](https://docs.camunda.org/manual/7.9/reference/rest/message/)
