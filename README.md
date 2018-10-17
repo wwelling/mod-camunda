@@ -6,6 +6,7 @@ This software is distributed under the terms of the Apache License, Version 2.0.
 See the file ["LICENSE"](LICENSE) for more information.
 
 # Table of Contents
+1. [Camunda Module Dependencies](#camunda-module-dependencies)
 1. [App Deployment](#deploy-and-run-the-application)
 2. Processes
     1. [Test Master Processes](#test-master-process)
@@ -15,6 +16,53 @@ See the file ["LICENSE"](LICENSE) for more information.
 3. [Camunda APIs](#camunda-apis)
 4. [Additional Information](#additional-information)
 5. [Issue Tracker](#issue-tracker)
+
+## Camunda Module Dependencies
+This module extends spring-module-core and brings in Camunda BPM to enable workflow capabilities. Camunda is an open-source BPM platform that is embedded in this module via the following dependencies.
+```
+# --- VERSIONS ---
+<camunda.version>7.9.0</camunda.version>
+<camunda.spring.boot.version>3.0.0</camunda.spring.boot.version>
+
+# --- DEPENDENCY MANAGEMENT ---
+<dependency>
+  <!-- Import dependency management from Camunda -->
+  <groupId>org.camunda.bpm</groupId>
+  <artifactId>camunda-bom</artifactId>
+  <version>${camunda.version}</version>
+  <scope>import</scope>
+  <type>pom</type>
+</dependency>
+
+# --- DEPENDENCIES ---
+<dependency>
+  <groupId>org.camunda.bpm.springboot</groupId>
+  <artifactId>camunda-bpm-spring-boot-starter</artifactId>
+  <version>${camunda.spring.boot.version}</version>
+</dependency>
+
+<dependency>
+  <groupId>org.camunda.bpm.springboot</groupId>
+  <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
+  <version>${camunda.spring.boot.version}</version>
+</dependency>
+
+<dependency>
+  <groupId>org.camunda.bpm.springboot</groupId>
+  <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
+  <version>${camunda.spring.boot.version}</version>
+</dependency>
+```
+* camunda-bpm-spring-boot-starter
+    * Adds the Camunda engine (v7.9)
+    * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/)
+    * [https://github.com/camunda/camunda-bpm-spring-boot-starter](https://github.com/camunda/camunda-bpm-spring-boot-starter)
+* camunda-bpm-spring-boot-starter-webapp
+    * Enables Web Applications (may not be needed)
+    * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/webapps/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/webapps/)
+* camunda-bpm-spring-boot-starter-rest
+    * Enables the Camunda REST API
+    * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/rest-api/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/rest-api/)
 
 ## Deploy and run the application
 1. Run the application `mvn clean spring-boot:run`
