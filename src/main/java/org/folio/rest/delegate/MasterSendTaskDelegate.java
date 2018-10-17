@@ -4,7 +4,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MasterSendTaskDelegate extends AbstractRuntimeJavaDelegate {
+public class MasterSendTaskDelegate extends AbstractRuntimeDelegate {
 
   private static final String RECEIVE_MESSAGE_1 = "Message_ReceiveTask1";
 
