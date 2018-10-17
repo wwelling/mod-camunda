@@ -138,6 +138,14 @@ After starting, this process has the following activities
         * /camunda/deployment/create
     * DELETE
         * /camunda/deployment/{id}
+* Process Definition
+    * [https://docs.camunda.org/manual/7.9/reference/rest/process-definition/](https://docs.camunda.org/manual/7.9/reference/rest/process-definition/)
+    * GET
+        * /camunda/process-definition
+        * /camunda/process-definition/{id}
+    * POST
+        * /camunda/process-definition/{id}/start
+        * /camunda/process-definition/key/{key}/tenant-id/{tenant-id}/start
 * Decision Definition
     * [https://docs.camunda.org/manual/7.9/reference/rest/decision-definition/](https://docs.camunda.org/manual/7.9/reference/rest/decision-definition/)
     * GET
