@@ -58,12 +58,18 @@ This module extends spring-module-core and brings in Camunda BPM to enable workf
     * Adds the Camunda engine (v7.9)
     * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/)
     * [https://github.com/camunda/camunda-bpm-spring-boot-starter](https://github.com/camunda/camunda-bpm-spring-boot-starter)
+    * The Camunda engine requires a database schema to be configured on startup
+        * Work is in progress to allow the module to start without any database creation and have the tenant creation perform the necessary table creation and initial data import
+        * Details on the process engine database schema configuration can be foune [here](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/configuration/)
 * camunda-bpm-spring-boot-starter-webapp
     * Enables Web Applications such as Camunda Cockpit and Tasklist
     * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/webapps/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/webapps/)
 * camunda-bpm-spring-boot-starter-rest
     * Enables the Camunda REST API
     * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/rest-api/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/rest-api/)
+    * [https://docs.camunda.org/manual/7.9/reference/rest/](https://docs.camunda.org/manual/7.9/reference/rest/)
+    * The Camunda REST API uses Jersey so we use spring boot's common application properties to configure the path to be /camunda in the application.yml file
+        * `spring.jersey.application-path=camunda`
 
 ## Workflow Project Structure
 Business Process Models and Decision Models are built using the [Camunda Modeler](https://camunda.com/products/modeler/) which impelements BPMN 2.0 and DMN 1.1 specifications.
