@@ -43,7 +43,7 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
     String method = execution.getVariable(REQUEST_METHOD).toString();
 
     String responseStatusName = execution.getVariable(RESPONSE_STATUS).toString();
-    String responseBodyname = execution.getVariable(RESPONSE_BODY).toString();
+    String responseBodyName = execution.getVariable(RESPONSE_BODY).toString();
 
     // optional
     Object[] uriVariables = execution.getVariable(REQUEST_URI_VARIABLES) != null
@@ -92,7 +92,7 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
 
     if (response != null) {
       execution.setVariable(responseStatusName, response.getStatusCode());
-      execution.setVariable(responseBodyname, response.getBody());
+      execution.setVariable(responseBodyName, response.getBody());
     }
 
   }
