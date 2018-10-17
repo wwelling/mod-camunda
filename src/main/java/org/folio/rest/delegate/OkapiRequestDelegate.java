@@ -15,10 +15,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 @Service
 public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
 
-  private static final String REQUEST_URL = "requestUrl";
-  private static final String REQUEST_METHOD = "requestMethod";
+  private static final String REQUEST_URL = "url";
+  private static final String REQUEST_METHOD = "method";
   private static final String REQUEST_PAYLOAD = "requestPayload";
-  private static final String REQUEST_URI_VARIABLES = "requestUriVariables";
+  private static final String REQUEST_URI_VARIABLES = "uriVariables";
 
   private static final String REQUEST_CONTENT_TYPE = "requestContentType";
 
@@ -39,17 +39,17 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
     // required
     String tenant = execution.getTenantId();
 
-    String requestUrl = execution.getVariable(REQUEST_URL).toString();
-    String requestMethod = execution.getVariable(REQUEST_METHOD).toString();
+    String url = execution.getVariable(REQUEST_URL).toString();
+    String method = execution.getVariable(REQUEST_METHOD).toString();
 
     // optional
-    Object[] requestUriVariables = execution.getVariable(REQUEST_URI_VARIABLES) != null
+    Object[] uriVariables = execution.getVariable(REQUEST_URI_VARIABLES) != null
         ? (Object[]) execution.getVariable(REQUEST_URI_VARIABLES)
         : new Object[0];
 
     Object contentType = execution.getVariable(REQUEST_CONTENT_TYPE);
 
-    log.info("Request Tenant: {}, URL: {}, Method: {}", tenant, requestUrl, requestMethod);
+    log.info("Request Tenant: {}, URL: {}, Method: {}", tenant, url, method);
 
     HttpHeaders headers = new HttpHeaders();
 
@@ -59,32 +59,25 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
       headers.setContentType(MediaType.APPLICATION_JSON);
     }
 
-    // TODO: design solution to provide authorization
-    // headers.add(HttpHeaders.AUTHORIZATION, "Token");
-    // headers.add("X-Okapi-Token", "dummyJwt.eyJzdWIiOiJwZXRlciIsInRlbmFudCI6InRlc3RsaWIifQ==.sig");
-
     headers.add(tenantHeaderName, tenant);
 
-    HttpMethod httpMethod = HttpMethod.valueOf(requestMethod);
+    HttpMethod httpMethod = HttpMethod.valueOf(method);
 
-    ResponseEntity<JsonNode> response = null;
+    ResponseEntity<?> response = null;
 
-    // @formatter:off
     switch (httpMethod) {
-    case DELETE: {
-      HttpEntity<?> request = new HttpEntity<Object>(headers);
-      this.restTemplate.exchange(requestUrl, httpMethod, request, String.class, requestUriVariables);
-    } break;
-    case GET: {
-      HttpEntity<?> request = new HttpEntity<Object>(headers);
-      response = this.restTemplate.exchange(requestUrl, httpMethod, request, JsonNode.class, requestUriVariables);
-    } break;
+    case DELETE:
+      response = this.restTemplate.exchange(url, httpMethod, new HttpEntity<>(headers), String.class, uriVariables);
+      break;
+    case GET:
+      response = this.restTemplate.exchange(url, httpMethod, new HttpEntity<>(headers), JsonNode.class, uriVariables);
+      break;
     case POST:
-    case PUT: {
+    case PUT:
       Object payload = execution.getVariable(REQUEST_PAYLOAD);
-      HttpEntity<?> request = new HttpEntity<Object>(payload, headers);
-      response = this.restTemplate.exchange(requestUrl, httpMethod, request, JsonNode.class, requestUriVariables);
-    } break;
+      HttpEntity<?> request = new HttpEntity<>(payload, headers);
+      response = this.restTemplate.exchange(url, httpMethod, request, JsonNode.class, uriVariables);
+      break;
     case HEAD:
     case OPTIONS:
     case PATCH:
@@ -93,7 +86,6 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
       log.warn("{} is not supported!", httpMethod);
       break;
     }
-    // @formatter:on
 
     if (response != null) {
 
