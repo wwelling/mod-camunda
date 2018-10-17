@@ -59,7 +59,7 @@ This module extends spring-module-core and brings in Camunda BPM to enable workf
     * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/)
     * [https://github.com/camunda/camunda-bpm-spring-boot-starter](https://github.com/camunda/camunda-bpm-spring-boot-starter)
 * camunda-bpm-spring-boot-starter-webapp
-    * Enables Web Applications (may not be needed)
+    * Enables Web Applications such as Camunda Cockpit and Tasklist
     * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/webapps/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/webapps/)
 * camunda-bpm-spring-boot-starter-rest
     * Enables the Camunda REST API
