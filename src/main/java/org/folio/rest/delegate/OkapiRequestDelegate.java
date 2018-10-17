@@ -15,15 +15,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 @Service
 public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
 
-  private static final String REQUEST_URL = "url";
-  private static final String REQUEST_METHOD = "method";
-  private static final String REQUEST_PAYLOAD = "payload";
-  private static final String REQUEST_URI_VARIABLES = "uriVariables";
+  private static final String REQUEST_URL = "requestUrl";
+  private static final String REQUEST_METHOD = "requestMethod";
+  private static final String REQUEST_PAYLOAD = "requestPayload";
+  private static final String REQUEST_URI_VARIABLES = "requestUriVariables";
 
-  private static final String REQUEST_CONTENT_TYPE = "contentType";
+  private static final String REQUEST_CONTENT_TYPE = "requestContentType";
 
-  private static final String RESPONSE_STATUS = "responseStatus";
-  private static final String RESPONSE_BODY = "responseBody";
+  private static final String RESPONSE_STATUS = "responseStatusName";
+  private static final String RESPONSE_BODY = "responseBodyName";
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
