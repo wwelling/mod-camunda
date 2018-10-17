@@ -6,15 +6,78 @@ This software is distributed under the terms of the Apache License, Version 2.0.
 See the file ["LICENSE"](LICENSE) for more information.
 
 # Table of Contents
-1. [App Deployment](#deploy-and-run-the-application)
-2. Processes
+1. [Camunda Module Dependencies](#camunda-module-dependencies)
+2. [Workflow Project Structure](#workflow-project-structure)
+3. [App Deployment](#deploy-and-run-the-application)
+4. Processes
     1. [Test Master Processes](#test-master-process)
     2. [Test Process 1](#test-process-1)
     3. [Test Process 2](#test-process-2)
     4. [Test Process 3](#test-process-3)
-3. [Camunda APIs](#camunda-apis)
-4. [Additional Information](#additional-information)
-5. [Issue Tracker](#issue-tracker)
+5. [Camunda APIs](#camunda-apis)
+6. [Additional Information](#additional-information)
+7. [Issue Tracker](#issue-tracker)
+
+## Camunda Module Dependencies
+This module extends spring-module-core and brings in Camunda BPM to enable workflow capabilities. Camunda is an open-source BPM platform that is embedded in this module via the following dependencies.
+```
+# --- VERSIONS ---
+<camunda.version>7.9.0</camunda.version>
+<camunda.spring.boot.version>3.0.0</camunda.spring.boot.version>
+
+# --- DEPENDENCY MANAGEMENT ---
+<dependency>
+  <!-- Import dependency management from Camunda -->
+  <groupId>org.camunda.bpm</groupId>
+  <artifactId>camunda-bom</artifactId>
+  <version>${camunda.version}</version>
+  <scope>import</scope>
+  <type>pom</type>
+</dependency>
+
+# --- DEPENDENCIES ---
+<dependency>
+  <groupId>org.camunda.bpm.springboot</groupId>
+  <artifactId>camunda-bpm-spring-boot-starter</artifactId>
+  <version>${camunda.spring.boot.version}</version>
+</dependency>
+
+<dependency>
+  <groupId>org.camunda.bpm.springboot</groupId>
+  <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
+  <version>${camunda.spring.boot.version}</version>
+</dependency>
+
+<dependency>
+  <groupId>org.camunda.bpm.springboot</groupId>
+  <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
+  <version>${camunda.spring.boot.version}</version>
+</dependency>
+```
+* camunda-bpm-spring-boot-starter
+    * Adds the Camunda engine (v7.9)
+    * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/)
+    * [https://github.com/camunda/camunda-bpm-spring-boot-starter](https://github.com/camunda/camunda-bpm-spring-boot-starter)
+    * The Camunda engine requires a database schema to be configured on startup
+        * Work is in progress to allow the module to start without any database creation and have the tenant creation perform the necessary table creation and initial data import
+        * Details on the process engine database schema configuration can be foune [here](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/configuration/)
+* camunda-bpm-spring-boot-starter-webapp
+    * Enables Web Applications such as Camunda Cockpit and Tasklist
+    * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/webapps/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/webapps/)
+* camunda-bpm-spring-boot-starter-rest
+    * Enables the Camunda REST API
+    * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/rest-api/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/rest-api/)
+    * [https://docs.camunda.org/manual/7.9/reference/rest/](https://docs.camunda.org/manual/7.9/reference/rest/)
+    * The Camunda REST API uses Jersey so we use spring boot's common application properties to configure the path to be /camunda in the application.yml file
+        * `spring.jersey.application-path=camunda`
+
+## Workflow Project Structure
+Business Process Models and Decision Models are built using the [Camunda Modeler](https://camunda.com/products/modeler/) which impelements BPMN 2.0 and DMN 1.1 specifications.
+
+* .bpmn files are stored in `/src/main/java/resources/workflows`
+* .dmn files are stored in `/src/main/java/resources/decisions`
+
+Any Java code that is executed in the context of a process is usually written in a Java Delegate. These classes are stored in `/src/main/java/org/folio/rest/delegate/`
 
 ## Deploy and run the application
 1. Run the application `mvn clean spring-boot:run`
