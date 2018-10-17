@@ -2,7 +2,6 @@ package org.folio.rest.delegate;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,10 +26,6 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
-
-  public OkapiRequestDelegate(RestTemplateBuilder restTemplateBuilder) {
-    super(restTemplateBuilder);
-  }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -70,16 +65,16 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
 
     switch (httpMethod) {
     case DELETE:
-      response = this.restTemplate.exchange(url, httpMethod, new HttpEntity<>(headers), String.class, uriVariables);
+      response = this.httpService.exchange(url, httpMethod, new HttpEntity<>(headers), String.class, uriVariables);
       break;
     case GET:
-      response = this.restTemplate.exchange(url, httpMethod, new HttpEntity<>(headers), JsonNode.class, uriVariables);
+      response = this.httpService.exchange(url, httpMethod, new HttpEntity<>(headers), JsonNode.class, uriVariables);
       break;
     case POST:
     case PUT:
       Object payload = execution.getVariable(REQUEST_PAYLOAD);
       HttpEntity<?> request = new HttpEntity<>(payload, headers);
-      response = this.restTemplate.exchange(url, httpMethod, request, JsonNode.class, uriVariables);
+      response = this.httpService.exchange(url, httpMethod, request, JsonNode.class, uriVariables);
       break;
     case HEAD:
     case OPTIONS:
