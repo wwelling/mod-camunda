@@ -6,7 +6,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MasterSendStartMessageDelegate extends AbstractRuntimeJavaDelegate {
+public class MasterSendStartMessageDelegate extends AbstractRuntimeDelegate {
 
   private static final String EVENT_PATH = "eventPath";
   private static final String SEND_MESSAGE = "sendMessage";
