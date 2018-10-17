@@ -7,15 +7,16 @@ See the file ["LICENSE"](LICENSE) for more information.
 
 # Table of Contents
 1. [Camunda Module Dependencies](#camunda-module-dependencies)
-1. [App Deployment](#deploy-and-run-the-application)
-2. Processes
+2. [Workflow Project Structure](#workflow-project-structure)
+3. [App Deployment](#deploy-and-run-the-application)
+4. Processes
     1. [Test Master Processes](#test-master-process)
     2. [Test Process 1](#test-process-1)
     3. [Test Process 2](#test-process-2)
     4. [Test Process 3](#test-process-3)
-3. [Camunda APIs](#camunda-apis)
-4. [Additional Information](#additional-information)
-5. [Issue Tracker](#issue-tracker)
+5. [Camunda APIs](#camunda-apis)
+6. [Additional Information](#additional-information)
+7. [Issue Tracker](#issue-tracker)
 
 ## Camunda Module Dependencies
 This module extends spring-module-core and brings in Camunda BPM to enable workflow capabilities. Camunda is an open-source BPM platform that is embedded in this module via the following dependencies.
@@ -63,6 +64,14 @@ This module extends spring-module-core and brings in Camunda BPM to enable workf
 * camunda-bpm-spring-boot-starter-rest
     * Enables the Camunda REST API
     * [https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/rest-api/](https://docs.camunda.org/manual/develop/user-guide/spring-boot-integration/rest-api/)
+
+## Workflow Project Structure
+Business Process Models and Decision Models are built using the [Camunda Modeler](https://camunda.com/products/modeler/) which impelements BPMN 2.0 and DMN 1.1 specifications.
+
+* .bpmn files are stored in `/src/main/java/resources/workflows`
+* .dmn files are stored in `/src/main/java/resources/decisions`
+
+Any Java code that is executed in the context of a process is usually written in a Java Delegate. These classes are stored in `/src/main/java/org/folio/rest/delegate/`
 
 ## Deploy and run the application
 1. Run the application `mvn clean spring-boot:run`
