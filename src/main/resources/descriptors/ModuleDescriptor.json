@@ -33,6 +33,72 @@
       ]
     },
     {
+      "id": "decision-definition",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/decision-definition",
+          "permissionsRequired": ["decision-definition.collection.get"],
+          "permissionsDesired": ["decision-definition.domain.*", "decision-definition.domain.all"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/decision-definition/{id}",
+          "permissionsRequired": ["decision-definition.item.get"],
+          "permissionsDesired": ["decision-definition.domain.*", "decision-definition.domain.all"]
+        }
+      ]
+    },
+    {
+      "id": "task",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/task",
+          "permissionsRequired": ["task.collection.get"],
+          "permissionsDesired": ["task.domain.*", "task.domain.all"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/task/{id}",
+          "permissionsRequired": ["task.item.get"],
+          "permissionsDesired": ["task.domain.*", "task.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/task/{id}/claim",
+          "permissionsRequired": ["task.claim.post"],
+          "permissionsDesired": ["task.domain.*", "task.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/task/{id}/unclaim",
+          "permissionsRequired": ["task.unclaim.post"],
+          "permissionsDesired": ["task.domain.*", "task.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/task/{id}/complete",
+          "permissionsRequired": ["task.complete.post"],
+          "permissionsDesired": ["task.domain.*", "task.domain.all"]
+        }
+      ]
+    },
+    {
+      "id": "message",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/message",
+          "permissionsRequired": ["message.item.post"],
+          "permissionsDesired": ["message.domain.*", "message.domain.all"]
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.0",
       "interfaceType" : "system",
@@ -45,15 +111,15 @@
     }
   ],
   "permissionSets" : [
-  	{
+    {
       "permissionName": "process.collection.get",
-      "displayName": "Process - get processes collection",
-      "description": "Get processes collection"
+      "displayName": "Process - get process collection",
+      "description": "Get process collection"
     },
     {
       "permissionName": "process.item.get",
       "displayName": "Process - get individual process from storage",
-      "description": "Get individual wizard"
+      "description": "Get individual process"
     },
     {
       "permissionName": "process.item.post",
@@ -68,21 +134,124 @@
     {
       "permissionName": "process.allops",
       "displayName": "Process module - all CRUD permissions",
-      "description": "Entire set of permissions needed to use the processes modules, but no domain permissions",
+      "description": "Entire set of permissions needed to use the process modules, but no domain permissions",
       "subPermissions": [
         "process.collection.get",
         "process.item.get",
+        "process.item.post",
         "process.item.delete"
       ],
       "visible": false
     },
     {
-      "permissionName": "processes.all",
-      "displayName": "Processes module - all permissions and all processes domains",
-      "description": "Entire set of permissions needed to use the processes modules on any processes domain",
+      "permissionName": "process.all",
+      "displayName": "Process module - all permissions and all process domains",
+      "description": "Entire set of permissions needed to use the process modules on any process domain",
       "subPermissions": [
-        "processes.allops",
-        "processes.domain.all"
+        "process.allops",
+        "process.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "decision-definition.collection.get",
+      "displayName": "Decision definition - get decision-definition collection",
+      "description": "Get decision-definition collection"
+    },
+    {
+      "permissionName": "decision-definition.item.get",
+      "displayName": "Decision definition - get individual decision-definition from storage",
+      "description": "Get individual decision-definition"
+    },
+    {
+      "permissionName": "decision-definition.allops",
+      "displayName": "Decision definition module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the decision definition modules, but no domain permissions",
+      "subPermissions": [
+        "decision-definition.collection.get",
+        "decision-definition.item.get"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "decision-definition.all",
+      "displayName": "Decision definition module - all permissions and all decision definition domains",
+      "description": "Entire set of permissions needed to use the decision definition modules on any decision definition domain",
+      "subPermissions": [
+        "decision-definition.allops",
+        "decision-definition.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "task.collection.get",
+      "displayName": "Task - get task collection",
+      "description": "Get task collection"
+    },
+    {
+      "permissionName": "task.item.get",
+      "displayName": "Task - get individual task from storage",
+      "description": "Get individual task"
+    },
+    {
+      "permissionName": "task.claim.post",
+      "displayName": "Task - claim task",
+      "description": "Claim task"
+    },
+    {
+      "permissionName": "task.unclaim.post",
+      "displayName": "Task - unclaim task",
+      "description": "Unclaim task"
+    },
+    {
+      "permissionName": "task.complete.post",
+      "displayName": "Task - complete task",
+      "description": "Complete task"
+    },
+    {
+      "permissionName": "task.allops",
+      "displayName": "Task module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the task modules, but no domain permissions",
+      "subPermissions": [
+        "task.collection.get",
+        "task.item.get",
+        "task.claim.post",
+        "task.unclaim.post",
+        "task.complete.post"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "task.all",
+      "displayName": "Task module - all permissions and all task domains",
+      "description": "Entire set of permissions needed to use the task modules on any task domain",
+      "subPermissions": [
+        "task.allops",
+        "task.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "message.item.post",
+      "displayName": "Message - create message",
+      "description": "Create message"
+    },
+    {
+      "permissionName": "message.allops",
+      "displayName": "Message module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the message modules, but no domain permissions",
+      "subPermissions": [
+        "message.item.post"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "message.all",
+      "displayName": "Message module - all permissions and all message domains",
+      "description": "Entire set of permissions needed to use the message modules on any message domain",
+      "subPermissions": [
+        "message.allops",
+        "message.domain.all"
       ],
       "visible": false
     }
