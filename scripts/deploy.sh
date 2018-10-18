@@ -19,3 +19,7 @@ echo
 echo "Deploying Decision1"
 curl -X POST -H "X-Okapi-Tenant: diku" -F "tenant-id=diku" -F "deployment-name=Decision1" -F "deployment-source=decision model" -F "data=@../src/main/resources/decisions/Decision1.dmn" http://localhost:9000/camunda/deployment/create
 echo
+
+echo "Deploying ClaimReturned1"
+curl -X POST -H "X-Okapi-Tenant: diku" -F "tenant-id=diku" -F "deployment-name=ClaimReturned1" -F "deployment-source=process application" -F "data=@../src/main/resources/workflows/ClaimReturned1.bpmn" http://localhost:9000/camunda/deployment/create
+echo
