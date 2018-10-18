@@ -49,31 +49,33 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
 
     log.info("Request Tenant: {}, URL: {}, Method: {}", tenant, url, method);
 
+    HttpMethod httpMethod = HttpMethod.valueOf(method);
+
     HttpHeaders headers = new HttpHeaders();
 
-    if (contentType != null) {
-      headers.setContentType(MediaType.valueOf(contentType.toString()));
-    } else {
-      headers.setContentType(MediaType.APPLICATION_JSON);
-    }
-
-    headers.add(tenantHeaderName, tenant);
-
-    HttpMethod httpMethod = HttpMethod.valueOf(method);
+    HttpEntity<?> request = null;
 
     ResponseEntity<?> response = null;
 
     switch (httpMethod) {
     case DELETE:
-      response = this.httpService.exchange(url, httpMethod, new HttpEntity<>(headers), String.class, uriVariables);
+      request = new HttpEntity<>(headers);
+      addContentTypeHeader(headers, contentType);
+      addTenantHeader(headers, tenant);
+      response = this.httpService.exchange(url, httpMethod, request, String.class, uriVariables);
       break;
     case GET:
-      response = this.httpService.exchange(url, httpMethod, new HttpEntity<>(headers), JsonNode.class, uriVariables);
+      request = new HttpEntity<>(headers);
+      addContentTypeHeader(headers, contentType);
+      addTenantHeader(headers, tenant);
+      response = this.httpService.exchange(url, httpMethod, request, JsonNode.class, uriVariables);
       break;
     case POST:
     case PUT:
       Object payload = execution.getVariable(REQUEST_PAYLOAD);
-      HttpEntity<?> request = new HttpEntity<>(payload, headers);
+      request = new HttpEntity<>(payload, headers);
+      addContentTypeHeader(headers, contentType);
+      addTenantHeader(headers, tenant);
       response = this.httpService.exchange(url, httpMethod, request, JsonNode.class, uriVariables);
       break;
     case HEAD:
@@ -90,6 +92,18 @@ public class OkapiRequestDelegate extends AbstractOkapiRequestDelegate {
       execution.setVariable(responseBodyName, response.getBody());
     }
 
+  }
+
+  private void addContentTypeHeader(HttpHeaders headers, Object contentType) {
+    if (contentType != null) {
+      headers.setContentType(MediaType.valueOf(contentType.toString()));
+    } else {
+      headers.setContentType(MediaType.APPLICATION_JSON);
+    }
+  }
+
+  private void addTenantHeader(HttpHeaders headers, String tenant) {
+    headers.add(tenantHeaderName, tenant);
   }
 
 }
