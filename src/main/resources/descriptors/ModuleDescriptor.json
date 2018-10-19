@@ -131,7 +131,7 @@
     {
       "id": "_schemas",
       "version": "1.0",
-      "interfaceType" : "multiple",
+      "interfaceType" : "system",
       "handlers" : [
         {
           "methods" : [ "GET" ],
