@@ -129,6 +129,21 @@
       ]
     },
     {
+      "id": "_schemas",
+      "version": "1.0",
+      "interfaceType" : "multiple",
+      "handlers" : [
+        {
+          "methods" : [ "GET" ],
+          "pathPattern" : "/_/schemas"
+        },
+        {
+          "methods" : [ "GET" ],
+          "pathPattern" : "/_/schemas/{schemaName}"
+        }
+      ]
+    },
+    {
       "id": "_tenant",
       "version": "1.0",
       "interfaceType" : "system",
