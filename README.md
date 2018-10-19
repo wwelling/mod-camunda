@@ -9,14 +9,16 @@ See the file ["LICENSE"](LICENSE) for more information.
 1. [Camunda Module Dependencies](#camunda-module-dependencies)
 2. [Workflow Project Structure](#workflow-project-structure)
 3. [App Deployment](#deploy-and-run-the-application)
-4. Processes
+4. Test Processes
     1. [Test Master Processes](#test-master-process)
     2. [Test Process 1](#test-process-1)
     3. [Test Process 2](#test-process-2)
     4. [Test Process 3](#test-process-3)
-5. [Camunda APIs](#camunda-apis)
-6. [Additional Information](#additional-information)
-7. [Issue Tracker](#issue-tracker)
+5. FOLIO POC Processes
+    1. [Claim Returned](#claim-return)
+6. [Camunda APIs](#camunda-apis)
+7. [Additional Information](#additional-information)
+8. [Issue Tracker](#issue-tracker)
 
 ## Camunda Module Dependencies
 This module extends spring-module-core and brings in Camunda BPM to enable workflow capabilities. Camunda is an open-source BPM platform that is embedded in this module via the following dependencies.
@@ -190,6 +192,21 @@ After starting, this process has the following activities
 ```
 * External Task
     * Topic: ExternalTask1
+
+## Claim Return
+The Claim Return Process was identified as a candidate for the workflow POC.
+* A process is started when a claim is marked as "claim returned" from a students profile
+    * This should send an event to start a Camunda process with a data payload
+* There will be a separate dashboard displayed with all of the open claims (out of scope for this project)
+    * A user can select any number of claims from this list and manually check for them
+    * After manually checking for them, a user could send an event or update based on their findings
+    * There is a timer that can be configured to notify the user a certain amount of time has passed since the item was last searched for
+    * A number of actions can be taken based on the output of the users findings
+        * Checked in
+        * Lost item
+        * Missing item
+        * Increment the count (we can configure the max number of counts as well)
+* The process can be interrupted at any point if the book is checked in from an external source
 
 ## Camunda APIs
 * Process/Decision Deployment
