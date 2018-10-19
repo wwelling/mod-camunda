@@ -13,6 +13,6 @@ public class CrIncrementCheckCountDelegate extends AbstractLoggingDelegate {
     Long newCount = ((Long) execution.getVariable("checkedCount") + 1);
 
     execution.setVariable("checkedCount", newCount);
-    log.info("New count is {}", newCount.toString());
+    log.info("New count is {}", newCount);
   }
 }
