@@ -16,6 +16,7 @@ See the file ["LICENSE"](LICENSE) for more information.
     4. [Test Process 3](#test-process-3)
 5. FOLIO POC Processes
     1. [Claim Returned](#claim-return)
+    2. [Purchase Request](#purchase-request)
 6. [Camunda APIs](#camunda-apis)
 7. [Additional Information](#additional-information)
 8. [Issue Tracker](#issue-tracker)
@@ -207,6 +208,14 @@ The Claim Return Process was identified as a candidate for the workflow POC.
         * Missing item
         * Increment the count (we can configure the max number of counts as well)
 * The process can be interrupted at any point if the book is checked in from an external source
+
+## Purchase Request
+The Purchase Request Process was identified as a candidate for the workflow POC
+* A process can be started with a "start form" directly from the Camunda Tasklist, or can be started from the REST API with a JSON payload
+* After a process is started there is a "Selector" task 
+* If the Selector chooses to fund the request, a "Fund" task will be selected and the output of this task is a new `orderId`
+* After the "Fund" task, an event is thrown that notifies a new `orderId` has been created and the process waits for a message event that the order has been received
+* Once the order has been received via a message event, it will send a notification message
 
 ## Camunda APIs
 * Process/Decision Deployment
