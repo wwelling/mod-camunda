@@ -13,6 +13,7 @@ server:
   port: 9100
 
 spring:
+  activemq.broker-url: tcp://localhost:61616
   application.name: mod-camunda
   data.rest:
     returnBodyOnCreate: true
@@ -55,6 +56,8 @@ camunda:
       last-name: Admin
       email: cadmin@mailinator.com
     # authorization.enabled: true
+    
+event.queue.name: event.queue
 
 tenant:
   header-name: X-Okapi-Tenant
