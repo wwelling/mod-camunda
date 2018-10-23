@@ -55,6 +55,8 @@ camunda:
       last-name: Admin
       email: cadmin@mailinator.com
     # authorization.enabled: true
+    
+event.queue.name: event.queue
 
 tenant:
   header-name: X-Okapi-Tenant
