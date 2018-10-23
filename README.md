@@ -18,8 +18,9 @@ See the file ["LICENSE"](LICENSE) for more information.
     1. [Claim Returned](#claim-return)
     2. [Purchase Request](#purchase-request)
 6. [Camunda APIs](#camunda-apis)
-7. [Additional Information](#additional-information)
-8. [Issue Tracker](#issue-tracker)
+7. [ActiveMQ Message Broker](#activemq-message-broker)
+8. [Additional Information](#additional-information)
+9. [Issue Tracker](#issue-tracker)
 
 ## Camunda Module Dependencies
 This module extends spring-module-core and brings in Camunda BPM to enable workflow capabilities. Camunda is an open-source BPM platform that is embedded in this module via the following dependencies.
@@ -84,6 +85,7 @@ Any Java code that is executed in the context of a process is usually written in
 
 ## Deploy and run the application
 1. Run the application `mvn clean spring-boot:run`
+    1. Note there is a hard dependency on ActiveMQ, if running without ActiveMQ, be sure to comment out `activemq.broker-url: tcp://localhost:61616` in the application.yml
 2. Deploy all the processes by running scripts/deploy.sh file
 3. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
 4. Log in as admin username: `admin`, password: `admin`
@@ -254,6 +256,8 @@ The Purchase Request Process was identified as a candidate for the workflow POC
     * POST
         * /camunda/message
 
+## ActiveMQ Message Broker
+We are using ActiveMQ to consume messages. Currently we are only consuming, not producing messages. This is a hard dependency when running the application, so if you want to run the application without a message broker, comment out `activemq.broker-url: tcp://localhost:61616` in the application.yml
 
 ## Additional information
 
