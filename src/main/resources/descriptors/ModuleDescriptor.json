@@ -1,6 +1,6 @@
 {
   "id": "@project.artifactId@-@project.version@",
-  "name": "Workflow Module",
+  "name": "Camnuda BPM Module",
   "provides": [
     {
       "id": "process",
@@ -335,6 +335,12 @@
         "message.domain.all"
       ],
       "visible": false
+    }
+  ],
+  "requires": [
+    {
+      "id": "actions",
+      "version": "1.0"
     }
   ],
   "launchDescriptor": {
