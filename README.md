@@ -16,9 +16,11 @@ See the file ["LICENSE"](LICENSE) for more information.
     4. [Test Process 3](#test-process-3)
 5. FOLIO POC Processes
     1. [Claim Returned](#claim-return)
+    2. [Purchase Request](#purchase-request)
 6. [Camunda APIs](#camunda-apis)
-7. [Additional Information](#additional-information)
-8. [Issue Tracker](#issue-tracker)
+7. [ActiveMQ Message Broker](#activemq-message-broker)
+8. [Additional Information](#additional-information)
+9. [Issue Tracker](#issue-tracker)
 
 ## Camunda Module Dependencies
 This module extends spring-module-core and brings in Camunda BPM to enable workflow capabilities. Camunda is an open-source BPM platform that is embedded in this module via the following dependencies.
@@ -83,6 +85,7 @@ Any Java code that is executed in the context of a process is usually written in
 
 ## Deploy and run the application
 1. Run the application `mvn clean spring-boot:run`
+    1. Note there is a hard dependency on ActiveMQ, if running without ActiveMQ, be sure to comment out `activemq.broker-url: tcp://localhost:61616` in the application.yml
 2. Deploy all the processes by running scripts/deploy.sh file
 3. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
 4. Log in as admin username: `admin`, password: `admin`
@@ -208,6 +211,14 @@ The Claim Return Process was identified as a candidate for the workflow POC.
         * Increment the count (we can configure the max number of counts as well)
 * The process can be interrupted at any point if the book is checked in from an external source
 
+## Purchase Request
+The Purchase Request Process was identified as a candidate for the workflow POC
+* A process can be started with a "start form" directly from the Camunda Tasklist, or can be started from the REST API with a JSON payload
+* After a process is started there is a "Selector" task 
+* If the Selector chooses to fund the request, a "Fund" task will be selected and the output of this task is a new `orderId`
+* After the "Fund" task, an event is thrown that notifies a new `orderId` has been created and the process waits for a message event that the order has been received
+* Once the order has been received via a message event, it will send a notification message
+
 ## Camunda APIs
 * Process/Decision Deployment
     * [https://docs.camunda.org/manual/7.9/reference/rest/deployment/](https://docs.camunda.org/manual/7.9/reference/rest/deployment/)
@@ -245,6 +256,8 @@ The Claim Return Process was identified as a candidate for the workflow POC.
     * POST
         * /camunda/message
 
+## ActiveMQ Message Broker
+We are using ActiveMQ to consume messages. Currently we are only consuming, not producing messages. This is a hard dependency when running the application, so if you want to run the application without a message broker, comment out `activemq.broker-url: tcp://localhost:61616` in the application.yml
 
 ## Additional information
 
