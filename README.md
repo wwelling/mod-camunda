@@ -211,6 +211,37 @@ The Claim Return Process was identified as a candidate for the workflow POC.
         * Increment the count (we can configure the max number of counts as well)
 * The process can be interrupted at any point if the book is checked in from an external source
 
+### Claim Returned Okapi Delegate
+* Start the process and in the "Update Claim" task, select "Check In"
+* This will generate a "Check In" task
+    * In this task, you can input all of the request/response variables and upon completion, the `OkapiRequestDelegate` will execute
+    * It may be easier (especially for PUT/POST requests) to use curl or Postman
+        * Query the Tasks API to get the taskId of the open "Check In" task
+        * Execute the Complete Task API call with this taskId and a body containing the required request/response variables
+
+POST to `localhost:9000/camunda/task` to query open tasks, filtered by Claim Return Process and Checked In tasks
+```
+{
+	"processDefinitionKey" : "Process_ClaimReturned1",
+	"name" : "Checked In",
+	"tenantId" : "diku"
+}
+```
+POST to `localhost:9000/camunda/task/<taskId>/complete` to claim and complete this task
+```
+{
+	"variables" : {
+		"requestUrl" : { "value" : "http://localhost:9000"},
+		"requestMethod" : { "value" : "GET" },
+		"requestPayload" : { "value" : null },
+		"requestUriVariables" : { "value" : null },
+		"requestContentType" : { "value" : null },
+		"responseStatusName" : { "value" : "checkInResponse" },
+		"responseBodyName" : { "value" : "checkInResponseBody" }
+	}
+}
+```
+
 ## Purchase Request
 The Purchase Request Process was identified as a candidate for the workflow POC
 * A process can be started with a "start form" directly from the Camunda Tasklist, or can be started from the REST API with a JSON payload
