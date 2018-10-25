@@ -19,8 +19,9 @@ See the file ["LICENSE"](LICENSE) for more information.
     2. [Purchase Request](#purchase-request)
 6. [Camunda APIs](#camunda-apis)
 7. [ActiveMQ Message Broker](#activemq-message-broker)
-8. [Additional Information](#additional-information)
-9. [Issue Tracker](#issue-tracker)
+8. [FOLIO Integration](#folio-integration)
+9. [Additional Information](#additional-information)
+10. [Issue Tracker](#issue-tracker)
 
 ## Camunda Module Dependencies
 This module extends spring-module-core and brings in Camunda BPM to enable workflow capabilities. Camunda is an open-source BPM platform that is embedded in this module via the following dependencies.
@@ -258,6 +259,20 @@ The Purchase Request Process was identified as a candidate for the workflow POC
 
 ## ActiveMQ Message Broker
 We are using ActiveMQ to consume messages. Currently we are only consuming, not producing messages. This is a hard dependency when running the application, so if you want to run the application without a message broker, comment out `activemq.broker-url: tcp://localhost:61616` in the application.yml
+
+## FOLIO Integration
+For detailed information to bring up a FOLIO instance refer to [https://github.com/folio-org/folio-ansible](https://github.com/folio-org/folio-ansible).
+
+The following requires [Vagrant](https://www.vagrantup.com/) 1.9.6 or above.
+
+```
+vagrant up
+# wait
+```
+
+When finished Okapi will be running with mod-workflow and mod-camunda deployed under the diku tenant. mod-camunda will have its port forwarded for access to the Camunda webapps. FOLIO UI will be accessable at `http://localhost:3000`.
+
+> This is currently not fully functional until the next release of the FOLIO testing VM which will include a fix to Okapi post filter handler.
 
 ## Additional information
 
