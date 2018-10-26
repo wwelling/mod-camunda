@@ -19,10 +19,24 @@ Vagrant.configure(2) do |config|
     testing.vm.network "forwarded_port", guest: 61616, host: 61616
   end
 
+  $okapi = <<-SCRIPT
+  git clone https://github.com/folio-org/okapi.git
+  cd okapi
+  git checkout OKAPI-674-proxy-rewrite-path
+  mvn clean install -DskipTests
+  cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.raj
+  cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
+  systemctl restart okapi
+  sleep 120
+  systemctl restart okapi-deploy
+  sleep 180
+  SCRIPT
+
   $workflow = <<-SCRIPT
   git clone https://github.com/folio-org/mod-workflow.git
   cd mod-workflow
-  mvn clean package
+  git checkout master
+  mvn clean install -DskipTests
   nohup java -jar target/mod-workflow-1.0.0-SNAPSHOT.jar &
   sleep 15
   curl -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
@@ -33,7 +47,8 @@ Vagrant.configure(2) do |config|
   $camunda = <<-SCRIPT
   git clone https://github.com/folio-org/mod-camunda.git
   cd mod-camunda
-  mvn clean package
+  git checkout master
+  mvn clean install -DskipTests
   nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
   sleep 15
   curl -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
@@ -41,6 +56,7 @@ Vagrant.configure(2) do |config|
   curl -H "Content-Type: application/json" -d '{"id": "mod-camunda-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
   SCRIPT
 
+  config.vm.provision "shell", inline: $okapi
   config.vm.provision "shell", inline: $workflow
   config.vm.provision "shell", inline: $camunda
 
