@@ -20,6 +20,7 @@ Vagrant.configure(2) do |config|
   end
 
   $okapi = <<-SCRIPT
+  sleep 60
   git clone https://github.com/folio-org/okapi.git
   cd okapi
   git checkout OKAPI-674-proxy-rewrite-path
@@ -27,8 +28,6 @@ Vagrant.configure(2) do |config|
   cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.raj
   cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
   systemctl restart okapi
-  sleep 120
-  systemctl restart okapi-deploy
   sleep 180
   SCRIPT
 
@@ -38,7 +37,7 @@ Vagrant.configure(2) do |config|
   git checkout master
   mvn clean install -DskipTests
   nohup java -jar target/mod-workflow-1.0.0-SNAPSHOT.jar &
-  sleep 15
+  sleep 30
   curl -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
   curl -H "Content-Type: application/json" -d '{"srvcId": "mod-workflow-1.0.0-SNAPSHOT", "instId": "mod-workflow-1.0.0-SNAPSHOT", "url": "http://localhost:9001"}' http://localhost:9130/_/discovery/modules
   curl -H "Content-Type: application/json" -d '{"id": "mod-workflow-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
@@ -50,7 +49,7 @@ Vagrant.configure(2) do |config|
   git checkout master
   mvn clean install -DskipTests
   nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
-  sleep 15
+  sleep 30
   curl -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
   curl -H "Content-Type: application/json" -d '{"srvcId": "mod-camunda-1.0.0-SNAPSHOT", "instId": "mod-camunda-1.0.0-SNAPSHOT", "url": "http://localhost:9000"}' http://localhost:9130/_/discovery/modules
   curl -H "Content-Type: application/json" -d '{"id": "mod-camunda-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
