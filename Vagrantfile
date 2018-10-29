@@ -23,7 +23,7 @@ Vagrant.configure(2) do |config|
   sleep 15
   git clone https://github.com/folio-org/okapi.git
   cd okapi
-  git checkout OKAPI-674-proxy-rewrite-path
+  git checkout master
   mvn clean install -DskipTests
   cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.raj
   cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
