@@ -305,6 +305,26 @@ When finished Okapi will be running with mod-workflow and mod-camunda deployed u
 
 > Okapi is being built and redeployed from within this vagrant. Eventually this will not need to happen. If a specific branch of either mod-camunda or mod-workflow is desired to be deployed, modify the Vagrantfile `git checkout master` to the desired branch and restart vagrant. `vagrant destroy`, `vagrant up`
 
+### Login
+
+```
+curl -v -H "Content-Type: application/json" -H "X-Okapi-Tenant: diku" http://localhost:9130/authn/login -d '{"username": "diku_admin", "password": "admin"}'
+```
+
+The response headers of interest are `X-Okapi-Token` and `refreshToken`.
+
+### Refresh Token
+
+```
+curl -v -H "X-Okapi-Tenant: diku" -H "Content-Type: application/json" http://localhost:9130/refresh -d '{"refreshToken": "`[refresh token goes here]`"}'
+```
+
+The body of this response will contain the new `X-Okapi-Token`.
+
+### Workflow Module Triggers
+
+The Trigger entity from mod-workflow is used to select which request-response events from Okapi are to be published to the `event.queue` that mod-camunda can subscribe to. In order to create the Triggers we have to provide the correct permissions to the `diku_admin`.
+
 ## Additional information
 
 ### Issue tracker
