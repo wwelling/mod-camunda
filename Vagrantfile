@@ -70,7 +70,7 @@ Vagrant.configure(2) do |config|
       "decision-definition.all", \
       "task.all", \
       "message.all", \
-      "actions.all", \
+      "action.all", \
       "trigger.all", \
       "perms.all", \
       "okapi.proxy.pull.modules.post", \

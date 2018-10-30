@@ -311,6 +311,8 @@ In order to facilitate development on mod-camunda in the context of Okapi there 
 
 ```
 vagrant ssh
+# kill mod-camunda running on port 9000
+kill $(lsof -t -i :9000)
 cd mod-camunda
 mvn clean install
 nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
