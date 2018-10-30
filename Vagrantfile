@@ -19,7 +19,7 @@ Vagrant.configure(2) do |config|
     testing.vm.network "forwarded_port", guest: 61616, host: 61616
   end
 
-  config.vm.synced_folder ".vagrant/sync", "/sync", id: 'folio', create: true, mount_options: [ "dmode=777", "fmode=777", "uid=312", "gid=312" ]
+  config.vm.synced_folder ".vagrant/sync", "/home/vagrant", id: 'folio', create: true, mount_options: [ "dmode=777", "fmode=777", "uid=312", "gid=312" ]
 
   $okapi = <<-SCRIPT
   git clone https://github.com/folio-org/okapi.git
@@ -29,7 +29,6 @@ Vagrant.configure(2) do |config|
   cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.bckup
   cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
   systemctl restart okapi
-  sleep 15
   SCRIPT
 
   $workflow = <<-SCRIPT
@@ -38,7 +37,6 @@ Vagrant.configure(2) do |config|
   git checkout master
   mvn clean install -DskipTests
   nohup java -jar target/mod-workflow-1.0.0-SNAPSHOT.jar &
-  sleep 15
   curl -X POST -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
   curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-workflow-1.0.0-SNAPSHOT", "instId": "mod-workflow-1.0.0-SNAPSHOT", "url": "http://localhost:9001"}' http://localhost:9130/_/discovery/modules
   curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-workflow-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
@@ -50,7 +48,6 @@ Vagrant.configure(2) do |config|
   git checkout master
   mvn clean install -DskipTests
   nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
-  sleep 15
   curl -X POST -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
   curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-camunda-1.0.0-SNAPSHOT", "instId": "mod-camunda-1.0.0-SNAPSHOT", "url": "http://localhost:9000"}' http://localhost:9130/_/discovery/modules
   curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-camunda-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
