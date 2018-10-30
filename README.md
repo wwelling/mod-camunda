@@ -323,7 +323,11 @@ The body of this response will contain the new `X-Okapi-Token`.
 
 ### Workflow Module Triggers
 
-The Trigger entity from mod-workflow is used to select which request-response events from Okapi are to be published to the `event.queue` that mod-camunda can subscribe to. In order to create the Triggers we have to provide the correct permissions to the `diku_admin`.
+The Trigger entity from mod-workflow is used to select which request-response events from Okapi are to be published to the `event.queue` that mod-camunda can subscribe to. In order to create the Triggers we have to provide the correct permissions to the `diku_admin`. The vagrant will create an example trigger for when a user is created.
+
+### Permissions
+
+In order to call mod-camunda and mod-workflow through the Okapi gateway a user will need the appropriate permissions. In order to accomdate this the Vagrantfile runs a shell script in which updates permissions for `diku_admin`. Providing him with all permissions to all interfaces of mod-camunda and mod-workflow.
 
 ## Additional information
 
