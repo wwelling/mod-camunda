@@ -29,7 +29,7 @@ Vagrant.configure(2) do |config|
   cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.bckup
   cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
   systemctl restart okapi
-  sleep 30
+  sleep 15
   SCRIPT
 
   $workflow = <<-SCRIPT
@@ -161,7 +161,6 @@ Vagrant.configure(2) do |config|
       "settings.addresstypes.all"
     ]
   }' > diku_admin_perms.json
-  sleep 5
   curl -X PUT -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/perms/users/2cdefed8-300a-47c3-9d70-00536c487e0c -d '@diku_admin_perms.json'
   SCRIPT
 
@@ -175,7 +174,6 @@ Vagrant.configure(2) do |config|
     "method": "POST",
     "pathPattern": "/users"
   }' > user_create_trigger.json
-  sleep 5
   curl -X POST -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/triggers -d '@user_create_trigger.json'
   SCRIPT
 
