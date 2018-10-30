@@ -305,6 +305,17 @@ When finished Okapi will be running with mod-workflow and mod-camunda deployed u
 
 > Okapi is being built and redeployed from within this vagrant. Eventually this will not need to happen. If a specific branch of either mod-camunda or mod-workflow is desired to be deployed, modify the Vagrantfile `git checkout master` to the desired branch and restart vagrant. `vagrant destroy`, `vagrant up`
 
+### Development
+
+In order to facilitate development on mod-camunda in the context of Okapi there is a sync directory from the host machine to the guest machine. The host directory is at `.vagrant/sync` and it will contain `okapi`, `mod-camunda`, and `mod-workflow`. The development and git branch management can be done on the host machine. The guest directory is at `/sync`. The redeployment of a module must be done from the guest machine.
+
+```
+vagrant ssh
+cd mod-camunda
+mvn clean install
+nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
+```
+
 ### Login
 
 ```
