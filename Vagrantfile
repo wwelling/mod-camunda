@@ -19,11 +19,13 @@ Vagrant.configure(2) do |config|
     testing.vm.network "forwarded_port", guest: 61616, host: 61616
   end
 
+  # config.vm.synced_folder ".vagrant/sync", "/home/vagrant", id: 'folio', create: true, mount_options: [ "dmode=777", "fmode=777", "uid=312", "gid=312" ]
+
   $okapi = <<-SCRIPT
   sleep 15
   git clone https://github.com/folio-org/okapi.git
   cd okapi
-  git checkout master
+  git checkout ea7fe3dd8f7563a58902352d7d37602caaf3dafc
   mvn clean install -DskipTests
   cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.bckup
   cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
