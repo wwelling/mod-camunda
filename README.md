@@ -344,6 +344,15 @@ The Trigger entity from mod-workflow is used to select which request-response ev
 
 In order to call mod-camunda and mod-workflow through the Okapi gateway a user will need the appropriate permissions. In order to accomdate this the Vagrantfile runs a shell script in which updates permissions for `diku_admin`. Providing him with all permissions to all interfaces of mod-camunda and mod-workflow.
 
+### Cleanup
+
+When finished it will be desired to cleanup as the FOLIO vagrant uses a lot of resources.
+
+```
+vagrant destroy
+rm -rf .vagrant/sync
+```
+
 ## Additional information
 
 ### Issue tracker
