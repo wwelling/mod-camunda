@@ -19,9 +19,10 @@ Vagrant.configure(2) do |config|
     testing.vm.network "forwarded_port", guest: 61616, host: 61616
   end
 
-  config.vm.synced_folder ".vagrant/sync", "/home/vagrant", id: 'folio', create: true, mount_options: [ "dmode=777", "fmode=777", "uid=312", "gid=312" ]
+  config.vm.synced_folder ".vagrant/sync", "/sync", id: 'folio', create: true, mount_options: [ "dmode=777", "fmode=777", "uid=312", "gid=312" ]
 
   $okapi = <<-SCRIPT
+  cd /sync
   git clone https://github.com/folio-org/okapi.git
   cd okapi
   git checkout ea7fe3dd8f7563a58902352d7d37602caaf3dafc
@@ -32,6 +33,7 @@ Vagrant.configure(2) do |config|
   SCRIPT
 
   $workflow = <<-SCRIPT
+  cd /sync
   git clone https://github.com/folio-org/mod-workflow.git
   cd mod-workflow
   git checkout master
@@ -43,6 +45,7 @@ Vagrant.configure(2) do |config|
   SCRIPT
 
   $camunda = <<-SCRIPT
+  cd /sync
   git clone https://github.com/folio-org/mod-camunda.git
   cd mod-camunda
   git checkout master
@@ -54,6 +57,7 @@ Vagrant.configure(2) do |config|
   SCRIPT
 
   $permissions = <<-SCRIPT
+  cd /sync
   curl -X POST -H "X-Okapi-Tenant: diku" -H "Content-Type: application/json" http://localhost:9130/authn/login -d '{"username": "diku_admin", "password": "admin"}' -D login-headers.tmp
   token_header=$(cat login-headers.tmp | grep x-okapi-token)
   # update diku_admin permissions, add all permissions for mod-workflow and mod-camunda
@@ -162,6 +166,7 @@ Vagrant.configure(2) do |config|
   SCRIPT
 
   $triggers = <<-SCRIPT
+  cd /sync
   curl -X POST -H "X-Okapi-Tenant: diku" -H "Content-Type: application/json" http://localhost:9130/authn/login -d '{"username": "diku_admin", "password": "admin"}' -D login-headers.tmp
   token_header=$(cat login-headers.tmp | grep x-okapi-token)
   # create example trigger, on create user
