@@ -311,6 +311,8 @@ In order to facilitate development on mod-camunda in the context of Okapi there 
 
 ```
 vagrant ssh
+sudo su
+cd /sync
 # kill mod-camunda running on port 9000
 kill $(lsof -t -i :9000)
 cd mod-camunda
