@@ -26,6 +26,7 @@ Vagrant.configure(2) do |config|
   git clone https://github.com/folio-org/okapi.git
   cd okapi
   git checkout ea7fe3dd8f7563a58902352d7d37602caaf3dafc
+  git pull
   mvn clean install -DskipTests
   cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.bckup
   cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
@@ -39,12 +40,15 @@ Vagrant.configure(2) do |config|
   git clone https://github.com/folio-org/mod-workflow.git
   cd mod-workflow
   git checkout master
+  git pull
   mvn clean install -DskipTests
   nohup java -jar target/mod-workflow-1.0.0-SNAPSHOT.jar &
   # wait for mod-workflow to start
   sleep 15
   curl -X POST -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
+  sleep 5
   curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-workflow-1.0.0-SNAPSHOT", "instId": "mod-workflow-1.0.0-SNAPSHOT", "url": "http://localhost:9001"}' http://localhost:9130/_/discovery/modules
+  sleep 10
   curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-workflow-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
   # wait for mod-workflow to register permissions
   sleep 15
@@ -55,12 +59,15 @@ Vagrant.configure(2) do |config|
   git clone https://github.com/folio-org/mod-camunda.git
   cd mod-camunda
   git checkout master
+  git pull
   mvn clean install -DskipTests
   nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
   # wait for mod-comunda to start
   sleep 15
   curl -X POST -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
+  sleep 5
   curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-camunda-1.0.0-SNAPSHOT", "instId": "mod-camunda-1.0.0-SNAPSHOT", "url": "http://localhost:9000"}' http://localhost:9130/_/discovery/modules
+  sleep 10
   curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-camunda-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
   # wait for mod-camunda to register permissions
   sleep 15
@@ -77,18 +84,18 @@ Vagrant.configure(2) do |config|
 
   if [[ $user_json =~ $id_regex ]]
   then
-      user_id="${BASH_REMATCH[1]}"
+    user_id="${BASH_REMATCH[1]}"
   else
-      echo "Could not get diku_admin id!"
+    echo "Could not get diku_admin id!"
   fi
 
   user_perms_json=$(curl -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/perms/users?query=userId=$user_id)
 
   if [[ $user_perms_json =~ $id_regex ]]
   then
-      perm_id="${BASH_REMATCH[1]}"
+    perm_id="${BASH_REMATCH[1]}"
   else
-      echo "Could not get diku_admin permission id!"
+    echo "Could not get diku_admin permission id!"
   fi
 
   # update diku_admin permissions, add all permissions for mod-workflow and mod-camunda
@@ -194,7 +201,7 @@ Vagrant.configure(2) do |config|
       "settings.addresstypes.all"
     ]
   }' > diku_admin_perms.json
-  curl -X PUT -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/perms/users/2cdefed8-300a-47c3-9d70-00536c487e0c -d '@diku_admin_perms.json'
+  curl -X PUT -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/perms/users/$perm_id -d '@diku_admin_perms.json'
   # wait permissions to propegate
   sleep 15
   SCRIPT
