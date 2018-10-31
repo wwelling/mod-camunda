@@ -70,10 +70,31 @@ Vagrant.configure(2) do |config|
   cd /sync
   curl -X POST -H "X-Okapi-Tenant: diku" -H "Content-Type: application/json" http://localhost:9130/authn/login -d '{"username": "diku_admin", "password": "admin"}' -D login-headers.tmp
   token_header=$(cat login-headers.tmp | grep x-okapi-token)
+
+  user_json=$(curl -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/users?query=username=diku_admin)
+
+  id_regex='"id":"([^"]+)'
+
+  if [[ $user_json =~ $id_regex ]]
+  then
+      user_id="${BASH_REMATCH[1]}"
+  else
+      echo "Could not get diku_admin id!"
+  fi
+
+  user_perms_json=$(curl -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/perms/users?query=userId=$user_id)
+
+  if [[ $user_perms_json =~ $id_regex ]]
+  then
+      perm_id="${BASH_REMATCH[1]}"
+  else
+      echo "Could not get diku_admin permission id!"
+  fi
+
   # update diku_admin permissions, add all permissions for mod-workflow and mod-camunda
   echo '{
-    "id": "2cdefed8-300a-47c3-9d70-00536c487e0c",
-    "userId": "deb4e698-acf3-5093-ab63-962b40d748a0",
+    "id": "'"$perm_id"'",
+    "userId": "'"$user_id"'",
     "permissions": [
       "process.all",
       "process-definition.all",
@@ -82,6 +103,7 @@ Vagrant.configure(2) do |config|
       "message.all",
       "action.all",
       "trigger.all",
+      "workflow.all",
       "perms.all",
       "okapi.proxy.pull.modules.post",
       "login.all",
