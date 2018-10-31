@@ -30,6 +30,8 @@ Vagrant.configure(2) do |config|
   cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.bckup
   cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
   systemctl restart okapi
+  # wait for Okapi to start
+  sleep 60
   SCRIPT
 
   $workflow = <<-SCRIPT
@@ -39,6 +41,8 @@ Vagrant.configure(2) do |config|
   git checkout master
   mvn clean install -DskipTests
   nohup java -jar target/mod-workflow-1.0.0-SNAPSHOT.jar &
+  # wait for mod-workflow to start
+  sleep 15
   curl -X POST -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
   curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-workflow-1.0.0-SNAPSHOT", "instId": "mod-workflow-1.0.0-SNAPSHOT", "url": "http://localhost:9001"}' http://localhost:9130/_/discovery/modules
   curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-workflow-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
@@ -51,6 +55,8 @@ Vagrant.configure(2) do |config|
   git checkout master
   mvn clean install -DskipTests
   nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
+  # wait for mod-comunda to start
+  sleep 15
   curl -X POST -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
   curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-camunda-1.0.0-SNAPSHOT", "instId": "mod-camunda-1.0.0-SNAPSHOT", "url": "http://localhost:9000"}' http://localhost:9130/_/discovery/modules
   curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-camunda-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
@@ -163,6 +169,8 @@ Vagrant.configure(2) do |config|
     ]
   }' > diku_admin_perms.json
   curl -X PUT -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/perms/users/2cdefed8-300a-47c3-9d70-00536c487e0c -d '@diku_admin_perms.json'
+  # wait permissions to propegate
+  sleep 15
   SCRIPT
 
   $triggers = <<-SCRIPT
