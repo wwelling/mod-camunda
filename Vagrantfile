@@ -44,11 +44,9 @@ Vagrant.configure(2) do |config|
   mvn clean install -DskipTests
   nohup java -jar target/mod-workflow-1.0.0-SNAPSHOT.jar &
   # wait for mod-workflow to start
-  sleep 15
+  sleep 30
   curl -X POST -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
-  sleep 5
   curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-workflow-1.0.0-SNAPSHOT", "instId": "mod-workflow-1.0.0-SNAPSHOT", "url": "http://localhost:9001"}' http://localhost:9130/_/discovery/modules
-  sleep 10
   curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-workflow-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
   # wait for mod-workflow to register permissions
   sleep 15
@@ -63,11 +61,9 @@ Vagrant.configure(2) do |config|
   mvn clean install -DskipTests
   nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
   # wait for mod-comunda to start
-  sleep 15
+  sleep 30
   curl -X POST -H "Content-Type: application/json" -d "@target/descriptors/ModuleDescriptor.json" http://localhost:9130/_/proxy/modules
-  sleep 5
   curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-camunda-1.0.0-SNAPSHOT", "instId": "mod-camunda-1.0.0-SNAPSHOT", "url": "http://localhost:9000"}' http://localhost:9130/_/discovery/modules
-  sleep 10
   curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-camunda-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
   # wait for mod-camunda to register permissions
   sleep 15
