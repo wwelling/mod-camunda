@@ -32,10 +32,13 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
     jsonObject.put("password", "admin");
 
     okapiRequest.setPayload(jsonObject);
+    log.info("json: {}", jsonObject.toString());
 
     FolioLogin newLogin = loginService.folioLogin(okapiRequest);
+    newLogin.setUsername("diku_admin");
     log.info("NEW LOGIN: {}", newLogin);
 
+    execution.setVariable("folioLogin", newLogin);
   }
 
 }

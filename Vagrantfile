@@ -7,7 +7,7 @@ Vagrant.configure(2) do |config|
 
   # Note that provisioning a Stripes webpack requires more RAM
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = 16384
+    vb.memory = 12288
     vb.cpus = 4
   end
 
@@ -56,7 +56,7 @@ Vagrant.configure(2) do |config|
   cd /sync
   git clone https://github.com/folio-org/mod-camunda.git
   cd mod-camunda
-  git checkout master
+  git checkout camunda-okapi-pattern-init
   git pull
   mvn clean install -DskipTests
   nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &

@@ -29,14 +29,20 @@ public class OkapiRequestService {
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
 
-  public OkapiResponse okapiRestCall(OkapiRequest okapiRequest) {
+    public OkapiResponse okapiRestCall(OkapiRequest okapiRequest) {
+
+    log.info("Executing Okapi Rest Call service");
 
     String tenant = okapiRequest.getTenant();
     String contentType = okapiRequest.getRequestContentType();
     String url = okapiRequest.getUrl();
-    Object[] uriVariables = okapiRequest.getRequestUriVariables();
-    JSONObject payload = okapiRequest.getPayload();
+    String payload = okapiRequest.getPayload().toString();
     String token = okapiRequest.getOkapiToken();
+
+    // optional
+    Object[] uriVariables = okapiRequest.getRequestUriVariables() != null
+      ? (Object[]) okapiRequest.getRequestUriVariables()
+      : new Object[0];
 
     HttpMethod httpMethod = HttpMethod.valueOf(okapiRequest.getRequestMethod());
 
@@ -59,6 +65,9 @@ public class OkapiRequestService {
         addTenantHeader(headers, tenant);
         addOkapiToken(headers, token);
         request = new HttpEntity<>(payload, headers);
+        log.info("Request: {}", request);
+
+        response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
 
         log.info("<< RESPONSE >>");
         log.info("STATUS: {}", response.getStatusCode().toString());
@@ -69,8 +78,8 @@ public class OkapiRequestService {
         String responseBody = response.getBody().toString();
 
         Map<String, String> responseHeaders = new HashMap<>();
-        responseHeaders.put("xtoken", response.getHeaders().getFirst("x-okapi-token"));
-        responseHeaders.put("refresh", response.getHeaders().getFirst("refreshtoken"));
+        responseHeaders.put("x-okapi-token", response.getHeaders().getFirst("x-okapi-token"));
+        responseHeaders.put("refreshtoken", response.getHeaders().getFirst("refreshtoken"));
 
         OkapiResponse okapiResponse = new OkapiResponse();
         okapiResponse.setStatusCode(statusCode);

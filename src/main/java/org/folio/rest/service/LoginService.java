@@ -20,12 +20,16 @@ public class LoginService {
   private OkapiRequestService okapiRequestService;
 
   public FolioLogin folioLogin(OkapiRequest okapiRequest) {
+    log.info("Executing Folio Login Service");
 
     OkapiResponse okapiResponse = okapiRequestService.okapiRestCall(okapiRequest);
     log.info("OKAPI RESPONSE: {}", okapiResponse);
 
+    String xOkapiToken = okapiResponse.getHeaders().get("x-okapi-token");
+    String refreshToken = okapiResponse.getHeaders().get("refreshtoken");
 
-    FolioLogin folioLogin = new FolioLogin("un", "token", "refresh");
+
+    FolioLogin folioLogin = new FolioLogin("username", xOkapiToken, refreshToken);
 
     return folioLogin;
   }
