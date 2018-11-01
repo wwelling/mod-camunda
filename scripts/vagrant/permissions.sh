@@ -5,6 +5,7 @@ cd /sync
 curl -X POST -H "X-Okapi-Tenant: diku" -H "Content-Type: application/json" http://localhost:9130/authn/login -d '{"username": "diku_admin", "password": "admin"}' -D login-headers.tmp
 token_header=$(cat login-headers.tmp | grep x-okapi-token)
 
+# remove me
 curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/users?query=username=diku_admin"
 
 user_json=$(curl -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/users?query=username=diku_admin")
@@ -18,6 +19,7 @@ else
   echo "Could not get diku_admin id!"
 fi
 
+# remove me
 curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users?query=userId=$user_id"
 
 user_perms_json=$(curl -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users?query=userId=$user_id")
