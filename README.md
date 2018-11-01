@@ -307,12 +307,9 @@ When finished Okapi will be running with mod-workflow and mod-camunda deployed u
 
 ### Development
 
-In order to facilitate development on mod-camunda in the context of Okapi there is a sync directory from the host machine to the guest machine. The host directory is at `.vagrant/sync` and it will contain `okapi`, `mod-camunda`, and `mod-workflow`. The development and git branch management can be done on the host machine. The guest directory is at `/sync`. The redeployment of a module must be done from the guest machine. This vagrant requires vbguest, hostmanager, and triggers to clear synced directory on host after destroy.
+In order to facilitate development on mod-camunda in the context of Okapi there is a sync directory from the host machine to the guest machine. The host directory is at `.vagrant/sync` and it will contain `okapi`, `mod-camunda`, and `mod-workflow`. The development and git branch management can be done on the host machine. The guest directory is at `/sync`. The redeployment of a module must be done from the guest machine.
 
 ```
-vagrant plugin install vagrant-vbguest
-vagrant plugin install vagrant-hostmanager
-vagrant plugin install vagrant-triggers
 vagrant ssh
 sudo su
 cd /sync
@@ -355,6 +352,8 @@ When finished it will be desired to cleanup as the FOLIO vagrant uses a lot of r
 vagrant destroy
 rm -rf .vagrant/sync
 ```
+
+> Removing the synced directory, `.vagrant/sync`, on the host will remove any changes during development that have not been pushed.
 
 ## Additional information
 

@@ -13,9 +13,7 @@ echo '{
   "pathPattern": "/users"
 }' > user_create_trigger.json
 
-curl -v -X POST -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/triggers -d '@user_create_trigger.json'
-
-sleep 5
+curl -v -X POST -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/triggers -d "@user_create_trigger.json"
 
 # cleanup
 rm -rf login-headers.tmp
