@@ -10,11 +10,11 @@
       <bpmn:incoming>SequenceFlow_0gatrw7</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0gatrw7" sourceRef="Task_0o6tmh6" targetRef="EndEvent_1n8atqj" />
-    <bpmn:serviceTask id="Task_1d1yzar" camunda:delegateExpression="${folioLoginDelegate}">
+    <bpmn:serviceTask id="Task_1d1yzar" name="FolioLogin" camunda:delegateExpression="${folioLoginDelegate}">
       <bpmn:incoming>SequenceFlow_0jx4tkv</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0511sb1</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="Task_0o6tmh6">
+    <bpmn:userTask id="Task_0o6tmh6" name="Wait">
       <bpmn:incoming>SequenceFlow_0511sb1</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0gatrw7</bpmn:outgoing>
     </bpmn:userTask>
