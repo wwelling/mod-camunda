@@ -5,36 +5,34 @@ cd /sync
 curl -X POST -H "X-Okapi-Tenant: diku" -H "Content-Type: application/json" http://localhost:9130/authn/login -d '{"username": "diku_admin", "password": "admin"}' -D login-headers.tmp
 token_header=$(cat login-headers.tmp | grep x-okapi-token)
 
-# remove me
-curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/users?query=username=diku_admin"
-
-user_json=$(curl -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/users?query=username=diku_admin")
+user_json=$(curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/users?query=username=diku_admin")
 
 id_regex='"id":"([^"]+)'
 
+echo "user: $user_json"
 if [[ $user_json =~ $id_regex ]]
 then
   user_id="${BASH_REMATCH[1]}"
+  echo "user id: $user_id"
 else
   echo "Could not get diku_admin id!"
 fi
 
-# remove me
-curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users?query=userId=$user_id"
+user_perms_json=$(curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users?query=userId=$user_id")
 
-user_perms_json=$(curl -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users?query=userId=$user_id")
-
+echo "user permissions: $user_perms_json"
 if [[ $user_perms_json =~ $id_regex ]]
 then
   perm_id="${BASH_REMATCH[1]}"
+  echo "perm id: $perm_id"
 else
   echo "Could not get diku_admin permission id!"
 fi
 
 # update diku_admin permissions, add all permissions for mod-workflow and mod-camunda
 echo '{
-  "id": "4c9056ae-2b59-45cb-b1cf-9f9e35ba9d89",
-  "userId": "c4de12e4-03e1-58b4-b6d3-8206061fd527",
+  "id": "'"$perm_id"'",
+  "userId": "'"$user_id"'",
   "permissions": [
     "process.all",
     "process-definition.all",
@@ -135,7 +133,7 @@ echo '{
   ]
 }' > diku_admin_perms.json
 
-curl -X PUT -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users/4c9056ae-2b59-45cb-b1cf-9f9e35ba9d89" -d "@diku_admin_perms.json"
+curl -v -X PUT -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users/$perm_id" -d "@diku_admin_perms.json"
 
 # cleanup
 rm -rf login-headers.tmp

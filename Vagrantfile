@@ -19,7 +19,7 @@ Vagrant.configure(2) do |config|
     testing.vm.network "forwarded_port", guest: 61616, host: 61616
   end
 
-  config.vm.synced_folder ".vagrant/sync", "/sync", id: 'folio', create: true, mount_options: [ "dmode=777", "fmode=777", "uid=312", "gid=312" ]
+  config.vm.synced_folder ".vagrant/sync", "/sync", id: 'folio', create: true, mount_options: [ "dmode=777", "fmode=777" ]
 
   config.vm.provision "file", source: "scripts/vagrant/okapi.sh", destination: "/sync/okapi.sh"
   config.vm.provision "file", source: "scripts/vagrant/mod-workflow.sh", destination: "/sync/mod-workflow.sh"
@@ -51,4 +51,3 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: $init
 
 end
-
