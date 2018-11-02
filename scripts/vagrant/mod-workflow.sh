@@ -22,6 +22,3 @@ curl -X POST -H "Content-Type: application/json" -d '{"srvcId": "mod-workflow-1.
 sleep 5
 
 curl -X POST -H "Content-Type: application/json" -d '{"id": "mod-workflow-1.0.0-SNAPSHOT"}' http://localhost:9130/_/proxy/tenants/diku/modules
-
-# wait for mod-workflow to register permissions
-sleep 60
