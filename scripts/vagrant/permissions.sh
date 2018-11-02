@@ -137,6 +137,3 @@ curl -v -X PUT -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: ap
 
 # cleanup
 rm -rf login-headers.tmp
-
-# wait permissions to propegate
-sleep 30

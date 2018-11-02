@@ -15,6 +15,3 @@ cp /usr/share/folio/okapi/lib/okapi-core-fat.jar /usr/share/folio/okapi/lib/okap
 cp okapi-core/target/okapi-core-fat.jar /usr/share/folio/okapi/lib/okapi-core-fat.jar
 
 systemctl restart okapi
-
-# wait for Okapi to start
-sleep 120

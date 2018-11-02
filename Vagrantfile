@@ -34,15 +34,23 @@ Vagrant.configure(2) do |config|
 
   dos2unix okapi.sh
   ./okapi.sh
+  # wait for Okapi to start
+  sleep 120
 
   dos2unix mod-workflow.sh
   ./mod-workflow.sh
+  # wait for mod-workflow to register permissions
+  sleep 60
 
   dos2unix mod-camunda.sh
   ./mod-camunda.sh
+  # wait for mod-camunda to register permissions
+  sleep 60
 
   dos2unix permissions.sh
   ./permissions.sh
+  # wait permissions to propegate
+  sleep 30
 
   dos2unix triggers.sh
   ./triggers.sh
