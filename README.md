@@ -223,23 +223,23 @@ The Claim Return Process was identified as a candidate for the workflow POC.
 POST to `localhost:9000/camunda/task` to query open tasks, filtered by Claim Return Process and Checked In tasks
 ```
 {
-	"processDefinitionKey" : "Process_ClaimReturned1",
-	"name" : "Checked In",
-	"tenantId" : "diku"
+    "processDefinitionKey" : "Process_ClaimReturned1",
+    "name" : "Checked In",
+    "tenantId" : "diku"
 }
 ```
 POST to `localhost:9000/camunda/task/<taskId>/complete` to claim and complete this task
 ```
 {
-	"variables" : {
-		"requestUrl" : { "value" : "http://localhost:9000"},
-		"requestMethod" : { "value" : "GET" },
-		"requestPayload" : { "value" : null },
-		"requestUriVariables" : { "value" : null },
-		"requestContentType" : { "value" : null },
-		"responseStatusName" : { "value" : "checkInResponse" },
-		"responseBodyName" : { "value" : "checkInResponseBody" }
-	}
+    "variables" : {
+        "requestUrl" : { "value" : "http://localhost:9000"},
+        "requestMethod" : { "value" : "GET" },
+        "requestPayload" : { "value" : null },
+        "requestUriVariables" : { "value" : null },
+        "requestContentType" : { "value" : null },
+        "responseStatusName" : { "value" : "checkInResponse" },
+        "responseBodyName" : { "value" : "checkInResponseBody" }
+    }
 }
 ```
 
@@ -352,6 +352,8 @@ When finished it will be desired to cleanup as the FOLIO vagrant uses a lot of r
 vagrant destroy
 rm -rf .vagrant/sync
 ```
+
+> Removing the synced directory, `.vagrant/sync`, on the host will remove any changes during development that have not been pushed.
 
 ## Additional information
 

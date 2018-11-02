@@ -337,12 +337,7 @@
       "visible": false
     }
   ],
-  "requires": [
-    {
-      "id": "actions",
-      "version": "1.0"
-    }
-  ],
+  "requires": [ ],
   "launchDescriptor": {
     "dockerImage": "@project.artifactId@:@project.version@",
     "dockerArgs": {
