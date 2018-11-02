@@ -1,5 +1,7 @@
 package org.folio.rest.delegate;
 
+import static org.camunda.spin.Spin.JSON;
+
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
 import org.folio.rest.model.FolioLogin;
@@ -38,7 +40,10 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
     newLogin.setUsername("diku_admin");
     log.info("NEW LOGIN: {}", newLogin);
 
+    String json = JSON(newLogin).toString();
+
     execution.setVariable("folioLogin", newLogin);
+    execution.setVariable("loginJson", json);
   }
 
 }
