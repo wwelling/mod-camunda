@@ -3,6 +3,7 @@ package org.folio.rest.jms;
 import java.io.IOException;
 
 import org.camunda.bpm.engine.RuntimeService;
+import org.folio.rest.jms.model.Event;
 import org.folio.rest.tenant.storage.ThreadLocalStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +14,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class EventConsumer {
@@ -27,26 +26,28 @@ public class EventConsumer {
   @Autowired
   protected RuntimeService runtimeService;
 
-  @Autowired
-  private ObjectMapper mapper;
-
   @JmsListener(destination = "${event.queue.name}")
-  public void receive(String message) throws JsonParseException, JsonMappingException, IOException {
-    logger.info("Receive [{}]: {}", eventQueueName, message);
+  public void receive(Event event) throws JsonParseException, JsonMappingException, IOException {
+    logger.info("Receive [{}]: {}", eventQueueName, event.getTriggerType());
 
-    JsonNode event = mapper.readValue(message, JsonNode.class);
-
-    String tenant = event.get("tenant").asText();
+    String tenant = event.getTenant();
 
     ThreadLocalStorage.setTenant(tenant);
 
-    JsonNode processDefinitionIds = event.get("processDefinitionIds");
+    switch (event.getTriggerType()) {
+    case MESSAGE_CORRELATE:
 
-    if (processDefinitionIds.isArray()) {
-      for (final JsonNode processDefinitionId : processDefinitionIds) {
-        logger.info("Starting process: {}", processDefinitionId);
-        runtimeService.startProcessInstanceById(processDefinitionId.asText());
-      }
+      break;
+    case PROCESS_START:
+      event.getProcessDefinitionIds().forEach(processDefinitionId -> {
+        runtimeService.startProcessInstanceById(processDefinitionId);
+      });
+      break;
+    case TASK_COMPLETE:
+
+      break;
+    default:
+      break;
     }
 
   }
