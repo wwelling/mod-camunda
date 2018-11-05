@@ -3,6 +3,7 @@ package org.folio.rest.jms;
 import java.io.IOException;
 
 import org.camunda.bpm.engine.RuntimeService;
+import org.folio.rest.tenant.storage.ThreadLocalStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,10 @@ public class EventConsumer {
     logger.info("Receive [{}]: {}", eventQueueName, message);
 
     JsonNode event = mapper.readValue(message, JsonNode.class);
+
+    String tenant = event.get("tenant").asText();
+
+    ThreadLocalStorage.setTenant(tenant);
 
     JsonNode processDefinitionIds = event.get("processDefinitionIds");
 
