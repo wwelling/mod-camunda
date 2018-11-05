@@ -150,13 +150,14 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-rest</artifactId>
+      <groupId>org.folio</groupId>
+      <artifactId>workflow</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-activemq</artifactId>
+      <artifactId>spring-boot-starter-data-rest</artifactId>
     </dependency>
 
     <dependency>
