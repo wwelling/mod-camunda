@@ -28,7 +28,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "file", source: "scripts/vagrant/triggers.sh", destination: "/sync/triggers.sh"
 
   $init = <<-SCRIPT
-  cd /sync 
+  cd /sync
 
   apt-get install -y dos2unix
 
