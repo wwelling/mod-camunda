@@ -1,16 +1,16 @@
 package org.folio.rest.model;
 
-import org.camunda.bpm.engine.impl.util.json.JSONObject;
+import org.camunda.spin.json.SpinJsonNode;
 
 import java.io.Serializable;
 
 public class OkapiRequest implements Serializable {
 
   private static final long serialVersionUID = 698415949379750160L;
-  private String url;
+  private String requestUrl;
   private String requestMethod;
   private String requestContentType;
-  private JSONObject payload;
+  private SpinJsonNode requestPayload;
   private Object[] requestUriVariables;
   private String tenant;
   private String okapiToken;
@@ -18,12 +18,12 @@ public class OkapiRequest implements Serializable {
   private String responseHeaderName;
   private String responseBodyName;
 
-  public String getUrl() {
-    return url;
+  public String getRequestUrl() {
+    return requestUrl;
   }
 
-  public void setUrl(String url) {
-    this.url = url;
+  public void setRequestUrl(String requestUrl) {
+    this.requestUrl = requestUrl;
   }
 
   public String getRequestMethod() {
@@ -42,12 +42,12 @@ public class OkapiRequest implements Serializable {
     this.requestContentType = requestContentType;
   }
 
-  public JSONObject getPayload() {
-    return payload;
+  public SpinJsonNode getRequestPayload() {
+    return requestPayload;
   }
 
-  public void setPayload(JSONObject payload) {
-    this.payload = payload;
+  public void setRequestPayload(SpinJsonNode requestPayload) {
+    this.requestPayload = requestPayload;
   }
 
   public Object[] getRequestUriVariables() {

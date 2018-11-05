@@ -1,6 +1,6 @@
 package org.folio.rest.service;
 
-import org.camunda.bpm.engine.impl.util.json.JSONObject;
+import org.camunda.spin.json.SpinJsonNode;
 import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.model.OkapiResponse;
 import org.slf4j.Logger;
@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.camunda.spin.Spin.*;
+import static org.camunda.spin.DataFormats.*;
 
 @Service
 public class OkapiRequestService {
@@ -35,8 +38,8 @@ public class OkapiRequestService {
 
     String tenant = okapiRequest.getTenant();
     String contentType = okapiRequest.getRequestContentType();
-    String url = okapiRequest.getUrl();
-    String payload = okapiRequest.getPayload().toString();
+    String url = okapiRequest.getRequestUrl();
+    String payload = okapiRequest.getRequestPayload().toString();
     String token = okapiRequest.getOkapiToken();
 
     // optional
@@ -60,6 +63,19 @@ public class OkapiRequestService {
         request = new HttpEntity<>(headers);
         response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
 
+        int statusCode1 = response.getStatusCodeValue();
+        Map<String, String> responseHeaders1 = new HashMap<>();
+        responseHeaders1.put("x-okapi-token", response.getHeaders().getFirst("x-okapi-token"));
+        responseHeaders1.put("refreshtoken", response.getHeaders().getFirst("refreshtoken"));
+        SpinJsonNode responseBody1 = S(response.getBody(), json());
+
+        OkapiResponse okapiResponse1 = new OkapiResponse();
+        okapiResponse1.setStatusCode(statusCode1);
+        okapiResponse1.setHeaders(responseHeaders1);
+        okapiResponse1.setBody(responseBody1);
+
+        return okapiResponse1;
+
       case POST:
         addContentTypeHeader(headers, contentType);
         addTenantHeader(headers, tenant);
@@ -75,7 +91,8 @@ public class OkapiRequestService {
         log.info("BODY: {}", response.getBody().toString());
 
         int statusCode = response.getStatusCodeValue();
-        String responseBody = response.getBody().toString();
+        //String responseBody = response.getBody().toString();
+        SpinJsonNode responseBody = S(response.getBody(), json());
 
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.put("x-okapi-token", response.getHeaders().getFirst("x-okapi-token"));

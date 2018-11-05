@@ -14,9 +14,6 @@ public class LoginService {
   protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
-  private HttpService httpService;
-
-  @Autowired
   private OkapiRequestService okapiRequestService;
 
   public FolioLogin folioLogin(OkapiRequest okapiRequest) {

@@ -3,6 +3,7 @@ package org.folio.rest.model;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
+import org.camunda.spin.json.SpinJsonNode;
 
 public class OkapiResponse implements Serializable {
 
@@ -10,7 +11,7 @@ public class OkapiResponse implements Serializable {
 
   private Integer statusCode;
   private Map<String, String> headers;
-  private String body;
+  private SpinJsonNode body;
 
   @Override
   public String toString() {
@@ -60,11 +61,11 @@ public class OkapiResponse implements Serializable {
     this.headers = headers;
   }
 
-  public String getBody() {
+  public SpinJsonNode getBody() {
     return body;
   }
 
-  public void setBody(String body) {
+  public void setBody(SpinJsonNode body) {
     this.body = body;
   }
 }
