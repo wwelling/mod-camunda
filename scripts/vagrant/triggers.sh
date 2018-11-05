@@ -9,6 +9,7 @@ token_header=$(cat login-headers.tmp | grep x-okapi-token)
 echo '{
   "name": "User Create",
   "description": "Trigger for when a user is created",
+  "type": "PROCESS_START",
   "method": "POST",
   "pathPattern": "/users"
 }' > user_create_trigger.json
