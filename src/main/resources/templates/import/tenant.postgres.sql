@@ -1,0 +1,1 @@
+INSERT INTO [(${tenant.name})].ACT_ID_TENANT (id_, rev_, name_) VALUES ('[(${tenant.id})]', [(${tenant.rev})], '[(${tenant.name})]');
