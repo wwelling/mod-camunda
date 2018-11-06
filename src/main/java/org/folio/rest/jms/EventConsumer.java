@@ -1,7 +1,5 @@
 package org.folio.rest.jms;
 
-import java.io.IOException;
-
 import org.camunda.bpm.engine.RuntimeService;
 import org.folio.rest.jms.model.Event;
 import org.folio.rest.tenant.storage.ThreadLocalStorage;
@@ -12,9 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 @Component
 public class EventConsumer {
 
@@ -24,29 +19,43 @@ public class EventConsumer {
   private String eventQueueName;
 
   @Autowired
-  private RuntimeService runtimeService;
+  protected RuntimeService runtimeService;
 
-  @JmsListener(destination = "${event.queue.name}", containerFactory = "myFactory")
-  public void receive(Event event) throws JsonParseException, JsonMappingException, IOException {
-    logger.info("Receive [{}]: {}, {}, {}", eventQueueName, event.getMethod(), event.getPath(), event.getPayload());
+  @JmsListener(destination = "${event.queue.name}")
+  public void receive(Event event) {
+    logger.info("Receive [{}]: {}", eventQueueName, event.getTriggerType());
 
-    ThreadLocalStorage.setTenant(event.getTenant());
+    String tenant = event.getTenant();
+
+    ThreadLocalStorage.setTenant(tenant);
 
     switch (event.getTriggerType()) {
     case MESSAGE_CORRELATE:
-
+      correlateMessage(event);
       break;
     case PROCESS_START:
-      event.getProcessDefinitionIds().forEach(processDefinitionId -> {
-        runtimeService.startProcessInstanceById(processDefinitionId);
-      });
+      startProcess(event);
       break;
     case TASK_COMPLETE:
-
+      completeTask(event);
       break;
     default:
       break;
     }
+
+  }
+
+  private void correlateMessage(Event event) {
+
+  }
+
+  private void startProcess(Event event) {
+    event.getProcessDefinitionIds().forEach(processDefinitionId -> {
+      runtimeService.startProcessInstanceById(processDefinitionId);
+    });
+  }
+
+  private void completeTask(Event event) {
 
   }
 
