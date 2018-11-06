@@ -23,7 +23,7 @@ public class EventConsumer {
 
   @JmsListener(destination = "${event.queue.name}")
   public void receive(Event event) {
-    logger.info("Receive [{}]: {}", eventQueueName, event.getTriggerType());
+    logger.info("Receive [{}]: {}, {}, {}", eventQueueName, event.getMethod(), event.getPath(), event.getPayload());
 
     String tenant = event.getTenant();
 
