@@ -6,7 +6,7 @@ git clone https://github.com/folio-org/mod-camunda.git
 
 cd mod-camunda
 
-git checkout update-okapi-request-handling
+git checkout master
 git pull
 
 mvn clean install -DskipTests
