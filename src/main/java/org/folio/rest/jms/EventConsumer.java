@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class EventConsumer {
@@ -24,15 +25,17 @@ public class EventConsumer {
   private String eventQueueName;
 
   @Autowired
-  protected RuntimeService runtimeService;
+  private RuntimeService runtimeService;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @JmsListener(destination = "${event.queue.name}")
-  public void receive(Event event) throws JsonParseException, JsonMappingException, IOException {
-    logger.info("Receive [{}]: {}", eventQueueName, event.getTriggerType());
+  public void receive(String message) throws JsonParseException, JsonMappingException, IOException {
+    logger.info("Receive [{}]: {}", eventQueueName, message);
+    Event event = objectMapper.readValue(message, Event.class);
 
-    String tenant = event.getTenant();
-
-    ThreadLocalStorage.setTenant(tenant);
+    ThreadLocalStorage.setTenant(event.getTenant());
 
     switch (event.getTriggerType()) {
     case MESSAGE_CORRELATE:
