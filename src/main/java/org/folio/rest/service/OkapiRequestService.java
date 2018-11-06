@@ -1,8 +1,6 @@
 package org.folio.rest.service;
 
 import org.camunda.bpm.engine.delegate.BpmnError;
-import org.camunda.spin.json.SpinJsonNode;
-import org.folio.rest.model.FolioLogin;
 import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.model.OkapiResponse;
 import org.slf4j.Logger;
@@ -19,9 +17,6 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.camunda.spin.Spin.*;
-import static org.camunda.spin.DataFormats.*;
 
 @Service
 public class OkapiRequestService {
