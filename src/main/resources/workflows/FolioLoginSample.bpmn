@@ -18,17 +18,22 @@
     <bpmn:sequenceFlow id="SequenceFlow_1jlr5jx" sourceRef="IntermediateThrowEvent_11ig6zm" targetRef="Task_1r26xog" />
     <bpmn:serviceTask id="Task_1r26xog" name="Okapi Request" camunda:delegateExpression="${genericOkapiRequestDelegate}">
       <bpmn:incoming>SequenceFlow_1jlr5jx</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_04xztty</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0pwa811</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_04xztty" sourceRef="Task_1r26xog" targetRef="Task_0fk4sn4" />
     <bpmn:endEvent id="EndEvent_0v7jjkm">
       <bpmn:incoming>SequenceFlow_13f2tlv</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_13f2tlv" sourceRef="Task_0fk4sn4" targetRef="EndEvent_0v7jjkm" />
     <bpmn:userTask id="Task_0fk4sn4" name="Wait">
-      <bpmn:incoming>SequenceFlow_04xztty</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1w9wjwm</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_13f2tlv</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0pwa811" sourceRef="Task_1r26xog" targetRef="Task_10r568m" />
+    <bpmn:sequenceFlow id="SequenceFlow_1w9wjwm" sourceRef="Task_10r568m" targetRef="Task_0fk4sn4" />
+    <bpmn:serviceTask id="Task_10r568m" name="Parse Response" camunda:delegateExpression="${parseOkapiResponseDelegate}">
+      <bpmn:incoming>SequenceFlow_0pwa811</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1w9wjwm</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmn:message id="Message_1h3lf4o" name="MessageLoginWaitEvent" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -69,27 +74,37 @@
       <bpmndi:BPMNShape id="ServiceTask_193x8oz_di" bpmnElement="Task_1r26xog">
         <dc:Bounds x="495" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_04xztty_di" bpmnElement="SequenceFlow_04xztty">
+      <bpmndi:BPMNShape id="EndEvent_0v7jjkm_di" bpmnElement="EndEvent_0v7jjkm">
+        <dc:Bounds x="940" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="913" y="141" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_13f2tlv_di" bpmnElement="SequenceFlow_13f2tlv">
+        <di:waypoint x="882" y="120" />
+        <di:waypoint x="940" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="866" y="98.5" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0ezj7a6_di" bpmnElement="Task_0fk4sn4">
+        <dc:Bounds x="782" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0pwa811_di" bpmnElement="SequenceFlow_0pwa811">
         <di:waypoint x="595" y="120" />
         <di:waypoint x="645" y="120" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="620" y="98.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="EndEvent_0v7jjkm_di" bpmnElement="EndEvent_0v7jjkm">
-        <dc:Bounds x="795" y="102" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="813" y="141" width="0" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_13f2tlv_di" bpmnElement="SequenceFlow_13f2tlv">
+      <bpmndi:BPMNEdge id="SequenceFlow_1w9wjwm_di" bpmnElement="SequenceFlow_1w9wjwm">
         <di:waypoint x="745" y="120" />
-        <di:waypoint x="795" y="120" />
+        <di:waypoint x="782" y="120" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="770" y="98.5" width="0" height="13" />
+          <dc:Bounds x="763.5" y="98.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="UserTask_0ezj7a6_di" bpmnElement="Task_0fk4sn4">
+      <bpmndi:BPMNShape id="ServiceTask_04m78k6_di" bpmnElement="Task_10r568m">
         <dc:Bounds x="645" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

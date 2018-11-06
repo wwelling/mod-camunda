@@ -110,7 +110,6 @@ public class OkapiRequestService {
 
     int statusCode = response.getStatusCodeValue();
     String responseBody = response.getBody().toString();
-    //SpinJsonNode responseBody = S(response.getBody(), json());
     log.info("responseBody: {}", responseBody);
 
     Map<String, String> responseHeaders = new HashMap<>();
