@@ -1,6 +1,8 @@
 package org.folio.rest.service;
 
+import org.camunda.bpm.engine.delegate.BpmnError;
 import org.camunda.spin.json.SpinJsonNode;
+import org.folio.rest.model.FolioLogin;
 import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.model.OkapiResponse;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +31,9 @@ public class OkapiRequestService {
   private static final String HEADER_OKAPI_TOKEN = "X-Okapi-Token";
 
   @Autowired HttpService httpService;
+
+  @Autowired
+  private LoginService loginService;
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
@@ -72,7 +78,11 @@ public class OkapiRequestService {
         request = new HttpEntity<>(payload, headers);
         log.info("Request: {}", request);
 
-        response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
+        try {
+          response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
+        } catch(HttpClientErrorException httpError) {
+          throw new BpmnError("LOGIN_ERROR", "Error logging in, retrying");
+        }
 
         return mapOkapiResponse(response);
 
