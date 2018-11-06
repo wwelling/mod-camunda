@@ -63,18 +63,7 @@ public class OkapiRequestService {
         request = new HttpEntity<>(headers);
         response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
 
-        int statusCode1 = response.getStatusCodeValue();
-        Map<String, String> responseHeaders1 = new HashMap<>();
-        responseHeaders1.put("x-okapi-token", response.getHeaders().getFirst("x-okapi-token"));
-        responseHeaders1.put("refreshtoken", response.getHeaders().getFirst("refreshtoken"));
-        SpinJsonNode responseBody1 = S(response.getBody(), json());
-
-        OkapiResponse okapiResponse1 = new OkapiResponse();
-        okapiResponse1.setStatusCode(statusCode1);
-        okapiResponse1.setHeaders(responseHeaders1);
-        okapiResponse1.setBody(responseBody1);
-
-        return okapiResponse1;
+        return mapOkapiResponse(response);
 
       case POST:
         addContentTypeHeader(headers, contentType);
@@ -85,27 +74,7 @@ public class OkapiRequestService {
 
         response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
 
-        log.info("<< RESPONSE >>");
-        log.info("STATUS: {}", response.getStatusCode().toString());
-        log.info("HEADERS: {}", response.getHeaders().toString());
-        log.info("BODY: {}", response.getBody().toString());
-
-        int statusCode = response.getStatusCodeValue();
-        //String responseBody = response.getBody().toString();
-        SpinJsonNode responseBody = S(response.getBody(), json());
-
-        Map<String, String> responseHeaders = new HashMap<>();
-        responseHeaders.put("x-okapi-token", response.getHeaders().getFirst("x-okapi-token"));
-        responseHeaders.put("refreshtoken", response.getHeaders().getFirst("refreshtoken"));
-
-        OkapiResponse okapiResponse = new OkapiResponse();
-        okapiResponse.setStatusCode(statusCode);
-        okapiResponse.setHeaders(responseHeaders);
-        okapiResponse.setBody(responseBody);
-
-        return okapiResponse;
-
-
+        return mapOkapiResponse(response);
 
       case PUT:
       case HEAD:
@@ -132,4 +101,27 @@ public class OkapiRequestService {
   }
 
   private void addOkapiToken(HttpHeaders headers, String token) { headers.add(HEADER_OKAPI_TOKEN, token); }
+
+  private OkapiResponse mapOkapiResponse(ResponseEntity<?> response) {
+    log.info("<< RESPONSE >>");
+    log.info("STATUS: {}", response.getStatusCode().toString());
+    log.info("HEADERS: {}", response.getHeaders().toString());
+    log.info("BODY: {}", response.getBody().toString());
+
+    int statusCode = response.getStatusCodeValue();
+    String responseBody = response.getBody().toString();
+    //SpinJsonNode responseBody = S(response.getBody(), json());
+    log.info("responseBody: {}", responseBody);
+
+    Map<String, String> responseHeaders = new HashMap<>();
+    responseHeaders.put("x-okapi-token", response.getHeaders().getFirst("x-okapi-token"));
+    responseHeaders.put("refreshtoken", response.getHeaders().getFirst("refreshtoken"));
+
+    OkapiResponse okapiResponse = new OkapiResponse();
+    okapiResponse.setStatusCode(statusCode);
+    okapiResponse.setHeaders(responseHeaders);
+    okapiResponse.setBody(responseBody);
+
+    return okapiResponse;
+  }
 }

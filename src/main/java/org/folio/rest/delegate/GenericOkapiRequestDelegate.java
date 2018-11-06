@@ -73,7 +73,7 @@ public class GenericOkapiRequestDelegate extends AbstractRuntimeDelegate {
 
     OkapiResponse okapiResponse = okapiRequestService.okapiRestCall(okapiRequest);
     log.info("OKAPI RESPONSE: {}", okapiResponse);
-    okapiResponse.setBody(null);
+    //okapiResponse.setBody(null);
 
     ObjectValue response = Variables.objectValue(okapiResponse)
       .serializationDataFormat("application/json")
