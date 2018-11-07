@@ -281,7 +281,7 @@ To run the process, we need to have a Folio instance running with `mod-camunda` 
   }
 }
 ```
-3. After triggering the message, the Okapi request will be made, the token will advance, and we should be able to inspect the response via the Camunda Cockpit
+After triggering the message, the Okapi request will be made, the token will advance, and we should be able to inspect the response via the Camunda Cockpit
 
 
 ## Camunda APIs
