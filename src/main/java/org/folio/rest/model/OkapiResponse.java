@@ -11,7 +11,7 @@ public class OkapiResponse implements Serializable {
 
   private Integer statusCode;
   private Map<String, String> headers;
-  private SpinJsonNode body;
+  private String body;
 
   @Override
   public String toString() {
@@ -61,11 +61,11 @@ public class OkapiResponse implements Serializable {
     this.headers = headers;
   }
 
-  public SpinJsonNode getBody() {
+  public String getBody() {
     return body;
   }
 
-  public void setBody(SpinJsonNode body) {
+  public void setBody(String body) {
     this.body = body;
   }
 }
