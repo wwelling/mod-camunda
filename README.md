@@ -251,6 +251,39 @@ The Purchase Request Process was identified as a candidate for the workflow POC
 * After the "Fund" task, an event is thrown that notifies a new `orderId` has been created and the process waits for a message event that the order has been received
 * Once the order has been received via a message event, it will send a notification message
 
+## Folio Login Sample
+Sample process to prototype the following
+* Logging into Folio and getting an `x-okapi-token` and `refreshtoken` to store in the process context for future Okapi calls
+* Prototype how to use the `refreshtoken` to get a new `x-okapi-token`
+* After logging in, using the token to make an Okapi request, parse the response, and save to the process context
+
+To run the process, we need to have a Folio instance running with `mod-camunda` and have the "Folio Login Sample" process deployed
+1. Start the process from the TaskList and be sure to add a `businessKey`, in this case we will use "A001"
+    1. Once the process is started, we make a call to Okapi to log in to Folio, then we have a wait event
+2. Trigger the wait event by sending the following message correlation payload to `localhost:9000/camunda/message`
+   1. Note the `businessKey` must match the one we started the process with
+   2. If you want to clear the original token, and test the refreshtoken, change the `retryLogin` value to "yes"
+   3. Note that in this case we are adding a new user to Folio by making a POST request to `/users`
+   4. Note that the `requestPayload` must be formatted as an escaped JSON String
+```
+{
+  "messageName" : "MessageLoginWaitEvent",
+  "businessKey" : "A001",
+  "tenantId" : "diku",
+  "processVariables" : {
+    "okapiRequest" : {"value" : "{\r\n    \t\"requestUrl\" : \"http://localhost:9130/users\",\r\n    \t\"requestMethod\" : \"POST\",\r\n    
+        \t\"requestContentType\" : \"application\/json\",\r\n    \t\"requestPayload\" : {\r\n    \t\t\"id\" : \"e6ea799c-bc30-11e8-a355-529269fb1459\",\r\n    
+        \t\t\"username\" : \"eexciting \"\r\n    \t},\r\n    \t\"responseStatusName\" : \"status\",\r\n    \t\"responseHeaderName\" : \"name\",\r\n    
+        \t\"responseBodyName\" : \"body\"\r\n    }", 
+    "type": "String"
+    },
+    "retryLogin" : {"value" : "no", "type" : "String"}
+  }
+}
+```
+After triggering the message, the Okapi request will be made, the token will advance, and we should be able to inspect the response via the Camunda Cockpit
+
+
 ## Camunda APIs
 * Process/Decision Deployment
     * [https://docs.camunda.org/manual/7.9/reference/rest/deployment/](https://docs.camunda.org/manual/7.9/reference/rest/deployment/)
