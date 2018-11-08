@@ -6,7 +6,7 @@ git clone https://github.com/folio-org/okapi.git
 
 cd okapi
 
-git checkout headers-hack
+git checkout master
 git pull
 
 mvn clean install -DskipTests
