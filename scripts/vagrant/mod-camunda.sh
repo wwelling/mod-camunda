@@ -6,7 +6,7 @@ git clone https://github.com/folio-org/mod-camunda.git
 
 cd mod-camunda
 
-git checkout master
+git checkout check-out-in-triggers 
 git pull
 
 mvn clean install -DskipTests

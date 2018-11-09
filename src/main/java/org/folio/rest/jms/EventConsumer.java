@@ -56,7 +56,7 @@ public class EventConsumer {
   }
 
   private void startProcess(Event event) {
-    if (event.getProcessDefinitionIds() != null) {
+    if (event.getProcessDefinitionIds().size() > 0) {
       event.getProcessDefinitionIds().forEach(processDefinitionId -> {
         runtimeService.startProcessInstanceById(processDefinitionId);
       });
@@ -76,7 +76,7 @@ public class EventConsumer {
         runtimeService.createMessageCorrelation("MessageStartClaimReturned")
           .tenantId(tenant)
           .processInstanceBusinessKey(businessKey)
-          .setVariable("", jsonNode)
+          .setVariable("checkOutJson", jsonNode)
           .correlateStartMessage();
       }
     }

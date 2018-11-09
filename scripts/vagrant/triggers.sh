@@ -33,7 +33,7 @@ echo '{
   "description": "Trigger for book check in",
   "type": "MESSAGE_CORRELATE",
   "method": "PUT",
-  "pathPattern": "/circulation/loans"
+  "pathPattern": "/circulation/loans/{id}"
 }' > check_in_trigger.json
 
 curl -v -X POST -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/triggers -d "@check_in_trigger.json"
