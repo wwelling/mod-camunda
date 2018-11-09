@@ -7,7 +7,7 @@ Vagrant.configure(2) do |config|
 
   # Note that provisioning a Stripes webpack requires more RAM
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = 16384
+    vb.memory = 12288
     vb.cpus = 4
   end
 

@@ -16,5 +16,27 @@ echo '{
 
 curl -v -X POST -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/triggers -d "@user_create_trigger.json"
 
+# create trigger on check out
+echo '{
+  "name": "Check Out",
+  "description": "Trigger for book check out",
+  "type": "PROCESS_START",
+  "method": "POST",
+  "pathPattern": "/circulation/check-out-by-barcode"
+}' > check_out_trigger.json
+
+curl -v -X POST -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/triggers -d "@check_out_trigger.json"
+
+# create trigger on check in
+echo '{
+  "name": "Check In",
+  "description": "Trigger for book check in",
+  "type": "MESSAGE_CORRELATE",
+  "method": "PUT",
+  "pathPattern": "/circulation/loans"
+}' > check_in_trigger.json
+
+curl -v -X POST -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" http://localhost:9130/triggers -d "@check_in_trigger.json"
+
 # cleanup
 rm -rf login-headers.tmp
