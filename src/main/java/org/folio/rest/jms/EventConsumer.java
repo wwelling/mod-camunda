@@ -110,7 +110,8 @@ public class EventConsumer {
         ProcessInstance processInstance = runtimeService.createMessageCorrelation("MessageStartClaimReturned")
           .tenantId(tenant)
           .processInstanceBusinessKey(businessKey)
-          .setVariable("checkOutJson", jsonNode)
+          //.setVariable("checkOutJson", jsonNode)
+          .setVariables(variables)
           .correlateStartMessage();
         logger.info("New Process Instance Id: {}", processInstance.getProcessInstanceId());
       }
