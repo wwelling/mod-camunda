@@ -62,7 +62,7 @@ public class EventConsumer {
 
     String[] eventPathArr = event.getPath().split("/");
 
-    if (eventPathArr[1].equals("circulation") && eventPathArr[2].equals("loans") && event.getMethod().equals("PUT")) {
+    if (event.getPathPattern().equals("/circulation/loans/{id}")) {
       String tenant = event.getTenant();
       String businessKey = eventPathArr[4];
 
