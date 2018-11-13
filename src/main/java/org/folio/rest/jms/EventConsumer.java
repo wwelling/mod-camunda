@@ -37,6 +37,12 @@ public class EventConsumer {
     logger.info("Receive [{}]: {}, {}, {}, {}", eventQueueName, event.getMethod(), event.getPath(), event.getTriggerType(), event.getPayload());
     logger.info("Event: {}", event.getPathPattern(), event.getTriggerId());
 
+    SpinJsonNode jsonNode = JSON(event.getPayload());
+    if (jsonNode.hasProp("errors")) {
+      logger.info("Event contains error in payload");
+      return;
+    }
+
     String tenant = event.getTenant();
 
     ThreadLocalStorage.setTenant(tenant);

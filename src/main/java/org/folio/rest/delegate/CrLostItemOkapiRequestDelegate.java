@@ -16,18 +16,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class CrLostitemOkapiRequestDelegate extends AbstractRuntimeDelegate {
-
-  private static final String REQUEST_URL = "requestUrl";
-  private static final String REQUEST_METHOD = "requestMethod";
-  private static final String REQUEST_PAYLOAD = "requestPayload";
-  private static final String REQUEST_URI_VARIABLES = "requestUriVariables";
-
-  private static final String REQUEST_CONTENT_TYPE = "requestContentType";
-
-  private static final String RESPONSE_STATUS = "responseStatusName";
-  private static final String RESPONSE_BODY = "responseBodyName";
-  private static final String RESPONSE_HEADER = "responseHeaderName";
+public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
@@ -61,7 +50,7 @@ public class CrLostitemOkapiRequestDelegate extends AbstractRuntimeDelegate {
     JSONObject json = new JSONObject();
     json.put("userId", userId);
     json.put("itemId", itemId);
-    SpinJsonNode payload = JSON(json);
+    SpinJsonNode payload = JSON(json.toString());
 
     OkapiRequest okapiRequest = new OkapiRequest();
     okapiRequest.setTenant(tenant);

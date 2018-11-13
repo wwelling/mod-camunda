@@ -19,7 +19,7 @@
         <bpmn:outgoing>SequenceFlow_01rs5a1</bpmn:outgoing>
       </bpmn:exclusiveGateway>
       <bpmn:sequenceFlow id="SequenceFlow_0oax3uf" sourceRef="Task_1uqsad0" targetRef="ExclusiveGateway_138bi4p" />
-      <bpmn:sequenceFlow id="SequenceFlow_1juvppw" sourceRef="ExclusiveGateway_138bi4p" targetRef="Task_0jyvldw">
+      <bpmn:sequenceFlow id="SequenceFlow_1juvppw" sourceRef="ExclusiveGateway_138bi4p" targetRef="Task_0qj3xev">
         <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${claimAction == "checkIn"}</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
       <bpmn:endEvent id="EndEvent_086e45y">
@@ -97,24 +97,8 @@
         <bpmn:incoming>SequenceFlow_0kavdsz</bpmn:incoming>
         <bpmn:outgoing>SequenceFlow_03p3j5b</bpmn:outgoing>
       </bpmn:userTask>
-      <bpmn:userTask id="Task_0jyvldw" name="Checked In">
-        <bpmn:extensionElements>
-          <camunda:formData>
-            <camunda:formField id="requestUrl" label="Request URL" type="string" />
-            <camunda:formField id="requestMethod" label="Request Method" type="string" />
-            <camunda:formField id="requestPayload" label="Request Payload" type="string" />
-            <camunda:formField id="requestUriVariables" label="Request URI Variables" type="string" />
-            <camunda:formField id="requestContentType" label="Request Content Type" type="string" />
-            <camunda:formField id="responseStatusName" label="Response Status Name" type="string" />
-            <camunda:formField id="responseBodyName" label="Response Body Name" type="string" />
-          </camunda:formData>
-        </bpmn:extensionElements>
+      <bpmn:serviceTask id="Task_0qj3xev" name="Check In Delegate" camunda:delegateExpression="${crCheckInItemDelegate}">
         <bpmn:incoming>SequenceFlow_1juvppw</bpmn:incoming>
-        <bpmn:outgoing>SequenceFlow_0wltwqf</bpmn:outgoing>
-      </bpmn:userTask>
-      <bpmn:sequenceFlow id="SequenceFlow_0wltwqf" sourceRef="Task_0jyvldw" targetRef="Task_0qj3xev" />
-      <bpmn:serviceTask id="Task_0qj3xev" name="Okapi Delegate" camunda:delegateExpression="${okapiRequestDelegate}">
-        <bpmn:incoming>SequenceFlow_0wltwqf</bpmn:incoming>
         <bpmn:outgoing>SequenceFlow_1d9m1lv</bpmn:outgoing>
       </bpmn:serviceTask>
       <bpmn:sequenceFlow id="SequenceFlow_1d9m1lv" sourceRef="Task_0qj3xev" targetRef="Task_1wdleo8" />
@@ -123,7 +107,9 @@
         <bpmn:incoming>SequenceFlow_1d9m1lv</bpmn:incoming>
         <bpmn:outgoing>SequenceFlow_1bpmnh9</bpmn:outgoing>
       </bpmn:userTask>
-      <bpmn:sequenceFlow id="SequenceFlow_01rs5a1" sourceRef="ExclusiveGateway_138bi4p" targetRef="Task_0zwozt9" />
+      <bpmn:sequenceFlow id="SequenceFlow_01rs5a1" sourceRef="ExclusiveGateway_138bi4p" targetRef="Task_0zwozt9">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${claimAction == "lostItem"}</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
       <bpmn:serviceTask id="Task_0zwozt9" name="Lost Item Okapi Request" camunda:delegateExpression="${crLostItemOkapiRequestDelegate}">
         <bpmn:incoming>SequenceFlow_01rs5a1</bpmn:incoming>
         <bpmn:outgoing>SequenceFlow_0kavdsz</bpmn:outgoing>
@@ -193,7 +179,7 @@
         <di:waypoint x="629" y="285" />
         <di:waypoint x="679" y="285" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="609" y="264" width="90" height="13" />
+          <dc:Bounds x="609" y="263.5" width="90" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_086e45y_di" bpmnElement="EndEvent_086e45y">
@@ -366,24 +352,14 @@
       <bpmndi:BPMNShape id="UserTask_0mpt2nb_di" bpmnElement="Task_03kvsr1">
         <dc:Bounds x="979" y="355" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_04j9oux_di" bpmnElement="Task_0jyvldw">
+      <bpmndi:BPMNShape id="ServiceTask_0xpk22w_di" bpmnElement="Task_0qj3xev">
         <dc:Bounds x="679" y="245" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0wltwqf_di" bpmnElement="SequenceFlow_0wltwqf">
-        <di:waypoint x="779" y="285" />
-        <di:waypoint x="829" y="285" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="759" y="264" width="90" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_0xpk22w_di" bpmnElement="Task_0qj3xev">
-        <dc:Bounds x="829" y="245" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1d9m1lv_di" bpmnElement="SequenceFlow_1d9m1lv">
-        <di:waypoint x="929" y="285" />
+        <di:waypoint x="779" y="285" />
         <di:waypoint x="979" y="285" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="909" y="264" width="90" height="13" />
+          <dc:Bounds x="834" y="263.5" width="90" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1bpmnh9_di" bpmnElement="SequenceFlow_1bpmnh9">
