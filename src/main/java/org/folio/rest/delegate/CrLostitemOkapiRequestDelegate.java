@@ -1,6 +1,7 @@
 package org.folio.rest.delegate;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.impl.util.json.JSONObject;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.spin.json.SpinJsonNode;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class GenericOkapiRequestDelegate extends AbstractRuntimeDelegate {
+public class CrLostitemOkapiRequestDelegate extends AbstractRuntimeDelegate {
 
   private static final String REQUEST_URL = "requestUrl";
   private static final String REQUEST_METHOD = "requestMethod";
@@ -36,9 +37,13 @@ public class GenericOkapiRequestDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    log.info("Executing Generic Okapi Request Delegate");
+    // TODO: THIS REQUEST IS DOING A 'RENEW' IN FOLIO
+    //       LOST ITEM IS NOT YET ACTIVE
+    log.info("Executing Lost Item Okapi Request Delegate");
 
     String tenant = execution.getTenantId();
+    String userId = execution.getVariable("userId").toString();
+    String itemId = execution.getVariable("itemId").toString();
 
     String okapiToken = "";
     if (execution.getVariable("folioLogin") != null) {
@@ -46,16 +51,17 @@ public class GenericOkapiRequestDelegate extends AbstractRuntimeDelegate {
       okapiToken = folioLogin.getxOkapiToken();
     }
 
-    SpinJsonNode jsonNode = JSON(execution.getVariable("okapiRequest"));
+    String requestUrl = "http://localhost:9130/circulation/renew-by-id";
+    String requestMethod = "POST";
+    String requestContentType = "application/json";
+    String responseStatusName = "";
+    String responseHeaderName = "";
+    String responseBodyName = "";
 
-    // TODO: Refactor to map directly to OkapiRequest
-    String requestUrl = jsonNode.prop(REQUEST_URL).stringValue();
-    String requestMethod = jsonNode.prop(REQUEST_METHOD).stringValue();
-    String requestContentType = jsonNode.prop(REQUEST_CONTENT_TYPE).stringValue();
-    String responseStatusName = jsonNode.prop(RESPONSE_STATUS).stringValue();
-    String responseHeaderName = jsonNode.prop(RESPONSE_HEADER).stringValue();
-    String responseBodyName = jsonNode.prop(RESPONSE_BODY).stringValue();
-    SpinJsonNode payload = jsonNode.prop(REQUEST_PAYLOAD);
+    JSONObject json = new JSONObject();
+    json.put("userId", userId);
+    json.put("itemId", itemId);
+    SpinJsonNode payload = JSON(json);
 
     OkapiRequest okapiRequest = new OkapiRequest();
     okapiRequest.setTenant(tenant);
@@ -68,17 +74,16 @@ public class GenericOkapiRequestDelegate extends AbstractRuntimeDelegate {
     okapiRequest.setRequestPayload(payload);
     okapiRequest.setOkapiToken(okapiToken);
 
-    log.info("JSON: {}", jsonNode);
     log.info("payload: {}", payload);
 
     OkapiResponse okapiResponse = okapiRequestService.okapiRestCall(okapiRequest);
-    log.info("OKAPI RESPONSE: {}", okapiResponse);
+    log.info("OKAPI RESPONSE RENEW: {}", okapiResponse);
 
     ObjectValue response = Variables.objectValue(okapiResponse)
       .serializationDataFormat("application/json")
       .create();
 
-    execution.setVariable("okapiResponse", response);
+    execution.setVariable("okapiResponseRenew", response);
 
   }
 
