@@ -32,9 +32,7 @@ public class CrCheckInItemDelegate extends AbstractRuntimeDelegate {
     String loanId = execution.getProcessBusinessKey();
     String userId = execution.getVariable("userId").toString();
     String itemId = execution.getVariable("itemId").toString();
-    SpinJsonNode checkOutJson = JSON(execution.getVariable("checkOutJson"));
-
-    log.info("json prop item: {}", checkOutJson.prop("item").stringValue());
+    SpinJsonNode checkOutJson = JSON(execution.getVariable("checkOutJson").toString());
 
     String okapiToken = "";
     if (execution.getVariable("folioLogin") != null) {

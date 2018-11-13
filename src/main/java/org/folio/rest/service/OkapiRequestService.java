@@ -82,6 +82,19 @@ public class OkapiRequestService {
         return mapOkapiResponse(response);
 
       case PUT:
+        addContentTypeHeader(headers, contentType);
+        addTenantHeader(headers, tenant);
+        addOkapiToken(headers, token);
+        request = new HttpEntity<>(payload, headers);
+        log.info("Request: {}", request);
+
+        try {
+          response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
+        } catch(HttpClientErrorException httpError) {
+          throw new BpmnError("LOGIN_ERROR", "Error logging in, retrying");
+        }
+
+        return mapOkapiResponse(response);
       case HEAD:
       case OPTIONS:
       case PATCH:
