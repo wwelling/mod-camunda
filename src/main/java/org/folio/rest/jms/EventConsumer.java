@@ -72,18 +72,14 @@ public class EventConsumer {
       String tenant = event.getTenant();
       String businessKey = eventPathArr[4];
 
-      // Option 1, no result
-      //runtimeService.correlateMessage("MessageClaimReturnedExternal", businessKey);
-
-      //Option 2, with tenant sent and result returned if the Execution or ProcessInstance metadata is needed
+      // Correlate message
       MessageCorrelationResult result = runtimeService.createMessageCorrelation("MessageClaimReturnedExternal")
         .tenantId(tenant)
         .processInstanceBusinessKey(businessKey)
         .correlateWithResult();
-      logger.info("Message Result: {}, Process Instance Id: {}, Process Definition Id",
+      logger.info("Message Result: {}, Process Instance Id: {}",
         result,
-        result.getExecution().getProcessInstanceId(),
-        result.getProcessInstance().getProcessDefinitionId());
+        result.getExecution().getProcessInstanceId());
     }
 
   }
@@ -96,7 +92,6 @@ public class EventConsumer {
     } else {
       if (event.getPath().equals(CHECK_OUT_PATH)) {
         logger.info("Starting Claims Returned");
-        // Parse event object for data to start process
 
         String tenant = event.getTenant();
 
@@ -112,11 +107,9 @@ public class EventConsumer {
         variables.put("checkedCount", 0);
 
         // Start Claims Returned Process
-        //runtimeService.startProcessInstanceByMessage("MessageStartClaimReturned", "businessKey");
         ProcessInstance processInstance = runtimeService.createMessageCorrelation("MessageStartClaimReturned")
           .tenantId(tenant)
           .processInstanceBusinessKey(businessKey)
-          //.setVariable("checkOutJson", jsonNode)
           .setVariables(variables)
           .correlateStartMessage();
         logger.info("New Process Instance Id: {}", processInstance.getProcessInstanceId());

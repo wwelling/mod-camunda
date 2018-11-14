@@ -54,23 +54,12 @@ public class CrUpdateLoanStatusDelegate extends AbstractRuntimeDelegate {
     json.put("itemId", itemId);
 
     JSONObject item = new JSONObject();
-    //item.put("title", checkOutJson.prop("item").prop("title").stringValue());
-    //item.put("barcode", checkOutJson.prop("item").prop("barcode").stringValue());
-
     JSONObject itemStatus = new JSONObject();
     itemStatus.put("name", "Lost");
-
     item.put("status", itemStatus);
-    //item.put("location", checkOutJson.prop("item").prop("location").stringValue());
+
     json.put("item", item);
-
     json.put("loanDate", checkOutJson.prop("loanDate").stringValue());
-    //json.put("returnDate", "2018-11-14T09:15:23Z");
-
-    //JSONObject status = new JSONObject();
-    //status.put("name", "Closed");
-
-    //json.put("status", status);
     json.put("action", "lost");
 
     SpinJsonNode payload = JSON(json.toString());

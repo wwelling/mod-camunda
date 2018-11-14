@@ -157,7 +157,7 @@
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1ngs0ny" sourceRef="BoundaryEvent_1tu52i2" targetRef="Task_1u17nj7" />
     <bpmn:sequenceFlow id="SequenceFlow_10v1jwb" sourceRef="Task_1u17nj7" targetRef="EndEvent_1421222" />
-    <bpmn:serviceTask id="Task_1u17nj7" name="Notify of External Update" camunda:delegateExpression="${crExternalCheckInDelegate}">
+    <bpmn:serviceTask id="Task_1u17nj7" name="Notify of External Update" camunda:asyncBefore="true" camunda:delegateExpression="${crExternalCheckInDelegate}">
       <bpmn:incoming>SequenceFlow_1ngs0ny</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_10v1jwb</bpmn:outgoing>
     </bpmn:serviceTask>
