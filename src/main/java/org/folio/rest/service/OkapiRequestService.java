@@ -124,10 +124,15 @@ public class OkapiRequestService {
     log.info("<< RESPONSE >>");
     log.info("STATUS: {}", response.getStatusCode().toString());
     log.info("HEADERS: {}", response.getHeaders().toString());
-    log.info("BODY: {}", response.getBody().toString());
+    if (response.getBody() != null) {
+      log.info("BODY: {}", response.getBody().toString());
+    }
 
     int statusCode = response.getStatusCodeValue();
-    String responseBody = response.getBody().toString();
+    String responseBody = "";
+    if (response.getBody() != null) {
+      responseBody = response.getBody().toString();
+    }
     log.info("responseBody: {}", responseBody);
 
     Map<String, String> responseHeaders = new HashMap<>();

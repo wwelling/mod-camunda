@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class CrCheckInItemDelegate extends AbstractRuntimeDelegate {
+public class CrUpdateLoanStatusDelegate extends AbstractRuntimeDelegate {
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
@@ -26,7 +26,7 @@ public class CrCheckInItemDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    log.info("Executing Check In Item Delegate");
+    log.info("Executing Update Loan Status Delegate");
 
     String tenant = execution.getTenantId();
     String loanId = execution.getProcessBusinessKey();
@@ -53,28 +53,25 @@ public class CrCheckInItemDelegate extends AbstractRuntimeDelegate {
     json.put("userId", userId);
     json.put("itemId", itemId);
 
-    // NOT NEEDED FOR CALL RIGHT NOW
-    /*
     JSONObject item = new JSONObject();
-    item.put("title", checkOutJson.prop("item").prop("title").stringValue());
-    item.put("barcode", checkOutJson.prop("item").prop("barcode").stringValue());
+    //item.put("title", checkOutJson.prop("item").prop("title").stringValue());
+    //item.put("barcode", checkOutJson.prop("item").prop("barcode").stringValue());
 
     JSONObject itemStatus = new JSONObject();
-    itemStatus.put("name", "Available");
+    itemStatus.put("name", "Lost");
 
     item.put("status", itemStatus);
-    item.put("location", checkOutJson.prop("item").prop("location").stringValue());
+    //item.put("location", checkOutJson.prop("item").prop("location").stringValue());
     json.put("item", item);
-    */
 
     json.put("loanDate", checkOutJson.prop("loanDate").stringValue());
     //json.put("returnDate", "2018-11-14T09:15:23Z");
 
-    JSONObject status = new JSONObject();
-    status.put("name", "Closed");
+    //JSONObject status = new JSONObject();
+    //status.put("name", "Closed");
 
-    json.put("status", status);
-    json.put("action", "checkedin");
+    //json.put("status", status);
+    json.put("action", "lost");
 
     SpinJsonNode payload = JSON(json.toString());
 
@@ -92,13 +89,13 @@ public class CrCheckInItemDelegate extends AbstractRuntimeDelegate {
     log.info("payload: {}", payload);
 
     OkapiResponse okapiResponse = okapiRequestService.okapiRestCall(okapiRequest);
-    log.info("OKAPI RESPONSE CHECK IN: {}", okapiResponse);
+    log.info("OKAPI RESPONSE UPDATE LOAN STATUS: {}", okapiResponse);
 
     ObjectValue response = Variables.objectValue(okapiResponse)
       .serializationDataFormat("application/json")
       .create();
 
-    execution.setVariable("okapiResponseCheckIn", response);
+    execution.setVariable("okapiResponseUpdateLoanStatus", response);
 
   }
 
