@@ -24,7 +24,6 @@ public class EventConsumer {
   private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
 
   private static final String CHECK_OUT_PATH = "/events/circulation/check-out-by-barcode";
-  private static final String CHECK_IN_PATH = "/events/circulation/loans";
 
   @Value("${event.queue.name}")
   private String eventQueueName;
@@ -85,7 +84,7 @@ public class EventConsumer {
   }
 
   private void startProcess(Event event) {
-    if (event.getProcessDefinitionIds().size() > 0) {
+    if (!event.getProcessDefinitionIds().isEmpty()) {
       event.getProcessDefinitionIds().forEach(processDefinitionId -> {
         runtimeService.startProcessInstanceById(processDefinitionId);
       });

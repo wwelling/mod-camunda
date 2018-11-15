@@ -29,10 +29,7 @@ public class CrPatronNotificationDelegate extends AbstractRuntimeDelegate {
     log.info("Executing Patron Notification Delegate");
 
     String tenant = execution.getTenantId();
-    String loanId = execution.getProcessBusinessKey();
     String userId = execution.getVariable("userId").toString();
-    String itemId = execution.getVariable("itemId").toString();
-    SpinJsonNode checkOutJson = JSON(execution.getVariable("checkOutJson").toString());
 
     String okapiToken = "";
     if (execution.getVariable("folioLogin") != null) {
