@@ -17,6 +17,7 @@ See the file ["LICENSE"](LICENSE) for more information.
 5. FOLIO POC Processes
     1. [Claim Returned](#claim-return)
     2. [Purchase Request](#purchase-request)
+    3. [Folio Login Sample](#folio-login-sample)
 6. [Camunda APIs](#camunda-apis)
 7. [ActiveMQ Message Broker](#activemq-message-broker)
 8. [FOLIO Integration](#folio-integration)
@@ -198,7 +199,9 @@ After starting, this process has the following activities
     * Topic: ExternalTask1
 
 ## Claim Return
-The Claim Return Process was identified as a candidate for the workflow POC.
+The Claim Return Process was identified as a candidate for the workflow POC. Some of the functionality required for this process is not yet in FOLIO, so the triggers are in different places for the purpose of the POC.
+
+#### Business Case Requirements for Claim Returned 
 * A process is started when a claim is marked as "claim returned" from a students profile
     * This should send an event to start a Camunda process with a data payload
 * There will be a separate dashboard displayed with all of the open claims (out of scope for this project)
@@ -210,38 +213,24 @@ The Claim Return Process was identified as a candidate for the workflow POC.
         * Lost item
         * Missing item
         * Increment the count (we can configure the max number of counts as well)
+    * NOTE: The current implementation has the following integration        
 * The process can be interrupted at any point if the book is checked in from an external source
 
-### Claim Returned Okapi Delegate
-* Start the process and in the "Update Claim" task, select "Check In"
-* This will generate a "Check In" task
-    * In this task, you can input all of the request/response variables and upon completion, the `OkapiRequestDelegate` will execute
-    * It may be easier (especially for PUT/POST requests) to use curl or Postman
-        * Query the Tasks API to get the taskId of the open "Check In" task
-        * Execute the Complete Task API call with this taskId and a body containing the required request/response variables
-
-POST to `localhost:9000/camunda/task` to query open tasks, filtered by Claim Return Process and Checked In tasks
-```
-{
-    "processDefinitionKey" : "Process_ClaimReturned1",
-    "name" : "Checked In",
-    "tenantId" : "diku"
-}
-```
-POST to `localhost:9000/camunda/task/<taskId>/complete` to claim and complete this task
-```
-{
-    "variables" : {
-        "requestUrl" : { "value" : "http://localhost:9000"},
-        "requestMethod" : { "value" : "GET" },
-        "requestPayload" : { "value" : null },
-        "requestUriVariables" : { "value" : null },
-        "requestContentType" : { "value" : null },
-        "responseStatusName" : { "value" : "checkInResponse" },
-        "responseBodyName" : { "value" : "checkInResponseBody" }
-    }
-}
-```
+#### Current POC Implementation
+* The current implementation starts the process when a book is checked out to a patron since the claims returned functionality is not yet developed in FOLIO.
+    * There is a trigger that is set up to send an event to the message queue that `mod-camunda` is listening to when a POST request is made to `/circulation/check-out-by-barcode`
+    * When `mod-camunda` receives this event, it will start the Claim Returned process with the payload
+* A decision has yet to be made on whether or not this process will do "monitoring" or "managing", so for the sake of the POC, it can do a bit of both, but only one at a time
+    * For "monitoring", after the process is started, we want to be able to advance the process if the relevant item is checked in from an external source within FOLIO
+        * To handle this, we have another trigger listening to PUT requests at `/circulation/loans/{loanId}`
+        * When an update (check-in) happens, we will correlate a message to the existing process instance and have a delegate log that an external check-in has ocurred
+        * In the future, this delegate could be updated to send an email or notification
+    * For "managing" the process, once it is started, a user task is created to search for the item and make a decision
+        * Check in - the item was found and a delegate will make an Okapi request to check the book in (without having to touch the FOLIO UI)
+        * Lost item - declare the item lost, a delegate will first update the status of the loan by making an Okapi request, then a separate delegate will make another Okapi request to create a notification for the patron
+        * Missing item - declare the item missing, currently this functionality is not in FOLIO, for the sake of the POC, a delegate will make an Okapi request to renew the item
+        * Increment count - simply increment the count until a max of 3, after 3 times, the user will need to make a decision to declare the item lost, missing, or end the process
+        * NOTE: to perform any of these actions that "manage" the process, we need to remove the trigger at `circulation/loans/{loanId}` or disable the `CORRELATE_MESSAGE` since it will cause conflicts
 
 ## Purchase Request
 The Purchase Request Process was identified as a candidate for the workflow POC
