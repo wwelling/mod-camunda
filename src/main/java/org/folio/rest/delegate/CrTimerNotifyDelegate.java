@@ -10,10 +10,10 @@ public class CrTimerNotifyDelegate extends AbstractLoggingDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     log.info("Executing Claim Returned Timer Notification Delegate");
 
-    String book = execution.getVariable("bookId").toString();
+    String itemId = execution.getVariable("itemId").toString();
     String count = execution.getVariable("checkedCount").toString();
 
-    log.info("5 minute timing interval has passed. The count for book {} is {}", book, count);
+    log.info("5 minute timing interval has passed. The count for item {} is {}", itemId, count);
   }
 
 }

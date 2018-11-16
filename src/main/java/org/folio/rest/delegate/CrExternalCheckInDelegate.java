@@ -10,9 +10,9 @@ public class CrExternalCheckInDelegate extends AbstractLoggingDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     log.info("Executing External Claim Returned Notification Delegate");
 
-    String book = execution.getVariable("bookId").toString();
+    String itemId = execution.getVariable("itemId").toString();
 
-    log.info("Book {} checked in from external source, terminating process.", book);
+    log.info("Item {} checked in from external source, removing item from open Claims Returned list.", itemId);
   }
 
 }
