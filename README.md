@@ -133,13 +133,13 @@ Steps to run TestProcess1
 * Manual Start Event
   * Has one start form variable `startVariable` that defaults to "hello"
 
-* System1 Task is a Delegate expression `${system1Delegate}` which is found at `org.folio.rest.delegate.System1Delegate`. 
+* System1 Task is a Delegate expression `${system1Delegate}` which is found at `org.folio.rest.delegate.System1Delegate`.
   * This delegate has some logging of various process attributes
   * This delegate also adds `delegateVariable` "SampleStringVariable" to the process context
 
 * Task1 pre-populates two fields with the already initialized process variables
   * This task also has a new boolean variable `throwError`
-  
+
 * Throw Runtime Error task is a Java Class implementation (just another way of doing things other than Delegate Expression) which is found at `org.folio.rest.delegate.ThrowRuntimeErrorDelegate`
   * This task intentionally throws a runtime IndexOutOfBoundsException
   * We catch this exception and start an error handling sub-process
@@ -163,12 +163,12 @@ If starting from the REST API, below is a sample payload. Documentation found [h
 ```
 After starting, this process has the following activities
 * System Delegate - same delegate as "Test Process 1"
-* Decision Table - a sample decision table 
+* Decision Table - a sample decision table
     * Deployed "Decision1.dmn"
     * Can visualize this table in Camunda Modeler (same for .bpmn process diagrams)
     * Decision takes in a variable created in the first delegate and maps a simple String output
     * Decision table is tenant aware via `${execution.tenantId}`
-* (Catch) Intermediate Message Event 
+* (Catch) Intermediate Message Event
     * Message Name: "Message_ReceiveEvent1"
     * Token waits here until a message is received that correlates to the active instance
     * Message is sent from "Test Master Process" but can also be sent from REST API `localhost:9000/camunda/message` with below payload
@@ -201,7 +201,7 @@ After starting, this process has the following activities
 ## Claim Return
 The Claim Return Process was identified as a candidate for the workflow POC. Some of the functionality required for this process is not yet in FOLIO, so the triggers are in different places for the purpose of the POC.
 
-#### Business Case Requirements for Claim Returned 
+#### Business Case Requirements for Claim Returned
 * A process is started when a claim is marked as "claim returned" from a students profile
     * This should send an event to start a Camunda process with a data payload
 * There will be a separate dashboard displayed with all of the open claims (out of scope for this project)
@@ -213,7 +213,7 @@ The Claim Return Process was identified as a candidate for the workflow POC. Som
         * Lost item
         * Missing item
         * Increment the count (we can configure the max number of counts as well)
-    * NOTE: The current implementation has the following integration        
+    * NOTE: The current implementation has the following integration
 * The process can be interrupted at any point if the book is checked in from an external source
 
 #### Current POC Implementation
@@ -235,7 +235,7 @@ The Claim Return Process was identified as a candidate for the workflow POC. Som
 ## Purchase Request
 The Purchase Request Process was identified as a candidate for the workflow POC
 * A process can be started with a "start form" directly from the Camunda Tasklist, or can be started from the REST API with a JSON payload
-* After a process is started there is a "Selector" task 
+* After a process is started there is a "Selector" task
 * If the Selector chooses to fund the request, a "Fund" task will be selected and the output of this task is a new `orderId`
 * After the "Fund" task, an event is thrown that notifies a new `orderId` has been created and the process waits for a message event that the order has been received
 * Once the order has been received via a message event, it will send a notification message
@@ -260,10 +260,10 @@ To run the process, we need to have a Folio instance running with `mod-camunda` 
   "businessKey" : "A001",
   "tenantId" : "diku",
   "processVariables" : {
-    "okapiRequest" : {"value" : "{\r\n    \t\"requestUrl\" : \"http://localhost:9130/users\",\r\n    \t\"requestMethod\" : \"POST\",\r\n    
-        \t\"requestContentType\" : \"application\/json\",\r\n    \t\"requestPayload\" : {\r\n    \t\t\"id\" : \"e6ea799c-bc30-11e8-a355-529269fb1459\",\r\n    
-        \t\t\"username\" : \"eexciting \"\r\n    \t},\r\n    \t\"responseStatusName\" : \"status\",\r\n    \t\"responseHeaderName\" : \"name\",\r\n    
-        \t\"responseBodyName\" : \"body\"\r\n    }", 
+    "okapiRequest" : {"value" : "{\r\n    \t\"requestUrl\" : \"http://localhost:9130/users\",\r\n    \t\"requestMethod\" : \"POST\",\r\n
+        \t\"requestContentType\" : \"application\/json\",\r\n    \t\"requestPayload\" : {\r\n    \t\t\"id\" : \"e6ea799c-bc30-11e8-a355-529269fb1459\",\r\n
+        \t\t\"username\" : \"eexciting \"\r\n    \t},\r\n    \t\"responseStatusName\" : \"status\",\r\n    \t\"responseHeaderName\" : \"name\",\r\n
+        \t\"responseBodyName\" : \"body\"\r\n    }",
     "type": "String"
     },
     "retryLogin" : {"value" : "no", "type" : "String"}
@@ -301,7 +301,7 @@ After triggering the message, the Okapi request will be made, the token will adv
     * GET
         * /camunda/task
         * /camunda/task/{id}
-    * POST 
+    * POST
         * /camunda/task/{id}/claim
         * /camunda/task/{id}/unclaim
         * /camunda/task/{id}/complete
