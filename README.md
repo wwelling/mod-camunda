@@ -17,7 +17,7 @@ See the file ["LICENSE"](LICENSE) for more information.
 5. FOLIO POC Processes
     1. [Claim Returned](#claim-return)
     2. [Purchase Request](#purchase-request)
-    3. [Folio Login Sample](#folio-login-sample)
+    3. [FOLIO Login Sample](#folio-login-sample)
 6. [Camunda APIs](#camunda-apis)
 7. [ActiveMQ Message Broker](#activemq-message-broker)
 8. [FOLIO Integration](#folio-integration)
@@ -87,13 +87,13 @@ Any Java code that is executed in the context of a process is usually written in
 
 ## Deploy and run the application
 1. Run the application `mvn clean spring-boot:run`
-    1. Note there is a hard dependency on ActiveMQ, if running without ActiveMQ, be sure to comment out `activemq.broker-url: tcp://localhost:61616` in the application.yml
+    1. Note there is a hard dependency on ActiveMQ. If running without ActiveMQ, be sure to comment out `activemq.broker-url: tcp://localhost:61616` in the application.yml
 2. Deploy all the processes by running scripts/deploy.sh file
 3. Navigate to Camunda Portal `localhost:9000/app/welcome/default/#/welcome`
 4. Log in as admin username: `admin`, password: `admin`
 
 ## Test Master Process
-This is the master process which can start the other processes as well as send events.
+This is the master process which can start the other processes, as well as send events.
 1. Navigate to the Camunda Tasklist
 2. Start "Test Master Process"
 3. Upon starting, you will receive a "Choose Path" task
@@ -202,7 +202,7 @@ After starting, this process has the following activities
 The Claim Return Process was identified as a candidate for the workflow POC. Some of the functionality required for this process is not yet in FOLIO, so the triggers are in different places for the purpose of the POC.
 
 #### Business Case Requirements for Claim Returned
-* A process is started when a claim is marked as "claim returned" from a students profile
+* A process is started when a claim is marked as "claim returned" from a student's profile
     * This should send an event to start a Camunda process with a data payload
 * There will be a separate dashboard displayed with all of the open claims (out of scope for this project)
     * A user can select any number of claims from this list and manually check for them
@@ -217,7 +217,7 @@ The Claim Return Process was identified as a candidate for the workflow POC. Som
 * The process can be interrupted at any point if the book is checked in from an external source
 
 #### Current POC Implementation
-* The current implementation starts the process when a book is checked out to a patron since the claims returned functionality is not yet developed in FOLIO.
+* The current implementation starts the process when a book is checked out to a patron, since the claims returned functionality is not yet developed in FOLIO.
     * There is a trigger that is set up to send an event to the message queue that `mod-camunda` is listening to when a POST request is made to `/circulation/check-out-by-barcode`
     * When `mod-camunda` receives this event, it will start the Claim Returned process with the payload
 * A decision has yet to be made on whether or not this process will do "monitoring" or "managing", so for the sake of the POC, it can do a bit of both, but only one at a time
@@ -229,7 +229,7 @@ The Claim Return Process was identified as a candidate for the workflow POC. Som
         * Check in - the item was found and a delegate will make an Okapi request to check the book in (without having to touch the FOLIO UI)
         * Lost item - declare the item lost, a delegate will first update the status of the loan by making an Okapi request, then a separate delegate will make another Okapi request to create a notification for the patron
         * Missing item - declare the item missing, currently this functionality is not in FOLIO, for the sake of the POC, a delegate will make an Okapi request to renew the item
-        * Increment count - simply increment the count until a max of 3, after 3 times, the user will need to make a decision to declare the item lost, missing, or end the process
+        * Increment count - simply increment the count until a max of 3. After 3 times, the user will need to make a decision to declare the item lost, missing, or end the process
         * NOTE: to perform any of these actions that "manage" the process, we need to remove the trigger at `circulation/loans/{loanId}` or disable the `CORRELATE_MESSAGE` since it will cause conflicts
 
 ## Purchase Request
@@ -240,19 +240,19 @@ The Purchase Request Process was identified as a candidate for the workflow POC
 * After the "Fund" task, an event is thrown that notifies a new `orderId` has been created and the process waits for a message event that the order has been received
 * Once the order has been received via a message event, it will send a notification message
 
-## Folio Login Sample
+## FOLIO Login Sample
 Sample process to prototype the following
-* Logging into Folio and getting an `x-okapi-token` and `refreshtoken` to store in the process context for future Okapi calls
+* Logging into FOLIO and getting an `x-okapi-token` and `refreshtoken` to store in the process context for future Okapi calls
 * Prototype how to use the `refreshtoken` to get a new `x-okapi-token`
 * After logging in, using the token to make an Okapi request, parse the response, and save to the process context
 
-To run the process, we need to have a Folio instance running with `mod-camunda` and have the "Folio Login Sample" process deployed
+To run the process, we need to have a FOLIO instance running with `mod-camunda` and have the "FOLIO Login Sample" process deployed
 1. Start the process from the TaskList and be sure to add a `businessKey`, in this case we will use "A001"
-    1. Once the process is started, we make a call to Okapi to log in to Folio, then we have a wait event
+    1. Once the process is started, we make a call to Okapi to log in to FOLIO, then we have a wait event
 2. Trigger the wait event by sending the following message correlation payload to `localhost:9000/camunda/message`
    1. Note the `businessKey` must match the one we started the process with
    2. If you want to clear the original token, and test the refreshtoken, change the `retryLogin` value to "yes"
-   3. Note that in this case we are adding a new user to Folio by making a POST request to `/users`
+   3. Note that in this case we are adding a new user to FOLIO by making a POST request to `/users`
    4. Note that the `requestPayload` must be formatted as an escaped JSON String
 ```
 {
@@ -323,13 +323,13 @@ vagrant up
 # wait
 ```
 
-When finished Okapi will be running with mod-workflow and mod-camunda deployed under the diku tenant. mod-camunda will have its port forwarded for access to the Camunda webapps. FOLIO UI will be accessable at `http://localhost:3000`; username: `diku_admin`, password: `admin`.
+When finished Okapi will be running with mod-workflow and mod-camunda deployed under the diku tenant. mod-camunda will have its port forwarded for access to the Camunda webapps. FOLIO UI will be accessible at `http://localhost:3000`; username: `diku_admin`, password: `admin`.
 
 > Okapi is being built and redeployed from within this vagrant. Eventually this will not need to happen. If a specific branch of either mod-camunda or mod-workflow is desired to be deployed, modify the Vagrantfile `git checkout master` to the desired branch and restart vagrant. `vagrant destroy`, `vagrant up`
 
 ### Development
 
-In order to facilitate development on mod-camunda in the context of Okapi there is a sync directory from the host machine to the guest machine. The host directory is at `.vagrant/sync` and it will contain `okapi`, `mod-camunda`, and `mod-workflow`. The development and git branch management can be done on the host machine. The guest directory is at `/sync`. The redeployment of a module must be done from the guest machine.
+In order to facilitate development on mod-camunda in the context of Okapi, there is a sync directory from the host machine to the guest machine. The host directory is at `.vagrant/sync` and it will contain `okapi`, `mod-camunda`, and `mod-workflow`. The development and git branch management can be done on the host machine. The guest directory is at `/sync`. The redeployment of a module must be done from the guest machine.
 
 ```
 vagrant ssh
@@ -364,7 +364,7 @@ The Trigger entity from mod-workflow is used to select which request-response ev
 
 ### Permissions
 
-In order to call mod-camunda and mod-workflow through the Okapi gateway a user will need the appropriate permissions. In order to accomdate this the Vagrantfile runs a shell script in which updates permissions for `diku_admin`. Providing him with all permissions to all interfaces of mod-camunda and mod-workflow.
+In order to call mod-camunda and mod-workflow through the Okapi gateway a user will need the appropriate permissions. In order to accommodate this the Vagrantfile runs a shell script in which updates permissions for `diku_admin`. Providing him with all permissions to all interfaces of mod-camunda and mod-workflow.
 
 ### Cleanup
 
