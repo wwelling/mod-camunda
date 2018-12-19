@@ -18,7 +18,7 @@ public class System1Delegate extends AbstractLoggingDelegate {
     RepositoryService repositoryService = execution
         .getProcessEngineServices()
         .getRepositoryService();
-    
+
     String processName = repositoryService
         .createProcessDefinitionQuery()
         .processDefinitionId(definitionId)
