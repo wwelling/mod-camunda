@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import static org.camunda.spin.Spin.JSON;
 
 @Component
@@ -76,11 +78,25 @@ public class EventConsumer {
         .tenantId(tenant)
         .processInstanceBusinessKey(businessKey)
         .correlateWithResult();
-      logger.info("Message Result: {}, Process Instance Id: {}",
+        logger.info("Message Result: {}, Process Instance Id: {}",
         result,
         result.getExecution().getProcessInstanceId());
-    }
+    } else {
+      
+      String tenant = event.getTenant();
+      JsonNode payloadNode = event.getPayload();
 
+
+
+      // Correlate message
+      ProcessInstance processInstance = runtimeService.createMessageCorrelation(event.getPathPattern())
+        .tenantId(tenant)
+        .setVariable("payload", payloadNode)
+        .correlateStartMessage();
+     
+      logger.info("New Process Instance Id: {}", processInstance.getProcessInstanceId());
+
+    } 
   }
 
   private void startProcess(Event event) {
