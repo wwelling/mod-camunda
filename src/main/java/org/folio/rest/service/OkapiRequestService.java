@@ -33,7 +33,7 @@ public class OkapiRequestService {
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
 
-    public OkapiResponse okapiRestCall(OkapiRequest okapiRequest) {
+  public OkapiResponse okapiRestCall(OkapiRequest okapiRequest) {
 
     log.info("Executing Okapi Rest Call service");
 
@@ -143,6 +143,8 @@ public class OkapiRequestService {
     okapiResponse.setStatusCode(statusCode);
     okapiResponse.setHeaders(responseHeaders);
     okapiResponse.setBody(responseBody);
+
+    okapiResponse.setResponse(response);
 
     return okapiResponse;
   }

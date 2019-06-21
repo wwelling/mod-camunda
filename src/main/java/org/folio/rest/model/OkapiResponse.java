@@ -3,7 +3,8 @@ package org.folio.rest.model;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
-import org.camunda.spin.json.SpinJsonNode;
+
+import org.springframework.http.ResponseEntity;
 
 public class OkapiResponse implements Serializable {
 
@@ -12,6 +13,8 @@ public class OkapiResponse implements Serializable {
   private Integer statusCode;
   private Map<String, String> headers;
   private String body;
+
+  private ResponseEntity<?> response;
 
   @Override
   public String toString() {
@@ -68,4 +71,13 @@ public class OkapiResponse implements Serializable {
   public void setBody(String body) {
     this.body = body;
   }
+
+  public ResponseEntity<?> getResponse() {
+    return response;
+  }
+
+  public void setResponse(ResponseEntity<?> response) {
+    this.response = response;
+  }
+
 }

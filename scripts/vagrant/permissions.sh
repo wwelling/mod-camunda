@@ -115,7 +115,8 @@ echo '{
     "settings.usergroups.all",
     "settings.owners.all",
     "settings.addresstypes.all",
-    "trigger.all"
+    "trigger.all",
+    "extractor.all"
   ]
 }' > diku_admin_perms.json
 

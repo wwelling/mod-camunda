@@ -86,8 +86,6 @@ public class EventConsumer {
       String tenant = event.getTenant();
       JsonNode payloadNode = event.getPayload();
 
-
-
       // Correlate message
       ProcessInstance processInstance = runtimeService.createMessageCorrelation(event.getPathPattern())
         .tenantId(tenant)
