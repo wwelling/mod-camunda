@@ -66,7 +66,6 @@ echo '{
     "templates.all",
     "rtac.all",
     "orders-storage.module.all",
-    "audit.all",
     "module.myprofile.enabled",
     "ui-myprofile.view",
     "settings.tags.enabled",

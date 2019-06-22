@@ -2,11 +2,6 @@ package org.folio.rest.delegate;
 
 import static org.camunda.spin.Spin.JSON;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.stream.Stream;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
 import org.camunda.spin.json.SpinJsonNode;
@@ -15,14 +10,11 @@ import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.service.LoginService;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
 public class TestStreamDelegate extends AbstractRuntimeDelegate {
@@ -33,10 +25,20 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private LoginService loginService;
 
+  private final WebClient webClient;
+
+  public TestStreamDelegate(WebClient.Builder webClientBuilder) {
+    super();
+    webClient = webClientBuilder.baseUrl("http://localhost:9130").build();
+  }
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
+    String delegateName = execution.getBpmnModelElementInstance().getName();
+    System.out.println(String.format("%s STARTED", delegateName));
 
-    RestTemplate restTemplate = new RestTemplate();
+    JsonNode payload = (JsonNode) execution.getVariable("payload");
+    String extratorId = payload.get("extractorId").asText();
 
     String tenant = execution.getTenantId();
 
@@ -63,21 +65,21 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
     newLogin.setUsername("diku_admin");
     log.info("NEW LOGIN: {}", newLogin);
 
-    String okapiToken = newLogin.getxOkapiToken();
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_STREAM_JSON);
-    headers.add("X-Okapi-Tenant", tenant);
-    headers.add("X-Okapi-Token", okapiToken);
-
-    HttpEntity<String> requestEntity = new HttpEntity<String>(headers);
-
-    ResponseEntity<Resource> responseEntity = restTemplate.exchange("http://localhost:9130/extractors/{id}/run", HttpMethod.GET, requestEntity, Resource.class, "ed75fb11-abb2-41d9-98f7-aeb79d7700f4");
+    String token = newLogin.getxOkapiToken();
     
-    InputStream is = responseEntity.getBody().getInputStream();
+    System.out.println("START REQUEST");
 
-    Stream<String> data = new BufferedReader(new InputStreamReader(is, "UTF-8")).lines();
+    streamService.setFlux(
+      webClient
+        .get()
+        .uri("/extractors/{id}/run", extratorId)
+        .header("X-Okapi-Tenant", tenant)
+        .header("X-Okapi-Token", token)
+        .accept(MediaType.APPLICATION_STREAM_JSON)
+        .retrieve()
+        .bodyToFlux(String.class)
+    );
 
-    streamService.setStream(data);
+    System.out.println("STREAM DELEGATE FINISHED");
   }
 }

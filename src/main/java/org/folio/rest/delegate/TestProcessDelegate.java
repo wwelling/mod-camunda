@@ -9,16 +9,16 @@ import org.springframework.stereotype.Service;
 public class TestProcessDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
-  private StreamService streamService; 
+  private StreamService streamService;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
+    System.out.println(String.format("%s STARTED", delegateName));
     streamService.map(d -> {
-      System.out.println(String.format("%s: %s\n", delegateName, d));
+       System.out.println(String.format("%s: %s\n", delegateName, d));
       return d;
     });
   }
 
 }
-
