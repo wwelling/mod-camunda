@@ -2,6 +2,9 @@ package org.folio.rest.delegate;
 
 import javax.script.ScriptException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -28,11 +31,14 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
     FlowElement bpmnModelElemen = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElemen.getName();
     String delegateId = bpmnModelElemen.getId();
+
+    scriptEngineService.registerScript(scriptType.getValue(execution).toString(), delegateName,
+        script.getValue(execution).toString());
+
     System.out.println(String.format("%s STARTED", delegateName));
     streamService.map(d -> {
       try {
-        scriptEngineService.runScript(scriptType.getValue(execution).toString(), delegateName,
-            script.getValue(execution).toString(), String.format("%s: %s\n", delegateName, d));
+        d = (String) scriptEngineService.runScript(scriptType.getValue(execution).toString(), delegateName, d);
       } catch (NoSuchMethodException | ScriptException e) {
         e.printStackTrace();
       }

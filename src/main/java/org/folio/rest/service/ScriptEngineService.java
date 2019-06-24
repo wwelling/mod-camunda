@@ -2,6 +2,7 @@ package org.folio.rest.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -17,7 +18,7 @@ public class ScriptEngineService {
 
   private Map<String, ScriptEngine> scriptEngines;
 
-  private String scriptTemplate = "var %s = function(args) {var returnObj = {}; %s return returnObj;}";
+  private String scriptTemplate = "var %s = function(inArgs) {var args = JSON.parse(inArgs); var returnObj = {}; %s return JSON.stringify(returnObj);}";
 
   public ScriptEngineService() {
     configureScriptEngines();
@@ -29,21 +30,21 @@ public class ScriptEngineService {
     scriptEngines.put("JS", scriptEngineManager.getEngineByExtension("js"));
   }
 
-  public Object runScript(String type, String name, String script, Object ...args)
-      throws NoSuchMethodException, ScriptException {
-    ScriptEngine scriptEngine = scriptEngines.get(type);
-    if(!isFunction(scriptEngine, name)) {      
-      scriptEngine.eval(String.format(scriptTemplate, name, script));
-    }
-    Invocable invocable = (Invocable) scriptEngine;
-    return invocable.invokeFunction(name, args);
+  public void registerScript(String type, String name, String script) throws ScriptException {
+    Optional<ScriptEngine> maypeScriptEngine = Optional.ofNullable(scriptEngines.get(type));
+    if(!maypeScriptEngine.isPresent()) {
+      ScriptEngine newEngine = scriptEngineManager.getEngineByExtension(type);
+      scriptEngines.put(type, newEngine);
+      maypeScriptEngine = Optional.of(newEngine);
+    } 
+    ScriptEngine scriptEngine = maypeScriptEngine.get();
+    scriptEngine.eval(String.format(scriptTemplate, name, script));
   }
 
-  private static boolean isFunction(ScriptEngine engine, String name)
-      throws ScriptException {
-    String test = "typeof " + name
-        + " === 'function' ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE";
-    return (Boolean) engine.eval(test);
+  public Object runScript(String type, String name, Object ...args)
+      throws NoSuchMethodException, ScriptException {
+    Invocable invocable = (Invocable) scriptEngines.get(type);
+    return invocable.invokeFunction(name, args);
   }
 
 }
