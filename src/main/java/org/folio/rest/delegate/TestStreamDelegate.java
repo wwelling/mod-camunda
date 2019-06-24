@@ -67,6 +67,8 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
 
     String token = newLogin.getxOkapiToken();
     
+    execution.setVariable("okapiToken", token);
+
     System.out.println("START REQUEST");
 
     streamService.setFlux(
