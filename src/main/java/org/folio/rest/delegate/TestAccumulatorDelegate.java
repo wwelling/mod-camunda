@@ -15,10 +15,8 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
     System.out.println(String.format("%s STARTED", delegateName));
-    streamService.getFlux().buffer(500).collectList().subscribe(consumer -> {
-      consumer.forEach(ic -> {
-        System.out.println(String.format("%s: %s", delegateName, ic.size()));
-      });
+    streamService.getFlux().buffer(500).subscribe(rows -> {
+      System.out.println(String.format("%s: %s", delegateName, rows.size()));
     });
   }
 
