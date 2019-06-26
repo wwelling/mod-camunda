@@ -1,5 +1,7 @@
 package org.folio.rest.service;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,7 +11,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 
 @Service
 public class ScriptEngineService {
@@ -27,14 +31,17 @@ public class ScriptEngineService {
   private void configureScriptEngines() {
     scriptEngineManager = new ScriptEngineManager();
     scriptEngines = new HashMap<String, ScriptEngine>();
-    scriptEngines.put("JS", scriptEngineManager.getEngineByExtension("js"));
   }
 
-  public void registerScript(String type, String name, String script) throws ScriptException {
+  public void registerScript(String type, String name, String script) throws ScriptException, IOException {
     Optional<ScriptEngine> maypeScriptEngine = Optional.ofNullable(scriptEngines.get(type));
     if(!maypeScriptEngine.isPresent()) {
       ScriptEngine newEngine = scriptEngineManager.getEngineByExtension(type);
       scriptEngines.put(type, newEngine);
+      if(type.equals("js")) {
+        String javascriptUtilsContent = StreamUtils.copyToString( new ClassPathResource("scripts/javascriptUtils.js").getInputStream(), Charset.defaultCharset()  );
+        newEngine.eval(javascriptUtilsContent);
+      }
       maypeScriptEngine = Optional.of(newEngine);
     } 
     ScriptEngine scriptEngine = maypeScriptEngine.get();

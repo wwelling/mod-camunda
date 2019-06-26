@@ -1,8 +1,11 @@
 package org.folio.rest.delegate;
 
+import java.io.IOException;
+
 import javax.script.ScriptException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -16,17 +19,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Scope("prototype")
-public class TestProcessDelegate extends AbstractRuntimeDelegate {
+public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
 
   @Autowired
-  private ScriptEngineService scriptEngineService;
+  private ObjectMapper objectMapper;
 
-  private Expression script;
+  private Expression endpoint;
 
-  private Expression scriptType;
+  private Expression target;
+
+  private Expression source;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -34,15 +39,23 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
     String delegateName = bpmnModelElemen.getName();
     String delegateId = bpmnModelElemen.getId();
 
-    if(scriptType != null && script != null) {
-      scriptEngineService.registerScript(scriptType.getValue(execution).toString(), delegateName,
-        script.getValue(execution).toString());
+    if (endpoint != null && target != null && source != null) {
+      String endpointValue = endpoint.getValue(execution).toString();
+      String targetValue = target.getValue(execution).toString();
+      String sourceValue = source.getValue(execution).toString();
 
       System.out.println(String.format("%s STARTED", delegateName));
+
       streamService.map(d -> {
         try {
-          d = (String) scriptEngineService.runScript(scriptType.getValue(execution).toString(), delegateName, d);
-        } catch (NoSuchMethodException | ScriptException e) {
+          JsonNode dNode = objectMapper.readTree(d);
+          JsonNode sourceNode = dNode.get(sourceValue);
+          if(sourceNode.isArray()) {
+            sourceNode.forEach(s->{
+              System.out.println(s);
+            });
+          }
+        } catch (IOException e) {
           e.printStackTrace();
         }
         return d;
@@ -50,12 +63,16 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
     }
   }
 
-  public void setScript(Expression script) {
-    this.script = script;
+  public void setEndpoint(Expression endpoint) {
+    this.endpoint = endpoint;
   }
 
-  public void setScriptType(Expression scriptType) {
-    this.scriptType = scriptType;
+  public void setTarget(Expression target) {
+    this.target = target;
+  }
+
+  public void setSource(Expression source) {
+    this.source = source;
   }
 
 }

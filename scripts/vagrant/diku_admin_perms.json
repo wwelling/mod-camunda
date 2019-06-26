@@ -1,38 +1,6 @@
-#!/bin/bash
-
-cd /sync
-
-curl -X POST -H "X-Okapi-Tenant: diku" -H "Content-Type: application/json" http://localhost:9130/authn/login -d '{"username": "diku_admin", "password": "admin"}' -D login-headers.tmp
-token_header=$(cat login-headers.tmp | grep x-okapi-token)
-
-user_json=$(curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/users?query=username=diku_admin")
-
-id_regex='([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})'
-
-echo "user: $user_json"
-if [[ $user_json =~ $id_regex ]]
-then
-  user_id="${BASH_REMATCH[1]}"
-  echo "user id: $user_id"
-else
-  echo "Could not get diku_admin id!"
-fi
-
-user_perms_json=$(curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users?query=userId=$user_id")
-
-echo "user permissions: $user_perms_json"
-if [[ $user_perms_json =~ $id_regex ]]
-then
-  perm_id="${BASH_REMATCH[1]}"
-  echo "perm id: $perm_id"
-else
-  echo "Could not get diku_admin permission id!"
-fi
-
-# update diku_admin permissions, add all permissions for mod-workflow and mod-camunda
-echo '{
-  "id": "'"$perm_id"'",
-  "userId": "'"$user_id"'",
+{
+  "id": "0d0db664-33fb-40b4-909b-f0f1b327fea1",
+  "userId": "320bf4f8-3219-5273-a560-2db78f997181",
   "permissions": [
     "process.all",
     "process-definition.all",
@@ -119,9 +87,4 @@ echo '{
     "organizations-storage.organizations.all",
     "organizations-storage.addresses.collection.get"
   ]
-}' > diku_admin_perms.json
-
-curl -v -X PUT -H "X-Okapi-Tenant:diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users/$perm_id" -d "@diku_admin_perms.json"
-
-# cleanup
-rm -rf login-headers.tmp
+}

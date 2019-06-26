@@ -1,18 +1,16 @@
 package org.folio.rest.delegate;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
+@Scope("prototype")
 public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
@@ -36,21 +34,21 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
     System.out.println(String.format("%s STARTED", delegateName));
     streamService.getFlux().buffer(500).subscribe(rows -> {
       rows.forEach(row -> {
-        //System.out.println(String.format("\n%s: %s", delegateName, row));
-        try {
-          webClient
-            .post()
-            .uri("/organizations-storage/organizations")
-            .syncBody(mapper.readTree(row))
-            .header("X-Okapi-Tenant", "diku")
-            .header("X-Okapi-Token", token)
-            .accept(MediaType.APPLICATION_JSON)
-            .retrieve().bodyToFlux(String.class).subscribe(res -> {
-              //System.out.println(res);
-            });
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+        System.out.println(String.format("\n%s: %s", delegateName, row));
+        // try {
+          // webClient
+          //   .post()
+          //   .uri("/organizations-storage/organizations")
+          //   .syncBody(mapper.readTree(row))
+          //   .header("X-Okapi-Tenant", "diku")
+          //   .header("X-Okapi-Token", token)
+          //   .accept(MediaType.APPLICATION_JSON)
+          //   .retrieve().bodyToFlux(String.class).subscribe(res -> {
+          //     //System.out.println(res);
+          //   });
+        // } catch (IOException e) {
+        //   e.printStackTrace();
+        // }
       });
       System.out.println(String.format("\n%s: %s", delegateName, rows.size()));
     });
