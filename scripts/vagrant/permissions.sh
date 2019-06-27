@@ -117,7 +117,10 @@ echo '{
     "trigger.all",
     "extractor.all",
     "organizations-storage.organizations.all",
-    "organizations-storage.addresses.collection.get"
+    "organizations-storage.addresses.collection.get",
+    "organizations-storage.addresses.item.post",
+    "organizations-storage.addresses.item.delete",
+    "organizations-storage.categories.collection.get"
   ]
 }' > diku_admin_perms.json
 

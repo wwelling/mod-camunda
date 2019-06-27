@@ -40,8 +40,8 @@ public class OkapiRequestService {
     String tenant = okapiRequest.getTenant();
     String contentType = okapiRequest.getRequestContentType();
     String url = okapiRequest.getRequestUrl();
-    String payload = okapiRequest.getRequestPayload().toString();
     String token = okapiRequest.getOkapiToken();
+    String payload = okapiRequest.getRequestPayload().toString();
 
     // optional
     Object[] uriVariables = okapiRequest.getRequestUriVariables() != null
@@ -61,17 +61,19 @@ public class OkapiRequestService {
       case GET:
         addContentTypeHeader(headers, contentType);
         addTenantHeader(headers, tenant);
+        addOkapiToken(headers, token);
         request = new HttpEntity<>(headers);
+        log.debug("GET Request: {} {}", url, request);
         response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
-
         return mapOkapiResponse(response);
 
       case POST:
+        
         addContentTypeHeader(headers, contentType);
         addTenantHeader(headers, tenant);
         addOkapiToken(headers, token);
         request = new HttpEntity<>(payload, headers);
-        log.info("Request: {}", request);
+        log.info("POST Request: {}", request);
 
         try {
           response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
@@ -82,11 +84,12 @@ public class OkapiRequestService {
         return mapOkapiResponse(response);
 
       case PUT:
+        payload = okapiRequest.getRequestPayload().toString();
         addContentTypeHeader(headers, contentType);
         addTenantHeader(headers, tenant);
         addOkapiToken(headers, token);
         request = new HttpEntity<>(payload, headers);
-        log.info("Request: {}", request);
+        log.info("PUT Request: {}", request);
 
         try {
           response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);

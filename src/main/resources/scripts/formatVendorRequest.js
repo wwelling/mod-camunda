@@ -1,21 +1,33 @@
 var mapValues = function(baseObejectString, predicate) {
   var builtObjects = [];
-  if(baseObejectString) {
+  if(typeof baseObejectString === 'string') {
     var bases = baseObejectString.split(';;');
     for(var i in bases) {
       var voyagerId = bases[i];
       var baseObj = {};
+      baseObj.voyagerId = voyagerId;
       for(var j=2;j<arguments.length;j++) {
         var arg = arguments[j];
-        var argParts = arg.values.split(';;');
-        for(var k in argParts) {
-          var argPart = argParts[k];
-          if(argPart) {
-            var argKeyValue = argPart.indexOf('::') ? argPart.split('::') : argPart.split(',');
-            if(argKeyValue[0]===voyagerId && argKeyValue[1] && argKeyValue[1] !== '') {
-              baseObj[arg.label] = argKeyValue[1];
+        if(typeof arg.values === 'string') {
+          var argParts = arg.values.split(';;');
+          for(var k in argParts) {
+            var argPart = argParts[k];
+            if(argPart) {
+              var argKeyValue = argPart.indexOf('::') ? argPart.split('::') : argPart.split(',');
+              if(argKeyValue[0]===voyagerId && argKeyValue[1] && argKeyValue[1] !== '') {
+                if(isFunction(arg.predicate)) {
+                  var argPredicateValue = arg.predicate(argKeyValue);
+                  if(argPredicateValue) {
+                    baseObj[arg.label] = argPredicateValue;
+                  } 
+                } else {
+                  baseObj[arg.label] = argKeyValue[1];
+                }
+              }
             }
           }
+        } else { 
+          baseObj[arg.label] = arg.values;
         }
       }
       if(predicate(baseObj)) {
@@ -78,10 +90,14 @@ returnObj = {
       values: args.countries
     }
   ),
-  'phoneNumbers': [],
-  'emails': mapValues(args.address_ids,
+  'phoneNumbers': mapValues(args.address_ids,
     function(baseObj) {
       return false;
+    }
+  ),
+  'emails': mapValues(args.address_ids,
+    function(baseObj) {
+      return true;
     },
     {
       label: 'email_address',
@@ -104,7 +120,11 @@ returnObj = {
       }
     )
   ],
-  'agreements': [],
+  'agreements': mapValues(args.address_ids,
+    function(baseObj) {
+      return false;
+    }
+  ),
   'vendorCurrencies': [
     args.DEFAULT_CURRENCY
   ],
@@ -149,3 +169,46 @@ returnObj = {
   ),
   'changelogs': []
 };
+for(var i=0;i<returnObj.addresses.length;i++) {
+  var address = returnObj.addresses[i];
+  address.categories = mapValues(args.address_ids,
+    function(baseObj) {
+      return baseObj.voyagerId === address.voyagerId && baseObj.value;
+    },
+    {
+      label: 'value',
+      values: args.order_addresses,
+      predicate: function(v) {
+        return v[1] === 'Y' ? 'order' : false;
+      }
+    },
+    {
+      label: 'value',
+      values: args.payment_addresses,
+      predicate: function(v) {
+        return v[1] === 'Y' ? 'payment' : false;
+      }
+    },
+    {
+      label: 'value',
+      values: args.claim_addresses,
+      predicate: function(v) {
+        return v[1] === 'Y' ? 'claim' : false;
+      }
+    },
+    {
+      label: 'value',
+      values: args.return_addresses,
+      predicate: function(v) {
+        return v[1] === 'Y' ? 'return' : false;
+      }
+    },
+    {
+      label: 'value',
+      values: args.other_addresses,
+      predicate: function(v) {
+        return v[1] === 'Y' ? 'other' : false;
+      }
+    }
+  );
+}

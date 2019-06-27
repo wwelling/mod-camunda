@@ -2,9 +2,6 @@ package org.folio.rest.delegate;
 
 import javax.script.ScriptException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -32,7 +29,6 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     FlowElement bpmnModelElemen = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElemen.getName();
-    String delegateId = bpmnModelElemen.getId();
 
     if(scriptType != null && script != null) {
       scriptEngineService.registerScript(scriptType.getValue(execution).toString(), delegateName,
@@ -45,6 +41,7 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
         } catch (NoSuchMethodException | ScriptException e) {
           e.printStackTrace();
         }
+
         return d;
       });
     }
