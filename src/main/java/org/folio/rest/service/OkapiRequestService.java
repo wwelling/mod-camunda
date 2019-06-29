@@ -63,7 +63,7 @@ public class OkapiRequestService {
         addTenantHeader(headers, tenant);
         addOkapiToken(headers, token);
         request = new HttpEntity<>(headers);
-        log.debug("GET Request: {} {}", url, request);
+        log.info("GET Request: {} {}", url, request);
         response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
         return mapOkapiResponse(response);
 
@@ -73,12 +73,12 @@ public class OkapiRequestService {
         addTenantHeader(headers, tenant);
         addOkapiToken(headers, token);
         request = new HttpEntity<>(payload, headers);
-        log.info("POST Request: {}", request);
+        log.info("POST Request: {} {} {}", request, url, uriVariables);
 
         try {
           response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
         } catch(HttpClientErrorException httpError) {
-          throw new BpmnError("LOGIN_ERROR", "Error logging in, retrying");
+          throw new BpmnError("LOGIN_ERROR", String.format("Error logging in, retrying: %s", request.getBody()));
         }
 
         return mapOkapiResponse(response);
@@ -94,7 +94,7 @@ public class OkapiRequestService {
         try {
           response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
         } catch(HttpClientErrorException httpError) {
-          throw new BpmnError("LOGIN_ERROR", "Error logging in, retrying");
+          throw new BpmnError("LOGIN_ERROR", String.format("Error logging in, retrying: %s", response));
         }
 
         return mapOkapiResponse(response);

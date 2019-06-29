@@ -120,7 +120,13 @@ echo '{
     "organizations-storage.addresses.collection.get",
     "organizations-storage.addresses.item.post",
     "organizations-storage.addresses.item.delete",
-    "organizations-storage.categories.collection.get"
+    "organizations-storage.categories.collection.get",
+    "organizations-storage.categories.item.post",
+    "organizations-storage.categories.item.delete",
+    "organizations-storage.contacts.collection.get",
+    "organizations-storage.contacts.item.post",
+     "organizations-storage.contacts.item.delete",
+     "organizations-storage.contacts.item.get"
   ]
 }' > diku_admin_perms.json
 

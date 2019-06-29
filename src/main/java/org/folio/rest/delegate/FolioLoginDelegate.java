@@ -22,17 +22,17 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
     log.info("Executing Folio Login Delegate");
 
     OkapiRequest okapiRequest = new OkapiRequest();
-    okapiRequest.setRequestUrl("http://localhost:9130/authn/login");
+    okapiRequest.setRequestUrl("https://folio-okapisnapshot.library.tamu.edu/authn/login");
     okapiRequest.setRequestMethod("POST");
     okapiRequest.setRequestContentType("application/json");
     okapiRequest.setResponseBodyName("loginResponseBody");
     okapiRequest.setResponseHeaderName("loginResponseHeader");
     okapiRequest.setResponseStatusName("loginResponseStatus");
-    okapiRequest.setTenant("diku");
+    okapiRequest.setTenant("tern_admin");
 
     // A bit redundant, may want to create a login payload model, or eventually handle this better
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("username", "diku_admin");
+    jsonObject.put("username", "tern");
     jsonObject.put("password", "admin");
 
     SpinJsonNode jsonNode = JSON(jsonObject.toString());
@@ -41,7 +41,7 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
     log.info("json: {}", jsonObject.toString());
 
     FolioLogin newLogin = loginService.folioLogin(okapiRequest);
-    newLogin.setUsername("diku_admin");
+    newLogin.setUsername("tern_admin");
     log.info("NEW LOGIN: {}", newLogin);
 
     execution.setVariable("folioLogin", newLogin);

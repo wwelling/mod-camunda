@@ -14,9 +14,8 @@ var formatSourceData = function(args) {
     } else if(typeof value === 'string' && value.indexOf(';;') !== -1) {
       sourceData[key] = value.split(';;');
     } else if(typeof value === 'string' && value.indexOf('::') !== -1) {
-      sourceData[key] = value.split('::')[0];
-    }
-    else {
+      sourceData[key] = value.split('::')[1];
+    } else {
       sourceData[key] = value;
     }
   }
@@ -24,26 +23,16 @@ var formatSourceData = function(args) {
 };
 returnObj = {
   statuses: [
-    'active',
-    'inactive',
-    'pending'
+    'Active',
+    'Inactive',
+    'Pending'
   ],
   categories:{
-    ORDER: {
-      value: 'order'
-    },
-    PAYMENT: {
-      value: 'payment'
-    },
-    CLAIM: {
-      value: 'claim'
-    },
-    RETURN: {
-      value: 'return'
-    },
-    OTHER: {
-      value: 'other'
-    }
+    ORDER: '9718aa38-8fb4-49e4-910b-bbdc2b1aa579',
+    PAYMENT:'ac6528cc-8ba0-4678-9b08-627ca2314ffd',
+    CLAIM:'d931bdc4-ef47-4871-98d7-2c48f5ff4fe0',
+    RETURN: 'b8057736-3ac9-4b33-a009-9c6859f9e2d7',
+    OTHER: '04f39c67-b212-4fe7-87f0-0875c8995d21'
   },
   phoneTypes: {
     "1": 'Mobile',

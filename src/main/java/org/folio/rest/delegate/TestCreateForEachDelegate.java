@@ -3,6 +3,8 @@ package org.folio.rest.delegate;
 import static org.camunda.spin.Spin.JSON;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,38 +58,24 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
       System.out.println(String.format("%s STARTED", delegateName));
 
       streamService.map(d -> {
+
+        System.out.println(String.format("%s WORKING", delegateName));
+        
         String returnData = d;
         try {
+          
           ObjectNode destNode = (ObjectNode) objectMapper.readTree(d);
           JsonNode srcNode = getSourceNode(sourceValue, destNode);
           ArrayNode ids = objectMapper.createArrayNode();
-          if (srcNode.isArray()) {
+          
+          if (srcNode != null && srcNode.isArray()) {
             srcNode.forEach(s -> {
-              OkapiResponse res = null;
-              JsonNode rNode = null;
-              try {
-                if (uniqueByValue.equals("NO_VALUE")) {
-                  res = createEntity(tenant, token, endpointValue, s);
-                  rNode = objectMapper.readTree(res.getBody());
-                } else {
-                  if (s.get(uniqueByValue) != null) {
-                    res = getEntity(tenant, token, endpointValue, uniqueByValue, s.get(uniqueByValue).asText());
-                    JsonNode rNodes = objectMapper.readTree(res.getBody());
-                    if (rNodes.get("totalRecords").asInt() == 0) {
-                      res = createEntity(tenant, token, endpointValue, s);
-                      rNode = objectMapper.readTree(res.getBody());
-                    } else {
-                      rNode = rNodes.fields().next().getValue().get(0);
-                    }
-                  }
-                }
-                if (rNode != null && rNode.get(targetValue) != null) {
-                  String newId = rNode.get(targetValue).toString();
-                  ids.add(newId.replace("\"", ""));
-                  destNode.set(sourceValue, ids);
-                }
-              } catch (IOException e) {
-                e.printStackTrace();
+              if(s.isArray()) {
+                s.forEach(ss->{
+                  runFindOrCreate(tenant, token, targetValue, sourceValue, uniqueByValue, endpointValue, destNode, ids, ss);
+                });
+              } else {
+                runFindOrCreate(tenant, token, targetValue, sourceValue, uniqueByValue, endpointValue, destNode, ids, s);
               }
             });
             returnData = destNode.toString();
@@ -100,16 +88,68 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
     }
   }
 
+  private void runFindOrCreate(String tenant, String token, String targetValue, String sourceValue, String uniqueByValue,
+      String endpointValue, ObjectNode destNode, ArrayNode ids, JsonNode s) {
+    OkapiResponse res = null;
+    JsonNode rNode = null;
+
+    try {
+      if (uniqueByValue.equals("NO_VALUE")) {
+        //res = createEntity(tenant, token, endpointValue, s);
+        //rNode = objectMapper.readTree(res.getBody());
+      } else {
+        if (s.get(uniqueByValue) != null) {
+          res = getEntity(tenant, token, endpointValue, uniqueByValue, s.get(uniqueByValue).asText());
+          JsonNode rNodes = objectMapper.readTree(res.getBody());
+          if (rNodes.get("totalRecords").asInt() == 0) {
+            res = createEntity(tenant, token, endpointValue, s);
+            rNode = objectMapper.readTree(res.getBody());
+          } else {
+            rNode = rNodes.fields().next().getValue().get(0);
+          }
+        }
+      }
+      if (rNode != null && rNode.get(targetValue) != null) {
+        String newId = rNode.get(targetValue).toString();
+        ids.add(newId.replace("\"", ""));
+        setDestinationNode(sourceValue, destNode, ids);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   private JsonNode getSourceNode(String sourceValue, ObjectNode destNode) throws IOException {
     JsonNode sourceNode = destNode;
-    String[] sourceParts = sourceValue.split(".");
-    System.out.println(sourceParts);
-    for (String s: sourceParts) {
-      if(sourceNode != null) {
-        sourceNode = sourceNode.get(s);
+    String[] sourceParts = sourceValue.split("\\/");
+    
+    for (int i=0;i<sourceParts.length;i++) {
+      String part = sourceParts[i];
+      if(sourceNode.isArray()) {
+        ArrayNode workingArray = objectMapper.createArrayNode();
+        sourceNode.forEach(n->{
+          workingArray.add(n.get(part));
+        });
+        sourceNode = workingArray;
+      } else {
+        sourceNode = sourceNode.get(part);
       }
     }
-    return destNode.get(sourceValue);
+    return sourceNode;
+  }
+
+  private void setDestinationNode(String sourceValue, ObjectNode destNode, ArrayNode ids) throws IOException {
+    ObjectNode sourceNode = destNode;
+    String[] sourceParts = sourceValue.split("\\/");
+    
+    for (int i=0;i<sourceParts.length;i++) {
+      String part = sourceParts[i];
+      if(i==sourceParts.length-1) {
+        sourceNode.set(part, ids);
+      } else{
+        sourceNode=sourceNode.with(part);
+      }
+    }
   }
 
   private OkapiResponse createEntity(String tenant, String token, String endpointValue, JsonNode d) {

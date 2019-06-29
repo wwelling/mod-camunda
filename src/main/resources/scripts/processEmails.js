@@ -1,3 +1,4 @@
+if(args.sourceData.address_ids)
 for(var i=0;i<args.sourceData.address_ids.length;i++) {
   var emailObj = {};
   var addressId = args.sourceData.address_ids[i];
@@ -20,8 +21,18 @@ for(var i=0;i<args.sourceData.address_ids.length;i++) {
     
     if(args.sourceData.other_addresses[addressId]==='Y') 
       emailObj.categories.push(args.categories.OTHER);
-  
-    args.vendorResponseBody.emails.push(emailObj);
+    
+    if(args.sourceData.contact_names[addressId]) {
+      for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
+        var c = args.vendorResponseBody.contacts[j];
+        if(c.firstName === args.sourceData.contact_names[addressId]) {
+          c.emails.push(emailObj);
+        }
+      }
+    } else {
+      args.vendorResponseBody.emails.push(emailObj);
+    }
+
   }
 }
 returnObj = args;
