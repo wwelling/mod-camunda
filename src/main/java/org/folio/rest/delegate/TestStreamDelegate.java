@@ -44,30 +44,15 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
 
     String tenant = execution.getTenantId();
 
-    OkapiRequest loginOkapiRequest = new OkapiRequest();
-    loginOkapiRequest.setTenant(tenant);
-    loginOkapiRequest.setRequestUrl("http://localhost:9130/authn/login");
-    loginOkapiRequest.setRequestMethod("POST");
-    loginOkapiRequest.setRequestContentType("application/json");
-    loginOkapiRequest.setResponseBodyName("loginResponseBody");
-    loginOkapiRequest.setResponseHeaderName("loginResponseHeader");
-    loginOkapiRequest.setResponseStatusName("loginResponseStatus");
-
-    // A bit redundant, may want to create a login payload model, or eventually handle this better
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("username", "diku_admin");
-    jsonObject.put("password", "admin");
-
-    SpinJsonNode loginJsonNode = JSON(jsonObject.toString());
-
-    loginOkapiRequest.setRequestPayload(loginJsonNode);
-    log.info("json: {}", jsonObject.toString());
-
-    FolioLogin newLogin = loginService.folioLogin(loginOkapiRequest);
-    newLogin.setUsername("diku_admin");
+    FolioLogin newLogin = login("tern", "https://folio-okapisnapshot.library.tamu.edu", "tern_admin", "admin");
     log.info("NEW LOGIN: {}", newLogin);
 
     String token = newLogin.getxOkapiToken();
+
+    FolioLogin localLogin = login(tenant, "http://localhost:9130", "diku_admin", "admin");
+    log.info("LOCAL LOGIN: {}", newLogin);
+
+    String localToken = localLogin.getxOkapiToken();
     
     execution.setVariable("okapiToken", token);
 
@@ -78,12 +63,36 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
         .get()
         .uri("/extractors/{id}/run", extratorId)
         .header("X-Okapi-Tenant", tenant)
-        .header("X-Okapi-Token", token)
+        .header("X-Okapi-Token", localToken)
         .accept(MediaType.APPLICATION_STREAM_JSON)
         .retrieve()
         .bodyToFlux(String.class)
     );
 
     System.out.println("STREAM DELEGATE FINISHED");
+  }
+
+  private FolioLogin login(String tenant, String baseUrl, String username, String password) {
+    
+    OkapiRequest loginOkapiRequest = new OkapiRequest();
+    loginOkapiRequest.setTenant(tenant);
+    loginOkapiRequest.setRequestUrl(String.format("%s/authn/login", baseUrl));
+    loginOkapiRequest.setRequestMethod("POST");
+    loginOkapiRequest.setRequestContentType("application/json");
+    loginOkapiRequest.setResponseBodyName("loginResponseBody");
+    loginOkapiRequest.setResponseHeaderName("loginResponseHeader");
+    loginOkapiRequest.setResponseStatusName("loginResponseStatus");
+
+    // A bit redundant, may want to create a login payload model, or eventually handle this better
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("username", username);
+    jsonObject.put("password", password);
+
+    SpinJsonNode loginJsonNode = JSON(jsonObject.toString());
+
+    loginOkapiRequest.setRequestPayload(loginJsonNode);
+    FolioLogin newLogin = loginService.folioLogin(loginOkapiRequest);
+    newLogin.setUsername(username);
+    return newLogin;
   }
 }

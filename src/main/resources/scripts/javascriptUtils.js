@@ -19,7 +19,14 @@ function isFunction(functionToCheck) {
   return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]';
 }
 
+if (!Array.isArray) {
+  Array.isArray = function(arg) {
+    return Object.prototype.toString.call(arg) === '[object Array]';
+  };
+}
+
 var setupVendorData = function(args, returnObj) {
+  //print(JSON.stringify(args,null,2));
   var formatSourceData = function(args) {
     var sourceData = {};
     var argKeys = Object.keys(args);
@@ -31,7 +38,17 @@ var setupVendorData = function(args, returnObj) {
         var valueParts = value.split(';;');
         for(var j=0;j<valueParts.length;j++) {
           var keyValParts = valueParts[j].split('::');
-          sourceData[key][keyValParts[0]] = keyValParts[1] === '' ? null : keyValParts[1];
+          if(sourceData[key][keyValParts[0]]) {
+            if(!Array.isArray(sourceData[key][keyValParts[0]])) {
+              var currentValue = sourceData[key][keyValParts[0]];
+              sourceData[key][keyValParts[0]] = [];
+              sourceData[key][keyValParts[0]].push(currentValue);
+            }
+            sourceData[key][keyValParts[0]].push(keyValParts[1] === '' ? null : keyValParts[1]);
+          } else {
+            sourceData[key][keyValParts[0]] = keyValParts[1] === '' ? null : keyValParts[1];
+          }
+          
         }
       } else if(typeof value === 'string' && value.indexOf(';;') !== -1) {
         sourceData[key] = value.split(';;');
@@ -53,7 +70,7 @@ var setupVendorData = function(args, returnObj) {
       ORDER: '9718aa38-8fb4-49e4-910b-bbdc2b1aa579',
       PAYMENT:'ac6528cc-8ba0-4678-9b08-627ca2314ffd',
       CLAIM:'d931bdc4-ef47-4871-98d7-2c48f5ff4fe0',
-      RETURN: 'b8057736-3ac9-4b33-a009-9c6859f9e2d7',
+      RETURN: '544459af-fc5e-4e64-9b40-acb84ac4d3aa',
       OTHER: '04f39c67-b212-4fe7-87f0-0875c8995d21'
     },
     phoneTypes: {
@@ -85,13 +102,14 @@ var setupVendorData = function(args, returnObj) {
       'changelogs': []
     }
   };
+  print(JSON.stringify(args.sourceData, null, 2));
   return returnObj;
 };
 
 var processFlatData = function(args, returnObj) {
   args.vendorResponseBody.name = args.sourceData.VENDOR_NAME;
   args.vendorResponseBody.code = args.sourceData.VENDOR_CODE;
-  args.vendorResponseBody.description = args.sourceData.vendor_type;
+  args.vendorResponseBody.description = args.sourceData.VENDOR_TYPE;
   args.vendorResponseBody.status = args.statuses[0];
   args.vendorResponseBody.isVendor = true;
   args.vendorResponseBody.vendorCurrencies.push(args.sourceData.DEFAULT_CURRENCY);
@@ -197,42 +215,58 @@ var processPhoneNumbers = function(args, returnObj) {
     } else if(args.sourceData.phone_number) {
       phoneNumberObj.phoneNumber = args.sourceData.phone_number[addressId];
     }
-    
+
     if(phoneNumberObj.phoneNumber) {
     
-      /*if(args.sourceData.phone_type) {
-        phoneNumberObj.isPrimary = args.sourceData.phone_type[addressId] === '0';
-        phoneNumberObj.type = phoneNumberObj.isPrimary ? 'Other' : args.phoneType[args.sourceData.phone_type[addressId]] ? args.phoneType[args.sourceData.phone_type[addressId]] : 'Other';
-      } else {
-        phoneNumberObj.type = 'Other';
-      }*/
-      
-      phoneNumberObj.categories = [];
-  
-      if(args.sourceData.order_addresses[addressId]==='Y') 
-        phoneNumberObj.categories.push(args.categories.ORDER);
-  
-      if(args.sourceData.payment_addreses[addressId]==='Y') 
-        phoneNumberObj.categories.push(args.categories.PAYMENT);
-  
-      if(args.sourceData.claim_addresses[addressId]==='Y') 
-        phoneNumberObj.categories.push(args.categories.CLAIM);
-  
-      if(args.sourceData.return_addresses[addressId]==='Y') 
-        phoneNumberObj.categories.push(args.categories.RETURN);
-      
-      if(args.sourceData.other_addresses[addressId]==='Y') 
-        phoneNumberObj.categories.push(args.categories.OTHER);
-  
-      if(args.sourceData.contact_names[addressId]) {
-        for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
-          var c = args.vendorResponseBody.contacts[j];
-          if(c.firstName === args.sourceData.contact_names[addressId]) {
-            c.phoneNumbers.push(phoneNumberObj);
+      var makePhoneNumber = function(pn, index) {
+        if(args.sourceData.phone_type) {
+          if(Array.isArray(args.sourceData.phone_type[addressId])) {
+            pn.isPrimary = args.sourceData.phone_type[addressId][index] === '0';
+            pn.type = pn.isPrimary ? 'Other' : args.phoneTypes[args.sourceData.phone_type[addressId][index]] ? args.phoneTypes[args.sourceData.phone_type[addressId][index]] : 'Other';
+          } else {
+            pn.isPrimary = args.sourceData.phone_type[addressId] === '0';
+          pn.type = pn.isPrimary ? 'Other' : args.phoneTypes[args.sourceData.phone_type[addressId]] ? args.phoneTypes[args.sourceData.phone_type[addressId]] : 'Other';
           }
+        } else {
+          pn.type = 'Other';
+        }
+        
+        pn.categories = [];
+    
+        if(args.sourceData.order_addresses[addressId]==='Y') 
+          pn.categories.push(args.categories.ORDER);
+    
+        if(args.sourceData.payment_addreses[addressId]==='Y') 
+          pn.categories.push(args.categories.PAYMENT);
+    
+        if(args.sourceData.claim_addresses[addressId]==='Y') 
+          pn.categories.push(args.categories.CLAIM);
+    
+        if(args.sourceData.return_addresses[addressId]==='Y') 
+          pn.categories.push(args.categories.RETURN);
+        
+        if(args.sourceData.other_addresses[addressId]==='Y') 
+          pn.categories.push(args.categories.OTHER);
+    
+        if(args.sourceData.contact_names[addressId]) {
+          for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
+            var c = args.vendorResponseBody.contacts[j];
+            if(c.firstName === args.sourceData.contact_names[addressId]) {
+              c.phoneNumbers.push(pn);
+            }
+          }
+        } else {
+          args.vendorResponseBody.phoneNumbers.push(pn);
+        }
+      };
+
+      if(Array.isArray(phoneNumberObj.phoneNumber)) {
+        for(var j=0;j<phoneNumberObj.phoneNumber.length;j++) {
+          var number = phoneNumberObj.phoneNumber[j];
+          makePhoneNumber({phoneNumber:number}, j);
         }
       } else {
-        args.vendorResponseBody.phoneNumbers.push(phoneNumberObj);
+        makePhoneNumber(phoneNumberObj.phoneNumber);
       }
   
     } 
@@ -318,6 +352,44 @@ var processURLs = function(args, returnObj) {
         args.vendorResponseBody.urls.push(urlObj);
       }
 
+    }
+  }
+  returnObj = args;
+  return returnObj;
+};
+
+var processAccounts = function(args, returnObj) {
+  var account = {};
+
+  var buildAccount = function(name, accountNo, accountStatus, paymentMethod, notes) {
+    account.name = name ? name : '';
+    account.accountNo = accountNo ? accountNo : '';
+    account.accountStatus = accountStatus ? accountStatus : '';
+    account.paymentMethod = paymentMethod === 'Y' ? 'Deposit Account' :'EFT';
+    account.notes = notes ? notes : '';
+    account.libraryCode = '';
+    account.libraryEdiCode = '';
+    args.vendorResponseBody.accounts.push(account);
+  };
+
+  if(typeof args.sourceData.account_names === 'string') {
+    buildAccount(
+      args.sourceData.account_names,
+      args.sourceData.account_numbers,
+      args.sourceData.account_statuses,
+      args.sourceData.deposits,
+      args.sourceData.account_notes
+    );    
+  } else {
+    for(var i=0;i<args.sourceData.account_ids.length;i++) {
+      var account_id = args.sourceData.account_ids[i];
+      buildAccount(
+        args.sourceData.account_names[account_id],
+        args.sourceData.account_numbers[account_id],
+        args.sourceData.account_statuses[account_id],
+        args.sourceData.deposits[account_id],
+        args.sourceData.account_notes[account_id]
+      ); 
     }
   }
   returnObj = args;

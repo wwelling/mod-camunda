@@ -48,7 +48,7 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
     FlowElement bpmnModelElemen = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElemen.getName();
     if (endpoint != null && target != null && source != null) {
-      String tenant = execution.getTenantId();
+      String tenant = "tern";
       String token = (String) execution.getVariable("okapiToken");
       String targetValue = target.getValue(execution).toString();
       String sourceValue = source.getValue(execution).toString();
@@ -95,8 +95,8 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
 
     try {
       if (uniqueByValue.equals("NO_VALUE")) {
-        //res = createEntity(tenant, token, endpointValue, s);
-        //rNode = objectMapper.readTree(res.getBody());
+        res = createEntity(tenant, token, endpointValue, s);
+        rNode = objectMapper.readTree(res.getBody());
       } else {
         if (s.get(uniqueByValue) != null) {
           res = getEntity(tenant, token, endpointValue, uniqueByValue, s.get(uniqueByValue).asText());

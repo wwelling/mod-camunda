@@ -44,33 +44,33 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
-    OkapiRequest loginOkapiRequest = new OkapiRequest();
-    loginOkapiRequest.setTenant("tern");
-    loginOkapiRequest.setRequestUrl("https://folio-okapisnapshot.library.tamu.edu/authn/login");
-    loginOkapiRequest.setRequestMethod("POST");
-    loginOkapiRequest.setRequestContentType("application/json");
-    loginOkapiRequest.setResponseBodyName("loginResponseBody");
-    loginOkapiRequest.setResponseHeaderName("loginResponseHeader");
-    loginOkapiRequest.setResponseStatusName("loginResponseStatus");
+    // OkapiRequest loginOkapiRequest = new OkapiRequest();
+    // loginOkapiRequest.setTenant("tern");
+    // loginOkapiRequest.setRequestUrl("https://folio-okapisnapshot.library.tamu.edu/authn/login");
+    // loginOkapiRequest.setRequestMethod("POST");
+    // loginOkapiRequest.setRequestContentType("application/json");
+    // loginOkapiRequest.setResponseBodyName("loginResponseBody");
+    // loginOkapiRequest.setResponseHeaderName("loginResponseHeader");
+    // loginOkapiRequest.setResponseStatusName("loginResponseStatus");
 
-    // A bit redundant, may want to create a login payload model, or eventually
-    // handle this better
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("username", "tern_admin");
-    jsonObject.put("password", "admin");
+    // // A bit redundant, may want to create a login payload model, or eventually
+    // // handle this better
+    // JSONObject jsonObject = new JSONObject();
+    // jsonObject.put("username", "tern_admin");
+    // jsonObject.put("password", "admin");
 
-    SpinJsonNode loginJsonNode = JSON(jsonObject.toString());
+    // SpinJsonNode loginJsonNode = JSON(jsonObject.toString());
 
-    loginOkapiRequest.setRequestPayload(loginJsonNode);
-    log.info("json: {}", jsonObject.toString());
+    // loginOkapiRequest.setRequestPayload(loginJsonNode);
+    // log.info("json: {}", jsonObject.toString());
 
-    FolioLogin newLogin = loginService.folioLogin(loginOkapiRequest);
-    newLogin.setUsername("tern_admin");
-    log.info("NEW LOGIN: {}", newLogin);
+    // FolioLogin newLogin = loginService.folioLogin(loginOkapiRequest);
+    // newLogin.setUsername("tern_admin");
+    // log.info("NEW LOGIN: {}", newLogin);
 
-    String token = newLogin.getxOkapiToken();
+    // String token = newLogin.getxOkapiToken();
 
-    // String token = (String) execution.getVariable("okapiToken");
+    String token = (String) execution.getVariable("okapiToken");
     System.out.println(String.format("%s STARTED", delegateName));
 
     streamService.getFlux().buffer(2).subscribe(rows -> {
@@ -85,21 +85,21 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
           e.printStackTrace();
         }
 
-        // try {
-        //   webClient
-        //     .post()
-        //     .uri("/organizations-storage/organizations")
-        //     .syncBody(mapper.readTree(row))
-        //     .header("X-Okapi-Tenant", "tern")
-        //     .header("X-Okapi-Token", token)
-        //     .accept(MediaType.APPLICATION_JSON)
-        //     .retrieve().bodyToFlux(String.class).subscribe(res -> {
-        //       //System.out.println(res);
-        //     });
-        // } catch (IOException e) {
-        //   
-        //   e.printStackTrace();
-        // }
+        try {
+          webClient
+            .post()
+            .uri("/organizations-storage/organizations")
+            .syncBody(mapper.readTree(row))
+            .header("X-Okapi-Tenant", "tern")
+            .header("X-Okapi-Token", token)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve().bodyToFlux(String.class).subscribe(res -> {
+              //System.out.println(res);
+            });
+        } catch (IOException e) {
+          
+          e.printStackTrace();
+        }
 
       });
       System.out.println(String.format("\n%s: %s", delegateName, rows.size()));
