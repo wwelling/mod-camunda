@@ -26,7 +26,6 @@ if (!Array.isArray) {
 }
 
 var setupVendorData = function(args, returnObj) {
-  //print(JSON.stringify(args,null,2));
   var formatSourceData = function(args) {
     var sourceData = {};
     var argKeys = Object.keys(args);
@@ -53,7 +52,9 @@ var setupVendorData = function(args, returnObj) {
       } else if(typeof value === 'string' && value.indexOf(';;') !== -1) {
         sourceData[key] = value.split(';;');
       } else if(typeof value === 'string' && value.indexOf('::') !== -1) {
-        sourceData[key] = value.split('::')[1];
+        var valueParts = value.split('::');
+        sourceData[key] = {};
+        sourceData[key][valueParts[0]] = valueParts[1];
       } else {
         sourceData[key] = value;
       }
@@ -102,15 +103,24 @@ var setupVendorData = function(args, returnObj) {
       'changelogs': []
     }
   };
-  print(JSON.stringify(args.sourceData, null, 2));
   return returnObj;
 };
 
 var processFlatData = function(args, returnObj) {
+
+  if(typeof args.sourceData.address_ids === 'string') {
+    args.sourceData.address_ids = [args.sourceData.address_ids];
+  }
+
+  if(typeof args.sourceData.account_ids === 'string') {
+    args.sourceData.account_ids = [args.sourceData.account_ids];
+  }
+
   args.vendorResponseBody.name = args.sourceData.VENDOR_NAME;
   args.vendorResponseBody.code = args.sourceData.VENDOR_CODE;
   args.vendorResponseBody.description = args.sourceData.VENDOR_TYPE;
   args.vendorResponseBody.status = args.statuses[0];
+  args.vendorResponseBody.taxId = args.sourceData.FEDERAL_TAX_ID;
   args.vendorResponseBody.isVendor = true;
   args.vendorResponseBody.vendorCurrencies.push(args.sourceData.DEFAULT_CURRENCY);
   args.vendorResponseBody.claimingInterval = args.sourceData.CLAIM_INTERVAL;
@@ -161,8 +171,13 @@ var processAddresses = function(args, returnObj) {
     var address = {};
     var addressId = args.sourceData.address_ids[i];
     address.addressLine1 = args.sourceData.address_line1s[addressId];
+
+    address.addressLine2 = args.sourceData.address_line2s[addressId] + " " +
+                           args.sourceData.address_line3s[addressId] + " " +
+                           args.sourceData.address_line4s[addressId] + " " +
+                           args.sourceData.address_line5s[addressId] + " ";
     if(
-      (!isEmail(address.addressLine1) &&
+      (!isEmail(address.addressLine1) &
       !isURLLike(address.addressLine1))
     ) {
       address.addressLine2 = args.sourceData.address_line2s[addressId];
@@ -207,7 +222,7 @@ var processPhoneNumbers = function(args, returnObj) {
   for(var i=0;i<args.sourceData.address_ids.length;i++) {
     var phoneNumberObj = {};
     var addressId = args.sourceData.address_ids[i];
-    
+
     if(isPhone(args.sourceData.address_line1s[addressId])) {
       phoneNumberObj.phoneNumber = args.sourceData.address_line1s[addressId];
     } else if(typeof args.sourceData.phone_number == 'string') {
@@ -217,7 +232,7 @@ var processPhoneNumbers = function(args, returnObj) {
     }
 
     if(phoneNumberObj.phoneNumber) {
-    
+
       var makePhoneNumber = function(pn, index) {
         if(args.sourceData.phone_type) {
           if(Array.isArray(args.sourceData.phone_type[addressId])) {
@@ -230,12 +245,12 @@ var processPhoneNumbers = function(args, returnObj) {
         } else {
           pn.type = 'Other';
         }
-        
+
         pn.categories = [];
-    
+
         if(args.sourceData.order_addresses[addressId]==='Y') 
           pn.categories.push(args.categories.ORDER);
-    
+
         if(args.sourceData.payment_addreses[addressId]==='Y') 
           pn.categories.push(args.categories.PAYMENT);
     
@@ -266,7 +281,7 @@ var processPhoneNumbers = function(args, returnObj) {
           makePhoneNumber({phoneNumber:number}, j);
         }
       } else {
-        makePhoneNumber(phoneNumberObj.phoneNumber);
+        makePhoneNumber({phoneNumber: phoneNumberObj.phoneNumber});
       }
   
     } 
@@ -310,6 +325,8 @@ var processEmails = function(args, returnObj) {
       } else {
         args.vendorResponseBody.emails.push(emailObj);
       }
+      if(args.sourceData.address_line2s[addressId])
+        args.vendorResponseBody.description += " " + args.sourceData.address_line2s[addressId];
     }
   }
   returnObj = args;
@@ -323,6 +340,11 @@ var processURLs = function(args, returnObj) {
     var addressId = args.sourceData.address_ids[i];
     urlObj.value = args.sourceData.address_line1s[addressId];
     if(isURLLike(urlObj.value)) {
+
+      if(!isValidUrl(urlObj.value)) {
+        urlObj.value = 'http://'+urlObj.value;
+      }
+
       urlObj.description = null;
       urlObj.categories = [];
 
@@ -351,7 +373,8 @@ var processURLs = function(args, returnObj) {
       } else {
         args.vendorResponseBody.urls.push(urlObj);
       }
-
+      if(args.sourceData.address_line2s[addressId])
+        args.vendorResponseBody.description += " " + args.sourceData.address_line2s[addressId];
     }
   }
   returnObj = args;
@@ -359,44 +382,26 @@ var processURLs = function(args, returnObj) {
 };
 
 var processAccounts = function(args, returnObj) {
-  var account = {};
-
-  var buildAccount = function(name, accountNo, accountStatus, paymentMethod, notes) {
-    account.name = name ? name : '';
-    account.accountNo = accountNo ? accountNo : '';
-    account.accountStatus = accountStatus ? accountStatus : '';
-    account.paymentMethod = paymentMethod === 'Y' ? 'Deposit Account' :'EFT';
-    account.notes = notes ? notes : '';
+  if(args.sourceData.account_ids)
+  for(var i=0;i<args.sourceData.account_ids.length;i++) {
+    var account = {};
+    var account_id = args.sourceData.account_ids[i];
+    account.name = args.sourceData.account_names[account_id] ? args.sourceData.account_names[account_id] : '';
+    account.accountNo = args.sourceData.account_numbers[account_id] ? args.sourceData.account_numbers[account_id] : '';
+    account.accountStatus = args.sourceData.account_statuses[account_id] ? args.statuses[args.sourceData.account_statuses[account_id]] :  args.statuses[1];
+    account.paymentMethod = args.sourceData.deposits[account_id] === 'Y' ? 'Deposit Account' :'EFT';
+    account.notes = args.sourceData.account_notes[account_id] ? args.sourceData.account_notes[account_id] : '';
     account.libraryCode = '';
     account.libraryEdiCode = '';
     args.vendorResponseBody.accounts.push(account);
-  };
-
-  if(typeof args.sourceData.account_names === 'string') {
-    buildAccount(
-      args.sourceData.account_names,
-      args.sourceData.account_numbers,
-      args.sourceData.account_statuses,
-      args.sourceData.deposits,
-      args.sourceData.account_notes
-    );    
-  } else {
-    for(var i=0;i<args.sourceData.account_ids.length;i++) {
-      var account_id = args.sourceData.account_ids[i];
-      buildAccount(
-        args.sourceData.account_names[account_id],
-        args.sourceData.account_numbers[account_id],
-        args.sourceData.account_statuses[account_id],
-        args.sourceData.deposits[account_id],
-        args.sourceData.account_notes[account_id]
-      ); 
-    }
   }
   returnObj = args;
   return returnObj;
 };
 
 var finalizeVendorData = function(args, returnObj) {
+  if(args.sourceData.vendor_notes)
+    args.vendorResponseBody.description += " " + args.sourceData.vendor_notes;
   returnObj = args.vendorResponseBody;
   return returnObj;
 };
