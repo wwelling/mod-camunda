@@ -59,7 +59,7 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
 
       streamService.map(d -> {
 
-        System.out.println(String.format("%s WORKING", delegateName));
+        System.out.print(".");
         
         String returnData = d;
         try {

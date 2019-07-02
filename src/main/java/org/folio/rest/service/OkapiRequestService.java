@@ -63,7 +63,7 @@ public class OkapiRequestService {
         addTenantHeader(headers, tenant);
         addOkapiToken(headers, token);
         request = new HttpEntity<>(headers);
-        log.info("GET Request: {} {}", url, request);
+        log.debug("GET Request: {} {}", url, request);
         response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
         return mapOkapiResponse(response);
 
@@ -73,7 +73,7 @@ public class OkapiRequestService {
         addTenantHeader(headers, tenant);
         addOkapiToken(headers, token);
         request = new HttpEntity<>(payload, headers);
-        log.info("POST Request: {} {} {}", request, url, uriVariables);
+        log.debug("POST Request: {} {} {}", request, url, uriVariables);
 
         try {
           response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
@@ -89,7 +89,7 @@ public class OkapiRequestService {
         addTenantHeader(headers, tenant);
         addOkapiToken(headers, token);
         request = new HttpEntity<>(payload, headers);
-        log.info("PUT Request: {}", request);
+        log.debug("PUT Request: {}", request);
 
         try {
           response = httpService.exchange(url, httpMethod, request, String.class, uriVariables);
@@ -124,11 +124,11 @@ public class OkapiRequestService {
   private void addOkapiToken(HttpHeaders headers, String token) { headers.add(HEADER_OKAPI_TOKEN, token); }
 
   private OkapiResponse mapOkapiResponse(ResponseEntity<?> response) {
-    log.info("<< RESPONSE >>");
-    log.info("STATUS: {}", response.getStatusCode().toString());
-    log.info("HEADERS: {}", response.getHeaders().toString());
+    log.debug("<< RESPONSE >>");
+    log.debug("STATUS: {}", response.getStatusCode().toString());
+    log.debug("HEADERS: {}", response.getHeaders().toString());
     if (response.getBody() != null) {
-      log.info("BODY: {}", response.getBody().toString());
+      log.debug("BODY: {}", response.getBody().toString());
     }
 
     int statusCode = response.getStatusCodeValue();
@@ -136,7 +136,7 @@ public class OkapiRequestService {
     if (response.getBody() != null) {
       responseBody = response.getBody().toString();
     }
-    log.info("responseBody: {}", responseBody);
+    log.debug("responseBody: {}", responseBody);
 
     Map<String, String> responseHeaders = new HashMap<>();
     responseHeaders.put("x-okapi-token", response.getHeaders().getFirst("x-okapi-token"));

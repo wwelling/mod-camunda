@@ -4,11 +4,24 @@ var isValidUrl = function(string) {
 };
 
 var isURLLike = function(string) {
-  return isValidUrl(string) || string ? string.toLowerCase().indexOf("www.") !== -1 : false;
+
+  var isLikeAUrl = string.toLowerCase().indexOf("www.") !== -1;
+  if(!isLikeAUrl) isLikeAUrl = string.toLowerCase().indexOf(".org") !== -1;
+  if(!isLikeAUrl) isLikeAUrl = string.toLowerCase().indexOf(".edu") !== -1;
+  if(!isLikeAUrl) isLikeAUrl = string.toLowerCase().indexOf(".net") !== -1;
+  if(!isLikeAUrl) isLikeAUrl = string.toLowerCase().indexOf(".us") !== -1;
+  if(!isLikeAUrl) isLikeAUrl = string.toLowerCase().indexOf(".io") !== -1;
+  if(!isLikeAUrl) isLikeAUrl = string.toLowerCase().indexOf(".co") !== -1;
+
+  return (isValidUrl(string) || isLikeAUrl) && !isEmail(string);
 };
 
 var isEmail = function(string) {
   return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(string);
+};
+
+var isEmailLike = function(string) {
+  return isEmail(string) || string ? string.toLowerCase().indexOf("@") !== -1 : false;
 };
 
 var isPhone = function(string) {
@@ -74,10 +87,19 @@ var setupVendorData = function(args, returnObj) {
       RETURN: '544459af-fc5e-4e64-9b40-acb84ac4d3aa',
       OTHER: '04f39c67-b212-4fe7-87f0-0875c8995d21'
     },
+    vendorTypes: {
+      'BF': 'Backfile vendor',
+      'CO': 'Continuations vendor',
+      'DB': 'Database vendor',
+      'ER': 'Electronic resources vendor',
+      'MO': 'Monographs vendor',
+      'NO': 'Converted from NOTIS to Voyager',
+      'SR': 'Serials vendor'
+    },
     phoneTypes: {
-      "1": 'Mobile',
-      "2": 'Fax',
-      "3": 'Other'
+      '1': 'Mobile',
+      '2': 'Fax',
+      '3': 'Other'
     },
     sourceData: formatSourceData(args),
     vendorResponseBody: {
@@ -89,7 +111,10 @@ var setupVendorData = function(args, returnObj) {
       'language': null,
       'isVendor': null,
       'sanCode': null,
-      'aliases': [],
+      'aliases': [{
+        "value": "TESTING",
+        "description": "delete me!"
+      }],
       'addresses': [],
       'phoneNumbers': [],
       'emails': [],
@@ -118,7 +143,11 @@ var processFlatData = function(args, returnObj) {
 
   args.vendorResponseBody.name = args.sourceData.VENDOR_NAME;
   args.vendorResponseBody.code = args.sourceData.VENDOR_CODE;
-  args.vendorResponseBody.description = args.sourceData.VENDOR_TYPE;
+  args.vendorResponseBody.description = args.vendorTypes[args.sourceData.VENDOR_TYPE] ? 
+    args.vendorTypes[args.sourceData.VENDOR_TYPE] : 
+    args.sourceData.VENDOR_TYPE ? 
+    args.sourceData.VENDOR_TYPE :
+    '';
   args.vendorResponseBody.status = args.statuses[0];
   args.vendorResponseBody.taxId = args.sourceData.FEDERAL_TAX_ID;
   args.vendorResponseBody.isVendor = true;
@@ -172,15 +201,16 @@ var processAddresses = function(args, returnObj) {
     var addressId = args.sourceData.address_ids[i];
     address.addressLine1 = args.sourceData.address_line1s[addressId];
 
-    address.addressLine2 = args.sourceData.address_line2s[addressId] + " " +
+    if(
+      (!isEmailLike(address.addressLine1) &
+      !isURLLike(address.addressLine1))
+    ) {
+
+      address.addressLine2 = args.sourceData.address_line2s[addressId] + " " +
                            args.sourceData.address_line3s[addressId] + " " +
                            args.sourceData.address_line4s[addressId] + " " +
                            args.sourceData.address_line5s[addressId] + " ";
-    if(
-      (!isEmail(address.addressLine1) &
-      !isURLLike(address.addressLine1))
-    ) {
-      address.addressLine2 = args.sourceData.address_line2s[addressId];
+
       address.city = args.sourceData.cities[addressId];
       address.stateRegion =  args.sourceData.state_provinces[addressId];
       address.zipCode = args.sourceData.zip_postals[addressId];
@@ -201,7 +231,8 @@ var processAddresses = function(args, returnObj) {
       
       if(args.sourceData.other_addresses[addressId]==='Y') 
         address.categories.push(args.categories.OTHER);
-      if(args.sourceData.contact_names[addressId]) {
+        
+      if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
         for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
           var c = args.vendorResponseBody.contacts[j];
           if(c.firstName === args.sourceData.contact_names[addressId]) {
@@ -263,7 +294,7 @@ var processPhoneNumbers = function(args, returnObj) {
         if(args.sourceData.other_addresses[addressId]==='Y') 
           pn.categories.push(args.categories.OTHER);
     
-        if(args.sourceData.contact_names[addressId]) {
+        if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
           for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
             var c = args.vendorResponseBody.contacts[j];
             if(c.firstName === args.sourceData.contact_names[addressId]) {
@@ -296,7 +327,7 @@ var processEmails = function(args, returnObj) {
     var emailObj = {};
     var addressId = args.sourceData.address_ids[i];
     emailObj.value = args.sourceData.address_line1s[addressId];
-    if(isEmail(emailObj.value)) {
+    if(isEmailLike(emailObj.value)) {
       emailObj.description = null;
       emailObj.categories = [];
   
@@ -315,7 +346,7 @@ var processEmails = function(args, returnObj) {
       if(args.sourceData.other_addresses[addressId]==='Y') 
         emailObj.categories.push(args.categories.OTHER);
       
-      if(args.sourceData.contact_names[addressId]) {
+      if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
         for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
           var c = args.vendorResponseBody.contacts[j];
           if(c.firstName === args.sourceData.contact_names[addressId]) {
@@ -341,7 +372,7 @@ var processURLs = function(args, returnObj) {
     urlObj.value = args.sourceData.address_line1s[addressId];
     if(isURLLike(urlObj.value)) {
 
-      if(!isValidUrl(urlObj.value)) {
+      if(urlObj.value.indexOf('http') == -1) {
         urlObj.value = 'http://'+urlObj.value;
       }
 
@@ -363,7 +394,7 @@ var processURLs = function(args, returnObj) {
       if(args.sourceData.other_addresses[addressId]==='Y') 
         urlObj.categories.push(args.categories.OTHER);
 
-      if(args.sourceData.contact_names[addressId]) {
+      if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
         for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
           var c = args.vendorResponseBody.contacts[j];
           if(c.firstName === args.sourceData.contact_names[addressId]) {
@@ -373,6 +404,7 @@ var processURLs = function(args, returnObj) {
       } else {
         args.vendorResponseBody.urls.push(urlObj);
       }
+      
       if(args.sourceData.address_line2s[addressId])
         args.vendorResponseBody.description += " " + args.sourceData.address_line2s[addressId];
     }
@@ -402,6 +434,14 @@ var processAccounts = function(args, returnObj) {
 var finalizeVendorData = function(args, returnObj) {
   if(args.sourceData.vendor_notes)
     args.vendorResponseBody.description += " " + args.sourceData.vendor_notes;
+
+  var cleanContact = [];
+  for(var i=0;i<args.vendorResponseBody.contacts.length;i++){
+    var c = args.vendorResponseBody.contacts[i];
+    if(typeof c === 'string') cleanContact.push(c);
+  }
+  args.vendorResponseBody.contacts = cleanContact;
+
   returnObj = args.vendorResponseBody;
   return returnObj;
 };
