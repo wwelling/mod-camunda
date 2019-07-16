@@ -1,15 +1,25 @@
 package org.folio.rest.delegate;
 
+import java.nio.charset.Charset;
+
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.Invocable;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
-import org.folio.rest.service.ScriptEngineService;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 
 @Service
 @Scope("prototype")
@@ -17,9 +27,6 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
-
-  @Autowired
-  private ScriptEngineService scriptEngineService;
 
   private Expression script;
 
@@ -31,15 +38,22 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
     String delegateName = bpmnModelElemen.getName();
 
     if(scriptType != null && script != null) {
-      scriptEngineService.registerScript(scriptType.getValue(execution).toString(), delegateName,
-        script.getValue(execution).toString());
+      ScriptEngine engine =  new ScriptEngineManager().getEngineByName("JavaScript");
+      String scriptTemplate = "%s var %s = function(inArgs) {var args = JSON.parse(inArgs); var returnObj = {}; %s return JSON.stringify(returnObj);}";
+      String javascriptUtilsContent = StreamUtils.copyToString( new ClassPathResource("scripts/javascriptUtils.js").getInputStream(), Charset.defaultCharset()  );
+      String templatedScript = String.format(scriptTemplate, javascriptUtilsContent, delegateName, script.getValue(execution).toString());
 
+      CompiledScript cscript = ((Compilable) engine).compile(templatedScript);
+      Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
+      cscript.eval(bindings);
+      Invocable invocable = (Invocable) cscript.getEngine();
+      
       System.out.println(String.format("%s STARTED", delegateName));
       streamService.map(d -> {
         try {
-          d = (String) scriptEngineService.runScript(scriptType.getValue(execution).toString(), delegateName, d);
+          d = (String) invocable.invokeFunction(delegateName, d);
         } catch (NoSuchMethodException | ScriptException e) {
-          e.printStackTrace();
+         e.printStackTrace();
         }
 
         return d;

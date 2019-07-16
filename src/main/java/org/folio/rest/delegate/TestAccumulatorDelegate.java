@@ -18,11 +18,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -55,8 +52,10 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
-    String token = (String) execution.getVariable("okapiToken");
     System.out.println(String.format("%s STARTED", delegateName));
+
+    String token = (String) execution.getVariable("okapiToken");
+
     Instant start = Instant.now();
 
     List<ErrorReport> totalFailed = new ArrayList<ErrorReport>();
@@ -64,12 +63,20 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
 
     AtomicBoolean finished = new AtomicBoolean();
 
-    streamService.getFlux().buffer(100).delayElements(Duration.ofSeconds(10))
+    streamService.getFlux()
+      .buffer(500)
+      .delayElements(Duration.ofSeconds(10))
       .doFinally(f->{
-        System.out.println(String.format("FINISHED STREAM! %s", f.toString()));
+        System.out.println(String.format("\n\nFINISHED STREAM! %s\n\n", f.toString()));
+        Instant end = Instant.now();
+        System.out.println("TIME: " + Duration.between(start, end).getSeconds() + " seconds");
         finished.set(true);
       })
       .subscribe(rows -> {
+
+        Instant now = Instant.now();
+        System.out.println("TIME: " + Duration.between(start, now).getSeconds() + " seconds");
+
         List<ErrorReport> batchFailed = new ArrayList<ErrorReport>();
         AtomicInteger batchSuccesses = new AtomicInteger();
 

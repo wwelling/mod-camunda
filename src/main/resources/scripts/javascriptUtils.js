@@ -1,5 +1,7 @@
+
+var isValidUrlRegex = new RegExp('(http(s)?:\\\/\\\/.)?(www\.)?[-a-zA-Z0-9@:%._\\\+~#=]{2,256}\\\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\\\+.~#?&//=]*)', 'g');
 var isValidUrl = function(string) {
-  var res = string ? string.match(/(http(s)?:\\\/\\\/.)?(www\.)?[-a-zA-Z0-9@:%._\\\+~#=]{2,256}\\\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\\\+.~#?&//=]*)/g) : null;
+  var res = string ? string.match(isValidUrlRegex) : null;
   return (res !== null);
 };
 
@@ -16,16 +18,18 @@ var isURLLike = function(string) {
   return (isValidUrl(string) || isLikeAUrl) && !isEmail(string);
 };
 
+var isEmailRegex = new RegExp('^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$');
 var isEmail = function(string) {
-  return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(string);
+  return isEmailRegex.test(string);
 };
 
 var isEmailLike = function(string) {
   return isEmail(string) || string ? string.toLowerCase().indexOf("@") !== -1 : false;
 };
 
+var isPhoneRegex = new RegExp('^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$', 'im');
 var isPhone = function(string) {
-  return /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(string);
+  return isPhoneRegex.test(string);
 };
 
 function isFunction(functionToCheck) {
@@ -195,52 +199,51 @@ var processContacts = function(args, returnObj) {
 };
 
 var processAddresses = function(args, returnObj) {
-  if(args.sourceData.address_ids)
-  for(var i=0;i<args.sourceData.address_ids.length;i++) {
-    var address = {};
-    var addressId = args.sourceData.address_ids[i];
-    address.addressLine1 = args.sourceData.address_line1s[addressId];
+  if(args.sourceData.address_ids) {
+    for(var i=0;i<args.sourceData.address_ids.length;i++) {
+      var address = {};
+      var addressId = args.sourceData.address_ids[i];
+      address.addressLine1 = args.sourceData.address_line1s[addressId];
 
-    if(
-      (!isEmailLike(address.addressLine1) &
-      !isURLLike(address.addressLine1))
-    ) {
+      if(
+         (!isEmailLike(address.addressLine1) && !isURLLike(address.addressLine1))
+      ) {
+        address.addressLine2 = args.sourceData.address_line2s[addressId] + " " +
+                            args.sourceData.address_line3s[addressId] + " " +
+                            args.sourceData.address_line4s[addressId] + " " +
+                            args.sourceData.address_line5s[addressId] + " ";
 
-      address.addressLine2 = args.sourceData.address_line2s[addressId] + " " +
-                           args.sourceData.address_line3s[addressId] + " " +
-                           args.sourceData.address_line4s[addressId] + " " +
-                           args.sourceData.address_line5s[addressId] + " ";
-
-      address.city = args.sourceData.cities[addressId];
-      address.stateRegion =  args.sourceData.state_provinces[addressId];
-      address.zipCode = args.sourceData.zip_postals[addressId];
-      address.country = args.sourceData.countries[addressId];
-      address.categories = [];
-  
-      if(args.sourceData.order_addresses[addressId]==='Y') 
-        address.categories.push(args.categories.ORDER);
-  
-      if(args.sourceData.payment_addreses[addressId]==='Y') 
-        address.categories.push(args.categories.PAYMENT);
-  
-      if(args.sourceData.claim_addresses[addressId]==='Y') 
-        address.categories.push(args.categories.CLAIM);
-  
-      if(args.sourceData.return_addresses[addressId]==='Y') 
-        address.categories.push(args.categories.RETURN);
-      
-      if(args.sourceData.other_addresses[addressId]==='Y') 
-        address.categories.push(args.categories.OTHER);
+        address.city = args.sourceData.cities[addressId];
+        address.stateRegion =  args.sourceData.state_provinces[addressId];
+        address.zipCode = args.sourceData.zip_postals[addressId];
+        address.country = args.sourceData.countries[addressId];
+        address.categories = [];
+    
+        if(args.sourceData.order_addresses[addressId]==='Y') 
+          address.categories.push(args.categories.ORDER);
+    
+        if(args.sourceData.payment_addreses[addressId]==='Y') 
+          address.categories.push(args.categories.PAYMENT);
+    
+        if(args.sourceData.claim_addresses[addressId]==='Y') 
+          address.categories.push(args.categories.CLAIM);
+    
+        if(args.sourceData.return_addresses[addressId]==='Y') 
+          address.categories.push(args.categories.RETURN);
         
-      if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
-        for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
-          var c = args.vendorResponseBody.contacts[j];
-          if(c.firstName === args.sourceData.contact_names[addressId]) {
-            c.addresses.push(address);
+        if(args.sourceData.other_addresses[addressId]==='Y') 
+          address.categories.push(args.categories.OTHER);
+          
+        if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
+          for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
+            var c = args.vendorResponseBody.contacts[j];
+            if(c.firstName === args.sourceData.contact_names[addressId]) {
+              c.addresses.push(address);
+            }
           }
+        } else {
+          args.vendorResponseBody.addresses.push(address);
         }
-      } else {
-        args.vendorResponseBody.addresses.push(address);
       }
     }
   }
@@ -264,7 +267,7 @@ var processPhoneNumbers = function(args, returnObj) {
 
     if(phoneNumberObj.phoneNumber) {
 
-      var makePhoneNumber = function(pn, index) {
+      var makePhoneNumber = function (pn, index) {
         if(args.sourceData.phone_type) {
           if(Array.isArray(args.sourceData.phone_type[addressId])) {
             pn.isPrimary = args.sourceData.phone_type[addressId][index] === '0';
@@ -322,42 +325,43 @@ var processPhoneNumbers = function(args, returnObj) {
 };
 
 var processEmails = function(args, returnObj) {
-  if(args.sourceData.address_ids)
-  for(var i=0;i<args.sourceData.address_ids.length;i++) {
-    var emailObj = {};
-    var addressId = args.sourceData.address_ids[i];
-    emailObj.value = args.sourceData.address_line1s[addressId];
-    if(isEmailLike(emailObj.value)) {
-      emailObj.description = null;
-      emailObj.categories = [];
-  
-      if(args.sourceData.order_addresses[addressId]==='Y') 
-        emailObj.categories.push(args.categories.ORDER);
-  
-      if(args.sourceData.payment_addreses[addressId]==='Y') 
-        emailObj.categories.push(args.categories.PAYMENT);
-  
-      if(args.sourceData.claim_addresses[addressId]==='Y') 
-        emailObj.categories.push(args.categories.CLAIM);
-  
-      if(args.sourceData.return_addresses[addressId]==='Y') 
-        emailObj.categories.push(args.categories.RETURN);
-      
-      if(args.sourceData.other_addresses[addressId]==='Y') 
-        emailObj.categories.push(args.categories.OTHER);
-      
-      if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
-        for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
-          var c = args.vendorResponseBody.contacts[j];
-          if(c.firstName === args.sourceData.contact_names[addressId]) {
-            c.emails.push(emailObj);
+  if(args.sourceData.address_ids) {
+    for(var i=0;i<args.sourceData.address_ids.length;i++) {
+      var emailObj = {};
+      var addressId = args.sourceData.address_ids[i];
+      emailObj.value = args.sourceData.address_line1s[addressId];
+      if(isEmailLike(emailObj.value)) {
+        emailObj.description = null;
+        emailObj.categories = [];
+    
+        if(args.sourceData.order_addresses[addressId]==='Y') 
+          emailObj.categories.push(args.categories.ORDER);
+    
+        if(args.sourceData.payment_addreses[addressId]==='Y') 
+          emailObj.categories.push(args.categories.PAYMENT);
+    
+        if(args.sourceData.claim_addresses[addressId]==='Y') 
+          emailObj.categories.push(args.categories.CLAIM);
+    
+        if(args.sourceData.return_addresses[addressId]==='Y') 
+          emailObj.categories.push(args.categories.RETURN);
+        
+        if(args.sourceData.other_addresses[addressId]==='Y') 
+          emailObj.categories.push(args.categories.OTHER);
+        
+        if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
+          for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
+            var c = args.vendorResponseBody.contacts[j];
+            if(c.firstName === args.sourceData.contact_names[addressId]) {
+              c.emails.push(emailObj);
+            }
           }
+        } else {
+          args.vendorResponseBody.emails.push(emailObj);
         }
-      } else {
-        args.vendorResponseBody.emails.push(emailObj);
+        if(args.sourceData.address_line2s[addressId])
+          args.vendorResponseBody.description += " " + args.sourceData.address_line2s[addressId];
       }
-      if(args.sourceData.address_line2s[addressId])
-        args.vendorResponseBody.description += " " + args.sourceData.address_line2s[addressId];
     }
   }
   returnObj = args;
@@ -365,48 +369,49 @@ var processEmails = function(args, returnObj) {
 };
 
 var processURLs = function(args, returnObj) {
-  if(args.sourceData.address_ids)
-  for(var i=0;i<args.sourceData.address_ids.length;i++) {
-    var urlObj = {};
-    var addressId = args.sourceData.address_ids[i];
-    urlObj.value = args.sourceData.address_line1s[addressId];
-    if(isURLLike(urlObj.value)) {
+  if(args.sourceData.address_ids) {
+    for(var i=0;i<args.sourceData.address_ids.length;i++) {
+      var urlObj = {};
+      var addressId = args.sourceData.address_ids[i];
+      urlObj.value = args.sourceData.address_line1s[addressId];
+      if(isURLLike(urlObj.value)) {
 
-      if(urlObj.value.indexOf('http') == -1) {
-        urlObj.value = 'http://'+urlObj.value;
-      }
-
-      urlObj.description = null;
-      urlObj.categories = [];
-
-      if(args.sourceData.order_addresses[addressId]==='Y') 
-        urlObj.categories.push(args.categories.ORDER);
-
-      if(args.sourceData.payment_addreses[addressId]==='Y') 
-        urlObj.categories.push(args.categories.PAYMENT);
-
-      if(args.sourceData.claim_addresses[addressId]==='Y') 
-        urlObj.categories.push(args.categories.CLAIM);
-
-      if(args.sourceData.return_addresses[addressId]==='Y') 
-        urlObj.categories.push(args.categories.RETURN);
-      
-      if(args.sourceData.other_addresses[addressId]==='Y') 
-        urlObj.categories.push(args.categories.OTHER);
-
-      if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
-        for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
-          var c = args.vendorResponseBody.contacts[j];
-          if(c.firstName === args.sourceData.contact_names[addressId]) {
-            c.urls.push(urlObj);
-          }
+        if(urlObj.value.indexOf('http') == -1) {
+          urlObj.value = 'http://'+urlObj.value;
         }
-      } else {
-        args.vendorResponseBody.urls.push(urlObj);
+
+        urlObj.description = null;
+        urlObj.categories = [];
+
+        if(args.sourceData.order_addresses[addressId]==='Y') 
+          urlObj.categories.push(args.categories.ORDER);
+
+        if(args.sourceData.payment_addreses[addressId]==='Y') 
+          urlObj.categories.push(args.categories.PAYMENT);
+
+        if(args.sourceData.claim_addresses[addressId]==='Y') 
+          urlObj.categories.push(args.categories.CLAIM);
+
+        if(args.sourceData.return_addresses[addressId]==='Y') 
+          urlObj.categories.push(args.categories.RETURN);
+        
+        if(args.sourceData.other_addresses[addressId]==='Y') 
+          urlObj.categories.push(args.categories.OTHER);
+
+        if(args.sourceData.contact_names[addressId] && args.vendorResponseBody.contacts.length > 0) {
+          for(var j=0;j<args.vendorResponseBody.contacts.length;j++) {
+            var c = args.vendorResponseBody.contacts[j];
+            if(c.firstName === args.sourceData.contact_names[addressId]) {
+              c.urls.push(urlObj);
+            }
+          }
+        } else {
+          args.vendorResponseBody.urls.push(urlObj);
+        }
+        
+        if(args.sourceData.address_line2s[addressId])
+          args.vendorResponseBody.description += " " + args.sourceData.address_line2s[addressId];
       }
-      
-      if(args.sourceData.address_line2s[addressId])
-        args.vendorResponseBody.description += " " + args.sourceData.address_line2s[addressId];
     }
   }
   returnObj = args;

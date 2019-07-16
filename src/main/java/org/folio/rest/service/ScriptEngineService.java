@@ -46,6 +46,7 @@ public class ScriptEngineService {
     } 
     ScriptEngine scriptEngine = maypeScriptEngine.get();
     scriptEngine.eval(String.format(scriptTemplate, name, script));
+    
   }
 
   public Object runScript(String type, String name, Object ...args)

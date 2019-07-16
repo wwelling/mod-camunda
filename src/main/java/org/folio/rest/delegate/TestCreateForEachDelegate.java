@@ -3,8 +3,6 @@ package org.folio.rest.delegate;
 import static org.camunda.spin.Spin.JSON;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
