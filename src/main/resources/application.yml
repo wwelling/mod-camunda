@@ -11,7 +11,7 @@ server:
   port: 9000
 
 spring:
-  activemq.broker-url: tcp://machuff.tamu.edu:61616
+  activemq.broker-url: tcp://localhost:61616
   application.name: mod-camunda
   data.rest:
     returnBodyOnCreate: true

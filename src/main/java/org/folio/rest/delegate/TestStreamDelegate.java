@@ -58,7 +58,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
     streamService.setFlux(
       webClient
         .get()
-        .uri("/extractors/{id}/run", extratorId)
+        .uri(String.format("%s/extractors/{id}/run", OKAPI_LOCATION), extratorId)
         .header("X-Okapi-Tenant", tenant)
         .header("X-Okapi-Token", token)
         .accept(MediaType.APPLICATION_STREAM_JSON)

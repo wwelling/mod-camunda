@@ -97,7 +97,7 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
           try {
             webClient
               .post()
-              .uri("/organizations-storage/organizations")
+              .uri(String.format("%s/organizations-storage/organizations", OKAPI_LOCATION))
               .syncBody(mapper.readTree(row))
               .header("X-Okapi-Tenant", "tern")
               .header("X-Okapi-Token", token)
