@@ -11,7 +11,7 @@ server:
   port: 9000
 
 spring:
-  activemq.broker-url: tcp://localhost:61616
+  activemq.broker-url: tcp://machuff.tamu.edu:61616
   application.name: mod-camunda
   data.rest:
     returnBodyOnCreate: true
@@ -79,3 +79,5 @@ tenant:
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.history.sql
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
+
+okapi.location: http://localhost:9130

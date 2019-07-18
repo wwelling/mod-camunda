@@ -9,6 +9,7 @@ import org.folio.rest.model.FolioLogin;
 import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,12 +18,15 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private LoginService loginService;
 
+  @Value("${okapi.location}")
+  private String OKAPI_LOCATION;
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     log.info("Executing Folio Login Delegate");
 
     OkapiRequest okapiRequest = new OkapiRequest();
-    okapiRequest.setRequestUrl("https://folio-okapisnapshot.library.tamu.edu/authn/login");
+    okapiRequest.setRequestUrl(String.format("%s/authn/login", OKAPI_LOCATION));
     okapiRequest.setRequestMethod("POST");
     okapiRequest.setRequestContentType("application/json");
     okapiRequest.setResponseBodyName("loginResponseBody");

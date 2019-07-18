@@ -12,6 +12,7 @@ import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.service.LoginService;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -27,11 +28,14 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private LoginService loginService;
 
+  @Value("${okapi.location}")
+  private String OKAPI_LOCATION;
+
   private final WebClient webClient;
 
   public TestStreamDelegate(WebClient.Builder webClientBuilder) {
     super();
-    webClient = webClientBuilder.baseUrl("http://localhost:9130").build();
+    webClient = webClientBuilder.baseUrl(OKAPI_LOCATION).build();
   }
 
   @Override
@@ -44,16 +48,9 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
 
     String tenant = execution.getTenantId();
 
-    FolioLogin newLogin = login("tern", "https://folio-okapisnapshot.library.tamu.edu", "tern_admin", "admin");
+    FolioLogin newLogin = login("tern", OKAPI_LOCATION, "tern_admin", "admin");
     log.info("NEW LOGIN: {}", newLogin);
-
     String token = newLogin.getxOkapiToken();
-
-    FolioLogin localLogin = login(tenant, "http://localhost:9130", "diku_admin", "admin");
-    log.info("LOCAL LOGIN: {}", newLogin);
-
-    String localToken = localLogin.getxOkapiToken();
-    
     execution.setVariable("okapiToken", token);
 
     System.out.println("START REQUEST");
@@ -63,7 +60,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
         .get()
         .uri("/extractors/{id}/run", extratorId)
         .header("X-Okapi-Tenant", tenant)
-        .header("X-Okapi-Token", localToken)
+        .header("X-Okapi-Token", token)
         .accept(MediaType.APPLICATION_STREAM_JSON)
         .retrieve()
         .bodyToFlux(String.class)

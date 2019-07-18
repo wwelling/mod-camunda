@@ -24,6 +24,9 @@ public class CrPatronNotificationDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private OkapiRequestService okapiRequestService;
 
+  @Value("${okapi.location}")
+  private String OKAPI_LOCATION;
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     log.info("Executing Patron Notification Delegate");
@@ -37,7 +40,7 @@ public class CrPatronNotificationDelegate extends AbstractRuntimeDelegate {
       okapiToken = folioLogin.getxOkapiToken();
     }
 
-    String requestUrl = "http://localhost:9130/notify";
+    String requestUrl = String.format("%s/notify", OKAPI_LOCATION);
     log.info("requestUrl: {}", requestUrl);
     String requestMethod = "POST";
     String requestContentType = "application/json";

@@ -24,6 +24,9 @@ public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private OkapiRequestService okapiRequestService;
 
+  @Value("${okapi.location}")
+  private String OKAPI_LOCATION;
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     // TODO: THIS REQUEST IS DOING A 'RENEW' IN FOLIO
@@ -40,7 +43,7 @@ public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
       okapiToken = folioLogin.getxOkapiToken();
     }
 
-    String requestUrl = "http://localhost:9130/circulation/renew-by-id";
+    String requestUrl = String.format("%s/circulation/renew-by-id", OKAPI_LOCATION);
     String requestMethod = "POST";
     String requestContentType = "application/json";
     String responseStatusName = "";

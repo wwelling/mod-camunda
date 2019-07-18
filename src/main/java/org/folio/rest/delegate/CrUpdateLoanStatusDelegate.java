@@ -24,6 +24,9 @@ public class CrUpdateLoanStatusDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private OkapiRequestService okapiRequestService;
 
+  @Value("${okapi.location}")
+  private String OKAPI_LOCATION;
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     log.info("Executing Update Loan Status Delegate");
@@ -40,7 +43,7 @@ public class CrUpdateLoanStatusDelegate extends AbstractRuntimeDelegate {
       okapiToken = folioLogin.getxOkapiToken();
     }
 
-    String requestUrl = "http://localhost:9130/circulation/loans/" + loanId;
+    String requestUrl = String.format("%s/circulation/loans/%s", OKAPI_LOCATION, loanId);
     log.info("requestUrl: {}", requestUrl);
     String requestMethod = "PUT";
     String requestContentType = "application/json";

@@ -14,11 +14,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import org.camunda.bpm.engine.delegate.Expression;
 
 import reactor.core.publisher.Mono;
 
@@ -32,11 +35,18 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private ObjectMapper mapper;
 
+  @Value("${okapi.location}")
+  private String OKAPI_LOCATION;
+
   private final WebClient webClient;
+
+  private Expression accumulateTo;
+
+  private Expression delayDuration;
 
   public TestAccumulatorDelegate(WebClient.Builder webClientBuilder) {
     super();
-    webClient = webClientBuilder.baseUrl("https://folio-okapisnapshot.library.tamu.edu").build();
+    webClient = webClientBuilder.baseUrl(OKAPI_LOCATION).build();
   }
 
   private class ErrorReport {
@@ -62,10 +72,13 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
     AtomicInteger totalSuccesses = new AtomicInteger();
 
     AtomicBoolean finished = new AtomicBoolean();
+    
+    int buffer = accumulateTo != null ? Integer.parseInt(accumulateTo.getValue(execution).toString()) : 500;
+    int delay = delayDuration != null ? Integer.parseInt(delayDuration.getValue(execution).toString()) : 10;
 
     streamService.getFlux()
-      .buffer(500)
-      .delayElements(Duration.ofSeconds(10))
+      .buffer(buffer)
+      .delayElements(Duration.ofSeconds(delay))
       .doFinally(f->{
         System.out.println(String.format("\n\nFINISHED STREAM! %s\n\n", f.toString()));
         Instant end = Instant.now();
@@ -141,6 +154,14 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
           }
         });
     });
+  }
+
+  public void setAccumulateTo(Expression accumulateTo) {
+    this.accumulateTo = accumulateTo;
+  }
+
+  public void setDelayDuration(Expression delayDuration) {
+    this.delayDuration = delayDuration;
   }
 
 }
