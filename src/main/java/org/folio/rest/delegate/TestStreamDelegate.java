@@ -57,7 +57,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
 
     String tenant = execution.getTenantId();
 
-    FolioLogin newLogin = login("tern", sourceBaseUrl, "tern_admin", "admin");
+    FolioLogin newLogin = login("tern", OKAPI_LOCATION, "tern_admin", "admin");
     log.info("NEW LOGIN: {}", newLogin);
     String token = newLogin.getxOkapiToken();
     execution.setVariable("okapiToken", token);
