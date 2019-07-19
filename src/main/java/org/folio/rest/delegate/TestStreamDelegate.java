@@ -5,6 +5,7 @@ import static org.camunda.spin.Spin.JSON;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
 import org.camunda.spin.json.SpinJsonNode;
 import org.folio.rest.model.FolioLogin;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
 
 @Service
 @Scope("prototype")
@@ -31,15 +33,22 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
   @Value("${okapi.location}")
   private String OKAPI_LOCATION;
 
-  private final WebClient webClient;
+  private Expression streamSource;
+
+  private final WebClient.Builder webClientBuilder;
 
   public TestStreamDelegate(WebClient.Builder webClientBuilder) {
     super();
-    webClient = webClientBuilder.baseUrl(OKAPI_LOCATION).build();
+    this.webClientBuilder = webClientBuilder;
   }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
+
+    String sourceBaseUrl = streamSource != null ? streamSource.getValue(execution).toString() : OKAPI_LOCATION;
+
+    WebClient webClient = webClientBuilder.baseUrl(sourceBaseUrl).build();
+
     String delegateName = execution.getBpmnModelElementInstance().getName();
     System.out.println(String.format("%s STARTED", delegateName));
 
@@ -48,7 +57,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
 
     String tenant = execution.getTenantId();
 
-    FolioLogin newLogin = login("tern", OKAPI_LOCATION, "tern_admin", "admin");
+    FolioLogin newLogin = login("tern", sourceBaseUrl, "tern_admin", "admin");
     log.info("NEW LOGIN: {}", newLogin);
     String token = newLogin.getxOkapiToken();
     execution.setVariable("okapiToken", token);
@@ -58,7 +67,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
     streamService.setFlux(
       webClient
         .get()
-        .uri(String.format("%s/extractors/{id}/run", OKAPI_LOCATION), extratorId)
+        .uri("%s/extractors/{id}/run", extratorId)
         .header("X-Okapi-Tenant", tenant)
         .header("X-Okapi-Token", token)
         .accept(MediaType.APPLICATION_STREAM_JSON)
@@ -92,4 +101,9 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
     newLogin.setUsername(username);
     return newLogin;
   }
+
+  public void setStreamSource(Expression streamSource) {
+    this.streamSource = streamSource;
+  }
+
 }

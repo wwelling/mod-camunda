@@ -38,15 +38,17 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
   @Value("${okapi.location}")
   private String OKAPI_LOCATION;
 
-  private final WebClient webClient;
-
   private Expression accumulateTo;
 
   private Expression delayDuration;
 
+  private Expression storageDestination;
+
+  private final WebClient.Builder webClientBuilder;
+
   public TestAccumulatorDelegate(WebClient.Builder webClientBuilder) {
     super();
-    webClient = webClientBuilder.baseUrl(OKAPI_LOCATION).build();
+    this.webClientBuilder = webClientBuilder;
   }
 
   private class ErrorReport {
@@ -61,6 +63,10 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
+
+    String destinationBaseUrl = storageDestination != null ? storageDestination.getValue(execution).toString() : OKAPI_LOCATION;
+
+    WebClient webClient = webClientBuilder.baseUrl(destinationBaseUrl).build();
 
     System.out.println(String.format("%s STARTED", delegateName));
 
@@ -97,7 +103,7 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
           try {
             webClient
               .post()
-              .uri(String.format("%s/organizations-storage/organizations", OKAPI_LOCATION))
+              .uri(String.format("%s/organizations-storage/organizations", destinationBaseUrl))
               .syncBody(mapper.readTree(row))
               .header("X-Okapi-Tenant", "tern")
               .header("X-Okapi-Token", token)
@@ -162,6 +168,10 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
 
   public void setDelayDuration(Expression delayDuration) {
     this.delayDuration = delayDuration;
+  }
+
+  public void setStorageDestination(Expression storageDestination) {
+    this.storageDestination = storageDestination;
   }
 
 }
