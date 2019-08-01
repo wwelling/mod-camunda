@@ -1,9 +1,8 @@
 package org.folio.rest.controller;
 
 import org.folio.rest.annotation.TokenHeader;
-import org.folio.rest.exception.UnableToActivateWorkflowException;
-import org.folio.rest.exception.UnableToDeactivateWorkflowException;
 import org.folio.rest.exception.WorkflowAlreadyActiveException;
+import org.folio.rest.exception.WorkflowAlreadyDeactivatedException;
 import org.folio.rest.model.Workflow;
 import org.folio.rest.service.CamundaApiService;
 import org.folio.rest.tenant.annotation.TenantHeader;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/workflow")
+@RequestMapping("/workflows")
 public class WorkflowController {
 
   @Autowired
@@ -25,7 +24,7 @@ public class WorkflowController {
     @TenantHeader String tenant,
     @TokenHeader String token,
     @RequestBody Workflow workflow
-  ) throws WorkflowAlreadyActiveException, UnableToActivateWorkflowException {
+  ) throws WorkflowAlreadyActiveException {
 
     return camundaApiService.deployWorkflow(workflow, tenant, token);
   }
@@ -35,7 +34,7 @@ public class WorkflowController {
     @TenantHeader String tenant,
     @TokenHeader String token,
       @RequestBody Workflow workflow
-  ) throws UnableToDeactivateWorkflowException {
+  ) throws WorkflowAlreadyDeactivatedException  {
 
     return camundaApiService.undeployWorkflow(workflow, tenant, token);
   }

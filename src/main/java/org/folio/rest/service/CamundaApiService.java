@@ -9,18 +9,12 @@ import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.spin.json.SpinJsonNode;
-import org.folio.rest.exception.UnableToActivateWorkflowException;
-import org.folio.rest.exception.UnableToDeactivateWorkflowException;
 import org.folio.rest.exception.WorkflowAlreadyActiveException;
-import org.folio.rest.model.OkapiRequest;
-import org.folio.rest.model.OkapiResponse;
+import org.folio.rest.exception.WorkflowAlreadyDeactivatedException;
 import org.folio.rest.model.Workflow;
 import org.jvnet.hk2.annotations.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import static org.camunda.spin.Spin.JSON;
 
 @Service
 public class CamundaApiService {
@@ -31,11 +25,8 @@ public class CamundaApiService {
   @Autowired
   private BpmnModelFactory bpmnModelFactory;
 
-  @Autowired
-  private OkapiRequestService okapiRequestService;
-
   public Workflow deployWorkflow(Workflow workflow, String tenant, String token)
-    throws WorkflowAlreadyActiveException, UnableToActivateWorkflowException {
+    throws WorkflowAlreadyActiveException {
 
     if (workflow.isActive()) {
       throw new WorkflowAlreadyActiveException(workflow.getId());
@@ -60,54 +51,24 @@ public class CamundaApiService {
       workflow.addProcessDefinitionId(processDefinition.getId());
     }
 
-    String requestUrl = String.format("%s/workflow/workflow/activate", OKAPI_LOCATION);
-
-    SpinJsonNode workflowNode = JSON(workflow);
-
-    OkapiResponse response = sendDeploymentRequest(workflowNode, tenant, token, requestUrl);
-
-    if (response.getStatusCode() != 200) {
-      throw new UnableToActivateWorkflowException(workflow.getId());
-    }
-
     return workflow;
   }
 
   public Workflow undeployWorkflow(Workflow workflow, String tenant, String token)
-      throws UnableToDeactivateWorkflowException {
+      throws WorkflowAlreadyDeactivatedException {
 
-    String requestUrl = String.format("%s/workflow/workflow/deactivate", OKAPI_LOCATION);
-
-    SpinJsonNode workflowNode = JSON(workflow);
-
-    OkapiResponse response = sendDeploymentRequest(workflowNode, tenant, token, requestUrl);
-
-    if (response.getStatusCode() != 200) {
-      throw new UnableToDeactivateWorkflowException(workflow.getId());
+    if (!workflow.isActive()) {
+      throw new WorkflowAlreadyDeactivatedException(workflow.getId());
     }
 
-    return JSON(response.getBody()).mapTo(Workflow.class);
-  }
+    ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+    RepositoryService repositoryService = processEngine.getRepositoryService();
+    repositoryService.deleteDeployment(workflow.getDeploymentId());
 
-  private OkapiResponse sendDeploymentRequest(SpinJsonNode workflowNode, String tenant, String token, String requestUrl) {
+    workflow.setActive(false);
+    workflow.setDeploymentId(null);
+    workflow.clearProcessDefinitionIds();
 
-    String requestMethod = "POST";
-    String requestContentType = "application/json";
-    String responseStatusName = "";
-    String responseHeaderName = "";
-    String responseBodyName = "";
-
-    OkapiRequest request = new OkapiRequest();
-    request.setTenant(tenant);
-    request.setRequestUrl(requestUrl);
-    request.setRequestMethod(requestMethod);
-    request.setRequestContentType(requestContentType);
-    request.setResponseStatusName(responseStatusName);
-    request.setResponseHeaderName(responseHeaderName);
-    request.setResponseBodyName(responseBodyName);
-    request.setRequestPayload(workflowNode);
-    request.setOkapiToken(token);
-
-    return okapiRequestService.okapiRestCall(request);
+    return workflow;
   }
 }

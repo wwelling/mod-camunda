@@ -134,15 +134,15 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/workflow/activate",
-          "permissionsRequired": ["workflow-engine.workflow.activate"],
-          "permissionsDesired": ["workflow-engine.workflow.*", "workflow-engine.workflow.all"]
+          "pathPattern": "/workflows/activate",
+          "permissionsRequired": ["workflow-engine.workflows.activate"],
+          "permissionsDesired": ["workflow-engine.workflows.*", "workflow-engine.workflows.all"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/workflow/deactivate",
-          "permissionsRequired": ["workflow-engine.workflow.deactivate"],
-          "permissionsDesired": ["workflow-engine.workflow.*", "workflow-engine.workflow.all"]
+          "pathPattern": "/workflows/deactivate",
+          "permissionsRequired": ["workflow-engine.workflows.deactivate"],
+          "permissionsDesired": ["workflow-engine.workflows.*", "workflow-engine.workflows.all"]
         }
       ]
     },
@@ -362,22 +362,22 @@
       "visible": false
     },
     {
-      "permissionName": "workflow-engine.workflow.activate",
-      "displayName": "Workflow - activate workflow",
+      "permissionName": "workflow-engine.workflows.activate",
+      "displayName": "Workflows - activate workflow",
       "description": "Activate workflow"
     },
     {
-      "permissionName": "workflow-engine.workflow.deactivate",
-      "displayName": "Workflow - deactivate workflow",
+      "permissionName": "workflow-engine.workflows.deactivate",
+      "displayName": "Workflows - deactivate workflow",
       "description": "Deactivate workflow"
     },
     {
-      "permissionName": "workflow-engine.workflow.all",
-      "displayName": "Workflow - all permissions",
+      "permissionName": "workflow-engine.workflows.all",
+      "displayName": "Workflows - all permissions",
       "description": "Entire set of permissions needed to manipulate workflows",
       "subPermissions": [
-        "workflow-engine.workflow.activate",
-        "workflow-engine.workflow.deactivate"
+        "workflow-engine.workflows.activate",
+        "workflow-engine.workflows.deactivate"
       ],
       "visible": false
     }
