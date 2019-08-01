@@ -35,7 +35,7 @@ public class CamundaApiService {
   private OkapiRequestService okapiRequestService;
 
   public Workflow deployWorkflow(Workflow workflow, String tenant, String token)
-      throws WorkflowAlreadyActiveException, UnableToActivateWorkflowException {
+    throws WorkflowAlreadyActiveException, UnableToActivateWorkflowException {
 
     if (workflow.isActive()) {
       throw new WorkflowAlreadyActiveException(workflow.getId());

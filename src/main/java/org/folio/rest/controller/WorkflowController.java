@@ -28,6 +28,6 @@ public class WorkflowController {
     @RequestBody Workflow workflow
   ) throws WorkflowAlreadyActiveException, UnableToActivateWorkflowException {
 
-    return camundaApiService.deployWorkflow(workflow, tenant, token, id);
+    return camundaApiService.deployWorkflow(workflow, tenant, token);
   }
 }
