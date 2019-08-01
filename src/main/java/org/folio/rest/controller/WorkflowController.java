@@ -24,7 +24,6 @@ public class WorkflowController {
   public Workflow activateWorkflow(
     @TenantHeader String tenant,
     @TokenHeader String token,
-    @PathVariable String id,
     @RequestBody Workflow workflow
   ) throws WorkflowAlreadyActiveException, UnableToActivateWorkflowException {
 
