@@ -129,6 +129,24 @@
       ]
     },
     {
+      "id": "workflow-engine",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/workflow/activate",
+          "permissionsRequired": ["workflow-engine.workflow.activate"],
+          "permissionsDesired": ["workflow-engine.workflow.*", "workflow-engine.workflow.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/workflow/deactivate",
+          "permissionsRequired": ["workflow-engine.workflow.deactivate"],
+          "permissionsDesired": ["workflow-engine.workflow.*", "workflow-engine.workflow.all"]
+        }
+      ]
+    },
+    {
       "id": "_jsonSchemas",
       "version": "1.0",
       "interfaceType" : "multiple",
@@ -340,6 +358,26 @@
       "subPermissions": [
         "message.allops",
         "message.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "workflow-engine.workflow.activate",
+      "displayName": "Workflow - activate workflow",
+      "description": "Activate workflow"
+    },
+    {
+      "permissionName": "workflow-engine.workflow.deactivate",
+      "displayName": "Workflow - deactivate workflow",
+      "description": "Deactivate workflow"
+    },
+    {
+      "permissionName": "workflow-engine.workflow.all",
+      "displayName": "Workflow - all permissions",
+      "description": "Entire set of permissions needed to manipulate workflows",
+      "subPermissions": [
+        "workflow-engine.workflow.activate",
+        "workflow-engine.workflow.deactivate"
       ],
       "visible": false
     }
