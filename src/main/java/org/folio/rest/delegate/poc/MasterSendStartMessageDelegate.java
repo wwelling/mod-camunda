@@ -1,4 +1,4 @@
-package org.folio.rest.delegate;
+package org.folio.rest.delegate.poc;
 
 import java.security.SecureRandom;
 

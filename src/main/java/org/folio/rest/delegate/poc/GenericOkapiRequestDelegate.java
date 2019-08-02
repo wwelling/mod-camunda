@@ -1,7 +1,6 @@
-package org.folio.rest.delegate;
+package org.folio.rest.delegate.poc;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.impl.util.json.JSONObject;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.camunda.spin.json.SpinJsonNode;
@@ -16,7 +15,18 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class CrPatronNotificationDelegate extends AbstractRuntimeDelegate {
+public class GenericOkapiRequestDelegate extends AbstractRuntimeDelegate {
+
+  private static final String REQUEST_URL = "requestUrl";
+  private static final String REQUEST_METHOD = "requestMethod";
+  private static final String REQUEST_PAYLOAD = "requestPayload";
+  private static final String REQUEST_URI_VARIABLES = "requestUriVariables";
+
+  private static final String REQUEST_CONTENT_TYPE = "requestContentType";
+
+  private static final String RESPONSE_STATUS = "responseStatusName";
+  private static final String RESPONSE_BODY = "responseBodyName";
+  private static final String RESPONSE_HEADER = "responseHeaderName";
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
@@ -24,15 +34,11 @@ public class CrPatronNotificationDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private OkapiRequestService okapiRequestService;
 
-  @Value("${okapi.location}")
-  private String OKAPI_LOCATION;
-
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    log.info("Executing Patron Notification Delegate");
+    log.info("Executing Generic Okapi Request Delegate");
 
     String tenant = execution.getTenantId();
-    String userId = execution.getVariable("userId").toString();
 
     String okapiToken = "";
     if (execution.getVariable("folioLogin") != null) {
@@ -40,19 +46,16 @@ public class CrPatronNotificationDelegate extends AbstractRuntimeDelegate {
       okapiToken = folioLogin.getxOkapiToken();
     }
 
-    String requestUrl = String.format("%s/notify", OKAPI_LOCATION);
-    log.info("requestUrl: {}", requestUrl);
-    String requestMethod = "POST";
-    String requestContentType = "application/json";
-    String responseStatusName = "";
-    String responseHeaderName = "";
-    String responseBodyName = "";
+    SpinJsonNode jsonNode = JSON(execution.getVariable("okapiRequest"));
 
-    JSONObject json = new JSONObject();
-    json.put("recipientId", userId);
-    json.put("text", "You will be billed for lost item");
-
-    SpinJsonNode payload = JSON(json.toString());
+    // TODO: Refactor to map directly to OkapiRequest
+    String requestUrl = jsonNode.prop(REQUEST_URL).stringValue();
+    String requestMethod = jsonNode.prop(REQUEST_METHOD).stringValue();
+    String requestContentType = jsonNode.prop(REQUEST_CONTENT_TYPE).stringValue();
+    String responseStatusName = jsonNode.prop(RESPONSE_STATUS).stringValue();
+    String responseHeaderName = jsonNode.prop(RESPONSE_HEADER).stringValue();
+    String responseBodyName = jsonNode.prop(RESPONSE_BODY).stringValue();
+    SpinJsonNode payload = jsonNode.prop(REQUEST_PAYLOAD);
 
     OkapiRequest okapiRequest = new OkapiRequest();
     okapiRequest.setTenant(tenant);
@@ -65,16 +68,17 @@ public class CrPatronNotificationDelegate extends AbstractRuntimeDelegate {
     okapiRequest.setRequestPayload(payload);
     okapiRequest.setOkapiToken(okapiToken);
 
+    log.info("JSON: {}", jsonNode);
     log.info("payload: {}", payload);
 
     OkapiResponse okapiResponse = okapiRequestService.okapiRestCall(okapiRequest);
-    log.info("OKAPI RESPONSE PATRON NOTIFY: {}", okapiResponse);
+    log.info("OKAPI RESPONSE: {}", okapiResponse);
 
     ObjectValue response = Variables.objectValue(okapiResponse)
       .serializationDataFormat("application/json")
       .create();
 
-    execution.setVariable("okapiResponseNotifyPatron", response);
+    execution.setVariable("okapiResponse", response);
 
   }
 

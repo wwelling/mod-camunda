@@ -1,4 +1,4 @@
-package org.folio.rest.delegate;
+package org.folio.rest.delegate.poc;
 
 import org.folio.rest.service.HttpService;
 import org.springframework.beans.factory.annotation.Autowired;

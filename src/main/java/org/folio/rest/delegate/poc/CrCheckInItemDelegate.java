@@ -1,4 +1,4 @@
-package org.folio.rest.delegate;
+package org.folio.rest.delegate.poc;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;

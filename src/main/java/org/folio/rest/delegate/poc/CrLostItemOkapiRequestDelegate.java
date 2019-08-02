@@ -1,4 +1,4 @@
-package org.folio.rest.delegate;
+package org.folio.rest.delegate.poc;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class CrUpdateLoanStatusDelegate extends AbstractRuntimeDelegate {
+public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
@@ -29,13 +29,13 @@ public class CrUpdateLoanStatusDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    log.info("Executing Update Loan Status Delegate");
+    // TODO: THIS REQUEST IS DOING A 'RENEW' IN FOLIO
+    //       LOST ITEM IS NOT YET ACTIVE
+    log.info("Executing Lost Item Okapi Request Delegate");
 
     String tenant = execution.getTenantId();
-    String loanId = execution.getProcessBusinessKey();
     String userId = execution.getVariable("userId").toString();
     String itemId = execution.getVariable("itemId").toString();
-    SpinJsonNode checkOutJson = JSON(execution.getVariable("checkOutJson").toString());
 
     String okapiToken = "";
     if (execution.getVariable("folioLogin") != null) {
@@ -43,28 +43,16 @@ public class CrUpdateLoanStatusDelegate extends AbstractRuntimeDelegate {
       okapiToken = folioLogin.getxOkapiToken();
     }
 
-    String requestUrl = String.format("%s/circulation/loans/%s", OKAPI_LOCATION, loanId);
-    log.info("requestUrl: {}", requestUrl);
-    String requestMethod = "PUT";
+    String requestUrl = String.format("%s/circulation/renew-by-id", OKAPI_LOCATION);
+    String requestMethod = "POST";
     String requestContentType = "application/json";
     String responseStatusName = "";
     String responseHeaderName = "";
     String responseBodyName = "";
 
     JSONObject json = new JSONObject();
-    json.put("id", loanId);
     json.put("userId", userId);
     json.put("itemId", itemId);
-
-    JSONObject item = new JSONObject();
-    JSONObject itemStatus = new JSONObject();
-    itemStatus.put("name", "Lost");
-    item.put("status", itemStatus);
-
-    json.put("item", item);
-    json.put("loanDate", checkOutJson.prop("loanDate").stringValue());
-    json.put("action", "lost");
-
     SpinJsonNode payload = JSON(json.toString());
 
     OkapiRequest okapiRequest = new OkapiRequest();
@@ -81,13 +69,13 @@ public class CrUpdateLoanStatusDelegate extends AbstractRuntimeDelegate {
     log.info("payload: {}", payload);
 
     OkapiResponse okapiResponse = okapiRequestService.okapiRestCall(okapiRequest);
-    log.info("OKAPI RESPONSE UPDATE LOAN STATUS: {}", okapiResponse);
+    log.info("OKAPI RESPONSE RENEW: {}", okapiResponse);
 
     ObjectValue response = Variables.objectValue(okapiResponse)
       .serializationDataFormat("application/json")
       .create();
 
-    execution.setVariable("okapiResponseUpdateLoanStatus", response);
+    execution.setVariable("okapiResponseRenew", response);
 
   }
 
