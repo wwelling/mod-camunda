@@ -12,9 +12,9 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.folio.rest.exception.WorkflowAlreadyActiveException;
 import org.folio.rest.exception.WorkflowAlreadyDeactivatedException;
 import org.folio.rest.model.Workflow;
-import org.jvnet.hk2.annotations.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CamundaApiService {
@@ -25,7 +25,7 @@ public class CamundaApiService {
   @Autowired
   private BpmnModelFactory bpmnModelFactory;
 
-  public Workflow deployWorkflow(Workflow workflow, String tenant, String token)
+  public Workflow deployWorkflow(Workflow workflow)
     throws WorkflowAlreadyActiveException {
 
     if (workflow.isActive()) {
@@ -54,7 +54,7 @@ public class CamundaApiService {
     return workflow;
   }
 
-  public Workflow undeployWorkflow(Workflow workflow, String tenant, String token)
+  public Workflow undeployWorkflow(Workflow workflow)
       throws WorkflowAlreadyDeactivatedException {
 
     if (!workflow.isActive()) {

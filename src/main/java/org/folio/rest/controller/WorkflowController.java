@@ -26,16 +26,14 @@ public class WorkflowController {
     @RequestBody Workflow workflow
   ) throws WorkflowAlreadyActiveException {
 
-    return camundaApiService.deployWorkflow(workflow, tenant, token);
+    return camundaApiService.deployWorkflow(workflow);
   }
 
   @PostMapping("/deactivate")
   public Workflow deactivateWorkflow(
-    @TenantHeader String tenant,
-    @TokenHeader String token,
-      @RequestBody Workflow workflow
+    @RequestBody Workflow workflow
   ) throws WorkflowAlreadyDeactivatedException  {
 
-    return camundaApiService.undeployWorkflow(workflow, tenant, token);
+    return camundaApiService.undeployWorkflow(workflow);
   }
 }
