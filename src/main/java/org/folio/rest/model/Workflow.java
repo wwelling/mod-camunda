@@ -1,5 +1,6 @@
 package org.folio.rest.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,10 +15,15 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import org.folio.rest.domain.model.AbstractBaseEntity;
 
 @Entity
-public class Workflow extends AbstractBaseEntity {
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Workflow extends AbstractBaseEntity implements Serializable {
+
+  private static final long serialVersionUID = 6753797239088349869L;
 
   @NotNull
   @Size(min = 4, max = 64)

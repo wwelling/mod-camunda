@@ -134,13 +134,13 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/workflows/activate",
+          "pathPattern": "/workflow-engine/workflows/activate",
           "permissionsRequired": ["workflow-engine.workflows.activate"],
           "permissionsDesired": ["workflow-engine.workflows.*", "workflow-engine.workflows.all"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/workflows/deactivate",
+          "pathPattern": "/workflow-engine/workflows/deactivate",
           "permissionsRequired": ["workflow-engine.workflows.deactivate"],
           "permissionsDesired": ["workflow-engine.workflows.*", "workflow-engine.workflows.all"]
         }
