@@ -1,4 +1,4 @@
-package org.folio.rest.delegate;
+package org.folio.rest.delegate.poc;
 
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;

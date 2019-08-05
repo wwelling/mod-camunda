@@ -1,4 +1,4 @@
-package org.folio.rest.delegate;
+package org.folio.rest.delegate.poc;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
+public class CrPatronNotificationDelegate extends AbstractRuntimeDelegate {
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
@@ -29,13 +29,10 @@ public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    // TODO: THIS REQUEST IS DOING A 'RENEW' IN FOLIO
-    //       LOST ITEM IS NOT YET ACTIVE
-    log.info("Executing Lost Item Okapi Request Delegate");
+    log.info("Executing Patron Notification Delegate");
 
     String tenant = execution.getTenantId();
     String userId = execution.getVariable("userId").toString();
-    String itemId = execution.getVariable("itemId").toString();
 
     String okapiToken = "";
     if (execution.getVariable("folioLogin") != null) {
@@ -43,7 +40,8 @@ public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
       okapiToken = folioLogin.getxOkapiToken();
     }
 
-    String requestUrl = String.format("%s/circulation/renew-by-id", OKAPI_LOCATION);
+    String requestUrl = String.format("%s/notify", OKAPI_LOCATION);
+    log.info("requestUrl: {}", requestUrl);
     String requestMethod = "POST";
     String requestContentType = "application/json";
     String responseStatusName = "";
@@ -51,8 +49,9 @@ public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
     String responseBodyName = "";
 
     JSONObject json = new JSONObject();
-    json.put("userId", userId);
-    json.put("itemId", itemId);
+    json.put("recipientId", userId);
+    json.put("text", "You will be billed for lost item");
+
     SpinJsonNode payload = JSON(json.toString());
 
     OkapiRequest okapiRequest = new OkapiRequest();
@@ -69,13 +68,13 @@ public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
     log.info("payload: {}", payload);
 
     OkapiResponse okapiResponse = okapiRequestService.okapiRestCall(okapiRequest);
-    log.info("OKAPI RESPONSE RENEW: {}", okapiResponse);
+    log.info("OKAPI RESPONSE PATRON NOTIFY: {}", okapiResponse);
 
     ObjectValue response = Variables.objectValue(okapiResponse)
       .serializationDataFormat("application/json")
       .create();
 
-    execution.setVariable("okapiResponseRenew", response);
+    execution.setVariable("okapiResponseNotifyPatron", response);
 
   }
 
