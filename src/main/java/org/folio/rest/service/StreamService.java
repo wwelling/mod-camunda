@@ -21,6 +21,11 @@ public class StreamService {
     return fluxes.get(id);
   }
 
+  public String concatenateFlux(String firstFluxId, Flux<String> secondFlux) {
+    Flux<String> firstFlux = getFlux(firstFluxId);
+    return setFlux(firstFlux.concatWith(secondFlux));
+  }
+
   public String setFlux(Flux<String> flux) {
     String id = UUID.randomUUID().toString();
     fluxes.put(id, flux);

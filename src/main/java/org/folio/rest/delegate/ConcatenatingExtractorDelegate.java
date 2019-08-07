@@ -14,9 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Flux;
 
-
 /*
- *  This delegate concatenates a new stream of data to the primary stream
+ *  This delegate concatenates a new stream of data to the end of the primary stream
  */
 @Service
 @Scope("prototype")
@@ -55,24 +54,18 @@ public class ConcatenatingExtractorDelegate extends AbstractRuntimeDelegate {
 
     log.info("START REQUEST");
 
-    String fluxId = streamService.setFlux(
-      webClient
-        .get()
-        .uri("%s/extractors/{id}/run", extratorId)
-        .header("X-Okapi-Tenant", tenant)
-        .header("X-Okapi-Token", token)
-        .accept(MediaType.APPLICATION_STREAM_JSON)
-        .retrieve()
-        .bodyToFlux(String.class)
-    );
-    Flux<String> newStream = streamService.getFlux(fluxId);
+    Flux<String> newStream = webClient
+      .get()
+      .uri("%s/extractors/{id}/run", extratorId)
+      .header("X-Okapi-Tenant", tenant)
+      .header("X-Okapi-Token", token)
+      .accept(MediaType.APPLICATION_STREAM_JSON)
+      .retrieve()
+      .bodyToFlux(String.class);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
-    Flux<String> primaryStream = streamService.getFlux(primaryStreamId);
 
-    Flux<String> newPrimaryStream = primaryStream.concatWith(newStream);
-
-    String newPrimaryStreamId = streamService.setFlux(newPrimaryStream);
+    String newPrimaryStreamId = streamService.concatenateFlux(primaryStreamId, newStream);
     execution.setVariable("primaryStreamId", newPrimaryStreamId);
 
     log.info("CONCATENATING EXTRACTOR DELEGATE FINISHED");
