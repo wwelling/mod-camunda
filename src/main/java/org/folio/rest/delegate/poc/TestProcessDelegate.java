@@ -15,6 +15,8 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.service.StreamService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
@@ -24,6 +26,8 @@ import org.springframework.util.StreamUtils;
 @Service
 @Scope("prototype")
 public class TestProcessDelegate extends AbstractRuntimeDelegate {
+
+  protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private StreamService streamService;
@@ -47,8 +51,8 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
       Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
       cscript.eval(bindings);
       Invocable invocable = (Invocable) cscript.getEngine();
-      
-      System.out.println(String.format("%s STARTED", delegateName));
+
+      log.info(String.format("%s STARTED", delegateName));
       streamService.map(d -> {
         try {
           d = (String) invocable.invokeFunction(delegateName, d);
