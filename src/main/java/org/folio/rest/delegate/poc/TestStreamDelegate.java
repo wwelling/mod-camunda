@@ -12,6 +12,8 @@ import org.folio.rest.model.FolioLogin;
 import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.service.LoginService;
 import org.folio.rest.service.StreamService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -23,6 +25,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 @Scope("prototype")
 public class TestStreamDelegate extends AbstractRuntimeDelegate {
+
+  protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private StreamService streamService;
@@ -50,7 +54,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
     WebClient webClient = webClientBuilder.baseUrl(sourceBaseUrl).build();
 
     String delegateName = execution.getBpmnModelElementInstance().getName();
-    System.out.println(String.format("%s STARTED", delegateName));
+    log.info(String.format("%s STARTED", delegateName));
 
     JsonNode payload = (JsonNode) execution.getVariable("payload");
     String extratorId = payload.get("extractorId").asText();
@@ -62,7 +66,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
     String token = newLogin.getxOkapiToken();
     execution.setVariable("okapiToken", token);
 
-    System.out.println("START REQUEST");
+    log.info("START REQUEST");
 
     streamService.setFlux(
       webClient
@@ -75,11 +79,11 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
         .bodyToFlux(String.class)
     );
 
-    System.out.println("STREAM DELEGATE FINISHED");
+    log.info("STREAM DELEGATE FINISHED");
   }
 
   private FolioLogin login(String tenant, String baseUrl, String username, String password) {
-    
+
     OkapiRequest loginOkapiRequest = new OkapiRequest();
     loginOkapiRequest.setTenant(tenant);
     loginOkapiRequest.setRequestUrl(String.format("%s/authn/login", baseUrl));

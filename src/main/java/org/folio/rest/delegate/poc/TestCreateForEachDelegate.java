@@ -16,6 +16,8 @@ import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.model.OkapiResponse;
 import org.folio.rest.service.OkapiRequestService;
 import org.folio.rest.service.StreamService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Scope("prototype")
 public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
+
+  protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private StreamService streamService;
@@ -53,19 +57,19 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
       String uniqueByValue = uniqueBy.getValue(execution).toString();
       String endpointValue = endpoint.getValue(execution).toString();
 
-      System.out.println(String.format("%s STARTED", delegateName));
+      log.info(String.format("%s STARTED", delegateName));
 
       streamService.map(d -> {
 
         System.out.print(".");
-        
+
         String returnData = d;
         try {
-          
+
           ObjectNode destNode = (ObjectNode) objectMapper.readTree(d);
           JsonNode srcNode = getSourceNode(sourceValue, destNode);
           ArrayNode ids = objectMapper.createArrayNode();
-          
+
           if (srcNode != null && srcNode.isArray()) {
             srcNode.forEach(s -> {
               if(s.isArray()) {
@@ -120,7 +124,7 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
   private JsonNode getSourceNode(String sourceValue, ObjectNode destNode) throws IOException {
     JsonNode sourceNode = destNode;
     String[] sourceParts = sourceValue.split("\\/");
-    
+
     for (int i=0;i<sourceParts.length;i++) {
       String part = sourceParts[i];
       if(sourceNode.isArray()) {
@@ -139,7 +143,7 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
   private void setDestinationNode(String sourceValue, ObjectNode destNode, ArrayNode ids) throws IOException {
     ObjectNode sourceNode = destNode;
     String[] sourceParts = sourceValue.split("\\/");
-    
+
     for (int i=0;i<sourceParts.length;i++) {
       String part = sourceParts[i];
       if(i==sourceParts.length-1) {
