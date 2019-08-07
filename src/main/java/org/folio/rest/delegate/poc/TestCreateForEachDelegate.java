@@ -55,7 +55,9 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
 
       System.out.println(String.format("%s STARTED", delegateName));
 
-      streamService.map(d -> {
+      String primaryStreamId = (String) execution.getVariable("primaryStreamId");
+
+      streamService.getFlux(primaryStreamId).map(d -> {
 
         System.out.print(".");
         

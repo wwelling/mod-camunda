@@ -82,7 +82,9 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
     int buffer = accumulateTo != null ? Integer.parseInt(accumulateTo.getValue(execution).toString()) : 500;
     int delay = delayDuration != null ? Integer.parseInt(delayDuration.getValue(execution).toString()) : 10;
 
-    streamService.getFlux()
+    String primaryStreamId = (String) execution.getVariable("primaryStreamId");
+
+    streamService.getFlux(primaryStreamId)
       .buffer(buffer)
       .delayElements(Duration.ofSeconds(delay))
       .doFinally(f->{
