@@ -1,0 +1,28 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "ExtractorTask",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "type" : {
+      "type" : "string",
+      "enum" : [ "ExtractorTask" ],
+      "default" : "ExtractorTask"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "delegate" : {
+      "type" : "string"
+    },
+    "streamSource" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "type", "name" ]
+}
