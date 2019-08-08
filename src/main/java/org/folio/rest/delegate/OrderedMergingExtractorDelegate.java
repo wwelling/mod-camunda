@@ -12,12 +12,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Flux;
 
-/*
- *  This delegate concatenates a new stream of data to the end of the primary stream
- */
 @Service
 @Scope("prototype")
-public class ConcatenatingExtractorDelegate extends AbstractRuntimeDelegate {
+public class OrderedMergingExtractorDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
@@ -27,9 +24,11 @@ public class ConcatenatingExtractorDelegate extends AbstractRuntimeDelegate {
 
   private Expression streamSource;
 
+  private Expression comparisonProperty;
+
   private final WebClient.Builder webClientBuilder;
 
-  public ConcatenatingExtractorDelegate(WebClient.Builder webClientBuilder) {
+  public OrderedMergingExtractorDelegate(WebClient.Builder webClientBuilder) {
     super();
     this.webClientBuilder = webClientBuilder;
   }
@@ -38,6 +37,7 @@ public class ConcatenatingExtractorDelegate extends AbstractRuntimeDelegate {
   public void execute(DelegateExecution execution) throws Exception {
 
     String sourceUrl = streamSource.getValue(execution).toString();
+    String property = comparisonProperty.getValue(execution).toString();
 
     WebClient webClient = webClientBuilder.build();
 
@@ -60,14 +60,17 @@ public class ConcatenatingExtractorDelegate extends AbstractRuntimeDelegate {
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    String newPrimaryStreamId = streamService.concatenateFlux(primaryStreamId, newStream);
+    String newPrimaryStreamId = streamService.orderedMergeFlux(primaryStreamId, newStream, property);
     execution.setVariable("primaryStreamId", newPrimaryStreamId);
 
-    log.info("CONCATENATING EXTRACTOR DELEGATE FINISHED");
+    log.info("ORDERED MERGING EXTRACTOR DELEGATE FINISHED");
   }
 
   public void setStreamSource(Expression streamSource) {
     this.streamSource = streamSource;
   }
 
+  public void setComparisonProperty(Expression comparisonProperty) {
+    this.comparisonProperty = comparisonProperty;
+  }
 }
