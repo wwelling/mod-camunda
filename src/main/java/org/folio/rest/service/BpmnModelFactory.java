@@ -1,5 +1,6 @@
 package org.folio.rest.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -61,9 +62,14 @@ public class BpmnModelFactory {
 
     AtomicInteger taskIndex = new AtomicInteger();
 
+    List<ServiceTask> allTasks = new ArrayList<ServiceTask>();
+
+    // TODO: Add login task
+
     if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
-      // int index = taskIndex.getAndIncrement();
-      // TODO: add delegate
+      int index = taskIndex.getAndIncrement();
+      ServiceTask createPrimaryStream = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
+      allTasks.add(createPrimaryStream);
     }
 
     List<ServiceTask> serviceTasks = workflow.getTasks().stream().map(task -> {
@@ -124,27 +130,29 @@ public class BpmnModelFactory {
       return enhanceServiceTask(serviceTask, task);
     }).collect(Collectors.toList());
 
+    allTasks.addAll(serviceTasks);
+
     EndEvent processEndEvent = createElement(modelInstance, process, END_EVENT_ID, EndEvent.class);
     processEndEvent.setName("EndProcess");
     createElement(modelInstance, processEndEvent, null, TerminateEventDefinition.class);
 
     SequenceFlow firstSf = createElement(modelInstance, process, String.format("%s-%s", START_EVENT_ID, "t_1"), SequenceFlow.class);
     firstSf.setSource(processStartEvent);
-    firstSf.setTarget(serviceTasks.get(0));
+    firstSf.setTarget(allTasks.get(0));
 
     // Setup Connections
     AtomicInteger sfIndex = new AtomicInteger();
-    serviceTasks.forEach(st->{
+    allTasks.forEach(st->{
       int currentIndex = sfIndex.getAndIncrement();
-      if (currentIndex != serviceTasks.size() - 1) {
+      if (currentIndex != allTasks.size() - 1) {
         SequenceFlow currentSf = createElement(modelInstance, process, String.format("t_%s-t_%s", currentIndex, currentIndex+1), SequenceFlow.class);
-        currentSf.setTarget(serviceTasks.get(currentIndex + 1));
+        currentSf.setTarget(allTasks.get(currentIndex + 1));
         currentSf.setSource(st);
       }
     });
 
-    SequenceFlow lastSf = createElement(modelInstance, process, String.format("t_%s-%s", serviceTasks.size(), END_EVENT_ID), SequenceFlow.class);
-    lastSf.setSource(serviceTasks.get(serviceTasks.size() - 1));
+    SequenceFlow lastSf = createElement(modelInstance, process, String.format("t_%s-%s", allTasks.size(), END_EVENT_ID), SequenceFlow.class);
+    lastSf.setSource(allTasks.get(allTasks.size() - 1));
     lastSf.setTarget(processEndEvent);
 
     Message processStartMessage = createElement(modelInstance, definitions, "process-start-message", Message.class);
