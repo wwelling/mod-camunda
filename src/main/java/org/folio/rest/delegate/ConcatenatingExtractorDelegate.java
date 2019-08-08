@@ -17,49 +17,21 @@ import reactor.core.publisher.Flux;
  */
 @Service
 @Scope("prototype")
-public class ConcatenatingExtractorDelegate extends AbstractRuntimeDelegate {
+public class ConcatenatingExtractorDelegate extends AbstractExtractorDelegate {
 
   @Autowired
   private StreamService streamService;
 
-  @Value("${okapi.location}")
-  private String OKAPI_LOCATION;
-
-  private Expression streamSource;
-
-  private final WebClient.Builder webClientBuilder;
-
   public ConcatenatingExtractorDelegate(WebClient.Builder webClientBuilder) {
-    super();
-    this.webClientBuilder = webClientBuilder;
+    super(webClientBuilder);
   }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
 
-    String sourceUrl = streamSource.getValue(execution).toString();
-
-    WebClient webClient = webClientBuilder.build();
-
-    String delegateName = execution.getBpmnModelElementInstance().getName();
-    log.info(String.format("%s STARTED", delegateName));
-
-    String tenant = execution.getTenantId();
-    String token = (String) execution.getVariable("token");
-
-    log.info("START REQUEST");
-
-    Flux<String> newStream = webClient
-      .get()
-      .uri(sourceUrl)
-      .header("X-Okapi-Tenant", tenant)
-      .header("X-Okapi-Token", token)
-      .accept(MediaType.APPLICATION_STREAM_JSON)
-      .retrieve()
-      .bodyToFlux(String.class);
+    Flux<String> newStream = this.getStream(execution);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
-
     String newPrimaryStreamId = streamService.concatenateFlux(primaryStreamId, newStream);
     execution.setVariable("primaryStreamId", newPrimaryStreamId);
 
