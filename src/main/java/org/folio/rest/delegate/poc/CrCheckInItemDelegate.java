@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class CrCheckInItemDelegate extends AbstractRuntimeDelegate {
+public class CrCheckInItemDelegate extends TestAbstractRuntimeDelegate {
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;

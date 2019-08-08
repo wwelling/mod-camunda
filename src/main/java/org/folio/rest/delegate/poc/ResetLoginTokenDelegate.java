@@ -5,7 +5,7 @@ import org.folio.rest.model.FolioLogin;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ResetLoginTokenDelegate extends AbstractRuntimeDelegate {
+public class ResetLoginTokenDelegate extends TestAbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {

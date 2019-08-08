@@ -4,7 +4,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PrNewOrderNotificationDelegate extends AbstractRuntimeDelegate {
+public class PrNewOrderNotificationDelegate extends TestAbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {

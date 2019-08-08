@@ -4,11 +4,6 @@ import static org.camunda.spin.Spin.JSON;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -16,17 +11,18 @@ import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.model.OkapiResponse;
 import org.folio.rest.service.OkapiRequestService;
 import org.folio.rest.service.StreamService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 @Service
 @Scope("prototype")
-public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
-
-  protected final Logger log = LoggerFactory.getLogger(this.getClass());
+public class TestCreateForEachDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;

@@ -2,8 +2,6 @@ package org.folio.rest.delegate.poc;
 
 import static org.camunda.spin.Spin.JSON;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
@@ -12,8 +10,6 @@ import org.folio.rest.model.FolioLogin;
 import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.service.LoginService;
 import org.folio.rest.service.StreamService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -21,12 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 
 @Service
 @Scope("prototype")
-public class TestStreamDelegate extends AbstractRuntimeDelegate {
-
-  protected final Logger log = LoggerFactory.getLogger(this.getClass());
+public class TestStreamDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;

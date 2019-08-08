@@ -15,8 +15,6 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.service.StreamService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
@@ -25,9 +23,7 @@ import org.springframework.util.StreamUtils;
 
 @Service
 @Scope("prototype")
-public class TestProcessDelegate extends AbstractRuntimeDelegate {
-
-  protected final Logger log = LoggerFactory.getLogger(this.getClass());
+public class TestProcessDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
