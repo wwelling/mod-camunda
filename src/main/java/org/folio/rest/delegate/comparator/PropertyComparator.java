@@ -24,7 +24,8 @@ public class PropertyComparator implements Comparator<String> {
       String secondPropertyValue = secondNode.get(this.property).asText();
       result = firstNode.get(this.property).asText().compareTo(secondPropertyValue);
     } catch (IOException e) {
-      e.printStackTrace();
+      // TODO: Handle exceptions in a better way
+      throw new RuntimeException(e.getMessage());
     }
     return result;
   }

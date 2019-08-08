@@ -25,22 +25,26 @@ public class StreamService {
 
   public String concatenateFlux(String firstFluxId, Flux<String> secondFlux) {
     Flux<String> firstFlux = getFlux(firstFluxId);
-    return setFlux(firstFlux.concatWith(secondFlux));
+    return setFlux(firstFluxId, firstFlux.concatWith(secondFlux));
   }
 
   public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty) {
     Flux<String> firstFlux = getFlux(firstFluxId);
     Comparator<String> comparator = new PropertyComparator(comparisonProperty);
-    return setFlux(firstFlux.mergeOrderedWith(secondFlux, comparator));
+    return setFlux(firstFluxId, firstFlux.mergeOrderedWith(secondFlux, comparator));
   }
 
-  public String setFlux(Flux<String> flux) {
-    String id = UUID.randomUUID().toString();
+  private String setFlux(String id, Flux<String> flux) {
     fluxes.put(id, flux);
     flux.doFinally(f->{
       fluxes.remove(id);
     });
     return id;
+  }
+
+  public String setFlux(Flux<String> flux) {
+    String id = UUID.randomUUID().toString();
+    return setFlux(id, flux);
   }
 
 }

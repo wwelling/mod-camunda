@@ -31,17 +31,13 @@ public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
     Flux<String> newStream = this.getStream(execution);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
-    String newPrimaryStreamId = streamService.orderedMergeFlux(primaryStreamId, newStream, property);
-    execution.setVariable("primaryStreamId", newPrimaryStreamId);
+    streamService.orderedMergeFlux(primaryStreamId, newStream, property);
 
     log.info("ORDERED MERGING EXTRACTOR DELEGATE FINISHED");
-  }
-
-  public void setStreamSource(Expression streamSource) {
-    this.streamSource = streamSource;
   }
 
   public void setComparisonProperty(Expression comparisonProperty) {
     this.comparisonProperty = comparisonProperty;
   }
+
 }

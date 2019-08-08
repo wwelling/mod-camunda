@@ -30,14 +30,9 @@ public class ConcatenatingExtractorDelegate extends AbstractExtractorDelegate {
     Flux<String> newStream = this.getStream(execution);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
-    String newPrimaryStreamId = streamService.concatenateFlux(primaryStreamId, newStream);
-    execution.setVariable("primaryStreamId", newPrimaryStreamId);
+    streamService.concatenateFlux(primaryStreamId, newStream);
 
     log.info("CONCATENATING EXTRACTOR DELEGATE FINISHED");
-  }
-
-  public void setStreamSource(Expression streamSource) {
-    this.streamSource = streamSource;
   }
 
 }

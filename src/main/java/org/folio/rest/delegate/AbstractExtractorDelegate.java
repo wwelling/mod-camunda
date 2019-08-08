@@ -19,25 +19,30 @@ public abstract class AbstractExtractorDelegate extends AbstractRuntimeDelegate 
   }
 
   protected Flux<String> getStream(DelegateExecution execution) {
-  String sourceUrl = streamSource.getValue(execution).toString();
+    String sourceUrl = streamSource.getValue(execution).toString();
 
-  WebClient webClient = webClientBuilder.build();
+    WebClient webClient = webClientBuilder.build();
 
-  String delegateName = execution.getBpmnModelElementInstance().getName();
-  log.info(String.format("%s STARTED", delegateName));
+    String delegateName = execution.getBpmnModelElementInstance().getName();
+    log.info(String.format("%s STARTED", delegateName));
 
-  String tenant = execution.getTenantId();
-  String token = (String) execution.getVariable("token");
+    String tenant = execution.getTenantId();
+    String token = (String) execution.getVariable("token");
 
-  log.info("START REQUEST");
+    log.info("START REQUEST");
 
-  return webClient
-    .get()
-    .uri(sourceUrl)
-    .header("X-Okapi-Tenant", tenant)
-    .header("X-Okapi-Token", token)
-    .accept(MediaType.APPLICATION_STREAM_JSON)
-    .retrieve()
-    .bodyToFlux(String.class);
+    return webClient
+      .get()
+      .uri(sourceUrl)
+      .header("X-Okapi-Tenant", tenant)
+      .header("X-Okapi-Token", token)
+      .accept(MediaType.APPLICATION_STREAM_JSON)
+      .retrieve()
+      .bodyToFlux(String.class);
   }
+
+  public void setStreamSource(Expression streamSource) {
+    this.streamSource = streamSource;
+  }
+
 }

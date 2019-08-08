@@ -60,11 +60,25 @@ public class BpmnModelFactory {
     processStartEvent.setName("StartProcess");
 
     AtomicInteger taskIndex = new AtomicInteger();
+
+    if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
+      // int index = taskIndex.getAndIncrement();
+      // TODO: add delegate
+    }
+
     List<ServiceTask> serviceTasks = workflow.getTasks().stream().map(task -> {
       int index = taskIndex.getAndIncrement();
       ServiceTask serviceTask = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
       if(task instanceof ExtractorTask) {
         ExtractorTask eTask = (ExtractorTask) task;
+        switch(eTask.getMergeStrategy()) {
+          case CONCAT:
+            eTask.setDelegate("concatenatingExtractorDelegate");
+            break;
+          case MERGE:
+            eTask.setDelegate("orderedMergingExtractorDelegate");
+            break;
+        }
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField streamSource = createElement(modelInstance, extensionElements, String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");
