@@ -1,5 +1,6 @@
 package org.folio.rest.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -59,26 +60,20 @@ public class BpmnModelFactory {
     StartEvent processStartEvent = createElement(modelInstance, process, START_EVENT_ID, StartEvent.class);
     processStartEvent.setName("StartProcess");
 
+    List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     AtomicInteger taskIndex = new AtomicInteger();
 
     if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
-      // int index = taskIndex.getAndIncrement();
-      // TODO: add delegate
+      int index = taskIndex.getAndIncrement();
+      ServiceTask createPrimaryStream = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
+      serviceTasks.add(createPrimaryStream);
     }
 
-    List<ServiceTask> serviceTasks = workflow.getTasks().stream().map(task -> {
+    serviceTasks.addAll(workflow.getTasks().stream().map(task -> {
       int index = taskIndex.getAndIncrement();
       ServiceTask serviceTask = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
       if(task instanceof ExtractorTask) {
         ExtractorTask eTask = (ExtractorTask) task;
-        switch(eTask.getMergeStrategy()) {
-          case CONCAT:
-            eTask.setDelegate("concatenatingExtractorDelegate");
-            break;
-          case MERGE:
-            eTask.setDelegate("orderedMergingExtractorDelegate");
-            break;
-        }
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField streamSource = createElement(modelInstance, extensionElements, String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");
@@ -122,7 +117,7 @@ public class BpmnModelFactory {
         storageDestination.setCamundaStringValue(aTask.getStorageDestination());
       }
       return enhanceServiceTask(serviceTask, task);
-    }).collect(Collectors.toList());
+    }).collect(Collectors.toList()));
 
     EndEvent processEndEvent = createElement(modelInstance, process, END_EVENT_ID, EndEvent.class);
     processEndEvent.setName("EndProcess");

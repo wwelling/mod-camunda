@@ -1,28 +1,46 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "ExtractorTask",
-  "type" : "object",
-  "additionalProperties" : false,
-  "properties" : {
-    "type" : {
-      "type" : "string",
-      "enum" : [ "ExtractorTask" ],
-      "default" : "ExtractorTask"
-    },
-    "id" : {
-      "type" : "string"
-    },
-    "name" : {
-      "type" : "string",
-      "minLength" : 4,
-      "maxLength" : 64
-    },
-    "delegate" : {
-      "type" : "string"
-    },
-    "streamSource" : {
-      "type" : "string"
+  "title" : "Extractor Task",
+  "oneOf" : [ {
+    "$ref" : "#/definitions/StreamingExtractorTask"
+  } ],
+  "definitions" : {
+    "StreamingExtractorTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "type" : {
+          "type" : "string",
+          "enum" : [ "StreamingExtractorTask" ],
+          "default" : "StreamingExtractorTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "delegate" : {
+          "type" : "string"
+        },
+        "streaming" : {
+          "type" : "boolean"
+        },
+        "streamSource" : {
+          "type" : "string"
+        },
+        "predicateProperty" : {
+          "type" : "string"
+        },
+        "mergeStrategy" : {
+          "type" : "string",
+          "enum" : [ "MERGE", "CONCAT" ]
+        }
+      },
+      "title" : "StreamingExtractorTask",
+      "required" : [ "type", "name" ]
     }
-  },
-  "required" : [ "type", "name" ]
+  }
 }

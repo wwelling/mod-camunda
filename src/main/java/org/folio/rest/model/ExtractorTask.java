@@ -11,15 +11,26 @@ public class ExtractorTask extends Task {
 
   private MergeStrategy mergeStrategy;
 
-  public ExtractorTask(String delegateName) {
+  public ExtractorTask() {
     super();
-    setDelegate("testStreamDelegate");
   }
 
-  public ExtractorTask(String delegateName, String predicateProperty, MergeStrategy mergeStrategy) {
-    this(delegateName);
+  public ExtractorTask(String predicateProperty, MergeStrategy mergeStrategy) {
+    this();
     this.predicateProperty = predicateProperty;
     this.mergeStrategy = mergeStrategy;
+    calculateDelegateName();
+  }
+
+  private void calculateDelegateName() {
+    switch(getMergeStrategy()) {
+      case CONCAT:
+        setDelegate("concatenatingExtractorDelegate");
+        break;
+      case MERGE:
+        setDelegate("orderedMergingExtractorDelegate");
+        break;
+    }
   }
 
   public String getStreamSource() {

@@ -32,6 +32,8 @@
         }, {
           "$ref" : "#/definitions/ExtractorTask"
         }, {
+          "$ref" : "#/definitions/StreamingExtractorTask"
+        }, {
           "$ref" : "#/definitions/AccumulatorTask"
         }, {
           "$ref" : "#/definitions/CreateForEachTask"
@@ -64,6 +66,9 @@
         "delegate" : {
           "type" : "string"
         },
+        "streaming" : {
+          "type" : "boolean"
+        },
         "script" : {
           "type" : "string"
         },
@@ -76,13 +81,18 @@
       "required" : [ "type", "name" ]
     },
     "ExtractorTask" : {
+      "oneOf" : [ {
+        "$ref" : "#/definitions/StreamingExtractorTask"
+      } ]
+    },
+    "StreamingExtractorTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "type" : {
           "type" : "string",
-          "enum" : [ "ExtractorTask" ],
-          "default" : "ExtractorTask"
+          "enum" : [ "StreamingExtractorTask" ],
+          "default" : "StreamingExtractorTask"
         },
         "id" : {
           "type" : "string"
@@ -95,11 +105,21 @@
         "delegate" : {
           "type" : "string"
         },
+        "streaming" : {
+          "type" : "boolean"
+        },
         "streamSource" : {
           "type" : "string"
+        },
+        "predicateProperty" : {
+          "type" : "string"
+        },
+        "mergeStrategy" : {
+          "type" : "string",
+          "enum" : [ "MERGE", "CONCAT" ]
         }
       },
-      "title" : "ExtractorTask",
+      "title" : "StreamingExtractorTask",
       "required" : [ "type", "name" ]
     },
     "AccumulatorTask" : {
@@ -121,6 +141,9 @@
         },
         "delegate" : {
           "type" : "string"
+        },
+        "streaming" : {
+          "type" : "boolean"
         },
         "accumulateTo" : {
           "type" : "integer"
@@ -154,6 +177,9 @@
         },
         "delegate" : {
           "type" : "string"
+        },
+        "streaming" : {
+          "type" : "boolean"
         },
         "endpoint" : {
           "type" : "string"

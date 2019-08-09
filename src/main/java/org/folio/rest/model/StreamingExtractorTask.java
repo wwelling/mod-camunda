@@ -7,8 +7,8 @@ public class StreamingExtractorTask extends ExtractorTask {
 
   String streamSource;
 
-  public StreamingExtractorTask(String delegateName) {
-    super(delegateName);
+  public StreamingExtractorTask() {
+    super();
     setStreaming(true);
   }
 

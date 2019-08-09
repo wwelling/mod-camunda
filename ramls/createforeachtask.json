@@ -20,6 +20,9 @@
     "delegate" : {
       "type" : "string"
     },
+    "streaming" : {
+      "type" : "boolean"
+    },
     "endpoint" : {
       "type" : "string"
     },
