@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class GenericOkapiRequestDelegate extends AbstractRuntimeDelegate {
+public class GenericOkapiRequestDelegate extends TestAbstractRuntimeDelegate {
 
   private static final String REQUEST_URL = "requestUrl";
   private static final String REQUEST_METHOD = "requestMethod";
