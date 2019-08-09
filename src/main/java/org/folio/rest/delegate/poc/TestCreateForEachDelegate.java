@@ -4,11 +4,6 @@ import static org.camunda.spin.Spin.JSON;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -20,9 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 @Service
 @Scope("prototype")
-public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
+public class TestCreateForEachDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
@@ -53,21 +53,21 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
       String uniqueByValue = uniqueBy.getValue(execution).toString();
       String endpointValue = endpoint.getValue(execution).toString();
 
-      System.out.println(String.format("%s STARTED", delegateName));
+      log.info(String.format("%s STARTED", delegateName));
 
       String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
       streamService.getFlux(primaryStreamId).map(d -> {
 
         System.out.print(".");
-        
+
         String returnData = d;
         try {
-          
+
           ObjectNode destNode = (ObjectNode) objectMapper.readTree(d);
           JsonNode srcNode = getSourceNode(sourceValue, destNode);
           ArrayNode ids = objectMapper.createArrayNode();
-          
+
           if (srcNode != null && srcNode.isArray()) {
             srcNode.forEach(s -> {
               if(s.isArray()) {
@@ -122,7 +122,7 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
   private JsonNode getSourceNode(String sourceValue, ObjectNode destNode) throws IOException {
     JsonNode sourceNode = destNode;
     String[] sourceParts = sourceValue.split("\\/");
-    
+
     for (int i=0;i<sourceParts.length;i++) {
       String part = sourceParts[i];
       if(sourceNode.isArray()) {
@@ -141,7 +141,7 @@ public class TestCreateForEachDelegate extends AbstractRuntimeDelegate {
   private void setDestinationNode(String sourceValue, ObjectNode destNode, ArrayNode ids) throws IOException {
     ObjectNode sourceNode = destNode;
     String[] sourceParts = sourceValue.split("\\/");
-    
+
     for (int i=0;i<sourceParts.length;i++) {
       String part = sourceParts[i];
       if(i==sourceParts.length-1) {

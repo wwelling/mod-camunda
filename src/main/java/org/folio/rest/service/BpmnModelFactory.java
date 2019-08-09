@@ -28,6 +28,7 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
 import org.folio.rest.model.AccumulatorTask;
 import org.folio.rest.model.CreateForEachTask;
 import org.folio.rest.model.ExtractorTask;
+import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
 import org.folio.rest.model.Task;
 import org.folio.rest.model.Workflow;
@@ -62,6 +63,11 @@ public class BpmnModelFactory {
 
     List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     AtomicInteger taskIndex = new AtomicInteger();
+
+    int loginIndex = taskIndex.getAndIncrement();
+    ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex), ServiceTask.class);
+    LoginTask loginTask = new LoginTask("LoginProcess");
+    serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
 
     if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
       int index = taskIndex.getAndIncrement();
