@@ -3,7 +3,6 @@ package org.folio.rest.delegate;
 import static org.camunda.spin.Spin.JSON;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
 import org.camunda.spin.json.SpinJsonNode;
 import org.folio.rest.model.FolioLogin;
@@ -19,19 +18,20 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private LoginService loginService;
 
+  @Value("${tenant.default-tenant}")
+  private String DEFAULT_TENANT;
+
   @Value("${okapi.location}")
   private String OKAPI_LOCATION;
 
-  private Expression username;
+  @Value("${okapi.username}")
+  private String OKAPI_USERNAME;
 
-  private Expression password;
+  @Value("${okapi.password}")
+  private String OKAPI_PASSWORD;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    String tenant = execution.getTenantId();
-    String usernameValue = username.getValue(execution).toString();
-    String passwordValue = password.getValue(execution).toString();
-
     log.info("Executing Folio Login Delegate");
 
     OkapiRequest okapiRequest = new OkapiRequest();
@@ -41,31 +41,23 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
     okapiRequest.setResponseBodyName("loginResponseBody");
     okapiRequest.setResponseHeaderName("loginResponseHeader");
     okapiRequest.setResponseStatusName("loginResponseStatus");
-    okapiRequest.setTenant(tenant);
+    okapiRequest.setTenant(DEFAULT_TENANT);
 
     // A bit redundant, may want to create a login payload model, or eventually handle this better.
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("username", usernameValue);
-    jsonObject.put("password", passwordValue);
+    jsonObject.put("username", OKAPI_USERNAME);
+    jsonObject.put("password", OKAPI_PASSWORD);
 
     SpinJsonNode jsonNode = JSON(jsonObject.toString());
 
     okapiRequest.setRequestPayload(jsonNode);
-    log.info("json: {}", jsonObject.toString());
+    log.debug("json: {}", jsonObject.toString());
 
     FolioLogin newLogin = loginService.folioLogin(okapiRequest);
-    newLogin.setUsername(usernameValue);
+    newLogin.setUsername(OKAPI_USERNAME);
     log.info("NEW LOGIN: {}", newLogin);
 
     execution.setVariable("folioLogin", newLogin);
-  }
-
-  public void setUsername(Expression username) {
-    this.username = username;
-  }
-
-  public void setPassword(Expression password) {
-    this.password = password;
   }
 
 }
