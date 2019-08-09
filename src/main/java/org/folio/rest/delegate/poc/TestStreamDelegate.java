@@ -2,8 +2,6 @@ package org.folio.rest.delegate.poc;
 
 import static org.camunda.spin.Spin.JSON;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
@@ -19,10 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 
 @Service
 @Scope("prototype")
-public class TestStreamDelegate extends AbstractRuntimeDelegate {
+public class TestStreamDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
@@ -50,7 +50,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
     WebClient webClient = webClientBuilder.baseUrl(sourceBaseUrl).build();
 
     String delegateName = execution.getBpmnModelElementInstance().getName();
-    System.out.println(String.format("%s STARTED", delegateName));
+    log.info(String.format("%s STARTED", delegateName));
 
     JsonNode payload = (JsonNode) execution.getVariable("payload");
     String extratorId = payload.get("extractorId").asText();
@@ -62,7 +62,7 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
     String token = newLogin.getxOkapiToken();
     execution.setVariable("okapiToken", token);
 
-    System.out.println("START REQUEST");
+    log.info("START REQUEST");
 
     String fluxId = streamService.setFlux(
       webClient
@@ -77,11 +77,11 @@ public class TestStreamDelegate extends AbstractRuntimeDelegate {
 
     execution.setVariable("primaryStreamId", fluxId);
 
-    System.out.println("STREAM DELEGATE FINISHED");
+    log.info("STREAM DELEGATE FINISHED");
   }
 
   private FolioLogin login(String tenant, String baseUrl, String username, String password) {
-    
+
     OkapiRequest loginOkapiRequest = new OkapiRequest();
     loginOkapiRequest.setTenant(tenant);
     loginOkapiRequest.setRequestUrl(String.format("%s/authn/login", baseUrl));

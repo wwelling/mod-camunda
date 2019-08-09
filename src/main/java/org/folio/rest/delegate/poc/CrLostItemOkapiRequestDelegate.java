@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class CrLostItemOkapiRequestDelegate extends AbstractRuntimeDelegate {
+public class CrLostItemOkapiRequestDelegate extends TestAbstractRuntimeDelegate {
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;

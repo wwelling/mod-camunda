@@ -5,7 +5,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ThrowRuntimeErrorDelegate extends AbstractLoggingDelegate {
+public class ThrowRuntimeErrorDelegate extends TestAbstractLoggingDelegate {
 
   @Override
   public void execute(DelegateExecution execution) {

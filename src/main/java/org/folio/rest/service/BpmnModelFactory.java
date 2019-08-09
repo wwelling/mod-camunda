@@ -28,6 +28,7 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
 import org.folio.rest.model.AccumulatorTask;
 import org.folio.rest.model.CreateForEachTask;
 import org.folio.rest.model.ExtractorTask;
+import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
 import org.folio.rest.model.Task;
 import org.folio.rest.model.Workflow;
@@ -60,31 +61,25 @@ public class BpmnModelFactory {
     StartEvent processStartEvent = createElement(modelInstance, process, START_EVENT_ID, StartEvent.class);
     processStartEvent.setName("StartProcess");
 
+    List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     AtomicInteger taskIndex = new AtomicInteger();
 
-    List<ServiceTask> allTasks = new ArrayList<ServiceTask>();
-
-    // TODO: Add login task
+    int loginIndex = taskIndex.getAndIncrement();
+    ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex), ServiceTask.class);
+    LoginTask loginTask = new LoginTask("LoginProcess");
+    serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
 
     if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
       int index = taskIndex.getAndIncrement();
       ServiceTask createPrimaryStream = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
-      allTasks.add(createPrimaryStream);
+      serviceTasks.add(createPrimaryStream);
     }
 
-    List<ServiceTask> serviceTasks = workflow.getTasks().stream().map(task -> {
+    serviceTasks.addAll(workflow.getTasks().stream().map(task -> {
       int index = taskIndex.getAndIncrement();
       ServiceTask serviceTask = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
       if(task instanceof ExtractorTask) {
         ExtractorTask eTask = (ExtractorTask) task;
-        switch(eTask.getMergeStrategy()) {
-          case CONCAT:
-            eTask.setDelegate("concatenatingExtractorDelegate");
-            break;
-          case MERGE:
-            eTask.setDelegate("orderedMergingExtractorDelegate");
-            break;
-        }
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField streamSource = createElement(modelInstance, extensionElements, String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");
@@ -128,9 +123,9 @@ public class BpmnModelFactory {
         storageDestination.setCamundaStringValue(aTask.getStorageDestination());
       }
       return enhanceServiceTask(serviceTask, task);
-    }).collect(Collectors.toList());
+    }).collect(Collectors.toList()));
 
-    allTasks.addAll(serviceTasks);
+    serviceTasks.addAll(serviceTasks);
 
     EndEvent processEndEvent = createElement(modelInstance, process, END_EVENT_ID, EndEvent.class);
     processEndEvent.setName("EndProcess");
@@ -138,21 +133,21 @@ public class BpmnModelFactory {
 
     SequenceFlow firstSf = createElement(modelInstance, process, String.format("%s-%s", START_EVENT_ID, "t_1"), SequenceFlow.class);
     firstSf.setSource(processStartEvent);
-    firstSf.setTarget(allTasks.get(0));
+    firstSf.setTarget(serviceTasks.get(0));
 
     // Setup Connections
     AtomicInteger sfIndex = new AtomicInteger();
-    allTasks.forEach(st->{
+    serviceTasks.forEach(st->{
       int currentIndex = sfIndex.getAndIncrement();
-      if (currentIndex != allTasks.size() - 1) {
+      if (currentIndex != serviceTasks.size() - 1) {
         SequenceFlow currentSf = createElement(modelInstance, process, String.format("t_%s-t_%s", currentIndex, currentIndex+1), SequenceFlow.class);
-        currentSf.setTarget(allTasks.get(currentIndex + 1));
+        currentSf.setTarget(serviceTasks.get(currentIndex + 1));
         currentSf.setSource(st);
       }
     });
 
-    SequenceFlow lastSf = createElement(modelInstance, process, String.format("t_%s-%s", allTasks.size(), END_EVENT_ID), SequenceFlow.class);
-    lastSf.setSource(allTasks.get(allTasks.size() - 1));
+    SequenceFlow lastSf = createElement(modelInstance, process, String.format("t_%s-%s", serviceTasks.size(), END_EVENT_ID), SequenceFlow.class);
+    lastSf.setSource(serviceTasks.get(serviceTasks.size() - 1));
     lastSf.setTarget(processEndEvent);
 
     Message processStartMessage = createElement(modelInstance, definitions, "process-start-message", Message.class);

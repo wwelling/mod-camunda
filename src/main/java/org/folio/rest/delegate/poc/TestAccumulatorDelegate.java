@@ -8,10 +8,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,13 +19,14 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import org.camunda.bpm.engine.delegate.Expression;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Mono;
 
 @Service
 @Scope("prototype")
-public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
+public class TestAccumulatorDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
@@ -68,7 +67,7 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
 
     WebClient webClient = webClientBuilder.baseUrl(destinationBaseUrl).build();
 
-    System.out.println(String.format("%s STARTED", delegateName));
+    log.info(String.format("%s STARTED", delegateName));
 
     String token = (String) execution.getVariable("okapiToken");
 
@@ -78,7 +77,7 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
     AtomicInteger totalSuccesses = new AtomicInteger();
 
     AtomicBoolean finished = new AtomicBoolean();
-    
+
     int buffer = accumulateTo != null ? Integer.parseInt(accumulateTo.getValue(execution).toString()) : 500;
     int delay = delayDuration != null ? Integer.parseInt(delayDuration.getValue(execution).toString()) : 10;
 
@@ -88,15 +87,15 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
       .buffer(buffer)
       .delayElements(Duration.ofSeconds(delay))
       .doFinally(f->{
-        System.out.println(String.format("\n\nFINISHED STREAM! %s\n\n", f.toString()));
+        log.info(String.format("\n\nFINISHED STREAM! %s\n\n", f.toString()));
         Instant end = Instant.now();
-        System.out.println("TIME: " + Duration.between(start, end).getSeconds() + " seconds");
+        log.info("TIME: " + Duration.between(start, end).getSeconds() + " seconds");
         finished.set(true);
       })
       .subscribe(rows -> {
 
         Instant now = Instant.now();
-        System.out.println("TIME: " + Duration.between(start, now).getSeconds() + " seconds");
+        log.info("TIME: " + Duration.between(start, now).getSeconds() + " seconds");
 
         List<ErrorReport> batchFailed = new ArrayList<ErrorReport>();
         AtomicInteger batchSuccesses = new AtomicInteger();
@@ -132,25 +131,26 @@ public class TestAccumulatorDelegate extends AbstractRuntimeDelegate {
                 }
               })
               .doOnEach(e->{
-                System.out.println(String.format(
-                  "\n%s: %s/%s (ttl %s), failure: %s/%s (ttl %s)", 
-                  delegateName, 
-                  batchSuccesses.get(), 
+                log.error(String.format(
+
+                  "\n%s: %s/%s (ttl %s), failure: %s/%s (ttl %s)",
+                  delegateName,
+                  batchSuccesses.get(),
                   rows.size(),
-                  totalSuccesses.get(), 
+                  totalSuccesses.get(),
                   batchFailed.size(),
-                  rows.size(), 
+                  rows.size(),
                   totalFailed.size()
                 ));
               })
               .doFinally(f->{
                 Instant end = Instant.now();
-                System.out.println("TIME: " + Duration.between(start, end).getSeconds() + " seconds");
+                log.info("TIME: " + Duration.between(start, end).getSeconds() + " seconds");
                 if(batchFailed.size()>0) {
-                  System.out.println("ERROR EXAMPLE");
+                  log.error("ERROR EXAMPLE");
                   ErrorReport e = batchFailed.remove(0);
-                  System.out.println(e.errorMessage);
-                  System.out.println(e.object);
+                  log.error(e.errorMessage);
+                  log.error(e.object);
                 }
               })
               .subscribe(res -> {
