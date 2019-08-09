@@ -1,5 +1,6 @@
 package org.folio.rest.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
 import org.folio.rest.model.AccumulatorTask;
 import org.folio.rest.model.CreateForEachTask;
 import org.folio.rest.model.ExtractorTask;
+import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
 import org.folio.rest.model.Task;
 import org.folio.rest.model.Workflow;
@@ -60,7 +62,14 @@ public class BpmnModelFactory {
     processStartEvent.setName("StartProcess");
 
     AtomicInteger taskIndex = new AtomicInteger();
-    List<ServiceTask> serviceTasks = workflow.getTasks().stream().map(task -> {
+
+    List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
+    int loginIndex = taskIndex.getAndIncrement();
+    ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex), ServiceTask.class);
+    LoginTask loginTask = new LoginTask("LoginProcess");
+    serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
+
+    serviceTasks.addAll(workflow.getTasks().stream().map(task -> {
       int index = taskIndex.getAndIncrement();
       ServiceTask serviceTask = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
       if(task instanceof ExtractorTask) {
@@ -108,7 +117,7 @@ public class BpmnModelFactory {
         storageDestination.setCamundaStringValue(aTask.getStorageDestination());
       }
       return enhanceServiceTask(serviceTask, task);
-    }).collect(Collectors.toList());
+    }).collect(Collectors.toList()));
 
     EndEvent processEndEvent = createElement(modelInstance, process, END_EVENT_ID, EndEvent.class);
     processEndEvent.setName("EndProcess");
