@@ -6,12 +6,16 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.folio.rest.delegate.comparator.PropertyComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
 
 @Service
 public class StreamService {
+
+  protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   private final Map<String, Flux<String>> fluxes;
 
@@ -39,6 +43,7 @@ public class StreamService {
     flux.doFinally(f->{
       fluxes.remove(id);
     });
+    log.info("Stream map count: {}", fluxes.size());
     return id;
   }
 

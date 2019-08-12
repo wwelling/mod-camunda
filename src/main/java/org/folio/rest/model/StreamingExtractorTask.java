@@ -12,4 +12,12 @@ public class StreamingExtractorTask extends ExtractorTask {
     setStreaming(true);
   }
 
+  public String getStreamSource() {
+    return streamSource;
+  }
+
+  public void setStreamSource(String streamSource) {
+    this.streamSource = streamSource;
+  }
+
 }
