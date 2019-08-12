@@ -23,15 +23,15 @@
     "streaming" : {
       "type" : "boolean"
     },
-    "streamSource" : {
-      "type" : "string"
-    },
     "predicateProperty" : {
       "type" : "string"
     },
     "mergeStrategy" : {
       "type" : "string",
       "enum" : [ "MERGE", "CONCAT" ]
+    },
+    "streamSource" : {
+      "type" : "string"
     }
   },
   "required" : [ "type", "name" ]
