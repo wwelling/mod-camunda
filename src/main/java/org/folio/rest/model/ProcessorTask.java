@@ -13,7 +13,7 @@ public class ProcessorTask extends Task {
 
   public ProcessorTask() {
     super();
-    this.setDelegate("testProcessDelegate");
+    this.setDelegate("streamProcessingDelegate");
   }
 
   public String getScript() {

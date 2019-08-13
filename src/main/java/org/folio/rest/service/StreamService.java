@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.folio.rest.delegate.comparator.PropertyComparator;
 import org.slf4j.Logger;
@@ -39,17 +40,17 @@ public class StreamService {
   }
 
   private String setFlux(String id, Flux<String> flux) {
-    fluxes.put(id, flux);
-    flux.doFinally(f->{
-      fluxes.remove(id);
-    });
-    log.info("Stream map count: {}", fluxes.size());
+    fluxes.put(id, flux.doFinally(s->fluxes.remove(id)));
     return id;
   }
 
   public String setFlux(Flux<String> flux) {
     String id = UUID.randomUUID().toString();
     return setFlux(id, flux);
+  }
+
+  public String map(String id, Function<String, String> map) {
+    return setFlux(id, getFlux(id).map(map));
   }
 
 }

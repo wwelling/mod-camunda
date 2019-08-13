@@ -89,7 +89,6 @@ public class BpmnModelFactory {
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField streamSource = createElement(modelInstance, extensionElements, String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");
-        log.info("StreamSource: {}", eTask.getStreamSource());
         streamSource.setCamundaStringValue(eTask.getStreamSource());
       } else if(task instanceof ProcessorTask) {
         ProcessorTask pTask = (ProcessorTask) task;
