@@ -64,7 +64,7 @@ public class TestStreamDelegate extends TestAbstractRuntimeDelegate {
 
     log.info("START REQUEST");
 
-    streamService.setFlux(
+    String fluxId = streamService.setFlux(
       webClient
         .get()
         .uri("%s/extractors/{id}/run", extratorId)
@@ -74,6 +74,8 @@ public class TestStreamDelegate extends TestAbstractRuntimeDelegate {
         .retrieve()
         .bodyToFlux(String.class)
     );
+
+    execution.setVariable("primaryStreamId", fluxId);
 
     log.info("STREAM DELEGATE FINISHED");
   }

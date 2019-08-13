@@ -48,8 +48,11 @@ public class TestProcessDelegate extends TestAbstractRuntimeDelegate {
       cscript.eval(bindings);
       Invocable invocable = (Invocable) cscript.getEngine();
 
+      String primaryStreamId = (String) execution.getVariable("primaryStreamId");
+      
       log.info(String.format("%s STARTED", delegateName));
-      streamService.map(d -> {
+      streamService.getFlux(primaryStreamId).map(d -> {
+
         try {
           d = (String) invocable.invokeFunction(delegateName, d);
         } catch (NoSuchMethodException | ScriptException e) {
