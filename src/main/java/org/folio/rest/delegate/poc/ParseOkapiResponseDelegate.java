@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import static org.camunda.spin.Spin.JSON;
 
 @Service
-public class ParseOkapiResponseDelegate extends AbstractRuntimeDelegate {
+public class ParseOkapiResponseDelegate extends TestAbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {

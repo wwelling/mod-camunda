@@ -23,7 +23,7 @@ import org.springframework.util.StreamUtils;
 
 @Service
 @Scope("prototype")
-public class TestProcessDelegate extends AbstractRuntimeDelegate {
+public class TestProcessDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
@@ -50,8 +50,9 @@ public class TestProcessDelegate extends AbstractRuntimeDelegate {
 
       String primaryStreamId = (String) execution.getVariable("primaryStreamId");
       
-      System.out.println(String.format("%s STARTED", delegateName));
+      log.info(String.format("%s STARTED", delegateName));
       streamService.getFlux(primaryStreamId).map(d -> {
+
         try {
           d = (String) invocable.invokeFunction(delegateName, d);
         } catch (NoSuchMethodException | ScriptException e) {

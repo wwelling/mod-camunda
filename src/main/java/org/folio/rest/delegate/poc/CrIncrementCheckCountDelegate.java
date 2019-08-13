@@ -4,7 +4,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CrIncrementCheckCountDelegate extends AbstractLoggingDelegate {
+public class CrIncrementCheckCountDelegate extends TestAbstractLoggingDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {

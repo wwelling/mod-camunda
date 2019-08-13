@@ -4,7 +4,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CrTimerNotifyDelegate extends AbstractLoggingDelegate {
+public class CrTimerNotifyDelegate extends TestAbstractLoggingDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
