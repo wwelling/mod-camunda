@@ -49,8 +49,15 @@ public class TestProcessDelegate extends TestAbstractRuntimeDelegate {
       Invocable invocable = (Invocable) cscript.getEngine();
 
       String primaryStreamId = (String) execution.getVariable("primaryStreamId");
+<<<<<<< HEAD
 
       streamService.getFlux(primaryStreamId).map(d -> {
+=======
+      
+      log.info(String.format("%s STARTED", delegateName));
+      streamService.getFlux(primaryStreamId).map(d -> {
+
+>>>>>>> sprint1-staging
         try {
           d = (String) invocable.invokeFunction(delegateName, d);
         } catch (NoSuchMethodException | ScriptException e) {
