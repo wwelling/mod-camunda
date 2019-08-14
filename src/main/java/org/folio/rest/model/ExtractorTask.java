@@ -5,19 +5,49 @@ import javax.persistence.Entity;
 @Entity
 public class ExtractorTask extends Task {
 
-  String streamSource;
+  private String predicateProperty;
+
+  private MergeStrategy mergeStrategy;
 
   public ExtractorTask() {
     super();
-    setDelegate("testStreamDelegate");
+    setMergeStrategy(MergeStrategy.CONCAT);
+    calculateDelegateName();
   }
 
-  public String getStreamSource() {
-    return streamSource;
+  public ExtractorTask(String predicateProperty, MergeStrategy mergeStrategy) {
+    this();
+    setPredicateProperty(predicateProperty);
+    setMergeStrategy(mergeStrategy);
+    calculateDelegateName();
   }
 
-  public void setStreamSource(String streamSource) {
-    this.streamSource = streamSource;
+  private void calculateDelegateName() {
+    switch(getMergeStrategy()) {
+      case MERGE:
+        setDelegate("orderedMergingExtractorDelegate");
+        break;
+      case CONCAT:
+      default:
+        setDelegate("concatenatingExtractorDelegate");
+        break;
+    }
+  }
+
+  public String getPredicateProperty() {
+    return predicateProperty;
+  }
+
+  public void setPredicateProperty(String predicateProperty) {
+    this.predicateProperty = predicateProperty;
+  }
+
+  public MergeStrategy getMergeStrategy() {
+    return mergeStrategy;
+  }
+
+  public void setMergeStrategy(MergeStrategy mergeStrategy) {
+    this.mergeStrategy = mergeStrategy;
   }
 
 }

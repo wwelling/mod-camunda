@@ -1,15 +1,22 @@
 package org.folio.rest.service;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
+import org.folio.rest.delegate.comparator.PropertyComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
 
 @Service
 public class StreamService {
+
+  protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   private final Map<String, Flux<String>> fluxes;
 
@@ -21,13 +28,29 @@ public class StreamService {
     return fluxes.get(id);
   }
 
+  public String concatenateFlux(String firstFluxId, Flux<String> secondFlux) {
+    Flux<String> firstFlux = getFlux(firstFluxId);
+    return setFlux(firstFluxId, firstFlux.concatWith(secondFlux));
+  }
+
+  public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty) {
+    Flux<String> firstFlux = getFlux(firstFluxId);
+    Comparator<String> comparator = new PropertyComparator(comparisonProperty);
+    return setFlux(firstFluxId, firstFlux.mergeOrderedWith(secondFlux, comparator));
+  }
+
+  private String setFlux(String id, Flux<String> flux) {
+    fluxes.put(id, flux.doFinally(s->fluxes.remove(id)));
+    return id;
+  }
+
   public String setFlux(Flux<String> flux) {
     String id = UUID.randomUUID().toString();
-    fluxes.put(id, flux);
-    flux.doFinally(f->{
-      fluxes.remove(id);
-    });
-    return id;
+    return setFlux(id, flux);
+  }
+
+  public String map(String id, Function<String, String> map) {
+    return setFlux(id, getFlux(id).map(map));
   }
 
 }

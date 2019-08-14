@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "ProcessorTask",
+  "title" : "StreamingExtractorTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "type" : {
       "type" : "string",
-      "enum" : [ "ProcessorTask" ],
-      "default" : "ProcessorTask"
+      "enum" : [ "StreamingExtractorTask" ],
+      "default" : "StreamingExtractorTask"
     },
     "id" : {
       "type" : "string"
@@ -23,12 +23,15 @@
     "streaming" : {
       "type" : "boolean"
     },
-    "script" : {
+    "predicateProperty" : {
       "type" : "string"
     },
-    "scriptType" : {
+    "mergeStrategy" : {
       "type" : "string",
-      "enum" : [ "NONE", "GROOVY", "JAVA", "JS", "PYTHON", "RUBY", "XSLT" ]
+      "enum" : [ "MERGE", "CONCAT" ]
+    },
+    "streamSource" : {
+      "type" : "string"
     }
   },
   "required" : [ "type", "name" ]

@@ -27,11 +27,13 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
 import org.folio.rest.model.AccumulatorTask;
 import org.folio.rest.model.CreateForEachTask;
-import org.folio.rest.model.ExtractorTask;
 import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
+import org.folio.rest.model.StreamingExtractorTask;
 import org.folio.rest.model.Task;
 import org.folio.rest.model.Workflow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -41,6 +43,8 @@ public class BpmnModelFactory {
   private static final String END_EVENT_ID = "ee_0";
   private static final String START_EVENT_ID = "se_0";
   private static final String TARGET_NAMESPACE = "http://bpmn.io/schema/bpmn";
+
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   public BpmnModelInstance makeBPMNFromWorkflow(Workflow workflow) {
 
@@ -61,19 +65,27 @@ public class BpmnModelFactory {
     StartEvent processStartEvent = createElement(modelInstance, process, START_EVENT_ID, StartEvent.class);
     processStartEvent.setName("StartProcess");
 
+    List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     AtomicInteger taskIndex = new AtomicInteger();
 
-    List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     int loginIndex = taskIndex.getAndIncrement();
     ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex), ServiceTask.class);
     LoginTask loginTask = new LoginTask("LoginProcess");
     serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
 
+    if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
+      int index = taskIndex.getAndIncrement();
+      ServiceTask createPrimaryStream = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
+      createPrimaryStream.setName("Create Primary Stream");
+      createPrimaryStream.setCamundaDelegateExpression("${streamCreationDelegate}");
+      serviceTasks.add(createPrimaryStream);
+    }
+
     serviceTasks.addAll(workflow.getTasks().stream().map(task -> {
       int index = taskIndex.getAndIncrement();
       ServiceTask serviceTask = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
-      if(task instanceof ExtractorTask) {
-        ExtractorTask eTask = (ExtractorTask) task;
+      if(task instanceof StreamingExtractorTask) {
+        StreamingExtractorTask eTask = (StreamingExtractorTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField streamSource = createElement(modelInstance, extensionElements, String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");

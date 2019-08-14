@@ -14,11 +14,13 @@ import org.folio.rest.domain.model.AbstractBaseEntity;
 
 @Entity(name="tasks")
 @Inheritance
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type" )
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ProcessorTask.class, name = "ProcessorTask"),
 
-    @JsonSubTypes.Type(value = ExtractorTask.class, name = "ExtractorTask"), 
+    @JsonSubTypes.Type(value = ExtractorTask.class, name = "ExtractorTask"),
+
+    @JsonSubTypes.Type(value = StreamingExtractorTask.class, name = "StreamingExtractorTask"),
 
     @JsonSubTypes.Type(value = AccumulatorTask.class, name = "AccumulatorTask"),
 
@@ -38,8 +40,12 @@ public abstract class Task extends AbstractBaseEntity {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String type = this.getClass().getSimpleName();
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private Boolean streaming;
+
   public Task() {
     super();
+    setStreaming(false);
   }
 
   public String getName() {
@@ -64,6 +70,14 @@ public abstract class Task extends AbstractBaseEntity {
 
   public void setType(String type) {
     this.type = type;
+  }
+
+  public Boolean isStreaming() {
+    return streaming;
+  }
+
+  public void setStreaming(Boolean streaming) {
+    this.streaming = streaming;
   }
 
 }
