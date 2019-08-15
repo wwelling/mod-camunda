@@ -27,10 +27,12 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
 import org.folio.rest.model.AccumulatorTask;
 import org.folio.rest.model.CreateForEachTask;
+import org.folio.rest.model.EventTrigger;
 import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
 import org.folio.rest.model.StreamingExtractorTask;
 import org.folio.rest.model.Task;
+import org.folio.rest.model.Trigger;
 import org.folio.rest.model.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +157,11 @@ public class BpmnModelFactory {
     lastSf.setTarget(processEndEvent);
 
     Message processStartMessage = createElement(modelInstance, definitions, "process-start-message", Message.class);
-    processStartMessage.setName(workflow.getStartTrigger().getPathPattern());
+    Trigger trigger = workflow.getStartTrigger();
+    if (trigger instanceof EventTrigger) {
+      EventTrigger eventTrigger = (EventTrigger) trigger;
+      processStartMessage.setName(eventTrigger.getPathPattern());
+    }
 
     MessageEventDefinition processStartEventMessageDefinition = createElement(modelInstance, processStartEvent, "process-start-event-message-definition", MessageEventDefinition.class);
     processStartEventMessageDefinition.setMessage(processStartMessage);

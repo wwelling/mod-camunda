@@ -4,7 +4,7 @@
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
-    "type" : {
+    "deserializeAs" : {
       "type" : "string",
       "enum" : [ "AccumulatorTask" ],
       "default" : "AccumulatorTask"
@@ -33,5 +33,5 @@
       "type" : "string"
     }
   },
-  "required" : [ "type", "name" ]
+  "required" : [ "deserializeAs", "name" ]
 }

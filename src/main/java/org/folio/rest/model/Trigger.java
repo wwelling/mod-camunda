@@ -46,10 +46,6 @@ public abstract class Trigger extends AbstractBaseEntity {
   @Enumerated(EnumType.STRING)
   private HttpMethod method;
 
-  @NotNull
-  @Column
-  private String pathPattern;
-
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String deserializeAs = this.getClass().getSimpleName();
 
@@ -57,13 +53,12 @@ public abstract class Trigger extends AbstractBaseEntity {
     super();
   }
 
-  public Trigger(String name, String description, TriggerType type, HttpMethod method, String pathPattern) {
+  public Trigger(String name, String description, TriggerType type, HttpMethod method) {
     this();
     this.name = name;
     this.description = description;
     this.type = type;
     this.method = method;
-    this.pathPattern = pathPattern;
   }
 
   public String getName() {
@@ -96,14 +91,6 @@ public abstract class Trigger extends AbstractBaseEntity {
 
   public void setMethod(HttpMethod method) {
     this.method = method;
-  }
-
-  public String getPathPattern() {
-    return pathPattern;
-  }
-
-  public void setPathPattern(String pathPattern) {
-    this.pathPattern = pathPattern;
   }
 
   public String getDeserializeAs() {
