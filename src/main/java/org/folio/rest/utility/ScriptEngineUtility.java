@@ -13,6 +13,19 @@ public class ScriptEngineUtility {
   private static final String URL_REGEX = "(http(s)?:\\\\\\/\\\\\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\\\\\+~#=]{2,256}\\\\\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\\\\\+.~#?&//=]*)";
 
   /**
+   * Check if a given string is a proper e-mail address.
+   *
+   * @param string
+   *   The string to check.
+   *
+   * @return
+   *   TRUE if matched, FALSE otherwise.
+   */
+  public boolean isEmail(String string) {
+    return string != null && string.matches(EMAIL_REGEX);
+  }
+
+  /**
    * Check if a given string might be an e-mail.
    *
    * @param string
@@ -22,7 +35,7 @@ public class ScriptEngineUtility {
    *   TRUE if matched, FALSE otherwise.
    */
   public boolean isEmailLike(String string) {
-    return string.matches(EMAIL_REGEX);
+    return isEmail(string) || (string == null ? false : string.toLowerCase().indexOf("@") != -1);
   }
 
   /**
@@ -49,16 +62,20 @@ public class ScriptEngineUtility {
    *   TRUE if matched, FALSE otherwise.
    */
   public boolean isURLLike(String string) {
+    if (string == null) {
+      return false;
+    }
+
     boolean isLikeUrl = string.toLowerCase().indexOf("www.") != -1;
 
-    isLikeUrl = isLikeUrl && string.toLowerCase().indexOf(".org") != -1;
-    isLikeUrl = isLikeUrl && string.toLowerCase().indexOf(".edu") != -1;
-    isLikeUrl = isLikeUrl && string.toLowerCase().indexOf(".net") != -1;
-    isLikeUrl = isLikeUrl && string.toLowerCase().indexOf(".us") != -1;
-    isLikeUrl = isLikeUrl && string.toLowerCase().indexOf(".io") != -1;
-    isLikeUrl = isLikeUrl && string.toLowerCase().indexOf(".co") != -1;
+    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".org") != -1;
+    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".edu") != -1;
+    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".net") != -1;
+    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".us") != -1;
+    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".io") != -1;
+    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".co") != -1;
 
-    return isLikeUrl;
+    return (isValidUrl(string) || isLikeUrl) && !isEmailLike(string);
   }
 
   /**
@@ -71,6 +88,10 @@ public class ScriptEngineUtility {
    *   TRUE if matched, FALSE otherwise.
    */
   public boolean isValidUrl(String string) {
+    if (string == null) {
+      return false;
+    }
+
     return string.matches(URL_REGEX);
   }
 
@@ -107,6 +128,10 @@ public class ScriptEngineUtility {
    *   A String containing the encoded JSON data.
    */
   public String encodeJson(JSONObject json) {
+    if (json == null) {
+      return "{}";
+    }
+
     return json.toString(2);
   }
 }
