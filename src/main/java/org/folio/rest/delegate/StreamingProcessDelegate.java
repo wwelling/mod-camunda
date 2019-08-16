@@ -38,7 +38,7 @@ public class StreamingProcessDelegate extends AbstractRuntimeDelegate {
       String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
       log.info(String.format("%s STARTED", delegateName));
-      streamService.getFlux(primaryStreamId).map(d -> {
+      streamService.map(primaryStreamId, d -> {
 
         try {
           d = (String) scriptEngineService.runScript(scriptTypeValue, delegateName, d);
