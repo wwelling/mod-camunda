@@ -24,7 +24,7 @@ import org.folio.rest.domain.model.AbstractBaseEntity;
 
     @JsonSubTypes.Type(value = AccumulatorTask.class, name = "AccumulatorTask"),
 
-    @JsonSubTypes.Type(value = CreateForEachTask.class, name = "CreateForEachTask")
+    @JsonSubTypes.Type(value = StreamCreateForEachTask.class, name = "StreamCreateForEachTask")
   }
 )
 public abstract class Task extends AbstractBaseEntity {

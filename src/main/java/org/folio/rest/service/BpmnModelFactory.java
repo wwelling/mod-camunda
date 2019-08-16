@@ -26,7 +26,7 @@ import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
 import org.folio.rest.model.AccumulatorTask;
-import org.folio.rest.model.CreateForEachTask;
+import org.folio.rest.model.StreamCreateForEachTask;
 import org.folio.rest.model.EventTrigger;
 import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
@@ -102,8 +102,8 @@ public class BpmnModelFactory {
         scriptField.setCamundaName("script");
         CamundaString script = createElement(modelInstance, scriptField, null, CamundaString.class);
         script.setTextContent(pTask.getScript());
-      } else if(task instanceof CreateForEachTask) {
-        CreateForEachTask cTask = (CreateForEachTask) task;
+      } else if (task instanceof StreamCreateForEachTask) {
+        StreamCreateForEachTask cTask = (StreamCreateForEachTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField endpoint = createElement(modelInstance, extensionElements, String.format("t_%s-endpoint", index), CamundaField.class);
         endpoint.setCamundaName("endpoint");

@@ -36,7 +36,7 @@
         }, {
           "$ref" : "#/definitions/AccumulatorTask"
         }, {
-          "$ref" : "#/definitions/CreateForEachTask"
+          "$ref" : "#/definitions/StreamCreateForEachTask"
         } ]
       }
     },
@@ -164,14 +164,14 @@
       "title" : "AccumulatorTask",
       "required" : [ "deserializeAs", "name" ]
     },
-    "CreateForEachTask" : {
+    "StreamCreateForEachTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "CreateForEachTask" ],
-          "default" : "CreateForEachTask"
+          "enum" : [ "StreamCreateForEachTask" ],
+          "default" : "StreamCreateForEachTask"
         },
         "id" : {
           "type" : "string"
@@ -200,7 +200,7 @@
           "type" : "string"
         }
       },
-      "title" : "CreateForEachTask",
+      "title" : "StreamCreateForEachTask",
       "required" : [ "deserializeAs", "name" ]
     },
     "EventTrigger" : {
