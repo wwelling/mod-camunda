@@ -36,7 +36,7 @@
         }, {
           "$ref" : "#/definitions/AccumulatorTask"
         }, {
-          "$ref" : "#/definitions/CreateForEachTask"
+          "$ref" : "#/definitions/StreamCreateForEachTask"
         } ]
       }
     },
@@ -158,14 +158,14 @@
       "title" : "AccumulatorTask",
       "required" : [ "type", "name" ]
     },
-    "CreateForEachTask" : {
+    "StreamCreateForEachTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "type" : {
           "type" : "string",
-          "enum" : [ "CreateForEachTask" ],
-          "default" : "CreateForEachTask"
+          "enum" : [ "StreamCreateForEachTask" ],
+          "default" : "StreamCreateForEachTask"
         },
         "id" : {
           "type" : "string"
@@ -194,7 +194,7 @@
           "type" : "string"
         }
       },
-      "title" : "CreateForEachTask",
+      "title" : "StreamCreateForEachTask",
       "required" : [ "type", "name" ]
     },
     "Trigger" : {
