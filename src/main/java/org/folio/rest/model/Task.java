@@ -14,7 +14,7 @@ import org.folio.rest.domain.model.AbstractBaseEntity;
 
 @Entity(name="tasks")
 @Inheritance
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "deserializeAs")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = ProcessorTask.class, name = "ProcessorTask"),
 
@@ -38,7 +38,7 @@ public abstract class Task extends AbstractBaseEntity {
   private String delegate;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private String type = this.getClass().getSimpleName();
+  private String deserializeAs = this.getClass().getSimpleName();
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Boolean streaming;
@@ -64,12 +64,12 @@ public abstract class Task extends AbstractBaseEntity {
     this.delegate = delegate;
   }
 
-  public String getType() {
-    return type;
+  public String getDeserializeAs() {
+    return deserializeAs;
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public void setDeserializeAs(String deserializeAs) {
+    this.deserializeAs = deserializeAs;
   }
 
   public Boolean isStreaming() {
