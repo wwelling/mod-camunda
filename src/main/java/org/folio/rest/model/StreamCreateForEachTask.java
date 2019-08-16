@@ -3,7 +3,7 @@ package org.folio.rest.model;
 import javax.persistence.Entity;
 
 @Entity
-public class CreateForEachTask extends Task {
+public class StreamCreateForEachTask extends Task {
 
   String endpoint;
 
@@ -13,9 +13,9 @@ public class CreateForEachTask extends Task {
 
   String uniqueBy;
 
-  public CreateForEachTask() {
+  public StreamCreateForEachTask() {
     super();
-    setDelegate("testCreateForEachDelegate");
+    setDelegate("streamCreateForEachDelegate");
   }
 
   public String getEndpoint() {
