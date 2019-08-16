@@ -4,7 +4,7 @@
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
-    "type" : {
+    "deserializeAs" : {
       "type" : "string",
       "enum" : [ "CreateForEachTask" ],
       "default" : "CreateForEachTask"
@@ -36,5 +36,5 @@
       "type" : "string"
     }
   },
-  "required" : [ "type", "name" ]
+  "required" : [ "deserializeAs", "name" ]
 }

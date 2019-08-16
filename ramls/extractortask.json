@@ -9,7 +9,7 @@
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
-        "type" : {
+        "deserializeAs" : {
           "type" : "string",
           "enum" : [ "StreamingExtractorTask" ],
           "default" : "StreamingExtractorTask"
@@ -40,7 +40,7 @@
         }
       },
       "title" : "StreamingExtractorTask",
-      "required" : [ "type", "name" ]
+      "required" : [ "deserializeAs", "name" ]
     }
   }
 }

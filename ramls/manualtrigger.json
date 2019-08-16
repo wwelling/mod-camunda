@@ -29,10 +29,7 @@
     "method" : {
       "type" : "string",
       "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
-    },
-    "pathPattern" : {
-      "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "description", "type", "method", "pathPattern" ]
+  "required" : [ "deserializeAs", "name", "description", "type", "method" ]
 }
