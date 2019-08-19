@@ -1,0 +1,46 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Extractor Task",
+  "oneOf" : [ {
+    "$ref" : "#/definitions/StreamingExtractorTask"
+  } ],
+  "definitions" : {
+    "StreamingExtractorTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "StreamingExtractorTask" ],
+          "default" : "StreamingExtractorTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "delegate" : {
+          "type" : "string"
+        },
+        "streaming" : {
+          "type" : "boolean"
+        },
+        "predicateProperty" : {
+          "type" : "string"
+        },
+        "mergeStrategy" : {
+          "type" : "string",
+          "enum" : [ "MERGE", "CONCAT" ]
+        },
+        "streamSource" : {
+          "type" : "string"
+        }
+      },
+      "title" : "StreamingExtractorTask",
+      "required" : [ "deserializeAs", "name" ]
+    }
+  }
+}

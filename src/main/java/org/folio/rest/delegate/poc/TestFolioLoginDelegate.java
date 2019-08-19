@@ -1,4 +1,4 @@
-package org.folio.rest.delegate;
+package org.folio.rest.delegate.poc;
 
 import static org.camunda.spin.Spin.JSON;
 
@@ -13,22 +13,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FolioLoginDelegate extends AbstractRuntimeDelegate {
+public class TestFolioLoginDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
   private LoginService loginService;
 
-  @Value("${tenant.default-tenant}")
-  private String DEFAULT_TENANT;
-
   @Value("${okapi.location}")
   private String OKAPI_LOCATION;
-
-  @Value("${okapi.username}")
-  private String OKAPI_USERNAME;
-
-  @Value("${okapi.password}")
-  private String OKAPI_PASSWORD;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -41,20 +32,20 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
     okapiRequest.setResponseBodyName("loginResponseBody");
     okapiRequest.setResponseHeaderName("loginResponseHeader");
     okapiRequest.setResponseStatusName("loginResponseStatus");
-    okapiRequest.setTenant(DEFAULT_TENANT);
+    okapiRequest.setTenant("tern_admin");
 
-    // A bit redundant, may want to create a login payload model, or eventually handle this better.
+    // A bit redundant, may want to create a login payload model, or eventually handle this better
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("username", OKAPI_USERNAME);
-    jsonObject.put("password", OKAPI_PASSWORD);
+    jsonObject.put("username", "tern");
+    jsonObject.put("password", "admin");
 
     SpinJsonNode jsonNode = JSON(jsonObject.toString());
 
     okapiRequest.setRequestPayload(jsonNode);
-    log.debug("json: {}", jsonObject.toString());
+    log.info("json: {}", jsonObject.toString());
 
     FolioLogin newLogin = loginService.folioLogin(okapiRequest);
-    newLogin.setUsername(OKAPI_USERNAME);
+    newLogin.setUsername("tern_admin");
     log.info("NEW LOGIN: {}", newLogin);
 
     execution.setVariable("folioLogin", newLogin);
