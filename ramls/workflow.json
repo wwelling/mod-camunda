@@ -119,7 +119,7 @@
         },
         "mergeStrategy" : {
           "type" : "string",
-          "enum" : [ "MERGE", "CONCAT" ]
+          "enum" : [ "MERGE", "CONCAT", "ENHANCE" ]
         },
         "streamSource" : {
           "type" : "string"

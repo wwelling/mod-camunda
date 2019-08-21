@@ -2,6 +2,8 @@ package org.folio.rest.model;
 
 import javax.persistence.Entity;
 
+import org.python.jline.internal.Log;
+
 @Entity
 public class ExtractorTask extends Task {
 
@@ -11,7 +13,7 @@ public class ExtractorTask extends Task {
 
   public ExtractorTask() {
     super();
-    setMergeStrategy(MergeStrategy.CONCAT);
+    setMergeStrategy(MergeStrategy.ENHANCE);
     calculateDelegateName();
   }
 
@@ -27,9 +29,13 @@ public class ExtractorTask extends Task {
       case MERGE:
         setDelegate("orderedMergingExtractorDelegate");
         break;
+      case ENHANCE:
+        setDelegate("enhancingExtractorDelegate");
+        break;
       case CONCAT:
       default:
         setDelegate("concatenatingExtractorDelegate");
+        Log.info("GOT HERER");
         break;
     }
   }
