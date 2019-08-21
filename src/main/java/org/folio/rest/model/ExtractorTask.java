@@ -2,12 +2,12 @@ package org.folio.rest.model;
 
 import javax.persistence.Entity;
 
-import org.python.jline.internal.Log;
-
 @Entity
 public class ExtractorTask extends Task {
 
   private String predicateProperty;
+
+  private String enhancementProperty;
 
   private MergeStrategy mergeStrategy;
 
@@ -35,7 +35,6 @@ public class ExtractorTask extends Task {
       case CONCAT:
       default:
         setDelegate("concatenatingExtractorDelegate");
-        Log.info("GOT HERER");
         break;
     }
   }
@@ -46,6 +45,14 @@ public class ExtractorTask extends Task {
 
   public void setPredicateProperty(String predicateProperty) {
     this.predicateProperty = predicateProperty;
+  }
+
+  public String getEnhancementProperty() {
+    return enhancementProperty;
+  }
+
+  public void setEnhancementProperty(String enhancementProperty) {
+    this.enhancementProperty = enhancementProperty;
   }
 
   public MergeStrategy getMergeStrategy() {

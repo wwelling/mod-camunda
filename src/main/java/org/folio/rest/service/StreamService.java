@@ -2,6 +2,7 @@ package org.folio.rest.service;
 
 import static java.util.Comparator.nullsLast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,6 +13,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.folio.rest.delegate.comparator.PropertyComparator;
 import org.slf4j.Logger;
@@ -47,18 +52,14 @@ public class StreamService {
   }
 
   /*
-  * Compares two fluxes of JSON strings using a comparisonProperty and 
-  * augments the first flux with an enhancement property from the second
-  * flux when there is a match. 
-  */
-  public String enhanceFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty, String enhancementProperty) {
+   * Compares two fluxes of JSON strings using a comparisonProperty and augments
+   * the first flux with an enhancement property from the second flux when there
+   * is a match.
+   */
+  public String enhanceFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty, String enhancementProperty) throws IOException {
     Flux<String> firstFlux = getFlux(firstFluxId);
     Comparator<String> comparator = nullsLast(new PropertyComparator(comparisonProperty));
-
-    List<String> list1 = new ArrayList<>(Arrays.asList("{\"netid\": 1}","{\"netid\": 3}","{\"netid\": 4}","{\"netid\": 5}", "{\"netid\": 6}", "{\"netid\": 7}", "{\"netid\": 8}"));
-    List<String> list2 = new ArrayList<>(Arrays.asList("{\"netid\": 1}", "{\"netid\": 2}", "{\"netid\": 3}", "{\"netid\": 4}", "{\"netid\": 5}", "{\"netid\": 6}", "{\"netid\": 7}"));
-    firstFlux = Flux.fromIterable(list1);
-    secondFlux = Flux.fromIterable(list2);
+    ObjectMapper mapper = new ObjectMapper();
     
     Flux<String> result = Flux.empty();
     Iterator<String> firstIter = firstFlux.toIterable().iterator();
@@ -67,24 +68,22 @@ public class StreamService {
     String secondString = secondIter.next();
 
     while(firstString != null || secondString != null) {
+      JsonNode firstObject = mapper.readTree(firstString);
+      JsonNode secondObject = secondString != null ? mapper.readTree(secondString) : null;
+      JsonNode enhancementNode = secondObject != null ? secondObject.get(comparisonProperty) : null;
       if (comparator.compare(firstString, secondString) == 0) {
-        log.info("Match: {}, {}", firstString, secondString);
-        result = result.concatWith(Flux.fromStream(Stream.of(firstString + ", " + secondString)));
+        result = result.concatWith(Flux.just(mapper.writeValueAsString(((ObjectNode) firstObject).set(enhancementProperty, enhancementNode))));
         firstString = firstIter.hasNext() ? firstIter.next() : null;
         secondString = secondIter.hasNext() ? secondIter.next() : null;
       } else if (comparator.compare(firstString, secondString) < 0) {
-        log.info("No Match on second flux: {}", firstString);
-        result = result.concatWith(Flux.fromStream(Stream.of(firstString)));
+        result = result.concatWith(Flux.just(mapper.writeValueAsString(firstObject)));
         firstString = firstIter.hasNext() ? firstIter.next() : null;
       } else {
-        log.info("No Match on first flux: {}", secondString);
         secondString = secondIter.hasNext() ? secondIter.next() : null;
       }
     }
 
-    result.subscribe(item -> System.out.println(item));
-
-    return null;
+    return setFlux(firstFluxId, result);
   }
 
   private String setFlux(String id, Flux<String> flux) {

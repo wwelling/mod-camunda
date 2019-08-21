@@ -17,6 +17,8 @@ public class EnhancingExtractorDelegate extends AbstractExtractorDelegate {
 
   private Expression comparisonProperty;
 
+  private Expression enhancementProperty;
+
   public EnhancingExtractorDelegate(WebClient.Builder webClientBuilder) {
     super(webClientBuilder);
   }
@@ -25,17 +27,22 @@ public class EnhancingExtractorDelegate extends AbstractExtractorDelegate {
   public void execute(DelegateExecution execution) throws Exception {
 
     String property = comparisonProperty.getValue(execution).toString();
+    String enhancement = enhancementProperty.getValue(execution).toString();
 
     Flux<String> newStream = this.getStream(execution);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    streamService.enhanceFlux(primaryStreamId, newStream, property, "");
+    streamService.enhanceFlux(primaryStreamId, newStream, property, enhancement);
 
   }
 
   public void setComparisonProperty(Expression comparisonProperty) {
     this.comparisonProperty = comparisonProperty;
+  }
+
+  public void setEnhancementProperty(Expression enhancemenetProperty) {
+    this.enhancementProperty = enhancemenetProperty;
   }
 
 }
