@@ -13,29 +13,24 @@ public class ExtractorTask extends Task {
 
   public ExtractorTask() {
     super();
-    setMergeStrategy(MergeStrategy.ENHANCE);
-    calculateDelegateName();
   }
 
   public ExtractorTask(String predicateProperty, MergeStrategy mergeStrategy) {
     this();
     setPredicateProperty(predicateProperty);
     setMergeStrategy(mergeStrategy);
-    calculateDelegateName();
   }
 
-  private void calculateDelegateName() {
+  @Override
+  public String getDelegate() {
     switch(getMergeStrategy()) {
       case MERGE:
-        setDelegate("orderedMergingExtractorDelegate");
-        break;
+        return "orderedMergingExtractorDelegate";
       case ENHANCE:
-        setDelegate("enhancingExtractorDelegate");
-        break;
+        return "enhancingExtractorDelegate";
       case CONCAT:
       default:
-        setDelegate("concatenatingExtractorDelegate");
-        break;
+        return "concatenatingExtractorDelegate";
     }
   }
 
