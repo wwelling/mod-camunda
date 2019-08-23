@@ -13,7 +13,7 @@ public class AccumulatorTask extends Task {
 
   public AccumulatorTask()  {
     super();
-    this.setDelegate("testAccumulatorDelegate");
+    this.setDelegate("streamAccumulationDelegate");
   }
 
   public AccumulatorTask(String name) {

@@ -72,7 +72,7 @@ public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
 
     log.info(String.format("%s STARTED", delegateName));
 
-    String token = (String) execution.getVariable("okapiToken");
+    String token = (String) execution.getVariable("token");
 
     Instant start = Instant.now();
 
@@ -134,7 +134,7 @@ public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
                 }
               })
               .doOnEach(e->{
-                log.error(String.format(
+                log.info(String.format(
                   "\n%s: %s/%s (ttl %s), failure: %s/%s (ttl %s)",
                   delegateName,
                   batchSuccesses.get(),

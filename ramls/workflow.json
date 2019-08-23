@@ -117,6 +117,9 @@
         "predicateProperty" : {
           "type" : "string"
         },
+        "enhancementProperty" : {
+          "type" : "string"
+        },
         "mergeStrategy" : {
           "type" : "string",
           "enum" : [ "MERGE", "CONCAT", "ENHANCE" ]
