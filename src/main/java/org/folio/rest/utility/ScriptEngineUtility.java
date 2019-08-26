@@ -68,12 +68,12 @@ public class ScriptEngineUtility {
 
     boolean isLikeUrl = string.toLowerCase().indexOf("www.") != -1;
 
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".org") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".edu") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".net") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".us") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".io") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".co") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".org") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".edu") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".net") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".us") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".io") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".co") != -1;
 
     return (isValidUrl(string) || isLikeUrl) && !isEmailLike(string);
   }
