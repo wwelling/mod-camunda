@@ -134,7 +134,7 @@ public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
                 }
               })
               .doOnEach(e->{
-                log.info(String.format(
+                log.debug(String.format(
                   "\n%s: %s/%s (ttl %s), failure: %s/%s (ttl %s)",
                   delegateName,
                   batchSuccesses.get(),
