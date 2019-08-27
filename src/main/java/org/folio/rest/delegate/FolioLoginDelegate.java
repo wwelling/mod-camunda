@@ -58,6 +58,7 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
     log.info("NEW LOGIN: {}", newLogin);
 
     execution.setVariable("folioLogin", newLogin);
+    execution.setVariable("token", newLogin.getxOkapiToken());
   }
 
 }
