@@ -51,7 +51,7 @@ public class StreamCreateForEachDelegate extends AbstractRuntimeDelegate {
     String delegateName = bpmnModelElement.getName();
 
     if (endpoint != null && target != null && source != null) {
-      String token = (String) execution.getVariable("okapiToken");
+      String token = (String) execution.getVariable("token");
       String targetValue = target.getValue(execution).toString();
       String sourceValue = source.getValue(execution).toString();
       String uniqueByValue = uniqueBy.getValue(execution).toString();
