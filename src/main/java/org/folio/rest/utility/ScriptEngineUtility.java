@@ -12,8 +12,10 @@ public class ScriptEngineUtility {
   private static final String PHONE_REGEX = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$";
   private static final String URL_REGEX = "(http(s)?:\\\\\\/\\\\\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\\\\\+~#=]{2,256}\\\\\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\\\\\+.~#?&//=]*)";
 
+  private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
   private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
+  private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  
   /**
    * Check if a given string is a proper e-mail address.
    *
@@ -24,7 +26,7 @@ public class ScriptEngineUtility {
    *   TRUE if matched, FALSE otherwise.
    */
   public boolean isEmail(String string) {
-    return string != null && string.matches(EMAIL_REGEX);
+    return EMAIL_PATTERN.matcher(string).find();
   }
 
   /**
@@ -93,7 +95,7 @@ public class ScriptEngineUtility {
       return false;
     }
 
-    return string.matches(URL_REGEX);
+    return URL_PATTERN.matcher(string).find();
   }
 
   /**
