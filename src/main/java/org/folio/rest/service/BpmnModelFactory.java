@@ -92,6 +92,16 @@ public class BpmnModelFactory {
         CamundaField streamSource = createElement(modelInstance, extensionElements, String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");
         streamSource.setCamundaStringValue(eTask.getStreamSource());
+        if (eTask.getPredicateProperty() != null) {
+          CamundaField comparisonProperty = createElement(modelInstance, extensionElements, String.format("t_%s-comparison-property", index), CamundaField.class);
+          comparisonProperty.setCamundaName("comparisonProperty");
+          comparisonProperty.setCamundaStringValue(eTask.getPredicateProperty());
+        }
+        if (eTask.getEnhancementProperty() != null) {
+          CamundaField enhancementProperty = createElement(modelInstance, extensionElements, String.format("t_%s-enhancement-property", index), CamundaField.class);
+          enhancementProperty.setCamundaName("enhancementProperty");
+          enhancementProperty.setCamundaStringValue(eTask.getEnhancementProperty());
+        }
       } else if(task instanceof ProcessorTask) {
         ProcessorTask pTask = (ProcessorTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);

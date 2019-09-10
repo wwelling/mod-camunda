@@ -12,6 +12,10 @@ public class ScriptEngineUtility {
   private static final String PHONE_REGEX = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$";
   private static final String URL_REGEX = "(http(s)?:\\\\\\/\\\\\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\\\\\+~#=]{2,256}\\\\\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\\\\\+.~#?&//=]*)";
 
+  private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  
   /**
    * Check if a given string is a proper e-mail address.
    *
@@ -22,7 +26,7 @@ public class ScriptEngineUtility {
    *   TRUE if matched, FALSE otherwise.
    */
   public boolean isEmail(String string) {
-    return string != null && string.matches(EMAIL_REGEX);
+    return EMAIL_PATTERN.matcher(string).find();
   }
 
   /**
@@ -48,8 +52,7 @@ public class ScriptEngineUtility {
    *   TRUE if matched, FALSE otherwise.
    */
   public boolean isPhone(String string) {
-    Pattern pattern = Pattern.compile(PHONE_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-    return pattern.matcher(string).find();
+    return PHONE_PATTERN.matcher(string).find();
   }
 
   /**
@@ -68,12 +71,12 @@ public class ScriptEngineUtility {
 
     boolean isLikeUrl = string.toLowerCase().indexOf("www.") != -1;
 
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".org") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".edu") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".net") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".us") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".io") != -1;
-    if (!isLikeUrl) isLikeUrl = string.toLowerCase().indexOf(".co") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".org") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".edu") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".net") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".us") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".io") != -1;
+    isLikeUrl = isLikeUrl || string.toLowerCase().indexOf(".co") != -1;
 
     return (isValidUrl(string) || isLikeUrl) && !isEmailLike(string);
   }
@@ -92,7 +95,7 @@ public class ScriptEngineUtility {
       return false;
     }
 
-    return string.matches(URL_REGEX);
+    return URL_PATTERN.matcher(string).find();
   }
 
   /**
