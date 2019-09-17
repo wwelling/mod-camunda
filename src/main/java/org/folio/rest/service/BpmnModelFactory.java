@@ -30,6 +30,7 @@ import org.folio.rest.model.StreamCreateForEachTask;
 import org.folio.rest.model.EventTrigger;
 import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
+import org.folio.rest.model.RestRequestTask;
 import org.folio.rest.model.StreamingExtractorTask;
 import org.folio.rest.model.Task;
 import org.folio.rest.model.Trigger;
@@ -139,6 +140,18 @@ public class BpmnModelFactory {
         CamundaField storageDestination = createElement(modelInstance, extensionElements, String.format("t_%s-storage-destination", index), CamundaField.class);
         storageDestination.setCamundaName("storageDestination");
         storageDestination.setCamundaStringValue(aTask.getStorageDestination());
+      } else if(task instanceof RestRequestTask) {
+        RestRequestTask sRRTask = (RestRequestTask) task;
+        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
+        CamundaField urlField = createElement(modelInstance, extensionElements, String.format("t_%s-url", index), CamundaField.class);
+        urlField.setCamundaName("urlField");
+        urlField.setCamundaStringValue(sRRTask.getUrl());
+        CamundaField httpMethodField = createElement(modelInstance, extensionElements, String.format("t_%s-http-method", index), CamundaField.class);
+        httpMethodField.setCamundaName("httpMethodField");
+        httpMethodField.setCamundaStringValue(sRRTask.getHttpMethod());
+        CamundaField requestBodyField = createElement(modelInstance, extensionElements, String.format("t_%s-request-body", index), CamundaField.class);
+        requestBodyField.setCamundaName("requestBodyField");
+        requestBodyField.setCamundaStringValue(sRRTask.getRequestBody());
       }
       return enhanceServiceTask(serviceTask, task);
     }).collect(Collectors.toList()));
