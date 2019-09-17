@@ -29,7 +29,7 @@ public class StreamCreateForEachDelegate extends AbstractRuntimeDelegate {
   private String DEFAULT_TENANT;
 
   @Autowired
-  private StreamService streamService;
+  private StreamService<String> streamService;
 
   @Autowired
   private ObjectMapper objectMapper;

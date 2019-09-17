@@ -15,7 +15,7 @@ import reactor.core.publisher.Flux;
 public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
 
   @Autowired
-  private StreamService streamService;
+  private StreamService<String> streamService;
 
   private Expression comparisonProperty;
 

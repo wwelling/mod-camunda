@@ -17,7 +17,7 @@ import reactor.core.publisher.Flux;
 public class ConcatenatingExtractorDelegate extends AbstractExtractorDelegate {
 
   @Autowired
-  private StreamService streamService;
+  private StreamService<String> streamService;
 
   public ConcatenatingExtractorDelegate(WebClient.Builder webClientBuilder) {
     super(webClientBuilder);
