@@ -46,6 +46,7 @@ public class BpmnModelFactory {
   private static final String END_EVENT_ID = "ee_0";
   private static final String START_EVENT_ID = "se_0";
   private static final String TARGET_NAMESPACE = "http://bpmn.io/schema/bpmn";
+  private static final String NO_VALUE = "NO_VALUE";
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -127,7 +128,7 @@ public class BpmnModelFactory {
         source.setCamundaStringValue(cTask.getSource());
         CamundaField uniqueBy = createElement(modelInstance, extensionElements, String.format("t_%s-uniqueBy", index), CamundaField.class);
         uniqueBy.setCamundaName("uniqueBy");
-        uniqueBy.setCamundaStringValue(StringUtils.isEmpty(cTask.getUniqueBy()) ? "NO_VALUE" : cTask.getUniqueBy());
+        uniqueBy.setCamundaStringValue(StringUtils.isEmpty(cTask.getUniqueBy()) ? NO_VALUE : cTask.getUniqueBy());
       } else if(task instanceof AccumulatorTask) {
         AccumulatorTask aTask = (AccumulatorTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
@@ -144,14 +145,14 @@ public class BpmnModelFactory {
         RestRequestTask sRRTask = (RestRequestTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField urlField = createElement(modelInstance, extensionElements, String.format("t_%s-url", index), CamundaField.class);
-        urlField.setCamundaName("urlField");
+        urlField.setCamundaName("url");
         urlField.setCamundaStringValue(sRRTask.getUrl());
         CamundaField httpMethodField = createElement(modelInstance, extensionElements, String.format("t_%s-http-method", index), CamundaField.class);
-        httpMethodField.setCamundaName("httpMethodField");
+        httpMethodField.setCamundaName("httpMethod");
         httpMethodField.setCamundaStringValue(sRRTask.getHttpMethod());
         CamundaField requestBodyField = createElement(modelInstance, extensionElements, String.format("t_%s-request-body", index), CamundaField.class);
-        requestBodyField.setCamundaName("requestBodyField");
-        requestBodyField.setCamundaStringValue(sRRTask.getRequestBody());
+        requestBodyField.setCamundaName("requestBody");
+        requestBodyField.setCamundaStringValue(StringUtils.isEmpty(sRRTask.getRequestBody()) ?  NO_VALUE : sRRTask.getRequestBody());
       }
       return enhanceServiceTask(serviceTask, task);
     }).collect(Collectors.toList()));
