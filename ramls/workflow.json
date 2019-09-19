@@ -345,10 +345,13 @@
         "method" : {
           "type" : "string",
           "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "chronExpression" : {
+          "type" : "string"
         }
       },
       "title" : "ScheduleTrigger",
-      "required" : [ "deserializeAs", "name", "description", "type", "method" ]
+      "required" : [ "deserializeAs", "name", "description", "type", "method", "chronExpression" ]
     }
   }
 }

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 import org.camunda.bpm.model.bpmn.instance.BoundaryEvent;
 import org.camunda.bpm.model.bpmn.instance.BpmnModelElementInstance;
 import org.camunda.bpm.model.bpmn.instance.Definitions;
@@ -31,6 +32,7 @@ import org.folio.rest.model.EventTrigger;
 import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
 import org.folio.rest.model.RestRequestTask;
+import org.folio.rest.model.ScheduleTrigger;
 import org.folio.rest.model.StreamingExtractorTask;
 import org.folio.rest.model.Task;
 import org.folio.rest.model.Trigger;
@@ -68,6 +70,13 @@ public class BpmnModelFactory {
 
     StartEvent processStartEvent = createElement(modelInstance, process, START_EVENT_ID, StartEvent.class);
     processStartEvent.setName("StartProcess");
+    Trigger trigger = workflow.getStartTrigger();
+    if (trigger instanceof ScheduleTrigger) {
+      ScheduleTrigger scheduleTrigger = (ScheduleTrigger) trigger;
+      new StartEventBuilder(modelInstance, processStartEvent)
+        .timerWithCycle(scheduleTrigger.getChronExpression())
+        .done();
+    }
 
     List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     AtomicInteger taskIndex = new AtomicInteger();
@@ -181,14 +190,13 @@ public class BpmnModelFactory {
     lastSf.setTarget(processEndEvent);
 
     Message processStartMessage = createElement(modelInstance, definitions, "process-start-message", Message.class);
-    Trigger trigger = workflow.getStartTrigger();
     if (trigger instanceof EventTrigger) {
       EventTrigger eventTrigger = (EventTrigger) trigger;
       processStartMessage.setName(eventTrigger.getPathPattern());
-    }
 
-    MessageEventDefinition processStartEventMessageDefinition = createElement(modelInstance, processStartEvent, "process-start-event-message-definition", MessageEventDefinition.class);
-    processStartEventMessageDefinition.setMessage(processStartMessage);
+      MessageEventDefinition processStartEventMessageDefinition = createElement(modelInstance, processStartEvent, "process-start-event-message-definition", MessageEventDefinition.class);
+      processStartEventMessageDefinition.setMessage(processStartMessage);
+    }
 
     // Stub Empty Diagram
     BpmnDiagram diagramElement = createElement(modelInstance, definitions, String.format("%s-diagram", workflow.getName().replaceAll(" ", "_").toLowerCase()), BpmnDiagram.class);
