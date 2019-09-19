@@ -29,7 +29,10 @@
     "method" : {
       "type" : "string",
       "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+    },
+    "chronExpression" : {
+      "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "description", "type", "method" ]
+  "required" : [ "deserializeAs", "name", "description", "type", "method", "chronExpression" ]
 }

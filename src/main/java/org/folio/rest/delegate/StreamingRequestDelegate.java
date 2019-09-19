@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,7 +36,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
   private ObjectMapper mapper;
 
   @Autowired
-  private StreamService<List<String>> listStreamService;
+  private StreamService streamService;
 
   private Expression storageDestination;
 
@@ -71,7 +72,13 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
     List<ErrorReport> totalFailed = new ArrayList<ErrorReport>();
     String batchStreamId = (String) execution.getVariable("batchStreamId");
 
-    listStreamService.getFlux(batchStreamId).subscribe(rows -> {
+    streamService.getFlux(batchStreamId).subscribe(d -> {
+      List<String> rows = new ArrayList<String>();
+      try {
+        rows.addAll(mapper.readValue(d, new TypeReference<List<String>>() {}));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
 
       Instant now = Instant.now();
       log.info("TIME: " + Duration.between(start, now).getSeconds() + " seconds");
@@ -79,66 +86,67 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
       List<ErrorReport> batchFailed = new ArrayList<ErrorReport>();
       AtomicInteger batchSuccesses = new AtomicInteger();
 
-      rows.forEach(row -> {
-        try {
-          webClient
-            .post()
-            .uri(String.format("%s/organizations-storage/organizations", destinationBaseUrl))
-            .syncBody(mapper.readTree(row))
-            .header("X-Okapi-Tenant", DEFAULT_TENANT)
-            .header("X-Okapi-Token", token)
-            .accept(MediaType.APPLICATION_JSON)
-            .retrieve()
-            .onStatus(HttpStatus::isError, err->{
-              ErrorReport errorReport = new ErrorReport(
-                row.toString(),
-                err.statusCode().toString()
-              );
-              batchFailed.add(errorReport);
-              totalFailed.add(errorReport);
-              return Mono.error(new Exception("STATUS_ERROR"));
-            })
-            .bodyToFlux(JsonNode.class)
-            .doOnError(Exception.class, err->{
-              if(!err.getMessage().equals("STATUS_ERROR")) {
+      rows
+        .forEach(row -> {
+          try {
+            webClient
+              .post()
+              .uri(String.format("%s/organizations-storage/organizations", destinationBaseUrl))
+              .syncBody(mapper.readTree(row))
+              .header("X-Okapi-Tenant", DEFAULT_TENANT)
+              .header("X-Okapi-Token", token)
+              .accept(MediaType.APPLICATION_JSON)
+              .retrieve()
+              .onStatus(HttpStatus::isError, err->{
                 ErrorReport errorReport = new ErrorReport(
                   row.toString(),
-                  err.getMessage()
+                  err.statusCode().toString()
                 );
                 batchFailed.add(errorReport);
                 totalFailed.add(errorReport);
-              }
-            })
-            .doOnEach(e->{
-              log.debug(String.format(
-                "\n%s: %s/%s (ttl %s), failure: %s/%s (ttl %s)",
-                delegateName,
-                batchSuccesses.get(),
-                rows.size(),
-                totalSuccesses.get(),
-                batchFailed.size(),
-                rows.size(),
-                totalFailed.size()
-              ));
-            })
-            .doFinally(f->{
-              Instant end = Instant.now();
-              log.info("TIME: " + Duration.between(start, end).getSeconds() + " seconds");
-              if(batchFailed.size()>0) {
-                log.error("ERROR EXAMPLE");
-                ErrorReport e = batchFailed.remove(0);
-                log.error(e.errorMessage);
-                log.error(e.object);
-              }
-            })
-            .subscribe(res -> {
-              totalSuccesses.incrementAndGet();
-              batchSuccesses.incrementAndGet();
-            });
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      });
+                return Mono.error(new Exception("STATUS_ERROR"));
+              })
+              .bodyToFlux(JsonNode.class)
+              .doOnError(Exception.class, err->{
+                if(!err.getMessage().equals("STATUS_ERROR")) {
+                  ErrorReport errorReport = new ErrorReport(
+                    row.toString(),
+                    err.getMessage()
+                  );
+                  batchFailed.add(errorReport);
+                  totalFailed.add(errorReport);
+                }
+              })
+              .doOnEach(e->{
+                log.debug(String.format(
+                  "\n%s: %s/%s (ttl %s), failure: %s/%s (ttl %s)",
+                  delegateName,
+                  batchSuccesses.get(),
+                  rows.size(),
+                  totalSuccesses.get(),
+                  batchFailed.size(),
+                  rows.size(),
+                  totalFailed.size()
+                ));
+              })
+              .doFinally(f->{
+                Instant end = Instant.now();
+                log.info("TIME: " + Duration.between(start, end).getSeconds() + " seconds");
+                if(batchFailed.size()>0) {
+                  log.error("ERROR EXAMPLE");
+                  ErrorReport e = batchFailed.remove(0);
+                  log.error(e.errorMessage);
+                  log.error(e.object);
+                }
+              })
+              .subscribe(res -> {
+                totalSuccesses.incrementAndGet();
+                batchSuccesses.incrementAndGet();
+              });
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        });
   });
   }
 

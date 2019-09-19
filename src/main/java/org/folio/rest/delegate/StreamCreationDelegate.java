@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 public class StreamCreationDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
-  private StreamService<String> streamService;
+  private StreamService streamService;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
