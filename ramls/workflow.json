@@ -37,6 +37,8 @@
           "$ref" : "#/definitions/AccumulatorTask"
         }, {
           "$ref" : "#/definitions/StreamCreateForEachTask"
+        }, {
+          "$ref" : "#/definitions/RestRequestTask"
         } ]
       }
     },
@@ -206,6 +208,43 @@
       "title" : "StreamCreateForEachTask",
       "required" : [ "deserializeAs", "name" ]
     },
+    "RestRequestTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "RestRequestTask" ],
+          "default" : "RestRequestTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "delegate" : {
+          "type" : "string"
+        },
+        "streaming" : {
+          "type" : "boolean"
+        },
+        "url" : {
+          "type" : "string"
+        },
+        "httpMethod" : {
+          "type" : "string",
+          "pattern" : "GET|POST|PUT|DELETE"
+        },
+        "requestBody" : {
+          "type" : "string"
+        }
+      },
+      "title" : "RestRequestTask",
+      "required" : [ "deserializeAs", "name", "url", "httpMethod" ]
+    },
     "EventTrigger" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -306,10 +345,13 @@
         "method" : {
           "type" : "string",
           "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "chronExpression" : {
+          "type" : "string"
         }
       },
       "title" : "ScheduleTrigger",
-      "required" : [ "deserializeAs", "name", "description", "type", "method" ]
+      "required" : [ "deserializeAs", "name", "description", "type", "method", "chronExpression" ]
     }
   }
 }
