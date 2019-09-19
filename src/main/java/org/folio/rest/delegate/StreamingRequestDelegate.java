@@ -23,7 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
-public class PoolRequestDelegate extends AbstractRuntimeDelegate {
+public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
 
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
@@ -41,7 +41,7 @@ public class PoolRequestDelegate extends AbstractRuntimeDelegate {
 
   private final WebClient.Builder webClientBuilder;
 
-  public PoolRequestDelegate(WebClient.Builder webClientBuilder) {
+  public StreamingRequestDelegate(WebClient.Builder webClientBuilder) {
     super();
     this.webClientBuilder = webClientBuilder;
   }
