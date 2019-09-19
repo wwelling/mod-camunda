@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class TestCreateForEachDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
-  private StreamService<String> streamService;
+  private StreamService streamService;
 
   @Autowired
   private ObjectMapper objectMapper;

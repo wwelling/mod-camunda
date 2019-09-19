@@ -2,8 +2,10 @@ package org.folio.rest.delegate;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -15,10 +17,10 @@ import org.springframework.stereotype.Service;
 public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
-  private StreamService<String> singleStreamService;
+  private StreamService streamService;
 
   @Autowired
-  private StreamService<List<String>> listStreamService;
+  private ObjectMapper objectMapper;
 
   private Expression accumulateTo;
 
@@ -43,9 +45,19 @@ public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    String listStreamId = listStreamService.setFlux(singleStreamService.getFlux(primaryStreamId)
+    String listStreamId = streamService.setFlux(streamService.getFlux(primaryStreamId)
       .buffer(buffer)
       .delayElements(Duration.ofSeconds(delay))
+      .map(dl -> {
+        String serializedList = null;
+        try {
+          serializedList = objectMapper.writeValueAsString(dl);
+        } catch (JsonProcessingException e) {
+          serializedList = "[]";
+          e.printStackTrace();
+        }
+        return serializedList;
+      })
       .doFinally(f->{
         log.info(String.format("\n\nFINISHED STREAM! %s\n\n", f.toString()));
         Instant end = Instant.now();

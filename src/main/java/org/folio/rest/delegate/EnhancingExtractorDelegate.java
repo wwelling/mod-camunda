@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 public class EnhancingExtractorDelegate extends AbstractExtractorDelegate {
 
   @Autowired
-  private StreamService<String> streamService;
+  private StreamService streamService;
 
   private Expression comparisonProperty;
 

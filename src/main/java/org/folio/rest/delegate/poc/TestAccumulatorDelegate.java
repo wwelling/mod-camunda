@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 public class TestAccumulatorDelegate extends TestAbstractRuntimeDelegate {
 
   @Autowired
-  private StreamService<String> streamService;
+  private StreamService streamService;
 
   @Autowired
   private ObjectMapper mapper;
