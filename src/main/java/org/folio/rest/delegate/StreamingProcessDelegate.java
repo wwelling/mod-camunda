@@ -19,7 +19,7 @@ public class StreamingProcessDelegate extends AbstractRuntimeDelegate {
   private ScriptEngineService scriptEngineService;
 
   @Autowired
-  private StreamService<String> streamService;
+  private StreamService streamService;
 
   private Expression script;
 
