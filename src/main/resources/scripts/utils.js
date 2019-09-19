@@ -43,4 +43,6 @@ var isPhone = function(string) {
   return isPhoneRegex.test(string);
 };
 
+var UUID = Java.type("java.util.UUID");
+
 print("UTILS LOADED");
