@@ -31,6 +31,7 @@ import org.folio.rest.model.EventTrigger;
 import org.folio.rest.model.LoginTask;
 import org.folio.rest.model.ProcessorTask;
 import org.folio.rest.model.StreamingExtractorTask;
+import org.folio.rest.model.StreamingRequestTask;
 import org.folio.rest.model.Task;
 import org.folio.rest.model.Trigger;
 import org.folio.rest.model.Workflow;
@@ -132,9 +133,12 @@ public class BpmnModelFactory {
         CamundaField delayDuration = createElement(modelInstance, extensionElements, String.format("t_%s-delay-duration", index), CamundaField.class);
         delayDuration.setCamundaName("delayDuration");
         delayDuration.setCamundaStringValue(Long.toString(aTask.getDelayDuration()));
+      } else if (task instanceof StreamingRequestTask) {
+        StreamingRequestTask srTask = (StreamingRequestTask) task;
+        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField storageDestination = createElement(modelInstance, extensionElements, String.format("t_%s-storage-destination", index), CamundaField.class);
         storageDestination.setCamundaName("storageDestination");
-        storageDestination.setCamundaStringValue(aTask.getStorageDestination());
+        storageDestination.setCamundaStringValue(srTask.getStorageDestination());
       }
       return enhanceServiceTask(serviceTask, task);
     }).collect(Collectors.toList()));
