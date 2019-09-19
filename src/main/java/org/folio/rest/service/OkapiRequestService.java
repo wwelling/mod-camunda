@@ -27,9 +27,6 @@ public class OkapiRequestService {
 
   @Autowired HttpService httpService;
 
-  @Autowired
-  private LoginService loginService;
-
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;
 

@@ -37,8 +37,6 @@ import org.folio.rest.model.StreamingExtractorTask;
 import org.folio.rest.model.Task;
 import org.folio.rest.model.Trigger;
 import org.folio.rest.model.Workflow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -49,8 +47,6 @@ public class BpmnModelFactory {
   private static final String START_EVENT_ID = "se_0";
   private static final String TARGET_NAMESPACE = "http://bpmn.io/schema/bpmn";
   private static final String NO_VALUE = "NO_VALUE";
-
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   public BpmnModelInstance makeBPMNFromWorkflow(Workflow workflow) {
 
