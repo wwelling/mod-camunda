@@ -60,9 +60,9 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
-    String destinationBaseUrl = storageDestination != null ? storageDestination.getValue(execution).toString() : OKAPI_LOCATION;
+    String destinationUrl = storageDestination != null ? storageDestination.getValue(execution).toString() : OKAPI_LOCATION;
 
-    WebClient webClient = webClientBuilder.baseUrl(destinationBaseUrl).build();
+    WebClient webClient = webClientBuilder.build();
 
     log.info(String.format("%s STARTED", delegateName));
 
@@ -91,7 +91,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
           try {
             webClient
               .post()
-              .uri(String.format("%s/organizations-storage/organizations", destinationBaseUrl))
+              .uri(destinationUrl)
               .syncBody(mapper.readTree(row))
               .header("X-Okapi-Tenant", DEFAULT_TENANT)
               .header("X-Okapi-Token", token)

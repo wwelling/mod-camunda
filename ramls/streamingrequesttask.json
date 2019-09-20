@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "AccumulatorTask",
+  "title" : "StreamingRequestTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "AccumulatorTask" ],
-      "default" : "AccumulatorTask"
+      "enum" : [ "StreamingRequestTask" ],
+      "default" : "StreamingRequestTask"
     },
     "id" : {
       "type" : "string"
@@ -23,11 +23,8 @@
     "streaming" : {
       "type" : "boolean"
     },
-    "accumulateTo" : {
-      "type" : "integer"
-    },
-    "delayDuration" : {
-      "type" : "integer"
+    "storageDestination" : {
+      "type" : "string"
     }
   },
   "required" : [ "deserializeAs", "name" ]
