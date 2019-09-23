@@ -21,7 +21,7 @@ public class RestRequestTask extends Task {
 
   public RestRequestTask() {
     super();
-    this.setDelegate("RestRequestDelegate");
+    this.setDelegate("restRequestDelegate");
   }
 
   public String getUrl() {
