@@ -36,9 +36,9 @@
         }, {
           "$ref" : "#/definitions/AccumulatorTask"
         }, {
-          "$ref" : "#/definitions/StreamingRequestTask"
-        }, {
           "$ref" : "#/definitions/StreamCreateForEachTask"
+        }, {
+          "$ref" : "#/definitions/StreamingRequestTask"
         }, {
           "$ref" : "#/definitions/RestRequestTask"
         } ]
@@ -168,36 +168,6 @@
       "title" : "AccumulatorTask",
       "required" : [ "deserializeAs", "name" ]
     },
-    "StreamingRequestTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamingRequestTask" ],
-          "default" : "StreamingRequestTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "storageDestination" : {
-          "type" : "string"
-        }
-      },
-      "title" : "StreamingRequestTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
     "StreamCreateForEachTask" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -235,6 +205,36 @@
         }
       },
       "title" : "StreamCreateForEachTask",
+      "required" : [ "deserializeAs", "name" ]
+    },
+    "StreamingRequestTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "StreamingRequestTask" ],
+          "default" : "StreamingRequestTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "delegate" : {
+          "type" : "string"
+        },
+        "streaming" : {
+          "type" : "boolean"
+        },
+        "storageDestination" : {
+          "type" : "string"
+        }
+      },
+      "title" : "StreamingRequestTask",
       "required" : [ "deserializeAs", "name" ]
     },
     "RestRequestTask" : {
