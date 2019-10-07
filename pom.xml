@@ -57,7 +57,7 @@
               <goal>java</goal>
             </goals>
             <configuration>
-              <mainClass>org.folio.rest.domain.generator.EntityJsonSchemaGenerator</mainClass>
+              <mainClass>org.folio.spring.domain.generator.EntityJsonSchemaGenerator</mainClass>
             </configuration>
           </execution>
         </executions>
@@ -145,13 +145,13 @@
 
     <dependency>
       <groupId>org.folio</groupId>
-      <artifactId>tenant</artifactId>
+      <artifactId>spring-tenant</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
-      <groupId>org.folio</groupId>
-      <artifactId>workflow</artifactId>
+      <groupId>org.folio.rest.workflow</groupId>
+      <artifactId>components</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
@@ -214,6 +214,12 @@
       <groupId>org.python</groupId>
       <artifactId>jython-standalone</artifactId>
       <version>2.7.1b3</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jms</artifactId>
+      <version>5.1.9.RELEASE</version>
     </dependency>
 
     <dependency>

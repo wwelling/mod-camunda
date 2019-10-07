@@ -11,7 +11,7 @@ import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.folio.rest.exception.WorkflowAlreadyActiveException;
 import org.folio.rest.exception.WorkflowAlreadyDeactivatedException;
-import org.folio.rest.model.Workflow;
+import org.folio.rest.workflow.components.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

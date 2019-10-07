@@ -4,9 +4,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.folio.rest.tenant.config.TenantConfig;
-import org.folio.rest.tenant.exception.NoTenantException;
-import org.folio.rest.tenant.storage.ThreadLocalStorage;
+import org.folio.spring.tenant.config.TenantConfig;
+import org.folio.spring.tenant.exception.NoTenantException;
+import org.folio.spring.tenant.storage.ThreadLocalStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

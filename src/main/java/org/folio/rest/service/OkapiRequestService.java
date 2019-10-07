@@ -3,6 +3,7 @@ package org.folio.rest.service;
 import org.camunda.bpm.engine.delegate.BpmnError;
 import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.model.OkapiResponse;
+import org.folio.spring.service.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,6 @@ public class OkapiRequestService {
   private static final String HEADER_OKAPI_TOKEN = "X-Okapi-Token";
 
   @Autowired HttpService httpService;
-
-  @Autowired
-  private LoginService loginService;
 
   @Value("${tenant.headerName:X-Okapi-Tenant}")
   private String tenantHeaderName;

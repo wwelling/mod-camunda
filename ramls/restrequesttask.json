@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "AccumulatorTask",
+  "title" : "RestRequestTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "AccumulatorTask" ],
-      "default" : "AccumulatorTask"
+      "enum" : [ "RestRequestTask" ],
+      "default" : "RestRequestTask"
     },
     "id" : {
       "type" : "string"
@@ -23,12 +23,16 @@
     "streaming" : {
       "type" : "boolean"
     },
-    "accumulateTo" : {
-      "type" : "integer"
+    "url" : {
+      "type" : "string"
     },
-    "delayDuration" : {
-      "type" : "integer"
+    "httpMethod" : {
+      "type" : "string",
+      "pattern" : "GET|POST|PUT|DELETE"
+    },
+    "requestBody" : {
+      "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name" ]
+  "required" : [ "deserializeAs", "name", "url", "httpMethod" ]
 }

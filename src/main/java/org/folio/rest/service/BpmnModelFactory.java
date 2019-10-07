@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 import org.camunda.bpm.model.bpmn.instance.BoundaryEvent;
 import org.camunda.bpm.model.bpmn.instance.BpmnModelElementInstance;
 import org.camunda.bpm.model.bpmn.instance.Definitions;
@@ -25,17 +26,18 @@ import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
-import org.folio.rest.model.AccumulatorTask;
-import org.folio.rest.model.StreamCreateForEachTask;
-import org.folio.rest.model.EventTrigger;
+import org.folio.rest.workflow.components.AccumulatorTask;
+import org.folio.rest.workflow.components.StreamCreateForEachTask;
+import org.folio.rest.workflow.components.EventTrigger;
 import org.folio.rest.model.LoginTask;
-import org.folio.rest.model.ProcessorTask;
-import org.folio.rest.model.StreamingExtractorTask;
-import org.folio.rest.model.Task;
-import org.folio.rest.model.Trigger;
-import org.folio.rest.model.Workflow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.folio.rest.workflow.components.ProcessorTask;
+import org.folio.rest.workflow.components.RestRequestTask;
+import org.folio.rest.workflow.components.ScheduleTrigger;
+import org.folio.rest.workflow.components.StreamingExtractorTask;
+import org.folio.rest.workflow.components.StreamingRequestTask;
+import org.folio.rest.workflow.components.Task;
+import org.folio.rest.workflow.components.Trigger;
+import org.folio.rest.workflow.components.Workflow;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -45,8 +47,7 @@ public class BpmnModelFactory {
   private static final String END_EVENT_ID = "ee_0";
   private static final String START_EVENT_ID = "se_0";
   private static final String TARGET_NAMESPACE = "http://bpmn.io/schema/bpmn";
-
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private static final String NO_VALUE = "NO_VALUE";
 
   public BpmnModelInstance makeBPMNFromWorkflow(Workflow workflow) {
 
@@ -66,6 +67,13 @@ public class BpmnModelFactory {
 
     StartEvent processStartEvent = createElement(modelInstance, process, START_EVENT_ID, StartEvent.class);
     processStartEvent.setName("StartProcess");
+    Trigger trigger = workflow.getStartTrigger();
+    if (trigger instanceof ScheduleTrigger) {
+      ScheduleTrigger scheduleTrigger = (ScheduleTrigger) trigger;
+      new StartEventBuilder(modelInstance, processStartEvent)
+        .timerWithCycle(scheduleTrigger.getChronExpression())
+        .done();
+    }
 
     List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     AtomicInteger taskIndex = new AtomicInteger();
@@ -126,7 +134,7 @@ public class BpmnModelFactory {
         source.setCamundaStringValue(cTask.getSource());
         CamundaField uniqueBy = createElement(modelInstance, extensionElements, String.format("t_%s-uniqueBy", index), CamundaField.class);
         uniqueBy.setCamundaName("uniqueBy");
-        uniqueBy.setCamundaStringValue(StringUtils.isEmpty(cTask.getUniqueBy()) ? "NO_VALUE" : cTask.getUniqueBy());
+        uniqueBy.setCamundaStringValue(StringUtils.isEmpty(cTask.getUniqueBy()) ? NO_VALUE : cTask.getUniqueBy());
       } else if(task instanceof AccumulatorTask) {
         AccumulatorTask aTask = (AccumulatorTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
@@ -136,9 +144,24 @@ public class BpmnModelFactory {
         CamundaField delayDuration = createElement(modelInstance, extensionElements, String.format("t_%s-delay-duration", index), CamundaField.class);
         delayDuration.setCamundaName("delayDuration");
         delayDuration.setCamundaStringValue(Long.toString(aTask.getDelayDuration()));
+      } else if (task instanceof StreamingRequestTask) {
+        StreamingRequestTask srTask = (StreamingRequestTask) task;
+        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
         CamundaField storageDestination = createElement(modelInstance, extensionElements, String.format("t_%s-storage-destination", index), CamundaField.class);
         storageDestination.setCamundaName("storageDestination");
-        storageDestination.setCamundaStringValue(aTask.getStorageDestination());
+        storageDestination.setCamundaStringValue(srTask.getStorageDestination());
+      } else if(task instanceof RestRequestTask) {
+        RestRequestTask sRRTask = (RestRequestTask) task;
+        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
+        CamundaField urlField = createElement(modelInstance, extensionElements, String.format("t_%s-url", index), CamundaField.class);
+        urlField.setCamundaName("url");
+        urlField.setCamundaStringValue(sRRTask.getUrl());
+        CamundaField httpMethodField = createElement(modelInstance, extensionElements, String.format("t_%s-http-method", index), CamundaField.class);
+        httpMethodField.setCamundaName("httpMethod");
+        httpMethodField.setCamundaStringValue(sRRTask.getHttpMethod());
+        CamundaField requestBodyField = createElement(modelInstance, extensionElements, String.format("t_%s-request-body", index), CamundaField.class);
+        requestBodyField.setCamundaName("requestBody");
+        requestBodyField.setCamundaStringValue(StringUtils.isEmpty(sRRTask.getRequestBody()) ?  NO_VALUE : sRRTask.getRequestBody());
       }
       return enhanceServiceTask(serviceTask, task);
     }).collect(Collectors.toList()));
@@ -167,14 +190,13 @@ public class BpmnModelFactory {
     lastSf.setTarget(processEndEvent);
 
     Message processStartMessage = createElement(modelInstance, definitions, "process-start-message", Message.class);
-    Trigger trigger = workflow.getStartTrigger();
     if (trigger instanceof EventTrigger) {
       EventTrigger eventTrigger = (EventTrigger) trigger;
       processStartMessage.setName(eventTrigger.getPathPattern());
-    }
 
-    MessageEventDefinition processStartEventMessageDefinition = createElement(modelInstance, processStartEvent, "process-start-event-message-definition", MessageEventDefinition.class);
-    processStartEventMessageDefinition.setMessage(processStartMessage);
+      MessageEventDefinition processStartEventMessageDefinition = createElement(modelInstance, processStartEvent, "process-start-event-message-definition", MessageEventDefinition.class);
+      processStartEventMessageDefinition.setMessage(processStartMessage);
+    }
 
     // Stub Empty Diagram
     BpmnDiagram diagramElement = createElement(modelInstance, definitions, String.format("%s-diagram", workflow.getName().replaceAll(" ", "_").toLowerCase()), BpmnDiagram.class);

@@ -5,7 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+  "org.folio.rest", "org.folio.spring"
+})
 public class SpringOkapiModule extends SpringBootServletInitializer {
 
   @Override
