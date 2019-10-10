@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,20 +45,20 @@ public class StreamService {
 
   public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty) {
     Flux<String> firstFlux = getFlux(firstFluxId);
-    Comparator<String> comparator = new PropertyComparator(comparisonProperty);
+    Comparator<String> comparator = new PropertyComparator(comparisonProperty, comparisonProperty);
     return setFlux(firstFluxId, firstFlux.mergeOrderedWith(secondFlux, comparator));
   }
 
   /*
-   * Compares two fluxes of JSON strings using a comparisonProperty and augments
-   * the first flux with an enhancement property from the second flux when there
-   * is a match.
+   * Compares two fluxes of JSON strings using comma seperated strings as comparisonProperties and augments
+   * the first flux with an enhancement property from the second flux when there is a match.
    */
-  public String enhanceFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty, String enhancementProperty) throws IOException {
+  public String enhanceFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperties, String enhancementProperty) throws IOException {
     Flux<String> firstFlux = getFlux(firstFluxId);
-    Comparator<String> comparator = nullsLast(new PropertyComparator(comparisonProperty));
     ObjectMapper mapper = new ObjectMapper();
-    
+    @SuppressWarnings("unchecked")
+    Map<String, String> comparisonMap = mapper.readValue(comparisonProperties, LinkedHashMap.class);
+
     Flux<String> result = Flux.empty();
     Iterator<String> firstIter = firstFlux.toIterable().iterator();
     Iterator<String> secondIter = secondFlux.toIterable().iterator();
@@ -66,17 +68,22 @@ public class StreamService {
     while(firstString != null || secondString != null) {
       JsonNode firstObject = mapper.readTree(firstString);
       JsonNode secondObject = secondString != null ? mapper.readTree(secondString) : null;
-      JsonNode enhancementNode = secondObject != null ? secondObject.get(comparisonProperty) : null;
-      if (comparator.compare(firstString, secondString) == 0) {
-        result = result.concatWith(Flux.just(mapper.writeValueAsString(((ObjectNode) firstObject).set(enhancementProperty, enhancementNode))));
-        firstString = firstIter.hasNext() ? firstIter.next() : null;
-        secondString = secondIter.hasNext() ? secondIter.next() : null;
-      } else if (comparator.compare(firstString, secondString) < 0) {
-        result = result.concatWith(Flux.just(mapper.writeValueAsString(firstObject)));
-        firstString = firstIter.hasNext() ? firstIter.next() : null;
-      } else {
-        secondString = secondIter.hasNext() ? secondIter.next() : null;
-      }
+      JsonNode enhancementNode = secondObject != null ? secondObject.get(enhancementProperty) : null;
+      for (Entry<String, String> entry : comparisonMap.entrySet()) {
+        Comparator<String> comparator = nullsLast(new PropertyComparator(entry.getKey(), entry.getValue()));
+        if (comparator.compare(firstString, secondString) == 0) {
+          result = result.concatWith(Flux.just(mapper.writeValueAsString(((ObjectNode) firstObject).set(enhancementProperty, enhancementNode))));
+          firstString = firstIter.hasNext() ? firstIter.next() : null;
+          secondString = secondIter.hasNext() ? secondIter.next() : null;
+        } else if (comparator.compare(firstString, secondString) < 0) {
+          result = result.concatWith(Flux.just(mapper.writeValueAsString(firstObject)));
+          firstString = firstIter.hasNext() ? firstIter.next() : null;
+          break;
+        } else {
+          secondString = secondIter.hasNext() ? secondIter.next() : null;
+          break;
+        }
+      };
     }
 
     return setFlux(firstFluxId, result);
