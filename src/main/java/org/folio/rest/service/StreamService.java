@@ -69,21 +69,25 @@ public class StreamService {
       JsonNode firstObject = mapper.readTree(firstString);
       JsonNode secondObject = secondString != null ? mapper.readTree(secondString) : null;
       JsonNode enhancementNode = secondObject != null ? secondObject.get(enhancementProperty) : null;
+      boolean matched = true;
       for (Entry<String, String> entry : comparisonMap.entrySet()) {
         Comparator<String> comparator = nullsLast(new PropertyComparator(entry.getKey(), entry.getValue()));
-        if (comparator.compare(firstString, secondString) == 0) {
-          result = result.concatWith(Flux.just(mapper.writeValueAsString(((ObjectNode) firstObject).set(enhancementProperty, enhancementNode))));
-          firstString = firstIter.hasNext() ? firstIter.next() : null;
-          secondString = secondIter.hasNext() ? secondIter.next() : null;
-        } else if (comparator.compare(firstString, secondString) < 0) {
+        if (comparator.compare(firstString, secondString) < 0) {
           result = result.concatWith(Flux.just(mapper.writeValueAsString(firstObject)));
           firstString = firstIter.hasNext() ? firstIter.next() : null;
+          matched = false;
           break;
-        } else {
+        } else if (comparator.compare(firstString, secondString) > 0) {
           secondString = secondIter.hasNext() ? secondIter.next() : null;
+          matched = false;
           break;
         }
       };
+      if (matched) {
+        result = result.concatWith(Flux.just(mapper.writeValueAsString(((ObjectNode) firstObject).set(enhancementProperty, enhancementNode))));
+        firstString = firstIter.hasNext() ? firstIter.next() : null;
+        secondString = secondIter.hasNext() ? secondIter.next() : null;
+      }
     }
 
     return setFlux(firstFluxId, result);
