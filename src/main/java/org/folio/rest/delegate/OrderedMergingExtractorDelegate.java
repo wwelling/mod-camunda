@@ -19,8 +19,6 @@ public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
 
   private Expression comparisonProperties;
 
-  private Expression deduplicating;
-
   public OrderedMergingExtractorDelegate(WebClient.Builder webClientBuilder) {
     super(webClientBuilder);
   }
@@ -29,12 +27,11 @@ public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
   public void execute(DelegateExecution execution) throws Exception {
 
     String property = comparisonProperties.getValue(execution).toString();
-    Boolean isDeduplicating = deduplicating.getValue(execution).toString().equals("true");
 
     Flux<String> newStream = this.getStream(execution);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
-    streamService.orderedMergeFlux(primaryStreamId, newStream, property, isDeduplicating);
+    streamService.orderedMergeFlux(primaryStreamId, newStream, property);
 
     log.info("ORDERED MERGING EXTRACTOR DELEGATE FINISHED");
   }

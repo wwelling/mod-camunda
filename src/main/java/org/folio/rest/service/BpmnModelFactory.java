@@ -110,13 +110,6 @@ public class BpmnModelFactory {
           enhancementProperty.setCamundaName("enhancementProperty");
           enhancementProperty.setCamundaStringValue(eTask.getEnhancementProperty());
         }
-        CamundaField deduplicating = createElement(modelInstance, extensionElements, String.format("t_%s-deduplicating", index), CamundaField.class);
-        deduplicating.setCamundaName("deduplicating");
-        if (eTask.isDeduplicating()) {
-          deduplicating.setCamundaStringValue("true");
-        } else {
-          deduplicating.setCamundaStringValue("false");
-        }
       } else if(task instanceof ProcessorTask) {
         ProcessorTask pTask = (ProcessorTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
