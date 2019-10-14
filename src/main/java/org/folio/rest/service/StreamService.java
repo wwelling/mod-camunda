@@ -10,8 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -19,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.folio.rest.delegate.comparator.PropertyComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
@@ -29,6 +33,9 @@ public class StreamService {
   protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   private final Map<String, Flux<String>> fluxes;
+
+  @Autowired
+  private ObjectMapper mapper;
 
   public StreamService() {
     fluxes = new HashMap<String, Flux<String>>();
@@ -43,9 +50,21 @@ public class StreamService {
     return setFlux(firstFluxId, firstFlux.concatWith(secondFlux));
   }
 
-  public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty) {
+  public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperties) throws JsonParseException, JsonMappingException, IOException {
     Flux<String> firstFlux = getFlux(firstFluxId);
-    Comparator<String> comparator = new PropertyComparator(comparisonProperty, comparisonProperty);
+    @SuppressWarnings("unchecked")
+    Map<String, String> comparisonMap = mapper.readValue(comparisonProperties, LinkedHashMap.class);
+    Comparator<String> comparator = null;
+    AtomicInteger index = new AtomicInteger();
+    for (Entry<String, String> entry : comparisonMap.entrySet()) {
+      Comparator<String> newComparator = nullsLast(new PropertyComparator(entry.getKey(), entry.getValue()));
+      if (index.getAndIncrement() == 0) {
+        comparator = newComparator;
+      } else {
+        comparator = comparator.thenComparing(newComparator);
+      }
+    }
+
     return setFlux(firstFluxId, firstFlux.mergeOrderedWith(secondFlux, comparator));
   }
 
