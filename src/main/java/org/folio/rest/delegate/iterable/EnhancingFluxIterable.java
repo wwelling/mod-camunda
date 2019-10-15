@@ -32,7 +32,7 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
   public Iterator<JsonNode> iterator() {
     return new Iterator<JsonNode>() {
 
-      private Optional<JsonNode> inputNode = input.hasNext() ? Optional.of(input.next()) : Optional.empty();
+      private Optional<JsonNode> inputNode = advanceInput();
 
       @Override
       public boolean hasNext() {
@@ -43,16 +43,16 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
       public JsonNode next() {
         JsonNode primaryNode = primary.next();
 
-        int result = sortingComparator.compare(inputNode.get(), primaryNode);
+        int result = compareToInput(primaryNode);
 
         while (result < 0) {
-          inputNode = input.hasNext() ? Optional.of(input.next()) : Optional.empty();
-          result = sortingComparator.compare(inputNode.get(), primaryNode);
+          advanceInput();
+          result = compareToInput(primaryNode);
         }
 
         if (result == 0) {
-          ((ObjectNode) primaryNode).set(enhancementProperty, inputNode.get().get(enhancementProperty));
-          inputNode = input.hasNext() ? Optional.of(input.next()) : Optional.empty();
+          enhanceNode((ObjectNode) primaryNode);
+          advanceInput();
         }
 
         return primaryNode;
@@ -61,6 +61,19 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
       @Override
       public void remove() {
         throw new UnsupportedOperationException();
+      }
+
+      private Optional<JsonNode> advanceInput() {
+        inputNode = input.hasNext() ? Optional.of(input.next()) : Optional.empty();
+        return inputNode;
+      }
+
+      private int compareToInput(JsonNode node) {
+        return sortingComparator.compare(inputNode.get(), node);
+      }
+
+      private void enhanceNode(ObjectNode node) {
+        node.set(enhancementProperty, inputNode.get().get(enhancementProperty));
       }
 
     };
