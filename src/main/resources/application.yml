@@ -82,5 +82,5 @@ tenant:
 
 okapi:
    location: http://localhost:9130
-   username:
-   password:
+   username: diku_admin
+   password: admin
