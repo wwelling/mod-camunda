@@ -1,6 +1,7 @@
 package org.folio.rest.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
@@ -67,6 +69,24 @@ public class StreamServiceTest {
     logger.info(String.format("Took %s milliseconds to enhance flux of %s rows", (duration / 1000000), count));
   }
 
+  @Test
+  public void testToJsonNodeFlux() {
+    Flux<String> initialFlux = Flux.fromIterable(createPrimary(10));
+    streamService.toJsonNodeFlux(initialFlux).subscribe(node -> {
+      assertTrue(node instanceof JsonNode);
+    });
+  }
+
+  @Test
+  public void testToStringFlux() {
+    Flux<String> initialFlux = Flux.fromIterable(createPrimary(10));
+    Flux<JsonNode> jsonNodeFlux = streamService.toJsonNodeFlux(initialFlux);
+    Flux<String> stringFlux = streamService.toStringFlux(jsonNodeFlux);
+    stringFlux.subscribe(node -> {
+      assertTrue(node instanceof String);
+    });
+  }
+
   private List<String> createPrimary(int count) {
     List<String> stream = new ArrayList<String>();
     for (int i = 0; i < count; i++) {
@@ -94,8 +114,7 @@ public class StreamServiceTest {
 
       String row;
       if (i % 3 == 0) {
-        row = String.format(
-            "{\"id\":\"%s\",\"schema\":\"%s\",\"firstName\":\"Test\",\"lastName\":\"User\",\"netid\":\"%s\"}", i, schema, i);
+        row = String.format("{\"id\":\"%s\",\"schema\":\"%s\",\"firstName\":\"Test\",\"lastName\":\"User\",\"netid\":\"%s\"}", i, schema, i);
       } else {
         row = String.format("{\"id\":\"%s\",\"schema\":\"%s\",\"firstName\":\"Test\",\"lastName\":\"User\"}", i, schema);
       }
