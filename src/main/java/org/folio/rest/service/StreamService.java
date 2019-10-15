@@ -73,7 +73,7 @@ public class StreamService {
       for (Entry<String, String> entry : comparisonMap.entrySet()) {
         Comparator<String> comparator = nullsLast(new PropertyComparator(entry.getKey(), entry.getValue()));
         if (comparator.compare(firstString, secondString) < 0) {
-          result = result.concatWith(Flux.just(mapper.writeValueAsString(firstObject)));
+          result = result.concatWith(Flux.just(firstString));
           firstString = firstIter.hasNext() ? firstIter.next() : null;
           matched = false;
           break;
