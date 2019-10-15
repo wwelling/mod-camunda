@@ -53,8 +53,10 @@ public class StreamService {
 
   public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperties) throws JsonParseException, JsonMappingException, IOException {
     Flux<String> firstFlux = getFlux(firstFluxId);
+
     @SuppressWarnings("unchecked")
     Map<String, String> comparisonMap = mapper.readValue(comparisonProperties, LinkedHashMap.class);
+
     Comparator<String> comparator = null;
     AtomicInteger index = new AtomicInteger();
     for (Entry<String, String> entry : comparisonMap.entrySet()) {
@@ -65,7 +67,6 @@ public class StreamService {
         comparator = comparator.thenComparing(newComparator);
       }
     }
-
     return setFlux(firstFluxId, firstFlux.mergeOrderedWith(secondFlux, comparator));
   }
 
@@ -113,8 +114,7 @@ public class StreamService {
     return setFlux(firstFluxId, result);
   }
 
-  public String enhanceFlux2(String firstFluxId, Flux<String> secondFlux, String comparisonProperties,
-      String enhancementProperty) throws IOException {
+  public String enhanceFlux2(String firstFluxId, Flux<String> secondFlux, String comparisonProperties, String enhancementProperty) throws IOException {
 
     @SuppressWarnings("unchecked")
     Map<String, String> comparisonMap = mapper.readValue(comparisonProperties, LinkedHashMap.class);
