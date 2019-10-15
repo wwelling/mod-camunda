@@ -23,8 +23,11 @@ public class PropertyComparator implements Comparator<String> {
     try {
       JsonNode firstNode = mapper.readTree(firstString);
       JsonNode secondNode = mapper.readTree(secondString);
+      String firstropertyValue = firstNode.get(this.firstProperty).asText();
       String secondPropertyValue = secondNode.get(this.secondProperty).asText();
-      result = firstNode.get(this.firstProperty).asText().compareTo(secondPropertyValue);
+      result = firstropertyValue.compareTo(secondPropertyValue);
+
+       // System.out.println("\t" + firstropertyValue + " compareTo " + secondPropertyValue + " = " + result);
     } catch (IOException e) {
       // TODO: Handle exceptions in a better way
       throw new RuntimeException(e.getMessage());

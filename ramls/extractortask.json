@@ -28,7 +28,7 @@
         "streaming" : {
           "type" : "boolean"
         },
-        "predicateProperty" : {
+        "comparisonProperties" : {
           "type" : "string"
         },
         "enhancementProperty" : {
