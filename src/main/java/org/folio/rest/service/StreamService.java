@@ -58,9 +58,8 @@ public class StreamService {
   }
 
   /*
-   * Compares two fluxes of JSON strings using comma seperated strings as
-   * comparisonProperties and augments the first flux with an enhancement property
-   * from the second flux when there is a match.
+   * Compares two fluxes of JSON strings using an ordered map of comparison properties and augments
+   * the first flux with an enhancement property from the second flux when there is a match.
    */
   public String enhanceFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperties, String enhancementProperty) throws IOException {
 
