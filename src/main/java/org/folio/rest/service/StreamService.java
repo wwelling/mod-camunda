@@ -3,9 +3,11 @@ package org.folio.rest.service;
 import static java.util.Comparator.nullsLast;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -14,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import org.folio.rest.delegate.comparator.PropertyComparator;
+import org.folio.rest.delegate.comparator.SortingComparator;
 import org.folio.rest.delegate.iterable.EnhancingFluxIterable;
 import org.springframework.stereotype.Service;
 
@@ -52,17 +55,17 @@ public class StreamService {
     @SuppressWarnings("unchecked")
     Map<String, String> comparisonMap = mapper.readValue(comparisonProperties, LinkedHashMap.class);
 
-    Comparator<String> comparator = null;
-    AtomicInteger index = new AtomicInteger();
-    for (Entry<String, String> entry : comparisonMap.entrySet()) {
-      Comparator<String> newComparator = nullsLast(PropertyComparator.of(entry.getKey(), entry.getValue()));
-      if (index.getAndIncrement() == 0) {
-        comparator = newComparator;
-      } else {
-        comparator = comparator.thenComparing(newComparator);
-      }
+    Flux<String> result;
+    if (comparisonMap.size() > 0) {
+      SortingComparator comparator = SortingComparator.of(comparisonMap);
+      Flux<JsonNode> primary = toJsonNodeFlux(firstFlux);
+      Flux<JsonNode> secondary = toJsonNodeFlux(secondFlux);
+      result = toStringFlux(primary.mergeOrderedWith(secondary, comparator));
+    } else {
+      result = Flux.merge(firstFlux, secondFlux);
     }
-    return setFlux(firstFluxId, firstFlux.mergeOrderedWith(secondFlux, comparator));
+
+    return setFlux(firstFluxId, result);
   }
 
   /**
@@ -85,17 +88,22 @@ public class StreamService {
     return setFlux(primaryFluxId, enhancedFlux);
   }
 
-  public String setFlux(Flux<String> flux) {
-    String id = UUID.randomUUID().toString();
-    return setFlux(id, flux);
-  }
-
   public String map(String id, Function<String, String> map) {
     return setFlux(id, getFlux(id).map(map));
   }
 
-  private String setFlux(String id, Flux<String> flux) {
+  public String map(String id, int buffer, int delay, Function<List<String>, String> map) {
+    return setFlux(id, getFlux(id).buffer(buffer).delayElements(Duration.ofSeconds(delay)).map(map));
+  }
+
+  public String createFlux(Flux<String> flux) {
+    String id = UUID.randomUUID().toString();
     fluxes.put(id, flux.doFinally(s -> fluxes.remove(id)));
+    return id;
+  }
+
+  public String setFlux(String id, Flux<String> flux) {
+    fluxes.put(id, flux); //.doFinally(s -> fluxes.remove(id)));
     return id;
   }
 

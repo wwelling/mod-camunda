@@ -70,9 +70,9 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
     AtomicInteger totalSuccesses = new AtomicInteger();
     String token = (String) execution.getVariable("token");
     List<ErrorReport> totalFailed = new ArrayList<ErrorReport>();
-    String batchStreamId = (String) execution.getVariable("batchStreamId");
+    String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    streamService.getFlux(batchStreamId).subscribe(d -> {
+    streamService.getFlux(primaryStreamId).subscribe(d -> {
       List<String> rows = new ArrayList<String>();
       try {
         rows.addAll(mapper.readValue(d, new TypeReference<List<String>>() {}));
