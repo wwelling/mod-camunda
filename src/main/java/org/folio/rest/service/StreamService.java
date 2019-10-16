@@ -3,32 +3,40 @@ package org.folio.rest.service;
 import static java.util.Comparator.nullsLast;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import org.folio.rest.delegate.comparator.PropertyComparator;
+import org.folio.rest.delegate.comparator.SortingComparator;
+import org.folio.rest.delegate.iterable.EnhancingFluxIterable;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import org.folio.rest.delegate.comparator.PropertyComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
 
 @Service
 public class StreamService {
 
-  protected final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final ObjectMapper mapper;
 
   private final Map<String, Flux<String>> fluxes;
 
-  public StreamService() {
+  public StreamService(ObjectMapper mapper) {
+    this.mapper = mapper;
     fluxes = new HashMap<String, Flux<String>>();
   }
 
@@ -41,59 +49,93 @@ public class StreamService {
     return setFlux(firstFluxId, firstFlux.concatWith(secondFlux));
   }
 
-  public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty) {
+  public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperties) throws JsonParseException, JsonMappingException, IOException {
     Flux<String> firstFlux = getFlux(firstFluxId);
-    Comparator<String> comparator = new PropertyComparator(comparisonProperty);
-    return setFlux(firstFluxId, firstFlux.mergeOrderedWith(secondFlux, comparator));
-  }
 
-  /*
-   * Compares two fluxes of JSON strings using a comparisonProperty and augments
-   * the first flux with an enhancement property from the second flux when there
-   * is a match.
-   */
-  public String enhanceFlux(String firstFluxId, Flux<String> secondFlux, String comparisonProperty, String enhancementProperty) throws IOException {
-    Flux<String> firstFlux = getFlux(firstFluxId);
-    Comparator<String> comparator = nullsLast(new PropertyComparator(comparisonProperty));
-    ObjectMapper mapper = new ObjectMapper();
-    
-    Flux<String> result = Flux.empty();
-    Iterator<String> firstIter = firstFlux.toIterable().iterator();
-    Iterator<String> secondIter = secondFlux.toIterable().iterator();
-    String firstString = firstIter.next();
-    String secondString = secondIter.next();
+    @SuppressWarnings("unchecked")
+    Map<String, String> comparisonMap = mapper.readValue(comparisonProperties, LinkedHashMap.class);
 
-    while(firstString != null || secondString != null) {
-      JsonNode firstObject = mapper.readTree(firstString);
-      JsonNode secondObject = secondString != null ? mapper.readTree(secondString) : null;
-      JsonNode enhancementNode = secondObject != null ? secondObject.get(comparisonProperty) : null;
-      if (comparator.compare(firstString, secondString) == 0) {
-        result = result.concatWith(Flux.just(mapper.writeValueAsString(((ObjectNode) firstObject).set(enhancementProperty, enhancementNode))));
-        firstString = firstIter.hasNext() ? firstIter.next() : null;
-        secondString = secondIter.hasNext() ? secondIter.next() : null;
-      } else if (comparator.compare(firstString, secondString) < 0) {
-        result = result.concatWith(Flux.just(mapper.writeValueAsString(firstObject)));
-        firstString = firstIter.hasNext() ? firstIter.next() : null;
-      } else {
-        secondString = secondIter.hasNext() ? secondIter.next() : null;
-      }
+    Flux<String> result;
+    if (comparisonMap.size() > 0) {
+      SortingComparator comparator = SortingComparator.of(comparisonMap);
+      Flux<JsonNode> primary = toJsonNodeFlux(firstFlux);
+      Flux<JsonNode> secondary = toJsonNodeFlux(secondFlux);
+      result = toStringFlux(primary.mergeOrderedWith(secondary, comparator));
+    } else {
+      result = Flux.merge(firstFlux, secondFlux);
     }
 
     return setFlux(firstFluxId, result);
   }
 
-  private String setFlux(String id, Flux<String> flux) {
-    fluxes.put(id, flux.doFinally(s->fluxes.remove(id)));
-    return id;
-  }
-
-  public String setFlux(Flux<String> flux) {
-    String id = UUID.randomUUID().toString();
-    return setFlux(id, flux);
+  /**
+   * Compares two fluxes of JSON strings using an ordered map of comparison
+   * properties and augments the first flux with an enhancement property from the
+   * second flux when there is a match. Primary flux and input flux must be sorted
+   * by the comparison properties.
+   * 
+   * @param primaryFluxId
+   * @param inFlux
+   * @param comparisonProperties
+   * @param enhancementProperty
+   * @return primaryFluxId
+   * @throws IOException
+   */
+  public String enhanceFlux(String primaryFluxId, Flux<String> inFlux, String comparisonProperties, String enhancementProperty) throws IOException {
+    @SuppressWarnings("unchecked")
+    Map<String, String> comparisonMap = mapper.readValue(comparisonProperties, LinkedHashMap.class);
+    Flux<String> enhancedFlux = enhanceFlux(getFlux(primaryFluxId), inFlux, comparisonMap, enhancementProperty);
+    return setFlux(primaryFluxId, enhancedFlux);
   }
 
   public String map(String id, Function<String, String> map) {
     return setFlux(id, getFlux(id).map(map));
+  }
+
+  public String map(String id, int buffer, int delay, Function<List<String>, String> map) {
+    return setFlux(id, getFlux(id).buffer(buffer).delayElements(Duration.ofSeconds(delay)).map(map));
+  }
+
+  public String createFlux(Flux<String> flux) {
+    String id = UUID.randomUUID().toString();
+    fluxes.put(id, flux.doFinally(s -> fluxes.remove(id)));
+    return id;
+  }
+
+  public String setFlux(String id, Flux<String> flux) {
+    fluxes.put(id, flux); //.doFinally(s -> fluxes.remove(id)));
+    return id;
+  }
+
+  Flux<String> enhanceFlux(Flux<String> primaryFlux, Flux<String> inFlux, Map<String, String> comparisonMap, String enhancementProperty) throws IOException {
+    Flux<JsonNode> primary = toJsonNodeFlux(primaryFlux);
+    Flux<JsonNode> secondary = toJsonNodeFlux(inFlux);
+    Flux<JsonNode> result = Flux.fromIterable(EnhancingFluxIterable.of(primary, secondary, comparisonMap, enhancementProperty));
+    return toStringFlux(result);
+  }
+
+  Flux<JsonNode> toJsonNodeFlux(Flux<String> stringFlux) {
+    return stringFlux.map(p -> {
+      Optional<JsonNode> node = Optional.empty();
+      try {
+        node = Optional.ofNullable(mapper.readTree(p));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      return node;
+    }).filter(on -> on.isPresent()).map(on -> on.get());
+  }
+
+  Flux<String> toStringFlux(Flux<JsonNode> jsonNodeFlux) {
+    return jsonNodeFlux.map(n -> {
+      Optional<String> value = Optional.empty();
+      try {
+        value = Optional.ofNullable(mapper.writeValueAsString(n));
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+      }
+      return value;
+    }).filter(v -> v.isPresent()).map(v -> v.get());
   }
 
 }
