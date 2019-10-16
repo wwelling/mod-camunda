@@ -70,9 +70,9 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
     AtomicInteger totalSuccesses = new AtomicInteger();
     String token = (String) execution.getVariable("token");
     List<ErrorReport> totalFailed = new ArrayList<ErrorReport>();
-    String batchStreamId = (String) execution.getVariable("batchStreamId");
+    String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    streamService.getFlux(batchStreamId).subscribe(d -> {
+    streamService.getFlux(primaryStreamId).subscribe(d -> {
       List<String> rows = new ArrayList<String>();
       try {
         rows.addAll(mapper.readValue(d, new TypeReference<List<String>>() {}));
@@ -89,10 +89,12 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
       rows
         .forEach(row -> {
           try {
+            JsonNode rowNode = mapper.readTree(row);
+            log.debug(String.format("%s", rowNode));
             webClient
               .post()
               .uri(destinationUrl)
-              .syncBody(mapper.readTree(row))
+              .syncBody(rowNode)
               .header("X-Okapi-Tenant", DEFAULT_TENANT)
               .header("X-Okapi-Token", token)
               .accept(MediaType.APPLICATION_JSON)
