@@ -69,6 +69,9 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
       }
 
       private int compareInput(JsonNode node) {
+        if(!inputNode.isPresent()) {
+          return -1;
+        }
         return sortingComparator.compare(node, inputNode.get());
       }
 
