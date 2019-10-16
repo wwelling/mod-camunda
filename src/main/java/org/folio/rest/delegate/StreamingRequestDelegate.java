@@ -89,10 +89,12 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
       rows
         .forEach(row -> {
           try {
+            JsonNode rowNode = mapper.readTree(row);
+            log.debug(String.format("%s", rowNode));
             webClient
               .post()
               .uri(destinationUrl)
-              .syncBody(mapper.readTree(row))
+              .syncBody(rowNode)
               .header("X-Okapi-Tenant", DEFAULT_TENANT)
               .header("X-Okapi-Token", token)
               .accept(MediaType.APPLICATION_JSON)

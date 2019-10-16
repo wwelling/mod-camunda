@@ -18,8 +18,8 @@ public class SortingComparator implements Comparator<JsonNode> {
   public int compare(JsonNode o1, JsonNode o2) {
     int result = 0;
     for (Entry<String, String> entry : comparisonMap.entrySet()) {
-      Optional<JsonNode> oo1 = Optional.ofNullable(o1.get(entry.getKey()));
-      Optional<JsonNode> oo2 = Optional.ofNullable(o2.get(entry.getValue()));
+      Optional<JsonNode> oo1 = Optional.ofNullable(o1.at(entry.getKey()));
+      Optional<JsonNode> oo2 = Optional.ofNullable(o2.at(entry.getValue()));
 
       if (!oo1.isPresent()) {
         return 1;

@@ -42,7 +42,7 @@ public class StreamServiceTest {
 
     Flux<String> secondary = Flux.fromIterable(createSecondary(count));
 
-    String comparisonProperties = "{\"id\":\"id\",\"schema\":\"schema\"}";
+    String comparisonProperties = "{\"/id\":\"/id\",\"/schema\":\"/type.name\"}";
 
     String enhancementProperty = "netid";
 
@@ -101,7 +101,7 @@ public class StreamServiceTest {
     List<String> stream = new ArrayList<String>();
     for (int i = 0; i < count; i += 3) {
       String schema = i % 2 == 0 ? "AMDB" : "MSDB";
-      String row = String.format("{\"id\":\"%s\",\"schema\":\"%s\",\"netid\":\"%s\"}", i, schema, i);
+      String row = String.format("{\"id\":\"%s\",\"type.name\":\"%s\",\"netid\":\"%s\"}", i, schema, i);
       stream.add(row);
     }
     return stream;
