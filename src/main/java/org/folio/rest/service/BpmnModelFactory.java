@@ -26,13 +26,13 @@ import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
 import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
-import org.folio.rest.workflow.components.AccumulatorTask;
-import org.folio.rest.workflow.components.StreamCreateForEachTask;
-import org.folio.rest.workflow.components.EventTrigger;
 import org.folio.rest.model.LoginTask;
+import org.folio.rest.workflow.components.AccumulatorTask;
+import org.folio.rest.workflow.components.EventTrigger;
 import org.folio.rest.workflow.components.ProcessorTask;
 import org.folio.rest.workflow.components.RestRequestTask;
 import org.folio.rest.workflow.components.ScheduleTrigger;
+import org.folio.rest.workflow.components.StreamCreateForEachTask;
 import org.folio.rest.workflow.components.StreamingExtractorTask;
 import org.folio.rest.workflow.components.StreamingRequestTask;
 import org.folio.rest.workflow.components.Task;
@@ -100,10 +100,10 @@ public class BpmnModelFactory {
         CamundaField streamSource = createElement(modelInstance, extensionElements, String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");
         streamSource.setCamundaStringValue(eTask.getStreamSource());
-        if (eTask.getPredicateProperty() != null) {
-          CamundaField comparisonProperty = createElement(modelInstance, extensionElements, String.format("t_%s-comparison-property", index), CamundaField.class);
-          comparisonProperty.setCamundaName("comparisonProperty");
-          comparisonProperty.setCamundaStringValue(eTask.getPredicateProperty());
+        if (eTask.getComparisonProperties() != null) {
+          CamundaField comparisonProperties = createElement(modelInstance, extensionElements, String.format("t_%s-comparison-properties", index), CamundaField.class);
+          comparisonProperties.setCamundaName("comparisonProperties");
+          comparisonProperties.setCamundaStringValue(eTask.getComparisonProperties());
         }
         if (eTask.getEnhancementProperty() != null) {
           CamundaField enhancementProperty = createElement(modelInstance, extensionElements, String.format("t_%s-enhancement-property", index), CamundaField.class);

@@ -16,7 +16,8 @@ public class StreamCreationDelegate extends AbstractRuntimeDelegate {
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     Flux<String> primaryStream = Flux.empty();
-    String primaryStreamId = streamService.setFlux(primaryStream);
+    String primaryStreamId = streamService.createFlux(primaryStream);
+
     execution.setVariable("primaryStreamId", primaryStreamId);
 
     log.info("CREATED PRIMARY STREAM");

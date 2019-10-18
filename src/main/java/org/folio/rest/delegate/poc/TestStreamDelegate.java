@@ -64,7 +64,7 @@ public class TestStreamDelegate extends TestAbstractRuntimeDelegate {
 
     log.info("START REQUEST");
 
-    String fluxId = streamService.setFlux(
+    String fluxId = streamService.createFlux(
       webClient
         .get()
         .uri("/extractors/{id}/run", extratorId)

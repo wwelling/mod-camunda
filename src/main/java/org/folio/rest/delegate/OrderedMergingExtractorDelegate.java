@@ -17,7 +17,7 @@ public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
   @Autowired
   private StreamService streamService;
 
-  private Expression comparisonProperty;
+  private Expression comparisonProperties;
 
   public OrderedMergingExtractorDelegate(WebClient.Builder webClientBuilder) {
     super(webClientBuilder);
@@ -26,7 +26,7 @@ public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
   @Override
   public void execute(DelegateExecution execution) throws Exception {
 
-    String property = comparisonProperty.getValue(execution).toString();
+    String property = comparisonProperties.getValue(execution).toString();
 
     Flux<String> newStream = this.getStream(execution);
 
@@ -36,8 +36,8 @@ public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
     log.info("ORDERED MERGING EXTRACTOR DELEGATE FINISHED");
   }
 
-  public void setComparisonProperty(Expression comparisonProperty) {
-    this.comparisonProperty = comparisonProperty;
+  public void setComparisonProperties(Expression comparisonProperties) {
+    this.comparisonProperties = comparisonProperties;
   }
 
 }

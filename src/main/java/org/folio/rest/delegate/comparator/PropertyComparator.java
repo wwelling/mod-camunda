@@ -8,33 +8,35 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PropertyComparator implements Comparator<String> {
 
-  private String property;
+  private final ObjectMapper mapper;
 
-  public PropertyComparator(String property) {
-    this.setProperty(property);
+  private final String firstProperty;
+
+  private final String secondProperty;
+
+  public PropertyComparator(String firstProperty, String secondProperty) {
+    this.mapper = new ObjectMapper();
+    this.firstProperty = firstProperty;
+    this.secondProperty = secondProperty;
   }
 
   @Override
   public int compare(String firstString, String secondString) {
-    ObjectMapper mapper = new ObjectMapper();
     int result = 0;
     try {
       JsonNode firstNode = mapper.readTree(firstString);
       JsonNode secondNode = mapper.readTree(secondString);
-      String secondPropertyValue = secondNode.get(this.property).asText();
-      result = firstNode.get(this.property).asText().compareTo(secondPropertyValue);
+      String firstropertyValue = firstNode.get(this.firstProperty).asText();
+      String secondPropertyValue = secondNode.get(this.secondProperty).asText();
+      result = firstropertyValue.compareTo(secondPropertyValue);
     } catch (IOException e) {
-      // TODO: Handle exceptions in a better way
       throw new RuntimeException(e.getMessage());
     }
     return result;
   }
 
-  public String getProperty() {
-    return property;
+  public static PropertyComparator of(String firstProperty, String secondProperty) {
+    return new PropertyComparator(firstProperty, secondProperty);
   }
 
-  public void setProperty(String property) {
-    this.property = property;
-  }
 }

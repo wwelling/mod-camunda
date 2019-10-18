@@ -40,7 +40,7 @@ spring:
     open-in-view: true
     show-sql: false
   profiles:
-    active: default
+    active: default, messaging
   thymeleaf:
     mode: TEXT
     suffix: .sql
@@ -82,5 +82,5 @@ tenant:
 
 okapi:
    location: http://localhost:9130
-   username:
-   password:
+   username: diku_admin
+   password: admin
