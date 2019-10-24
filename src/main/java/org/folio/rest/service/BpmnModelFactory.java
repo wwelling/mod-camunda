@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
@@ -38,6 +41,7 @@ import org.folio.rest.workflow.components.StreamingRequestTask;
 import org.folio.rest.workflow.components.Task;
 import org.folio.rest.workflow.components.Trigger;
 import org.folio.rest.workflow.components.Workflow;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -49,6 +53,9 @@ public class BpmnModelFactory {
   private static final String TARGET_NAMESPACE = "http://bpmn.io/schema/bpmn";
   private static final String NO_VALUE = "NO_VALUE";
 
+  @Autowired
+  private ObjectMapper mapper;
+
   public BpmnModelInstance makeBPMNFromWorkflow(Workflow workflow) {
 
     BpmnModelInstance modelInstance = Bpmn.createEmptyModel();
@@ -59,7 +66,8 @@ public class BpmnModelFactory {
     modelInstance.setDefinitions(definitions);
 
     // Setup Process
-    Process process = createElement(modelInstance, definitions, workflow.getName().replaceAll(" ", "_").toLowerCase(), Process.class);
+    Process process = createElement(modelInstance, definitions, workflow.getName().replaceAll(" ", "_").toLowerCase(),
+        Process.class);
     process.setExecutable(true);
     process.setName(workflow.getName());
 
@@ -70,22 +78,23 @@ public class BpmnModelFactory {
     Trigger trigger = workflow.getStartTrigger();
     if (trigger instanceof ScheduleTrigger) {
       ScheduleTrigger scheduleTrigger = (ScheduleTrigger) trigger;
-      new StartEventBuilder(modelInstance, processStartEvent)
-        .timerWithCycle(scheduleTrigger.getChronExpression())
-        .done();
+      new StartEventBuilder(modelInstance, processStartEvent).timerWithCycle(scheduleTrigger.getChronExpression())
+          .done();
     }
 
     List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     AtomicInteger taskIndex = new AtomicInteger();
 
     int loginIndex = taskIndex.getAndIncrement();
-    ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex), ServiceTask.class);
+    ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex),
+        ServiceTask.class);
     LoginTask loginTask = new LoginTask("LoginProcess");
     serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
 
     if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
       int index = taskIndex.getAndIncrement();
-      ServiceTask createPrimaryStream = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
+      ServiceTask createPrimaryStream = createElement(modelInstance, process, String.format("t_%s", index),
+          ServiceTask.class);
       createPrimaryStream.setName("Create Primary Stream");
       createPrimaryStream.setCamundaDelegateExpression("${streamCreationDelegate}");
       serviceTasks.add(createPrimaryStream);
@@ -94,21 +103,31 @@ public class BpmnModelFactory {
     serviceTasks.addAll(workflow.getTasks().stream().map(task -> {
       int index = taskIndex.getAndIncrement();
       ServiceTask serviceTask = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
-      if(task instanceof StreamingExtractorTask) {
+      if (task instanceof StreamingExtractorTask) {
         StreamingExtractorTask eTask = (StreamingExtractorTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField streamSource = createElement(modelInstance, extensionElements, String.format("t_%s-stream-source", index), CamundaField.class);
+        CamundaField streamSource = createElement(modelInstance, extensionElements,
+            String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");
         streamSource.setCamundaStringValue(eTask.getStreamSource());
-        if (eTask.getComparisonProperties() != null) {
-          CamundaField comparisonProperties = createElement(modelInstance, extensionElements, String.format("t_%s-comparison-properties", index), CamundaField.class);
-          comparisonProperties.setCamundaName("comparisonProperties");
-          comparisonProperties.setCamundaStringValue(eTask.getComparisonProperties());
+        if (!eTask.getEnhancementComparisons().isEmpty()) {
+          CamundaField comparisonProperties = createElement(modelInstance, extensionElements,
+              String.format("t_%s-comparisons", index), CamundaField.class);
+          comparisonProperties.setCamundaName("comparisons");
+          try {
+            comparisonProperties.setCamundaStringValue(mapper.writeValueAsString(eTask.getEnhancementComparisons()));
+          } catch (JsonProcessingException e) {
+            e.printStackTrace();
+          }
         }
-        if (eTask.getEnhancementProperty() != null) {
-          CamundaField enhancementProperty = createElement(modelInstance, extensionElements, String.format("t_%s-enhancement-property", index), CamundaField.class);
-          enhancementProperty.setCamundaName("enhancementProperty");
-          enhancementProperty.setCamundaStringValue(eTask.getEnhancementProperty());
+        if (!eTask.getEnhancementMappings().isEmpty()) {
+          CamundaField enhancementProperty = createElement(modelInstance, extensionElements, String.format("t_%s-mappings", index), CamundaField.class);
+          enhancementProperty.setCamundaName("mappings");
+          try {
+            enhancementProperty.setCamundaStringValue(mapper.writeValueAsString(eTask.getEnhancementMappings()));
+          } catch (JsonProcessingException e) {
+            e.printStackTrace();
+          }
         }
       } else if(task instanceof ProcessorTask) {
         ProcessorTask pTask = (ProcessorTask) task;
