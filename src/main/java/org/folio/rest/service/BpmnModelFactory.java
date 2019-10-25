@@ -110,6 +110,10 @@ public class BpmnModelFactory {
             String.format("t_%s-stream-source", index), CamundaField.class);
         streamSource.setCamundaName("streamSource");
         streamSource.setCamundaStringValue(eTask.getStreamSource());
+
+        CamundaField sortStrategy = createElement(modelInstance, extensionElements, String.format("t_%s-sort-strategy", index), CamundaField.class);
+        sortStrategy.setCamundaStringValue(eTask.getSortStrategy().toString());
+
         if (!eTask.getEnhancementComparisons().isEmpty()) {
           CamundaField comparisonProperties = createElement(modelInstance, extensionElements,
               String.format("t_%s-comparisons", index), CamundaField.class);

@@ -39,6 +39,10 @@
       "type" : "string",
       "enum" : [ "MERGE", "CONCAT", "ENHANCE" ]
     },
+    "sortStrategy" : {
+      "type" : "string",
+      "enum" : [ "NONE", "LEXICOGRAPHICAL", "NUMERICAL" ]
+    },
     "streamSource" : {
       "type" : "string"
     }
