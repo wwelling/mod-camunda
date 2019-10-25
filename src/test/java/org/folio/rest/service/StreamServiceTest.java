@@ -5,20 +5,20 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.folio.rest.workflow.components.EnhancementComparison;
+import org.folio.rest.workflow.components.EnhancementMapping;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
 
@@ -42,17 +42,14 @@ public class StreamServiceTest {
 
     Flux<String> secondary = Flux.fromIterable(createSecondary(count));
 
-    String comparisonProperties = "{\"/id\":\"/id\",\"/schema\":\"/type.name\"}";
-
-    String enhancementProperty = "netid";
-
-    ObjectMapper mapper = new ObjectMapper();
-
-    @SuppressWarnings("unchecked")
-    Map<String, String> comparisonMap = mapper.readValue(comparisonProperties, LinkedHashMap.class);
+    List<EnhancementComparison> enhancementComparisons = new ArrayList<EnhancementComparison>();
+    enhancementComparisons.add(new EnhancementComparison("/id", "/id"));
+    enhancementComparisons.add(new EnhancementComparison("/schema", "/type.name"));
+    List<EnhancementMapping> enhancementMappings =  new ArrayList<EnhancementMapping>();
+    enhancementMappings.add(new EnhancementMapping("netid", "netid"));
 
     long startTime = System.nanoTime();
-    Flux<String> enhancedFlux = streamService.enhanceFlux(primary, secondary, comparisonMap, enhancementProperty);
+    Flux<String> enhancedFlux = streamService.enhanceFlux(primary, secondary, enhancementComparisons, enhancementMappings);
 
     List<String> excpected = createExpected(count);
 
