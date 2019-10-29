@@ -37,7 +37,7 @@
     },
     "mergeStrategy" : {
       "type" : "string",
-      "enum" : [ "MERGE", "CONCAT", "ENHANCE" ]
+      "enum" : [ "MERGE", "CONCAT", "ENHANCE", "DEDUPE" ]
     },
     "sortStrategy" : {
       "type" : "string",
@@ -65,10 +65,10 @@
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
-        "to" : {
+        "toProperty" : {
           "type" : "string"
         },
-        "from" : {
+        "fromProperty" : {
           "type" : "string"
         }
       }
