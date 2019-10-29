@@ -46,7 +46,7 @@ public class StreamServiceTest {
     enhancementComparisons.add(new EnhancementComparison("/id", "/id"));
     enhancementComparisons.add(new EnhancementComparison("/schema", "/type.name"));
     List<EnhancementMapping> enhancementMappings =  new ArrayList<EnhancementMapping>();
-    enhancementMappings.add(new EnhancementMapping("netid", "netid"));
+    enhancementMappings.add(new EnhancementMapping("netid", "/netid"));
 
     long startTime = System.nanoTime();
     Flux<String> enhancedFlux = streamService.enhanceFlux(primary, secondary, enhancementComparisons, enhancementMappings);

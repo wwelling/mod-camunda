@@ -80,7 +80,8 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
 
       private void enhanceNode(ObjectNode node) {
         enhancementMappings.forEach(em->{
-          node.set(em.getTo(), inputNode.get().get(em.getFrom()));
+          JsonNode propNode = inputNode.get().at(em.getFromProperty());
+          node.set(em.getToProperty(), propNode);
         });
       }
     };
