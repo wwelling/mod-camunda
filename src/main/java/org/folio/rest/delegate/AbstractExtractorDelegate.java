@@ -29,8 +29,6 @@ public abstract class AbstractExtractorDelegate extends AbstractRuntimeDelegate 
     String tenant = execution.getTenantId();
     String token = (String) execution.getVariable("token");
 
-    log.info("START REQUEST");
-
     return webClient
       .get()
       .uri(sourceUrl)
