@@ -22,6 +22,7 @@ import org.folio.rest.workflow.components.EnhancementMapping;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class StreamService {
@@ -83,7 +84,20 @@ public class StreamService {
   }
 
   public String map(String id, int buffer, int delay, Function<List<String>, String> map) {
-    return setFlux(id, getFlux(id).buffer(buffer).map(map));
+    return setFlux(id, getFlux(id)
+      .buffer(buffer)
+      .delayElements(
+        Duration.ofSeconds(delay), 
+        Schedulers.single())
+      .map(map));
+    // return setFlux(id, getFlux(id).buffer(buffer).map(map).map(d -> {
+    //   try {
+    //     Thread.sleep(delay * 1000);
+    //   } catch (InterruptedException e) {
+    //     e.printStackTrace();
+    //   }
+    //   return d;
+    // }));
   }
 
   public String createFlux(Flux<String> flux) {
