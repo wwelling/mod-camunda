@@ -83,7 +83,7 @@ public class StreamService {
   }
 
   public String map(String id, int buffer, int delay, Function<List<String>, String> map) {
-    return setFlux(id, getFlux(id).buffer(buffer).delayElements(Duration.ofSeconds(delay)).map(map));
+    return setFlux(id, getFlux(id).buffer(buffer).map(map));
   }
 
   public String createFlux(Flux<String> flux) {
@@ -104,7 +104,7 @@ public class StreamService {
     return toStringFlux(result);
   }
 
-  Flux<JsonNode> toJsonNodeFlux(Flux<String> stringFlux) {
+  public Flux<JsonNode> toJsonNodeFlux(Flux<String> stringFlux) {
     return stringFlux.map(p -> {
       Optional<JsonNode> node = Optional.empty();
       try {
@@ -116,7 +116,7 @@ public class StreamService {
     }).filter(on -> on.isPresent()).map(on -> on.get());
   }
 
-  Flux<String> toStringFlux(Flux<JsonNode> jsonNodeFlux) {
+  public Flux<String> toStringFlux(Flux<JsonNode> jsonNodeFlux) {
     return jsonNodeFlux.map(n -> {
       Optional<String> value = Optional.empty();
       try {

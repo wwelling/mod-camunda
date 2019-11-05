@@ -1,12 +1,5 @@
 package org.folio.rest.delegate;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
@@ -18,9 +11,6 @@ public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
-
-  @Autowired
-  private ObjectMapper objectMapper;
 
   private Expression accumulateTo;
 
@@ -42,14 +32,7 @@ public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
     streamService.map(primaryStreamId, buffer, delay, dl -> {
-      String serializedList = null;
-      try {
-        serializedList = objectMapper.writeValueAsString(dl);
-      } catch (JsonProcessingException e) {
-        serializedList = "[]";
-        e.printStackTrace();
-      }
-      return serializedList;
+      return String.format("[%s]", String.join(",", dl));
     });
 
   }
