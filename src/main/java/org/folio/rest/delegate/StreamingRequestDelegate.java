@@ -60,7 +60,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
       }).subscribe(reqNode -> {
         int cc = counter.incrementAndGet();
 
-        if (cc % 1000 == 0) {
+        if (cc % 1000 == 0 || cc == 1) {
           log.info("TO STRING {}", reqNode.toString());
         } else {
           System.out.print(".");
@@ -69,16 +69,20 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
         if (log.isDebugEnabled()) {
           log.debug("{}", reqNode.toString());
         }
-        webClient
-          .post()
-          .uri(destinationUrl)
-          .syncBody(reqNode)
-          .header("X-Okapi-Tenant", DEFAULT_TENANT)
-          .header("X-Okapi-Token", token)
-          .accept(MediaType.APPLICATION_JSON)
-          .retrieve()
-          .bodyToFlux(JsonNode.class)
-          .subscribe();
+        try {
+          webClient
+            .post()
+            .uri(destinationUrl)
+            .syncBody(reqNode)
+            .header("X-Okapi-Tenant", DEFAULT_TENANT)
+            .header("X-Okapi-Token", token)
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .bodyToFlux(JsonNode.class)
+            .subscribe();
+        } catch (Exception e) {
+          log.info("ERROR {} with {}", e.getMessage(), reqNode.toString());
+        }
     });
   }
 
