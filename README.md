@@ -6,23 +6,29 @@ This software is distributed under the terms of the Apache License, Version 2.0.
 See the file ["LICENSE"](LICENSE) for more information.
 
 # Table of Contents
-1. [Camunda Module Dependencies](#camunda-module-dependencies)
-2. [Workflow Project Structure](#workflow-project-structure)
-3. [App Deployment](#deploy-and-run-the-application)
-4. Test Processes
+1. [Docker deployment](#docker-deployment)
+2. [Camunda Module Dependencies](#camunda-module-dependencies)
+3. [Workflow Project Structure](#workflow-project-structure)
+4. [App Deployment](#deploy-and-run-the-application)
+5. Test Processes
     1. [Test Master Processes](#test-master-process)
     2. [Test Process 1](#test-process-1)
     3. [Test Process 2](#test-process-2)
     4. [Test Process 3](#test-process-3)
-5. FOLIO POC Processes
+6. FOLIO POC Processes
     1. [Claim Returned](#claim-return)
     2. [Purchase Request](#purchase-request)
     3. [FOLIO Login Sample](#folio-login-sample)
-6. [Camunda APIs](#camunda-apis)
-7. [ActiveMQ Message Broker](#activemq-message-broker)
-8. [FOLIO Integration](#folio-integration)
-9. [Additional Information](#additional-information)
-10. [Issue Tracker](#issue-tracker)
+7. [Camunda APIs](#camunda-apis)
+8. [ActiveMQ Message Broker](#activemq-message-broker)
+9. [FOLIO Integration](#folio-integration)
+10. [Additional Information](#additional-information)
+11. [Issue Tracker](#issue-tracker)
+
+## Docker deployment
+
+```
+```
 
 ## Camunda Module Dependencies
 This module extends spring-module-core and brings in Camunda BPM to enable workflow capabilities. Camunda is an open-source BPM platform that is embedded in this module via the following dependencies.
