@@ -1,14 +1,30 @@
-#Prerequisites JDK
-FROM maven:3.6.1-jdk-8-alpine
+# build base image
+FROM maven:3-jdk-8-slim as maven
 
-#Settings
-ENV ARTIFACT_VERSION='1.3.0-SNAPSHOT'
-ENV MODULE_VERSION='sprint5-staging'
+# copy pom.xml
+COPY ./pom.xml ./pom.xml
+
+# copy components files
+COPY ./src ./src
+
+# build service
+RUN mvn package
+
+# final base image
+FROM openjdk:8u171-jre-alpine
+
+# set deployment directory
+WORKDIR /mod-camunda
+
+# copy over the built artifact from the maven image
+COPY --from=maven /target/mod-camunda*.jar ./mod-camunda.jar
+
+# settings
 ENV LOGGING_LEVEL_FOLIO='INFO'
-ENV SERVER_PORT='8081'
+ENV SERVER_PORT='9000'
 ENV SPRING_ACTIVEMQ_BROKER_URL='http://localhost:61616'
 ENV SPRING_DATASOURCE_PLATFORM='h2'
-ENV SPRING_DATASOURCE_URL='jdbc:h2:./camunda-db/camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE'
+ENV SPRING_DATASOURCE_URL='jdbc:h2:./mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE'
 ENV SPRING_DATASOURCE_DRIVERCLASSNAME='org.h2.Driver'
 ENV SPRING_DATASOURCE_USERNAME='folio'
 ENV SPRING_DATASOURCE_PASSWORD='folio'
@@ -31,23 +47,8 @@ ENV OKAPI_PASSWORD='admin'
 #expose port
 EXPOSE ${SERVER_PORT}
 
-#Mvn
-RUN apk add --no-cache curl git
-
-#install mod-workflow and clone and MVN build mod-data-extractor
-RUN mkdir -p /usr/local/bin/folio/
-WORKDIR /usr/local/bin/folio
-RUN git clone -b ${MODULE_VERSION} https://github.com/TAMULib/mod-workflow.git
-WORKDIR /usr/local/bin/folio/mod-workflow
-RUN mvn install
-WORKDIR /usr/local/bin/folio
-RUN git clone -b ${MODULE_VERSION} https://github.com/TAMULib/mod-camunda.git
-WORKDIR /usr/local/bin/folio/mod-camunda
-RUN mkdir -p camunda-db
-RUN mvn package -DskipTests
-
 #run java command
-CMD java -jar -Xmx4096m /usr/local/bin/folio/mod-camunda/target/mod-camunda-${ARTIFACT_VERSION}.jar \
+CMD java -jar -Xmx4096m ./mod-camunda.jar \
     --logging.level.org.folio=${LOGGING_LEVEL_FOLIO} --server.port=${SERVER_PORT} --spring.activemq.broker-url=${SPRING_ACTIVEMQ_BROKER_URL} \
     --spring.datasource.platform=${SPRING_DATASOURCE_PLATFORM} --spring.datasource.url=${SPRING_DATASOURCE_URL} \
     --spring.datasource.driverClassName=${SPRING_DATASOURCE_DRIVERCLASSNAME} --spring.datasource.username=${SPRING_DATASOURCE_USERNAME} \

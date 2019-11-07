@@ -7,6 +7,7 @@ See the file ["LICENSE"](LICENSE) for more information.
 
 # Table of Contents
 1. [Docker deployment](#docker-deployment)
+    1. [Publish docker image](#publish-docker-image)
 2. [Camunda Module Dependencies](#camunda-module-dependencies)
 3. [Workflow Project Structure](#workflow-project-structure)
 4. [App Deployment](#deploy-and-run-the-application)
@@ -28,6 +29,21 @@ See the file ["LICENSE"](LICENSE) for more information.
 ## Docker deployment
 
 ```
+cd ..
+git clone https://github.com/TAMULib/mod-workflow.git
+cd mod-workflow
+mvn clean install
+
+cd mod-camunda
+docker build -t folio/mod-camunda .
+docker run -d -p 9000:9000 folio/mod-camunda
+```
+
+### Publish docker image
+
+```
+docker build -t [docker repo]/folio/mod-camunda:[version] .
+docker push [docker repo]/folio/mod-camunda:[version]
 ```
 
 ## Camunda Module Dependencies
