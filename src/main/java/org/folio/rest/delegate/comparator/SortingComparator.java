@@ -1,25 +1,28 @@
 package org.folio.rest.delegate.comparator;
 
 import java.util.Comparator;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class SortingComparator implements Comparator<JsonNode> {
-  private final Map<String, String> comparisonMap;
+import org.folio.rest.workflow.components.EnhancementComparison;
 
-  public SortingComparator(Map<String, String> comparisonMap) {
-    this.comparisonMap = comparisonMap;
+public class SortingComparator implements Comparator<JsonNode> {
+  private final List<EnhancementComparison> enhancementComparisons;
+
+  public SortingComparator(List<EnhancementComparison> enhancementComparisons) {
+    this.enhancementComparisons = enhancementComparisons;
   }
 
   @Override
   public int compare(JsonNode o1, JsonNode o2) {
     int result = 0;
-    for (Entry<String, String> entry : comparisonMap.entrySet()) {
-      Optional<JsonNode> oo1 = Optional.ofNullable(o1.at(entry.getKey()));
-      Optional<JsonNode> oo2 = Optional.ofNullable(o2.at(entry.getValue()));
+    
+    for (EnhancementComparison ec : enhancementComparisons) {
+
+      Optional<JsonNode> oo1 = Optional.ofNullable(o1.at(ec.getSourceProperty()));
+      Optional<JsonNode> oo2 = Optional.ofNullable(o2.at(ec.getTargetProperty()));
 
       if (!oo1.isPresent()) {
         return 1;
@@ -39,8 +42,8 @@ public class SortingComparator implements Comparator<JsonNode> {
     return result;
   }
 
-  public static SortingComparator of(Map<String, String> comparisonMap) {
-    return new SortingComparator(comparisonMap);
+  public static SortingComparator of(List<EnhancementComparison> enhancementComparisons) {
+    return new SortingComparator(enhancementComparisons);
   }
 
 }

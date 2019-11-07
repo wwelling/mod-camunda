@@ -33,7 +33,7 @@ public class OkapiRequestService {
 
   public OkapiResponse okapiRestCall(OkapiRequest okapiRequest) {
 
-    log.info("Executing Okapi Rest Call service");
+    log.debug("Executing Okapi Rest Call service");
 
     String tenant = okapiRequest.getTenant();
     String contentType = okapiRequest.getRequestContentType();

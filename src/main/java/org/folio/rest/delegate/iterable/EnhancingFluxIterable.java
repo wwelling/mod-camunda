@@ -1,13 +1,15 @@
 package org.folio.rest.delegate.iterable;
 
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
-
-import org.folio.rest.delegate.comparator.SortingComparator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import org.folio.rest.delegate.comparator.SortingComparator;
+import org.folio.rest.workflow.components.EnhancementComparison;
+import org.folio.rest.workflow.components.EnhancementMapping;
 
 import reactor.core.publisher.Flux;
 
@@ -19,13 +21,14 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
 
   private final SortingComparator sortingComparator;
 
-  private final String enhancementProperty;
+  private final List<EnhancementMapping> enhancementMappings;
 
-  public EnhancingFluxIterable(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux, Map<String, String> comparisonMap, String enhancementProperty) {
+  public EnhancingFluxIterable(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux, 
+    List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
     this.primary = primaryFlux.toIterable().iterator();
     this.input = inFlux.toIterable().iterator();
-    this.sortingComparator = SortingComparator.of(comparisonMap);
-    this.enhancementProperty = enhancementProperty;
+    this.sortingComparator = SortingComparator.of(enhancementComparisons);
+    this.enhancementMappings = enhancementMappings;
   }
 
   @Override
@@ -76,14 +79,17 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
       }
 
       private void enhanceNode(ObjectNode node) {
-        node.set(enhancementProperty, inputNode.get().get(enhancementProperty));
+        enhancementMappings.forEach(em->{
+          JsonNode propNode = inputNode.get().at(em.getFromProperty());
+          node.set(em.getToProperty(), propNode);
+        });
       }
-
     };
   }
 
-  public static EnhancingFluxIterable of(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux, Map<String, String> comparisonMap, String enhancementProperty) {
-    return new EnhancingFluxIterable(primaryFlux, inFlux, comparisonMap, enhancementProperty);
+  public static EnhancingFluxIterable of(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux, 
+    List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
+    return new EnhancingFluxIterable(primaryFlux, inFlux, enhancementComparisons, enhancementMappings);
   }
 
 }
