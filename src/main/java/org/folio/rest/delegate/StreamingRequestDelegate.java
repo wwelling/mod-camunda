@@ -44,7 +44,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
 
     WebClient webClient = webClientBuilder.build();
 
-    log.info("{} started", delegateName);
+    log.info("{} STARTED", delegateName);
 
     String token = (String) execution.getVariable("token");
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
@@ -58,31 +58,18 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
         Instant now = Instant.now();
         log.info("{} finished {} batches {} seconds\n\n", delegateName, counter.get(), Duration.between(start, now).getSeconds());
       }).subscribe(reqNode -> {
-        int cc = counter.incrementAndGet();
-
-        if (cc % 1000 == 0 || cc == 1) {
-          log.info("TO STRING {}", reqNode.toString());
-        } else {
-          System.out.print(".");
-        }
-
-        if (log.isDebugEnabled()) {
-          log.debug("{}", reqNode.toString());
-        }
-        try {
-          webClient
-            .post()
-            .uri(destinationUrl)
-            .syncBody(reqNode)
-            .header("X-Okapi-Tenant", DEFAULT_TENANT)
-            .header("X-Okapi-Token", token)
-            .accept(MediaType.APPLICATION_JSON)
-            .retrieve()
-            .bodyToFlux(JsonNode.class)
-            .subscribe();
-        } catch (Exception e) {
-          log.info("ERROR {} with {}", e.getMessage(), reqNode.toString());
-        }
+        webClient
+          .post()
+          .uri(destinationUrl)
+          .syncBody(reqNode)
+          .header("X-Okapi-URL", OKAPI_LOCATION)
+          .header("X-Okapi-Tenant", DEFAULT_TENANT)
+          .header("X-Okapi-Token", token)
+          .accept(MediaType.APPLICATION_JSON)
+          .retrieve()
+          .bodyToFlux(JsonNode.class)
+          .subscribe();
+        System.out.print(".");
     });
   }
 
