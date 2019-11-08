@@ -69,6 +69,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
           .retrieve()
           .bodyToFlux(JsonNode.class)
           .subscribe();
+        counter.incrementAndGet();
         System.out.print(".");
     });
   }
