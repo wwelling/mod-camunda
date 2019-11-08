@@ -50,7 +50,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
     Instant start = Instant.now();
-    AtomicInteger counter = new AtomicInteger(0);
+    AtomicInteger counter = new AtomicInteger(1);
 
     streamService
       .toJsonNodeFlux(streamService.getFlux(primaryStreamId))
