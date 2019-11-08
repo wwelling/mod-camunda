@@ -70,7 +70,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
           .bodyToFlux(JsonNode.class)
           .subscribe();
         int cc = counter.incrementAndGet();
-        if (cc % 1000 == 0 || cc == 1) {
+        if (cc % 1000 == 0) {
           log.info("TO STRING {}", reqNode.toString());
         } else {
           System.out.print(".");
