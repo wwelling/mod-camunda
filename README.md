@@ -42,6 +42,7 @@ docker run -d -p 9000:9000 folio/mod-camunda
 ### Publish docker image
 
 ```
+docker login [docker repo]
 docker build -t [docker repo]/folio/mod-camunda:[version] .
 docker push [docker repo]/folio/mod-camunda:[version]
 ```
