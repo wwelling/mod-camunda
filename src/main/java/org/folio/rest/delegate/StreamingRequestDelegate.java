@@ -62,15 +62,19 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
           .post()
           .uri(destinationUrl)
           .syncBody(reqNode)
-          .header("X-Okapi-URL", OKAPI_LOCATION)
+          .header("X-Okapi-Url", OKAPI_LOCATION)
           .header("X-Okapi-Tenant", DEFAULT_TENANT)
           .header("X-Okapi-Token", token)
           .accept(MediaType.APPLICATION_JSON)
           .retrieve()
           .bodyToFlux(JsonNode.class)
           .subscribe();
-        counter.incrementAndGet();
-        System.out.print(".");
+        int cc = counter.incrementAndGet();
+        if (cc % 1000 == 0 || cc == 1) {
+          log.info("TO STRING {}", reqNode.toString());
+        } else {
+          System.out.print(".");
+        }
     });
   }
 
