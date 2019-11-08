@@ -1,13 +1,26 @@
 # build base image
-FROM maven:3-jdk-8-slim as maven
+FROM maven:3-jdk-8-alpine as maven
 
 # copy pom.xml
 COPY ./pom.xml ./pom.xml
 
-# copy components files
+# copy src
 COPY ./src ./src
 
-# build service
+# add curl and git
+RUN apk add --no-cache curl git
+
+# clone master of mod-workflow
+RUN git clone https://github.com/TAMULib/mod-workflow.git
+
+WORKDIR /mod-workflow
+
+# install mod-workflow components
+RUN mvn install
+
+WORKDIR /
+
+# build
 RUN mvn package
 
 # final base image
