@@ -70,6 +70,6 @@ CMD java -jar -Xmx4096m ./mod-camunda.jar \
     --spring.jpa.database-platform=${SPRING_JPA_DATABASE_PLATFORM} --camunda.bpm.admin-user.id=${CAMUNDA_BPM_ADMIN_USER_ID} \
     --camunda.bpm.admin-user.password=${CAMUNDA_BPM_ADMIN_USER_PASSWORD} --camunda.bpm.admin-user.first-name=${CAMUNDA_BPM_ADMIN_USER_FIRST_NAME} \
     --camunda.bpm.admin-user.last-name=${CAMUNDA_BPM_ADMIN_USER_LAST_NAME} --camunda.bpm.admin-user.email=${CAMUNDA_BPM_ADMIN_USER_EMAIL} \
-    --event.queue.name=${EVENT_QUEUE_NAME} --tenant.default-tenant=${TENANT_DEFAULT_TENANT} --initialize-default-tenant=${TENANT_INITIALIZE_DEFAULT_TENANT} \
+    --event.queue.name=${EVENT_QUEUE_NAME} --tenant.default-tenant=${TENANT_DEFAULT_TENANT} --tenant.initialize-default-tenant=${TENANT_INITIALIZE_DEFAULT_TENANT} \
     --okapi.location=${OKAPI_LOCATION} --spring.h2.console.settings.web-allow-others=${SPRING_H2_WEBALLOW} \
     --okapi.username=${OKAPI_USERNAME} --okapi.password=${OKAPI_PASSWORD}
