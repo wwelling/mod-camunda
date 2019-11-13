@@ -1,3 +1,6 @@
+var ScriptEngineUtilityClass = Java.type("org.folio.rest.utility.ScriptEngineUtility");
+var scriptEngineUtility = new ScriptEngineUtilityClass();
+
 function isFunction(functionToCheck) {
   return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]';
 }
