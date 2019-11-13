@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +33,7 @@ public class ScriptEngineUtility {
   private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX,
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-  
+
   /**
    * Check if a given string is a proper e-mail address.
    *
@@ -158,21 +159,21 @@ public class ScriptEngineUtility {
     }
     writer.close();
     org.json.JSONObject marcJson = XML.toJSONObject(rawMarcOS.toString());
-    org.json.JSONObject marcJsonCollection = null;
+    Optional<org.json.JSONObject> marcJsonCollection = Optional.ofNullable(null);
     try {
-      marcJsonCollection = marcJson.getJSONObject("marc:collection");
+      marcJsonCollection = Optional.ofNullable(marcJson.getJSONObject("marc:collection"));
     } catch(JSONException e) {
       e.printStackTrace();
     }
-    org.json.JSONObject marcJsonRecord = null;
-    if(marcJsonCollection != null) {
+    Optional<org.json.JSONObject> marcJsonRecord = Optional.ofNullable(null);
+    if(marcJsonCollection.isPresent()) {
       try {
-        marcJsonRecord = marcJsonCollection.getJSONObject("marc:record");
+        marcJsonRecord = Optional.ofNullable(marcJsonCollection.get()).getJSONObject("marc:record");
       } catch(JSONException e) {
         e.printStackTrace();
       }
     }
-    return marcJsonRecord != null ? marcJsonRecord.toString() : "{}";
+    return marcJsonRecord.isPresent() ? marcJsonRecord.get().toString() : "{}";
   }
 
 }
