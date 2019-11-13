@@ -168,7 +168,7 @@ public class ScriptEngineUtility {
     Optional<org.json.JSONObject> marcJsonRecord = Optional.ofNullable(null);
     if(marcJsonCollection.isPresent()) {
       try {
-        marcJsonRecord = Optional.ofNullable(marcJsonCollection.get()).getJSONObject("marc:record");
+        marcJsonRecord = Optional.ofNullable(marcJsonCollection.get().getJSONObject("marc:record"));
       } catch(JSONException e) {
         e.printStackTrace();
       }
