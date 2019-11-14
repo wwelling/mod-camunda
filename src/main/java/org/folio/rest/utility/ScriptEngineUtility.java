@@ -2,20 +2,15 @@ package org.folio.rest.utility;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
-import org.json.JSONException;
-import org.json.XML;
-import org.marc4j.MarcReader;
+import org.marc4j.MarcException;
+import org.marc4j.MarcJsonWriter;
 import org.marc4j.MarcStreamReader;
-import org.marc4j.MarcWriter;
-import org.marc4j.MarcXmlWriter;
 import org.marc4j.marc.Record;
 
 /**
@@ -28,10 +23,8 @@ public class ScriptEngineUtility {
   private static final String PHONE_REGEX = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$";
   private static final String URL_REGEX = "(http(s)?:\\\\\\/\\\\\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\\\\\+~#=]{2,256}\\\\\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\\\\\+.~#?&//=]*)";
 
-  private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX,
-      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-  private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX,
-      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
   /**
@@ -147,33 +140,26 @@ public class ScriptEngineUtility {
    * @param rawMarc The marcBinary String to convert into json.
    *
    * @return A String containing the encoded JSON marc data.
+   * @throws IOException 
    */
-  public String rawMarcToJsonString(String rawMarc) {
-    InputStream rawMarcIS = new ByteArrayInputStream(rawMarc.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream rawMarcOS = new ByteArrayOutputStream();
-    MarcReader reader = new MarcStreamReader(rawMarcIS);
-    MarcWriter writer = new MarcXmlWriter(rawMarcOS, true);
-    while (reader.hasNext()) {
-      Record record = reader.next();
-      writer.write(record);
-    }
-    writer.close();
-    org.json.JSONObject marcJson = XML.toJSONObject(rawMarcOS.toString());
-    Optional<org.json.JSONObject> marcJsonCollection = Optional.ofNullable(null);
-    try {
-      marcJsonCollection = Optional.ofNullable(marcJson.getJSONObject("marc:collection"));
-    } catch(JSONException e) {
-      e.printStackTrace();
-    }
-    Optional<org.json.JSONObject> marcJsonRecord = Optional.ofNullable(null);
-    if(marcJsonCollection.isPresent()) {
-      try {
-        marcJsonRecord = Optional.ofNullable(marcJsonCollection.get().getJSONObject("marc:record"));
-      } catch(JSONException e) {
-        e.printStackTrace();
+  public String rawMarcToJsonString(String rawMarc) {    
+    try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(StandardCharsets.ISO_8859_1))) {
+      final MarcStreamReader reader = new MarcStreamReader(in, StandardCharsets.ISO_8859_1.toString());
+      try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        final MarcJsonWriter writer = new MarcJsonWriter(out, MarcJsonWriter.MARC_JSON);
+        while (reader.hasNext()) {
+          Record record = reader.next();
+          writer.write(record);
+        }
+        writer.close();
+        return out.toString(StandardCharsets.ISO_8859_1.toString());
       }
+    } catch (final IOException e) {
+      // TODO: do something in case of exception
+    } catch (final MarcException e) {
+      // TODO: do something in case of exception
     }
-    return marcJsonRecord.isPresent() ? marcJsonRecord.get().toString() : "{}";
+    return "{}";
   }
 
 }
