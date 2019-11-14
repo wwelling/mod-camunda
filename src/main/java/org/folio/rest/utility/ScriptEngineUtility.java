@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
@@ -147,8 +146,8 @@ public class ScriptEngineUtility {
    * @throws IOException
    */
   public String rawMarcToJson(String rawMarc) {
-    try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(StandardCharsets.ISO_8859_1))) {
-      final MarcStreamReader reader = new MarcStreamReader(in, StandardCharsets.ISO_8859_1.toString());
+    try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes())) {
+      final MarcStreamReader reader = new MarcStreamReader(in);
       try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
         final MarcJsonWriter writer = new MarcJsonWriter(out, MarcJsonWriter.MARC_JSON);
         while (reader.hasNext()) {
