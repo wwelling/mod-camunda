@@ -156,7 +156,7 @@ public class ScriptEngineUtility {
           writer.write(record);
         }
         writer.close();
-        return out.toString(StandardCharsets.ISO_8859_1.toString());
+        return out.toString();
       }
     } catch (final IOException e) {
       // TODO: do something in case of exception
