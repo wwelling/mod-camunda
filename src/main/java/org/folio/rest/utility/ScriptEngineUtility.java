@@ -1,5 +1,9 @@
 package org.folio.rest.utility;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static java.util.regex.Pattern.MULTILINE;
+import static java.util.regex.Pattern.compile;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,9 +27,9 @@ public class ScriptEngineUtility {
   private static final String PHONE_REGEX = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$";
   private static final String URL_REGEX = "(http(s)?:\\\\\\/\\\\\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\\\\\+~#=]{2,256}\\\\\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\\\\\+.~#?&//=]*)";
 
-  private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-  private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-  private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  private static final Pattern EMAIL_PATTERN = compile(EMAIL_REGEX, CASE_INSENSITIVE | MULTILINE);
+  private static final Pattern PHONE_PATTERN = compile(PHONE_REGEX, CASE_INSENSITIVE | MULTILINE);
+  private static final Pattern URL_PATTERN = compile(URL_REGEX, CASE_INSENSITIVE | MULTILINE);
 
   /**
    * Check if a given string is a proper e-mail address.
@@ -142,7 +146,7 @@ public class ScriptEngineUtility {
    * @return A String containing the encoded JSON marc data.
    * @throws IOException 
    */
-  public String rawMarcToJsonString(String rawMarc) {    
+  public String rawMarcToJson(String rawMarc) {    
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(StandardCharsets.ISO_8859_1))) {
       final MarcStreamReader reader = new MarcStreamReader(in, StandardCharsets.ISO_8859_1.toString());
       try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
