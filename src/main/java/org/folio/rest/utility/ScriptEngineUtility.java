@@ -144,9 +144,9 @@ public class ScriptEngineUtility {
    * @param rawMarc The marcBinary String to convert into json.
    *
    * @return A String containing the encoded JSON marc data.
-   * @throws IOException 
+   * @throws IOException
    */
-  public String rawMarcToJson(String rawMarc) {    
+  public String rawMarcToJson(String rawMarc) {
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(StandardCharsets.ISO_8859_1))) {
       final MarcStreamReader reader = new MarcStreamReader(in, StandardCharsets.ISO_8859_1.toString());
       try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
