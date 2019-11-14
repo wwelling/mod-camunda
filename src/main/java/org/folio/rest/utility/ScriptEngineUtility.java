@@ -149,7 +149,7 @@ public class ScriptEngineUtility {
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes())) {
       final MarcStreamReader reader = new MarcStreamReader(in);
       try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-        final MarcJsonWriter writer = new MarcJsonWriter(out, MarcJsonWriter.MARC_JSON);
+        final MarcJsonWriter writer = new MarcJsonWriter(out);
         while (reader.hasNext()) {
           Record record = reader.next();
           writer.write(record);
