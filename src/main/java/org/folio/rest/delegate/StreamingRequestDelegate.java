@@ -2,6 +2,7 @@ package org.folio.rest.delegate;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -39,15 +40,15 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
   private final WebClient webClient;
 
   public StreamingRequestDelegate(WebClient.Builder webClientBuilder) {
-    super();    
+    super();
     TcpClient tcpClient = TcpClient.create()
       .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000) // connection timeout
       .doOnConnected(connection -> {
         connection
-          .addHandlerLast(new ReadTimeoutHandler(3600)) // read timeout in seconds
-          .addHandlerLast(new WriteTimeoutHandler(3600)); // write timeout in seconds
+          .addHandlerLast(new ReadTimeoutHandler(3600000, TimeUnit.MILLISECONDS)) // read timeout
+          .addHandlerLast(new WriteTimeoutHandler(3600000, TimeUnit.MILLISECONDS)); // write timeout
       });
-    webClient = WebClient.builder()
+    webClient = webClientBuilder
       .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
       .build();
   }
