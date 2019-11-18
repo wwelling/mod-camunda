@@ -2,7 +2,6 @@ package org.folio.rest.delegate;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -11,17 +10,10 @@ import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import io.netty.channel.ChannelOption;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.TcpClient;
 
 @Service
 public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
@@ -35,23 +27,10 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private StreamService streamService;
 
+  @Autowired
+  private WebClient webClient;
+  
   private Expression storageDestination;
-
-  private final WebClient webClient;
-
-  public StreamingRequestDelegate(WebClient.Builder webClientBuilder) {
-    super();
-    TcpClient tcpClient = TcpClient.create()
-      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000) // connection timeout
-      .doOnConnected(connection -> {
-        connection
-          .addHandlerLast(new ReadTimeoutHandler(3600000, TimeUnit.MILLISECONDS)) // read timeout
-          .addHandlerLast(new WriteTimeoutHandler(3600000, TimeUnit.MILLISECONDS)); // write timeout
-      });
-    webClient = webClientBuilder
-      .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
-      .build();
-  }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
