@@ -50,7 +50,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
     Instant start = Instant.now();
-    AtomicInteger counter = new AtomicInteger(1);
+    AtomicInteger counter = new AtomicInteger(0);
 
     streamService
       .toJsonNodeFlux(streamService.getFlux(primaryStreamId))
@@ -70,8 +70,8 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
           .bodyToFlux(JsonNode.class)
           .subscribe();
         int cc = counter.incrementAndGet();
-        if (cc % 1000 == 0) {
-          log.info("TO STRING {}", reqNode.toString());
+        if (cc % 1000 == 0 || cc == 1) {
+          log.info(reqNode.toString());
         } else {
           System.out.print(".");
         }
