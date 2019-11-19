@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
@@ -14,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
 public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
@@ -27,22 +27,16 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private StreamService streamService;
 
+  @Autowired
+  private WebClient webClient;
+  
   private Expression storageDestination;
-
-  private final WebClient.Builder webClientBuilder;
-
-  public StreamingRequestDelegate(WebClient.Builder webClientBuilder) {
-    super();
-    this.webClientBuilder = webClientBuilder;
-  }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
     String destinationUrl = storageDestination != null ? storageDestination.getValue(execution).toString() : OKAPI_LOCATION;
-
-    WebClient webClient = webClientBuilder.build();
 
     log.info("{} STARTED", delegateName);
 
@@ -61,7 +55,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
         webClient
           .post()
           .uri(destinationUrl)
-          .syncBody(reqNode)
+          .bodyValue(reqNode)
           .header("X-Okapi-Url", OKAPI_LOCATION)
           .header("X-Okapi-Tenant", DEFAULT_TENANT)
           .header("X-Okapi-Token", token)
@@ -70,7 +64,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
           .bodyToFlux(JsonNode.class)
           .subscribe();
         int cc = counter.incrementAndGet();
-        if (cc % 1000 == 0 || cc == 1) {
+        if (cc % 1000 == 0) {
           log.info(reqNode.toString());
         } else {
           System.out.print(".");
