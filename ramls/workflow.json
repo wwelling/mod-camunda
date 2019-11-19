@@ -162,8 +162,12 @@
         },
         "fromProperty" : {
           "type" : "string"
+        },
+        "multiple" : {
+          "type" : "boolean"
         }
-      }
+      },
+      "required" : [ "multiple" ]
     },
     "AccumulatorTask" : {
       "type" : "object",

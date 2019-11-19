@@ -72,8 +72,12 @@
         },
         "fromProperty" : {
           "type" : "string"
+        },
+        "multiple" : {
+          "type" : "boolean"
         }
-      }
+      },
+      "required" : [ "multiple" ]
     }
   }
 }
