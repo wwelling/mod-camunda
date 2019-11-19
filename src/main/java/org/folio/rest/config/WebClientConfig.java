@@ -18,7 +18,7 @@ public class WebClientConfig {
 
   @Bean
   public NioEventLoopGroup nioEventLoopGroup() {
-    return new NioEventLoopGroup(20);
+    return new NioEventLoopGroup(32);
   }
 
   @Bean
