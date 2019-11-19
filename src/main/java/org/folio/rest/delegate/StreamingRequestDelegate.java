@@ -1,10 +1,7 @@
 package org.folio.rest.delegate;
 
-import java.time.Duration;
+import java.io.IOException;
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -15,8 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
-public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
+public class StreamingRequestDelegate extends AbstractReportableDelegate {
 
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
@@ -26,6 +26,9 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
   private StreamService streamService;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   private Expression storageDestination;
 
@@ -44,37 +47,32 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
 
     WebClient webClient = webClientBuilder.build();
 
-    log.info("{} STARTED", delegateName);
-
     String token = (String) execution.getVariable("token");
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
     Instant start = Instant.now();
-    AtomicInteger counter = new AtomicInteger(1);
 
-    streamService
-      .toJsonNodeFlux(streamService.getFlux(primaryStreamId))
-      .doFinally(r -> {
-        Instant now = Instant.now();
-        log.info("{} finished {} batches {} seconds\n\n", delegateName, counter.get(), Duration.between(start, now).getSeconds());
-      }).subscribe(reqNode -> {
+    updateReport(primaryStreamId, delegateName+" STARTED AT "+start);
+
+    streamService.map(primaryStreamId, d -> {
+      try {
         webClient
-          .post()
-          .uri(destinationUrl)
-          .syncBody(reqNode)
-          .header("X-Okapi-Url", OKAPI_LOCATION)
-          .header("X-Okapi-Tenant", DEFAULT_TENANT)
-          .header("X-Okapi-Token", token)
-          .accept(MediaType.APPLICATION_JSON)
-          .retrieve()
-          .bodyToFlux(JsonNode.class)
-          .subscribe();
-        int cc = counter.incrementAndGet();
-        if (cc % 1000 == 0) {
-          log.info("TO STRING {}", reqNode.toString());
-        } else {
-          System.out.print(".");
-        }
+        .post()
+        .uri(destinationUrl)
+        .syncBody(objectMapper.readTree(d))
+        .header("X-Okapi-Url", OKAPI_LOCATION)
+        .header("X-Okapi-Tenant", DEFAULT_TENANT)
+        .header("X-Okapi-Token", token)
+        .accept(MediaType.APPLICATION_JSON)
+        .retrieve()
+        .bodyToFlux(JsonNode.class)
+        .subscribe();
+        updateReport(primaryStreamId, "Processed: "+d);
+      } catch (IOException e) {
+        e.printStackTrace();
+        updateReport(primaryStreamId, "Error processing: "+d);
+      }
+      return d;
     });
   }
 

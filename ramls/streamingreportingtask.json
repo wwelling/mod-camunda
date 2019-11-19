@@ -1,0 +1,28 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "StreamingReportingTask",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "StreamingReportingTask" ],
+      "default" : "StreamingReportingTask"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "delegate" : {
+      "type" : "string"
+    },
+    "streaming" : {
+      "type" : "boolean"
+    }
+  },
+  "required" : [ "deserializeAs", "name" ]
+}
