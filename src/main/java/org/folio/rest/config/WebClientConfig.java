@@ -18,11 +18,18 @@ public class WebClientConfig {
 
   @Bean
   public NioEventLoopGroup nioEventLoopGroup() {
-    return new NioEventLoopGroup(32);
+    return new NioEventLoopGroup(128);
   }
 
   @Bean
-  public ReactorResourceFactory reactorResourceFactory(NioEventLoopGroup eventLoopGroup) {
+  public ConnectionProvider connectionProvider() {
+    ConnectionProvider connectionProvider = ConnectionProvider.elastic("camunda-web-client", Duration.ofMillis(60000));
+    return connectionProvider;
+  }
+
+  @Bean
+  public ReactorResourceFactory reactorResourceFactory(NioEventLoopGroup eventLoopGroup,
+      ConnectionProvider connectionProvider) {
     ReactorResourceFactory factory = new ReactorResourceFactory();
     factory.setLoopResources(new LoopResources() {
       @Override
@@ -31,7 +38,6 @@ public class WebClientConfig {
       }
     });
     factory.setUseGlobalResources(false);
-    ConnectionProvider connectionProvider = ConnectionProvider.elastic("camunda-web-client", Duration.ofMillis(60000));
     factory.setConnectionProvider(connectionProvider);
     return factory;
   }
@@ -45,7 +51,7 @@ public class WebClientConfig {
 
   @Bean
   public WebClient webClient(WebClient.Builder webClientBuilder, ReactorClientHttpConnector connector) {
-    return webClientBuilder.clientConnector(connector).build();
+    return webClientBuilder.build();
   }
 
 }
