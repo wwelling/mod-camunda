@@ -59,6 +59,7 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
           .header("X-Okapi-Url", OKAPI_LOCATION)
           .header("X-Okapi-Tenant", DEFAULT_TENANT)
           .header("X-Okapi-Token", token)
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
           .accept(MediaType.APPLICATION_JSON)
           .retrieve()
           .bodyToFlux(JsonNode.class)
