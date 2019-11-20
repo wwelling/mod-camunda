@@ -37,6 +37,7 @@ import org.folio.rest.workflow.components.RestRequestTask;
 import org.folio.rest.workflow.components.ScheduleTrigger;
 import org.folio.rest.workflow.components.StreamCreateForEachTask;
 import org.folio.rest.workflow.components.StreamingExtractorTask;
+import org.folio.rest.workflow.components.StreamingReportingTask;
 import org.folio.rest.workflow.components.StreamingRequestTask;
 import org.folio.rest.workflow.components.Task;
 import org.folio.rest.workflow.components.Trigger;
