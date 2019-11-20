@@ -10,19 +10,17 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+import org.folio.rest.delegate.comparator.SortingComparator;
+import org.folio.rest.delegate.iterable.EnhancingFluxIterable;
+import org.folio.rest.workflow.components.EnhancementComparison;
+import org.folio.rest.workflow.components.EnhancementMapping;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.folio.rest.delegate.comparator.SortingComparator;
-import org.folio.rest.delegate.iterable.EnhancingFluxIterable;
-import org.folio.rest.workflow.components.EnhancementComparison;
-import org.folio.rest.workflow.components.EnhancementMapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -35,8 +33,6 @@ public class StreamService {
   private final Map<String, Flux<String>> fluxes;
 
   private final Map<String, List<String>> reports;
-
-  protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
   public StreamService(ObjectMapper objectMapper) {
     this.objectMapper =objectMapper;
