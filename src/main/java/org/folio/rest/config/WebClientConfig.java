@@ -23,8 +23,7 @@ public class WebClientConfig {
 
   @Bean
   public ConnectionProvider connectionProvider() {
-    ConnectionProvider connectionProvider = ConnectionProvider.elastic("camunda-web-client", Duration.ofMillis(60000));
-    return connectionProvider;
+    return ConnectionProvider.fixed("camunda-web-client-thread-pool", 100, 3600000, Duration.ofMillis(3600000));
   }
 
   @Bean
@@ -51,7 +50,7 @@ public class WebClientConfig {
 
   @Bean
   public WebClient webClient(WebClient.Builder webClientBuilder, ReactorClientHttpConnector connector) {
-    return webClientBuilder.build();
+    return webClientBuilder.clientConnector(connector).build();
   }
 
 }
