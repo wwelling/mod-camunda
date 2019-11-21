@@ -27,8 +27,7 @@ public class StreamingReportingDelegate extends AbstractRuntimeDelegate {
 
     AtomicInteger counter = new AtomicInteger(1);
 
-    streamService
-      .toJsonNodeFlux(streamService.getFlux(primaryStreamId))
+    streamService.setFlux(primaryStreamId, streamService.getFlux(primaryStreamId)
       .doFinally(r -> {
         log.info("Building Report at {}",Instant.now());
 
@@ -37,6 +36,6 @@ public class StreamingReportingDelegate extends AbstractRuntimeDelegate {
           counter.getAndIncrement();
         });
         streamService.clearReport(primaryStreamId);
-      });
+      }));
   }
 }

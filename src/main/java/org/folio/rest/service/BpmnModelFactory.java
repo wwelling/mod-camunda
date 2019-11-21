@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
@@ -37,7 +34,6 @@ import org.folio.rest.workflow.components.RestRequestTask;
 import org.folio.rest.workflow.components.ScheduleTrigger;
 import org.folio.rest.workflow.components.StreamCreateForEachTask;
 import org.folio.rest.workflow.components.StreamingExtractorTask;
-import org.folio.rest.workflow.components.StreamingReportingTask;
 import org.folio.rest.workflow.components.StreamingRequestTask;
 import org.folio.rest.workflow.components.Task;
 import org.folio.rest.workflow.components.Trigger;
@@ -45,6 +41,9 @@ import org.folio.rest.workflow.components.Workflow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class BpmnModelFactory {
@@ -192,7 +191,10 @@ public class BpmnModelFactory {
     }).collect(Collectors.toList()));
 
     if (useStreamConsumer) {
-      serviceTasks.add(createElement(modelInstance, process, String.format("t_%s", taskIndex.getAndIncrement()), ServiceTask.class));
+      ServiceTask streamConsumer = createElement(modelInstance, process, String.format("t_%s", taskIndex.getAndIncrement()), ServiceTask.class);
+      streamConsumer.setName("Create Stream Consumer");
+      streamConsumer.setCamundaDelegateExpression("${streamConsumerDelegate}");
+      serviceTasks.add(streamConsumer);
     }
 
     EndEvent processEndEvent = createElement(modelInstance, process, END_EVENT_ID, EndEvent.class);

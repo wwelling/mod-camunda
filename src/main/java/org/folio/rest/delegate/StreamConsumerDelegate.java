@@ -24,6 +24,9 @@ public class StreamConsumerDelegate extends AbstractRuntimeDelegate {
 
     streamService
       .toJsonNodeFlux(streamService.getFlux(primaryStreamId))
+      .doFinally(r -> {
+        log.info("Stream consumption completed");
+      })
       .subscribe();
   }
 }
