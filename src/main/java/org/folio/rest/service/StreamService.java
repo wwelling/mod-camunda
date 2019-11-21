@@ -2,6 +2,7 @@ package org.folio.rest.service;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,17 +10,17 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.folio.rest.delegate.comparator.SortingComparator;
 import org.folio.rest.delegate.iterable.EnhancingFluxIterable;
 import org.folio.rest.workflow.components.EnhancementComparison;
 import org.folio.rest.workflow.components.EnhancementMapping;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -31,9 +32,12 @@ public class StreamService {
 
   private final Map<String, Flux<String>> fluxes;
 
+  private final Map<String, List<String>> reports;
+
   public StreamService(ObjectMapper objectMapper) {
     this.objectMapper =objectMapper;
     fluxes = new HashMap<String, Flux<String>>();
+    reports = new HashMap<String, List<String>>();
   }
 
   public Flux<String> getFlux(String id) {
@@ -66,7 +70,7 @@ public class StreamService {
    * properties and augments the first flux with an enhancement property from the
    * second flux when there is a match. Primary flux and input flux must be sorted
    * by the comparison properties.
-   * 
+   *
    * @param primaryFluxId
    * @param inFlux
    * @param comparisonProperties
@@ -87,7 +91,7 @@ public class StreamService {
     return setFlux(id, getFlux(id)
       .buffer(buffer)
       .delayElements(
-        Duration.ofSeconds(delay), 
+        Duration.ofSeconds(delay),
         Schedulers.single())
       .map(map));
     // return setFlux(id, getFlux(id).buffer(buffer).map(map).map(d -> {
@@ -142,4 +146,21 @@ public class StreamService {
     }).filter(v -> v.isPresent()).map(v -> v.get());
   }
 
+  public void appendToReport(String primaryStreamId, String data) {
+    if (reports.containsKey(primaryStreamId)) {
+      reports.get(primaryStreamId).add(data);
+    } else {
+      List<String> reportData = new ArrayList<String>();
+      reportData.add(data);
+      reports.put(primaryStreamId, reportData);
+    }
+  }
+
+  public List<String> getReport(String primaryStreamId) {
+    return reports.get(primaryStreamId);
+  }
+
+  public void clearReport(String primaryStreamId) {
+    reports.remove(primaryStreamId);
+  }
 }

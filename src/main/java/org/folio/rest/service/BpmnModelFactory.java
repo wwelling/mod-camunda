@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
@@ -44,6 +41,9 @@ import org.folio.rest.workflow.components.Workflow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class BpmnModelFactory {
@@ -91,6 +91,8 @@ public class BpmnModelFactory {
     LoginTask loginTask = new LoginTask("LoginProcess");
     serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
 
+    boolean useStreamConsumer = false;
+
     if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
       int index = taskIndex.getAndIncrement();
       ServiceTask createPrimaryStream = createElement(modelInstance, process, String.format("t_%s", index),
@@ -98,6 +100,8 @@ public class BpmnModelFactory {
       createPrimaryStream.setName("Create Primary Stream");
       createPrimaryStream.setCamundaDelegateExpression("${streamCreationDelegate}");
       serviceTasks.add(createPrimaryStream);
+
+      useStreamConsumer = true;
     }
 
     serviceTasks.addAll(workflow.getTasks().stream().map(task -> {
@@ -185,6 +189,13 @@ public class BpmnModelFactory {
       }
       return enhanceServiceTask(serviceTask, task);
     }).collect(Collectors.toList()));
+
+    if (useStreamConsumer) {
+      ServiceTask streamConsumer = createElement(modelInstance, process, String.format("t_%s", taskIndex.getAndIncrement()), ServiceTask.class);
+      streamConsumer.setName("Create Stream Consumer");
+      streamConsumer.setCamundaDelegateExpression("${streamConsumerDelegate}");
+      serviceTasks.add(streamConsumer);
+    }
 
     EndEvent processEndEvent = createElement(modelInstance, process, END_EVENT_ID, EndEvent.class);
     processEndEvent.setName("EndProcess");
