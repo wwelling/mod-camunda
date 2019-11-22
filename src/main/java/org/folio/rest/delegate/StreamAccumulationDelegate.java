@@ -27,7 +27,7 @@ public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
     log.info(String.format("%s STARTED", delegateName));
 
     int buffer = accumulateTo != null ? Integer.parseInt(accumulateTo.getValue(execution).toString()) : 500;
-    int delay = delayDuration != null ? Integer.parseInt(delayDuration.getValue(execution).toString()) : 10;
+    Long delay = delayDuration != null ? Long.parseLong(delayDuration.getValue(execution).toString()) : 10L;
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
