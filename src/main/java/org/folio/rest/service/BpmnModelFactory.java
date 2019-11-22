@@ -34,6 +34,7 @@ import org.folio.rest.workflow.components.RestRequestTask;
 import org.folio.rest.workflow.components.ScheduleTrigger;
 import org.folio.rest.workflow.components.StreamCreateForEachTask;
 import org.folio.rest.workflow.components.StreamingExtractorTask;
+import org.folio.rest.workflow.components.StreamingReportingTask;
 import org.folio.rest.workflow.components.StreamingRequestTask;
 import org.folio.rest.workflow.components.Task;
 import org.folio.rest.workflow.components.Trigger;
@@ -99,6 +100,17 @@ public class BpmnModelFactory {
           ServiceTask.class);
       createPrimaryStream.setName("Create Primary Stream");
       createPrimaryStream.setCamundaDelegateExpression("${streamCreationDelegate}");
+
+      ExtensionElements extensionElements = createElement(modelInstance, createPrimaryStream, null, ExtensionElements.class);
+      CamundaField isReportingField = createElement(modelInstance, extensionElements, String.format("t_%s-is-reporting", index), CamundaField.class);
+      isReportingField.setCamundaName("isReporting");
+
+      if (workflow.getTasks().stream().anyMatch(t -> t instanceof StreamingReportingTask)) {
+        isReportingField.setCamundaStringValue(Boolean.TRUE.toString());
+      } else {
+        isReportingField.setCamundaStringValue(Boolean.FALSE.toString());
+      }
+
       serviceTasks.add(createPrimaryStream);
 
       useStreamConsumer = true;
@@ -107,6 +119,7 @@ public class BpmnModelFactory {
     serviceTasks.addAll(workflow.getTasks().stream().map(task -> {
       int index = taskIndex.getAndIncrement();
       ServiceTask serviceTask = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
+
       if (task instanceof StreamingExtractorTask) {
         StreamingExtractorTask eTask = (StreamingExtractorTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
