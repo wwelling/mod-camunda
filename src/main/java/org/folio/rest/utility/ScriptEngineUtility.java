@@ -191,53 +191,17 @@ public class ScriptEngineUtility {
   public String getFieldsFromRawMarc(String rawMarc, String[] tags) {
     Optional<Record> record = rawMarcToRecord(rawMarc);
     if (record.isPresent()) {
-      return getRecordSubfields(record.get(), tags);
+      return getRecordFields(record.get(), tags);
     }
     return "[]";
-  }
-
-  public String addDataFieldToRawMarc(String rawMarc, String dataFieldJson) {
-    Optional<Record> record = rawMarcToRecord(rawMarc);
-    if (record.isPresent()) {
-      addDataField(record.get(), dataFieldJson);
-      return recordToJson(record.get());
-    }
-    return rawMarc;
-  }
-
-  public String removeDataFieldFromRawMarc(String rawMarc, String dataFieldJson) {
-    Optional<Record> record = rawMarcToRecord(rawMarc);
-    if (record.isPresent()) {
-      removeDataField(record.get(), dataFieldJson);
-      return recordToJson(record.get());
-    }
-    return rawMarc;
   }
 
   public String getFieldsFromMarcJson(String marcJson, String[] tags) {
     Optional<Record> record = marcJsonToRecord(marcJson);
     if (record.isPresent()) {
-      return getRecordSubfields(record.get(), tags);
+      return getRecordFields(record.get(), tags);
     }
     return "[]";
-  }
-
-  public String addDataFieldToMarcJson(String marcJson, String dataFieldJson) {
-    Optional<Record> record = marcJsonToRecord(marcJson);
-    if (record.isPresent()) {
-      addDataField(record.get(), dataFieldJson);
-      return recordToJson(record.get());
-    }
-    return marcJson;
-  }
-
-  public String removeDataFieldFromMarcJson(String marcJson, String dataFieldJson) {
-    Optional<Record> record = marcJsonToRecord(marcJson);
-    if (record.isPresent()) {
-      removeDataField(record.get(), dataFieldJson);
-      return recordToJson(record.get());
-    }
-    return marcJson;
   }
 
   private Optional<Record> marcJsonToRecord(String marcJson) {
@@ -285,7 +249,7 @@ public class ScriptEngineUtility {
     return "{}";
   }
 
-  private String getRecordSubfields(Record record, String[] tags) {
+  private String getRecordFields(Record record, String[] tags) {
     List<VariableField> fields = record.getVariableFields(tags);
     try {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(fields);
@@ -294,26 +258,6 @@ public class ScriptEngineUtility {
       System.out.println(e.getMessage());
     }
     return "[]";
-  }
-
-  private void addDataField(Record record, String dataFieldJson) {
-    try {
-      DataField dataField = mapper.readValue(dataFieldJson, DataFieldImpl.class);
-      record.addVariableField(dataField);
-    } catch (JsonProcessingException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
-    }
-  }
-
-  private void removeDataField(Record record, String dataFieldJson) {
-    try {
-      DataField dataField = mapper.readValue(dataFieldJson, DataFieldImpl.class);
-      record.removeVariableField(dataField);
-    } catch (JsonProcessingException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
-    }
   }
 
 }
