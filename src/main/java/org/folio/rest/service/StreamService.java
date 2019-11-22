@@ -87,21 +87,11 @@ public class StreamService {
     return setFlux(id, getFlux(id).map(map));
   }
 
-  public String map(String id, int buffer, int delay, Function<List<String>, String> map) {
+  public String map(String id, int buffer, long delay, Function<List<String>, String> map) {
     return setFlux(id, getFlux(id)
       .buffer(buffer)
-      .delayElements(
-        Duration.ofSeconds(delay),
-        Schedulers.single())
+      .delayElements(Duration.ofMillis(delay),Schedulers.single())
       .map(map));
-    // return setFlux(id, getFlux(id).buffer(buffer).map(map).map(d -> {
-    //   try {
-    //     Thread.sleep(delay * 1000);
-    //   } catch (InterruptedException e) {
-    //     e.printStackTrace();
-    //   }
-    //   return d;
-    // }));
   }
 
   public String createFlux(Flux<String> flux) {
@@ -111,11 +101,11 @@ public class StreamService {
   }
 
   public String setFlux(String id, Flux<String> flux) {
-    fluxes.put(id, flux); //.doFinally(s -> fluxes.remove(id)));
+    fluxes.put(id, flux);
     return id;
   }
 
-  Flux<String> enhanceFlux(Flux<String> primaryFlux, Flux<String> inFlux, List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) throws IOException {
+  public Flux<String> enhanceFlux(Flux<String> primaryFlux, Flux<String> inFlux, List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) throws IOException {
     Flux<JsonNode> primary = toJsonNodeFlux(primaryFlux);
     Flux<JsonNode> secondary = toJsonNodeFlux(inFlux);
     Flux<JsonNode> result = Flux.fromIterable(EnhancingFluxIterable.of(primary, secondary, enhancementComparisons, enhancementMappings));
