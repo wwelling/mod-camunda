@@ -8,13 +8,29 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.camunda.bpm.engine.impl.util.json.JSONObject;
 import org.marc4j.MarcException;
+import org.marc4j.MarcJsonReader;
 import org.marc4j.MarcJsonWriter;
 import org.marc4j.MarcStreamReader;
 import org.marc4j.marc.Record;
+import org.marc4j.marc.Subfield;
+import org.marc4j.marc.VariableField;
+import org.marc4j.marc.impl.SubfieldImpl;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * A collection of utilities methods intended to be directly used by scripts
@@ -29,6 +45,23 @@ public class ScriptEngineUtility {
   private static final Pattern EMAIL_PATTERN = compile(EMAIL_REGEX, CASE_INSENSITIVE | MULTILINE);
   private static final Pattern PHONE_PATTERN = compile(PHONE_REGEX, CASE_INSENSITIVE | MULTILINE);
   private static final Pattern URL_PATTERN = compile(URL_REGEX, CASE_INSENSITIVE | MULTILINE);
+
+  private static final ObjectMapper mapper = new ObjectMapper();
+
+  public ScriptEngineUtility() {
+    mapper.setSerializationInclusion(Include.NON_NULL);
+    SimpleModule module = new SimpleModule();
+    module.addDeserializer(Subfield.class, new JsonDeserializer<Subfield>() {
+      @Override
+      public Subfield deserialize(JsonParser jp, DeserializationContext ctxt)
+          throws IOException, JsonProcessingException {
+        ObjectCodec oc = jp.getCodec();
+        JsonNode node = oc.readTree(jp);
+        return mapper.treeToValue(node, SubfieldImpl.class);
+      }
+    });
+    mapper.registerModule(module);
+  }
 
   /**
    * Check if a given string is a proper e-mail address.
@@ -146,23 +179,83 @@ public class ScriptEngineUtility {
    * @throws IOException
    */
   public String rawMarcToJson(String rawMarc) {
-    try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes())) {
-      final MarcStreamReader reader = new MarcStreamReader(in);
-      try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-        final MarcJsonWriter writer = new MarcJsonWriter(out);
-        while (reader.hasNext()) {
-          Record record = reader.next();
-          writer.write(record);
-        }
-        writer.close();
-        return out.toString();
-      }
-    } catch (final IOException e) {
-      // TODO: do something in case of exception
-    } catch (final MarcException e) {
-      // TODO: do something in case of exception
+    Optional<Record> record = rawMarcToRecord(rawMarc);
+    if (record.isPresent()) {
+      return recordToJson(record.get());
     }
     return "{}";
+  }
+
+  public String getFieldsFromRawMarc(String rawMarc, String[] tags) {
+    Optional<Record> record = rawMarcToRecord(rawMarc);
+    if (record.isPresent()) {
+      return getRecordFields(record.get(), tags);
+    }
+    return "[]";
+  }
+
+  public String getFieldsFromMarcJson(String marcJson, String[] tags) {
+    Optional<Record> record = marcJsonToRecord(marcJson);
+    if (record.isPresent()) {
+      return getRecordFields(record.get(), tags);
+    }
+    return "[]";
+  }
+
+  private Optional<Record> marcJsonToRecord(String marcJson) {
+    try (InputStream in = new ByteArrayInputStream(marcJson.getBytes())) {
+      final MarcJsonReader reader = new MarcJsonReader(in);
+      if (reader.hasNext()) {
+        return Optional.of(reader.next());
+      }
+    } catch (IOException e) {
+      // TODO: do something in case of exception
+      System.out.println(e.getMessage());
+    } catch (final MarcException e) {
+      // TODO: do something in case of exception
+      System.out.println(e.getMessage());
+    }
+    return Optional.empty();
+  }
+
+  private Optional<Record> rawMarcToRecord(String rawMarc) {
+    try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes())) {
+      final MarcStreamReader reader = new MarcStreamReader(in);
+      if (reader.hasNext()) {
+        return Optional.of(reader.next());
+      }
+    } catch (IOException e) {
+      // TODO: do something in case of exception
+      System.out.println(e.getMessage());
+    } catch (final MarcException e) {
+      // TODO: do something in case of exception
+      System.out.println(e.getMessage());
+    }
+    return Optional.empty();
+  }
+
+  private String recordToJson(Record record) {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      final MarcJsonWriter writer = new MarcJsonWriter(out);
+      writer.write(record);
+      writer.close();
+      return out.toString();
+    } catch (IOException e) {
+      // TODO: do something in case of exception
+      System.out.println(e.getMessage());
+    }
+    return "{}";
+  }
+
+  private String getRecordFields(Record record, String[] tags) {
+    List<VariableField> fields = record.getVariableFields(tags);
+    try {
+      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(fields);
+    } catch (JsonProcessingException e) {
+      // TODO: do something in case of exception
+      System.out.println(e.getMessage());
+    }
+    return "[]";
   }
 
 }
