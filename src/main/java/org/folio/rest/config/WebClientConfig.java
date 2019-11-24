@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorResourceFactory;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import io.netty.channel.EventLoopGroup;
@@ -27,17 +28,16 @@ public class WebClientConfig {
   }
 
   @Bean
-  public ReactorResourceFactory reactorResourceFactory(NioEventLoopGroup eventLoopGroup,
-      ConnectionProvider connectionProvider) {
+  public ReactorResourceFactory reactorResourceFactory(NioEventLoopGroup group, ConnectionProvider provider) {
     ReactorResourceFactory factory = new ReactorResourceFactory();
     factory.setLoopResources(new LoopResources() {
       @Override
       public EventLoopGroup onServer(boolean b) {
-        return eventLoopGroup;
+        return group;
       }
     });
     factory.setUseGlobalResources(false);
-    factory.setConnectionProvider(connectionProvider);
+    factory.setConnectionProvider(provider);
     return factory;
   }
 
@@ -49,8 +49,15 @@ public class WebClientConfig {
   }
 
   @Bean
-  public WebClient webClient(WebClient.Builder webClientBuilder, ReactorClientHttpConnector connector) {
-    return webClientBuilder.clientConnector(connector).build();
+  public ExchangeStrategies exchangeStrategies() {
+    return ExchangeStrategies.builder()
+      .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16777216))
+      .build();
+  }
+
+  @Bean
+  public WebClient webClient(WebClient.Builder builder, ReactorClientHttpConnector connector, ExchangeStrategies strategies) {
+    return builder.clientConnector(connector).exchangeStrategies(strategies).build();
   }
 
 }
