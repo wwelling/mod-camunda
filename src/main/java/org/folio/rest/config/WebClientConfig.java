@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorResourceFactory;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import io.netty.channel.EventLoopGroup;
@@ -49,15 +48,8 @@ public class WebClientConfig {
   }
 
   @Bean
-  public ExchangeStrategies exchangeStrategies() {
-    return ExchangeStrategies.builder()
-      .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16777216))
-      .build();
-  }
-
-  @Bean
-  public WebClient webClient(WebClient.Builder builder, ReactorClientHttpConnector connector, ExchangeStrategies strategies) {
-    return builder.clientConnector(connector).exchangeStrategies(strategies).build();
+  public WebClient webClient(WebClient.Builder builder, ReactorClientHttpConnector connector) {
+    return builder.clientConnector(connector).build();
   }
 
 }
