@@ -27,17 +27,16 @@ public class WebClientConfig {
   }
 
   @Bean
-  public ReactorResourceFactory reactorResourceFactory(NioEventLoopGroup eventLoopGroup,
-      ConnectionProvider connectionProvider) {
+  public ReactorResourceFactory reactorResourceFactory(NioEventLoopGroup group, ConnectionProvider provider) {
     ReactorResourceFactory factory = new ReactorResourceFactory();
     factory.setLoopResources(new LoopResources() {
       @Override
       public EventLoopGroup onServer(boolean b) {
-        return eventLoopGroup;
+        return group;
       }
     });
     factory.setUseGlobalResources(false);
-    factory.setConnectionProvider(connectionProvider);
+    factory.setConnectionProvider(provider);
     return factory;
   }
 
@@ -49,8 +48,8 @@ public class WebClientConfig {
   }
 
   @Bean
-  public WebClient webClient(WebClient.Builder webClientBuilder, ReactorClientHttpConnector connector) {
-    return webClientBuilder.clientConnector(connector).build();
+  public WebClient webClient(WebClient.Builder builder, ReactorClientHttpConnector connector) {
+    return builder.clientConnector(connector).build();
   }
 
 }
