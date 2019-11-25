@@ -1,6 +1,5 @@
 package org.folio.rest.delegate;
 
-import java.io.IOException;
 import java.time.Instant;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class StreamingRequestDelegate extends AbstractReportableDelegate {
@@ -30,13 +28,11 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
   @Autowired
   private WebClient webClient;
 
-  @Autowired
-  private ObjectMapper objectMapper;
-
   private Expression storageDestination;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
+    super.execute(execution);
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
     String destinationUrl = storageDestination != null ? storageDestination.getValue(execution).toString() : OKAPI_LOCATION;
@@ -44,15 +40,13 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
     String token = (String) execution.getVariable("token");
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    Instant start = Instant.now();
-    updateReport(primaryStreamId, delegateName+" STARTED AT "+start);
+    updateReport(primaryStreamId, String.format("%s STARTED AT %s",delegateName, Instant.now()));
 
     streamService.map(primaryStreamId, d -> {
-      try {
-        webClient
+      webClient
         .post()
         .uri(destinationUrl)
-        .bodyValue(objectMapper.readTree(d))
+        .bodyValue(d.getBytes())
         .header("X-Okapi-Url", OKAPI_LOCATION)
         .header("X-Okapi-Tenant", DEFAULT_TENANT)
         .header("X-Okapi-Token", token)
@@ -61,11 +55,7 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
         .retrieve()
         .bodyToFlux(JsonNode.class)
         .subscribe();
-        updateReport(primaryStreamId, "Processed: "+d);
-      } catch (IOException e) {
-        e.printStackTrace();
-        updateReport(primaryStreamId, "Error processing: "+d);
-      }
+      updateReport(primaryStreamId, String.format("Sent POST to Storage Destination: %s", d));
       return d;
     });
   }
