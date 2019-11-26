@@ -24,6 +24,9 @@
     "active" : {
       "type" : "boolean"
     },
+    "requiresAuthentication" : {
+      "type" : "boolean"
+    },
     "tasks" : {
       "type" : "array",
       "items" : {
