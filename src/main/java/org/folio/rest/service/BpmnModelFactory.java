@@ -85,12 +85,14 @@ public class BpmnModelFactory {
 
     List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
     AtomicInteger taskIndex = new AtomicInteger();
-
-    int loginIndex = taskIndex.getAndIncrement();
-    ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex),
-        ServiceTask.class);
-    LoginTask loginTask = new LoginTask("LoginProcess");
-    serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
+    
+    if (workflow.getRequiresAuthentication()) {
+      int loginIndex = taskIndex.getAndIncrement();
+      ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex),
+          ServiceTask.class);
+      LoginTask loginTask = new LoginTask("LoginProcess");
+      serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
+    }
 
     boolean useStreamConsumer = false;
 
