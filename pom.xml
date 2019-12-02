@@ -219,12 +219,17 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jms</artifactId>
-      <version>5.1.9.RELEASE</version>
     </dependency>
 
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-jsr223</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.marc4j</groupId>
+      <artifactId>marc4j</artifactId>
+      <version>2.9.1</version>
     </dependency>
 
   </dependencies>

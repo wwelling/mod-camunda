@@ -1,10 +1,6 @@
 package org.folio.rest.delegate;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -15,8 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 @Service
-public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
+public class StreamingRequestDelegate extends AbstractReportableDelegate {
 
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
@@ -27,54 +25,38 @@ public class StreamingRequestDelegate extends AbstractRuntimeDelegate {
   @Autowired
   private StreamService streamService;
 
+  @Autowired
+  private WebClient webClient;
+
   private Expression storageDestination;
-
-  private final WebClient.Builder webClientBuilder;
-
-  public StreamingRequestDelegate(WebClient.Builder webClientBuilder) {
-    super();
-    this.webClientBuilder = webClientBuilder;
-  }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
+    super.execute(execution);
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
     String destinationUrl = storageDestination != null ? storageDestination.getValue(execution).toString() : OKAPI_LOCATION;
 
-    WebClient webClient = webClientBuilder.build();
-
-    log.info("{} STARTED", delegateName);
-
     String token = (String) execution.getVariable("token");
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    Instant start = Instant.now();
-    AtomicInteger counter = new AtomicInteger(1);
+    updateReport(primaryStreamId, String.format("%s STARTED AT %s",delegateName, Instant.now()));
 
-    streamService
-      .toJsonNodeFlux(streamService.getFlux(primaryStreamId))
-      .doFinally(r -> {
-        Instant now = Instant.now();
-        log.info("{} finished {} batches {} seconds\n\n", delegateName, counter.get(), Duration.between(start, now).getSeconds());
-      }).subscribe(reqNode -> {
-        webClient
-          .post()
-          .uri(destinationUrl)
-          .syncBody(reqNode)
-          .header("X-Okapi-Url", OKAPI_LOCATION)
-          .header("X-Okapi-Tenant", DEFAULT_TENANT)
-          .header("X-Okapi-Token", token)
-          .accept(MediaType.APPLICATION_JSON)
-          .retrieve()
-          .bodyToFlux(JsonNode.class)
-          .subscribe();
-        int cc = counter.incrementAndGet();
-        if (cc % 1000 == 0) {
-          log.info("TO STRING {}", reqNode.toString());
-        } else {
-          System.out.print(".");
-        }
+    streamService.map(primaryStreamId, d -> {
+      webClient
+        .post()
+        .uri(destinationUrl)
+        .bodyValue(d.getBytes())
+        .header("X-Okapi-Url", OKAPI_LOCATION)
+        .header("X-Okapi-Tenant", DEFAULT_TENANT)
+        .header("X-Okapi-Token", token)
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .retrieve()
+        .bodyToFlux(JsonNode.class)
+        .subscribe();
+      updateReport(primaryStreamId, String.format("Sent POST to Storage Destination: %s", d));
+      return d;
     });
   }
 

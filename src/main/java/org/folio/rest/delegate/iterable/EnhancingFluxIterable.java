@@ -4,12 +4,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.folio.rest.delegate.comparator.SortingComparator;
 import org.folio.rest.workflow.components.EnhancementComparison;
 import org.folio.rest.workflow.components.EnhancementMapping;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import reactor.core.publisher.Flux;
 
@@ -23,8 +24,8 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
 
   private final List<EnhancementMapping> enhancementMappings;
 
-  public EnhancingFluxIterable(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux, 
-    List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
+  public EnhancingFluxIterable(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux,
+      List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
     this.primary = primaryFlux.toIterable().iterator();
     this.input = inFlux.toIterable().iterator();
     this.sortingComparator = SortingComparator.of(enhancementComparisons);
@@ -72,23 +73,33 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
       }
 
       private int compareInput(JsonNode node) {
-        if(!inputNode.isPresent()) {
+        if (!inputNode.isPresent()) {
           return -1;
         }
         return sortingComparator.compare(node, inputNode.get());
       }
 
       private void enhanceNode(ObjectNode node) {
-        enhancementMappings.forEach(em->{
-          JsonNode propNode = inputNode.get().at(em.getFromProperty());
-          node.set(em.getToProperty(), propNode);
+        enhancementMappings.forEach(em -> {
+          if (em.isMultiple()) {
+            ArrayNode multiple;
+            if (node.has(em.getToProperty())) {
+              multiple = (ArrayNode) node.get(em.getToProperty());
+            } else {
+              multiple = node.putArray(em.getToProperty());
+            }
+            multiple.add(inputNode.get());
+          } else {
+            JsonNode propNode = inputNode.get().at(em.getFromProperty());
+            node.set(em.getToProperty(), propNode);
+          }
         });
       }
     };
   }
 
-  public static EnhancingFluxIterable of(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux, 
-    List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
+  public static EnhancingFluxIterable of(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux,
+      List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
     return new EnhancingFluxIterable(primaryFlux, inFlux, enhancementComparisons, enhancementMappings);
   }
 
