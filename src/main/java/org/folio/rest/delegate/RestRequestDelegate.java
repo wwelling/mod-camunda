@@ -5,6 +5,7 @@ import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.spring.service.HttpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
+@Scope("prototype")
 public class RestRequestDelegate extends AbstractRuntimeDelegate {
 
   private Expression url;
@@ -24,8 +26,8 @@ public class RestRequestDelegate extends AbstractRuntimeDelegate {
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
 
-  @Autowired HttpService httpService;
-
+  @Autowired
+  HttpService httpService;
 
   private static final String NO_VALUE = "NO_VALUE";
 
@@ -40,14 +42,11 @@ public class RestRequestDelegate extends AbstractRuntimeDelegate {
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<String> entity = new HttpEntity<String>(
-      requestBodyValue.equals(NO_VALUE) ? null : requestBodyValue, headers);
+    HttpEntity<String> entity = new HttpEntity<String>(requestBodyValue.equals(NO_VALUE) ? null : requestBodyValue,
+        headers);
 
-    ResponseEntity<String> res = httpService.exchange(
-      urlValue,
-      HttpMethod.valueOf(httpMethodValue),
-      entity, 
-      String.class);
+    ResponseEntity<String> res = httpService.exchange(urlValue, HttpMethod.valueOf(httpMethodValue), entity,
+        String.class);
 
     log.info("{}", res.getBody());
 

@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -219,8 +220,10 @@ public class ScriptEngineUtility {
   }
 
   private Optional<Record> rawMarcToRecord(String rawMarc) {
-    try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes())) {
-      final MarcStreamReader reader = new MarcStreamReader(in);
+    byte[] marcBytes = rawMarc.getBytes(StandardCharsets.US_ASCII);
+    String utf8Marc = new String(marcBytes, StandardCharsets.UTF_8);
+    try (InputStream in = new ByteArrayInputStream(utf8Marc.getBytes())) {
+      final MarcStreamReader reader = new MarcStreamReader(in, StandardCharsets.UTF_8.toString());
       if (reader.hasNext()) {
         return Optional.of(reader.next());
       }
