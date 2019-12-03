@@ -2,21 +2,22 @@ package org.folio.rest.delegate;
 
 import java.util.List;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
 import org.folio.rest.workflow.components.EnhancementComparison;
 import org.folio.rest.workflow.components.EnhancementMapping;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import reactor.core.publisher.Flux;
 
 @Service
+@Scope("prototype")
 public class EnhancingExtractorDelegate extends AbstractExtractorDelegate {
 
   @Autowired
@@ -29,13 +30,12 @@ public class EnhancingExtractorDelegate extends AbstractExtractorDelegate {
 
   private Expression mappings;
 
-  public EnhancingExtractorDelegate(WebClient.Builder webClientBuilder) {
-    super(webClientBuilder);
+  public EnhancingExtractorDelegate() {
+    super();
   }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-
     String comparisonsSerialized = comparisons.getValue(execution).toString();
     String mappingsSerialized = mappings.getValue(execution).toString();
 
@@ -43,11 +43,12 @@ public class EnhancingExtractorDelegate extends AbstractExtractorDelegate {
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    List<EnhancementComparison> enhancementComparisons = objectMapper.readValue(comparisonsSerialized, new TypeReference<List<EnhancementComparison>>() {});
-    List<EnhancementMapping> enhancementMappings = objectMapper.readValue(mappingsSerialized, new TypeReference<List<EnhancementMapping>>() {});
+    List<EnhancementComparison> enhancementComparisons = objectMapper.readValue(comparisonsSerialized,
+      new TypeReference<List<EnhancementComparison>>() {});
+    List<EnhancementMapping> enhancementMappings = objectMapper.readValue(mappingsSerialized,
+      new TypeReference<List<EnhancementMapping>>() {});
 
     streamService.enhanceFlux(primaryStreamId, newStream, enhancementComparisons, enhancementMappings);
-
   }
 
   public void setComparisons(Expression comparisons) {

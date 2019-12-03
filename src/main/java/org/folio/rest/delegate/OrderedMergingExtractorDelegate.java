@@ -12,7 +12,6 @@ import org.folio.rest.workflow.components.EnhancementComparison;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Flux;
 
@@ -28,8 +27,8 @@ public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
 
   private Expression comparisons;
 
-  public OrderedMergingExtractorDelegate(WebClient.Builder webClientBuilder) {
-    super(webClientBuilder);
+  public OrderedMergingExtractorDelegate() {
+    super();
   }
 
   @Override

@@ -30,24 +30,22 @@ public class TestStreamDelegate extends TestAbstractRuntimeDelegate {
   @Autowired
   private LoginService loginService;
 
+  @Autowired
+  private WebClient webClient;
+
   @Value("${okapi.location}")
   private String OKAPI_LOCATION;
 
   private Expression streamSource;
 
-  private final WebClient.Builder webClientBuilder;
-
-  public TestStreamDelegate(WebClient.Builder webClientBuilder) {
+  public TestStreamDelegate() {
     super();
-    this.webClientBuilder = webClientBuilder;
   }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
 
     String sourceBaseUrl = streamSource != null ? streamSource.getValue(execution).toString() : OKAPI_LOCATION;
-
-    WebClient webClient = webClientBuilder.baseUrl(sourceBaseUrl).build();
 
     String delegateName = execution.getBpmnModelElementInstance().getName();
     log.info(String.format("%s STARTED", delegateName));
@@ -67,7 +65,7 @@ public class TestStreamDelegate extends TestAbstractRuntimeDelegate {
     String fluxId = streamService.createFlux(
       webClient
         .get()
-        .uri("/extractors/{id}/run", extratorId)
+        .uri(sourceBaseUrl + "/extractors/{id}/run", extratorId)
         .header("X-Okapi-Tenant", tenant)
         .header("X-Okapi-Token", token)
         .accept(MediaType.APPLICATION_STREAM_JSON)

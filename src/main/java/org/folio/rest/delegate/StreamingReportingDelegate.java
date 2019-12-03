@@ -6,10 +6,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 @Service
+@Scope("prototype")
 public class StreamingReportingDelegate extends AbstractRuntimeDelegate {
+
   @Autowired
   private StreamService streamService;
 
@@ -27,15 +30,14 @@ public class StreamingReportingDelegate extends AbstractRuntimeDelegate {
 
     AtomicInteger counter = new AtomicInteger(1);
 
-    streamService.setFlux(primaryStreamId, streamService.getFlux(primaryStreamId)
-      .doFinally(r -> {
-        log.info("Building Report at {}",Instant.now());
+    streamService.setFlux(primaryStreamId, streamService.getFlux(primaryStreamId).doFinally(r -> {
+      log.info("Building Report at {}", Instant.now());
 
-        streamService.getReport(primaryStreamId).forEach(e -> {
-          log.info("Entry "+counter+": "+e);
-          counter.getAndIncrement();
-        });
-        streamService.clearReport(primaryStreamId);
-      }));
+      streamService.getReport(primaryStreamId).forEach(e -> {
+        log.info("Entry " + counter + ": " + e);
+        counter.getAndIncrement();
+      });
+      streamService.clearReport(primaryStreamId);
+    }));
   }
 }

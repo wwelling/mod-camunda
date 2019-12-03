@@ -7,6 +7,7 @@ import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
+@Scope("prototype")
 public class StreamingRequestDelegate extends AbstractReportableDelegate {
 
   @Value("${tenant.default-tenant}")
