@@ -30,7 +30,7 @@ public class StreamConsumerDelegate extends AbstractReportableDelegate {
 
     // NOTE: could use streamService.toJsonNodeStream if need JsonNode in iteration
     streamService.getStream(primaryStreamId).forEach(r -> {
-      System.out.println("\n" + r + "\n");
+
     });
 
     log.info("Stream consumption completed");
@@ -39,9 +39,7 @@ public class StreamConsumerDelegate extends AbstractReportableDelegate {
 
     if (isReporting()) {
       AtomicInteger counter = new AtomicInteger(1);
-
       log.info("Building Report at {}", Instant.now());
-
       streamService.getReport(primaryStreamId).forEach(e -> {
         log.info("Entry " + counter + ": " + e);
         counter.getAndIncrement();
