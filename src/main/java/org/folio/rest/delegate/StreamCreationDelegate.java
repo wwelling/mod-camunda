@@ -1,6 +1,7 @@
 package org.folio.rest.delegate;
 
 import java.time.Instant;
+import java.util.stream.Stream;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -8,8 +9,6 @@ import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
-import reactor.core.publisher.Flux;
 
 @Service
 @Scope("prototype")
@@ -22,8 +21,8 @@ public class StreamCreationDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    Flux<String> primaryStream = Flux.empty();
-    String primaryStreamId = streamService.createFlux(primaryStream);
+    Stream<String> primaryStream = Stream.empty();
+    String primaryStreamId = streamService.createStream(primaryStream);
     Boolean isReportingValue = (isReporting) != null ? Boolean.parseBoolean(isReporting.getValue(execution).toString())
         : false;
 

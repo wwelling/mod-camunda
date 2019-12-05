@@ -5,7 +5,6 @@ logging:
       folio: INFO
       hibernate: INFO
       springframework: INFO
-  path:
 
 server:
   port: 9100

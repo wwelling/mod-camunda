@@ -3,6 +3,8 @@ package org.folio.rest.delegate.iterable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.folio.rest.delegate.comparator.SortingComparator;
 import org.folio.rest.workflow.components.EnhancementComparison;
@@ -12,9 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import reactor.core.publisher.Flux;
-
-public class EnhancingFluxIterable implements Iterable<JsonNode> {
+public class EnhancingStreamIterable implements Iterable<JsonNode> {
 
   private final Iterator<JsonNode> primary;
 
@@ -24,10 +24,10 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
 
   private final List<EnhancementMapping> enhancementMappings;
 
-  public EnhancingFluxIterable(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux,
+  public EnhancingStreamIterable(Stream<JsonNode> primaryStream, Stream<JsonNode> inStream,
       List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
-    this.primary = primaryFlux.toIterable().iterator();
-    this.input = inFlux.toIterable().iterator();
+    this.primary = primaryStream.iterator();
+    this.input = inStream.iterator();
     this.sortingComparator = SortingComparator.of(enhancementComparisons);
     this.enhancementMappings = enhancementMappings;
   }
@@ -98,9 +98,13 @@ public class EnhancingFluxIterable implements Iterable<JsonNode> {
     };
   }
 
-  public static EnhancingFluxIterable of(Flux<JsonNode> primaryFlux, Flux<JsonNode> inFlux,
+  public Stream<JsonNode> toStream() {
+    return StreamSupport.stream(spliterator(), false);
+  }
+
+  public static EnhancingStreamIterable of(Stream<JsonNode> primaryStream, Stream<JsonNode> inStream,
       List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
-    return new EnhancingFluxIterable(primaryFlux, inFlux, enhancementComparisons, enhancementMappings);
+    return new EnhancingStreamIterable(primaryStream, inStream, enhancementComparisons, enhancementMappings);
   }
 
 }

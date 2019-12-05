@@ -1,7 +1,6 @@
 package org.folio.rest.service;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,9 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
-import org.folio.rest.delegate.comparator.SortingComparator;
-import org.folio.rest.delegate.iterable.EnhancingFluxIterable;
+import org.folio.rest.delegate.iterable.BufferingStreamIterable;
+import org.folio.rest.delegate.iterable.EnhancingStreamIterable;
+import org.folio.rest.delegate.iterable.OrderingMergeStreamIterable;
 import org.folio.rest.workflow.components.EnhancementComparison;
 import org.folio.rest.workflow.components.EnhancementMapping;
 import org.springframework.stereotype.Service;
@@ -22,98 +23,99 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
-
 @Service
 public class StreamService {
 
   private final ObjectMapper objectMapper;
 
-  private final Map<String, Flux<String>> fluxes;
+  private final Map<String, Stream<String>> streams;
 
   private final Map<String, List<String>> reports;
 
   public StreamService(ObjectMapper objectMapper) {
-    this.objectMapper =objectMapper;
-    fluxes = new HashMap<String, Flux<String>>();
+    this.objectMapper = objectMapper;
+    streams = new HashMap<String, Stream<String>>();
     reports = new HashMap<String, List<String>>();
   }
 
-  public Flux<String> getFlux(String id) {
-    return fluxes.get(id);
+  public Stream<String> getStream(String id) {
+    return streams.get(id);
   }
 
-  public String concatenateFlux(String firstFluxId, Flux<String> secondFlux) {
-    Flux<String> firstFlux = getFlux(firstFluxId);
-    return setFlux(firstFluxId, firstFlux.concatWith(secondFlux));
+  public void removeStream(String id) {
+    streams.remove(id);
   }
 
-  public String orderedMergeFlux(String firstFluxId, Flux<String> secondFlux, List<EnhancementComparison> enhancementComparisons) throws JsonParseException, JsonMappingException, IOException {
-    Flux<String> firstFlux = getFlux(firstFluxId);
+  public String concatenateStream(String firstStreamId, Stream<String> secondStream) {
+    Stream<String> firstStream = getStream(firstStreamId);
+    return setStream(firstStreamId, Stream.concat(firstStream, secondStream));
+  }
 
-    Flux<String> result;
-    if (enhancementComparisons.size() > 0) {
-      SortingComparator comparator = SortingComparator.of(enhancementComparisons);
-      Flux<JsonNode> primary = toJsonNodeFlux(firstFlux);
-      Flux<JsonNode> secondary = toJsonNodeFlux(secondFlux);
-      result = toStringFlux(primary.mergeOrderedWith(secondary, comparator));
-    } else {
-      result = Flux.merge(firstFlux, secondFlux);
-    }
-
-    return setFlux(firstFluxId, result);
+  public String orderedMergeStream(String firstStreamId, Stream<String> secondStream,
+      List<EnhancementComparison> enhancementComparisons) throws JsonParseException, JsonMappingException, IOException {
+    Stream<String> firstStream = getStream(firstStreamId);
+    Stream<JsonNode> primary = toJsonNodeStream(firstStream);
+    Stream<JsonNode> secondary = toJsonNodeStream(secondStream);
+    OrderingMergeStreamIterable orderedStreamIterable = OrderingMergeStreamIterable.of(primary, secondary,
+        enhancementComparisons);
+    Stream<String> result = toStringStream(orderedStreamIterable.toStream());
+    return setStream(firstStreamId, result);
   }
 
   /**
-   * Compares two fluxes of JSON strings using an ordered map of comparison
-   * properties and augments the first flux with an enhancement property from the
-   * second flux when there is a match. Primary flux and input flux must be sorted
-   * by the comparison properties.
+   * Compares two streams of JSON strings using an ordered map of comparison
+   * properties and augments the first stream with an enhancement property from
+   * the second stream when there is a match. Primary stream and input stream must
+   * be sorted by the comparison properties.
    *
-   * @param primaryFluxId
-   * @param inFlux
+   * @param primaryStreamId
+   * @param inStream
    * @param comparisonProperties
    * @param enhancementProperty
-   * @return primaryFluxId
+   * @return primaryStreamId
    * @throws IOException
    */
-  public String enhanceFlux(String primaryFluxId, Flux<String> inFlux, List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) throws IOException {
-    Flux<String> enhancedFlux = enhanceFlux(getFlux(primaryFluxId), inFlux, enhancementComparisons, enhancementMappings);
-    return setFlux(primaryFluxId, enhancedFlux);
+  public String enhanceStream(String primaryStreamId, Stream<String> inStream,
+      List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings)
+      throws IOException {
+    Stream<String> enhancedStream = enhanceStream(getStream(primaryStreamId), inStream, enhancementComparisons,
+        enhancementMappings);
+    return setStream(primaryStreamId, enhancedStream);
   }
 
   public String map(String id, Function<String, String> map) {
-    return setFlux(id, getFlux(id).map(map));
+    return setStream(id, getStream(id).map(map));
   }
 
   public String map(String id, int buffer, long delay, Function<List<String>, String> map) {
-    return setFlux(id, getFlux(id)
-      .buffer(buffer)
-      .delayElements(Duration.ofMillis(delay),Schedulers.single())
-      .map(map));
+    BufferingStreamIterable bufferedIterable = BufferingStreamIterable.of(getStream(id), buffer, delay);
+    return setStream(id, bufferedIterable.toStream().map(map));
   }
 
-  public String createFlux(Flux<String> flux) {
+  public String createStream(Stream<String> stream) {
     String id = UUID.randomUUID().toString();
-    fluxes.put(id, flux.doFinally(s -> fluxes.remove(id)));
+    streams.put(id, stream);
     return id;
   }
 
-  public String setFlux(String id, Flux<String> flux) {
-    fluxes.put(id, flux);
+  public String setStream(String id, Stream<String> stream) {
+    streams.put(id, stream);
     return id;
   }
 
-  public Flux<String> enhanceFlux(Flux<String> primaryFlux, Flux<String> inFlux, List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) throws IOException {
-    Flux<JsonNode> primary = toJsonNodeFlux(primaryFlux);
-    Flux<JsonNode> secondary = toJsonNodeFlux(inFlux);
-    Flux<JsonNode> result = Flux.fromIterable(EnhancingFluxIterable.of(primary, secondary, enhancementComparisons, enhancementMappings));
-    return toStringFlux(result);
+  public Stream<String> enhanceStream(Stream<String> primaryStream, Stream<String> inStream,
+      List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings)
+      throws IOException {
+    Stream<JsonNode> primary = toJsonNodeStream(primaryStream);
+    Stream<JsonNode> secondary = toJsonNodeStream(inStream);
+    EnhancingStreamIterable enhancedIterable = EnhancingStreamIterable.of(primary, secondary, enhancementComparisons,
+        enhancementMappings);
+    Stream<JsonNode> result = enhancedIterable.toStream();
+    return toStringStream(result);
   }
 
-  public Flux<JsonNode> toJsonNodeFlux(Flux<String> stringFlux) {
-    return stringFlux.map(p -> {
+  public Stream<JsonNode> toJsonNodeStream(Stream<String> stringStream) {
+    return stringStream.map(p -> {
       Optional<JsonNode> node = Optional.empty();
       try {
         node = Optional.ofNullable(objectMapper.readTree(p));
@@ -124,8 +126,8 @@ public class StreamService {
     }).filter(on -> on.isPresent()).map(on -> on.get());
   }
 
-  public Flux<String> toStringFlux(Flux<JsonNode> jsonNodeFlux) {
-    return jsonNodeFlux.map(n -> {
+  public Stream<String> toStringStream(Stream<JsonNode> jsonNodeStream) {
+    return jsonNodeStream.map(n -> {
       Optional<String> value = Optional.empty();
       try {
         value = Optional.ofNullable(objectMapper.writeValueAsString(n));

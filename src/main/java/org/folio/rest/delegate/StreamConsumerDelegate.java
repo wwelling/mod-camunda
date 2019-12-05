@@ -1,5 +1,8 @@
 package org.folio.rest.delegate;
 
+import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +28,24 @@ public class StreamConsumerDelegate extends AbstractRuntimeDelegate {
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    streamService.toJsonNodeFlux(streamService.getFlux(primaryStreamId)).doFinally(r -> {
-      log.info("Stream consumption completed");
-    }).subscribe();
+    // NOTE: could use streamService.toJsonNodeStream if need JsonNode in iteration
+    streamService.getStream(primaryStreamId).forEach(r -> {
+
+    });
+
+    log.info("Stream consumption completed");
+
+    AtomicInteger counter = new AtomicInteger(1);
+
+    log.info("Building Report at {}", Instant.now());
+
+    streamService.getReport(primaryStreamId).forEach(e -> {
+      log.info("Entry " + counter + ": " + e);
+      counter.getAndIncrement();
+    });
+    streamService.clearReport(primaryStreamId);
+
+    streamService.removeStream(primaryStreamId);
   }
 
 }
