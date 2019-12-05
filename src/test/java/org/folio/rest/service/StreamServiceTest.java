@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.stream.Stream;
 
 import org.folio.rest.workflow.components.EnhancementComparison;
 import org.folio.rest.workflow.components.EnhancementMapping;
@@ -20,7 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import reactor.core.publisher.Flux;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 public class StreamServiceTest {
@@ -35,12 +34,12 @@ public class StreamServiceTest {
   }
 
   @Test
-  public void testEnhanceFlux() throws IOException {
+  public void testEnhanceStream() throws IOException {
     int count = 10000;
 
-    Flux<String> primary = Flux.fromIterable(createPrimary(count));
+    Stream<String> primary = createPrimary(count).stream();
 
-    Flux<String> secondary = Flux.fromIterable(createSecondary(count));
+    Stream<String> secondary = createSecondary(count).stream();
 
     List<EnhancementComparison> enhancementComparisons = new ArrayList<EnhancementComparison>();
     enhancementComparisons.add(new EnhancementComparison("/id", "/id"));
@@ -49,37 +48,39 @@ public class StreamServiceTest {
     enhancementMappings.add(new EnhancementMapping("netid", "/netid"));
 
     long startTime = System.nanoTime();
-    Flux<String> enhancedFlux = streamService.enhanceFlux(primary, secondary, enhancementComparisons, enhancementMappings);
+    Stream<String> enhancedStream = streamService.enhanceStream(primary, secondary, enhancementComparisons, enhancementMappings);
 
     List<String> excpected = createExpected(count);
 
     AtomicInteger index = new AtomicInteger(0);
 
-    enhancedFlux.subscribe(row -> {
+    enhancedStream.forEach(row -> {
       assertEquals(excpected.get(index.getAndIncrement()), row);
     });
+    
+    assertEquals(index.get(), count);
 
     long endTime = System.nanoTime();
 
     long duration = (endTime - startTime);
 
-    logger.info(String.format("Took %s milliseconds to enhance flux of %s rows", (duration / 1000000), count));
+    logger.info(String.format("Took %s milliseconds to enhance stream of %s rows", (duration / 1000000), count));
   }
 
   @Test
-  public void testToJsonNodeFlux() {
-    Flux<String> initialFlux = Flux.fromIterable(createPrimary(10));
-    streamService.toJsonNodeFlux(initialFlux).subscribe(node -> {
+  public void testToJsonNodeStream() {
+    Stream<String> initialStream = createPrimary(10).stream();
+    streamService.toJsonNodeStream(initialStream).forEach(node -> {
       assertTrue(node instanceof JsonNode);
     });
   }
 
   @Test
-  public void testToStringFlux() {
-    Flux<String> initialFlux = Flux.fromIterable(createPrimary(10));
-    Flux<JsonNode> jsonNodeFlux = streamService.toJsonNodeFlux(initialFlux);
-    Flux<String> stringFlux = streamService.toStringFlux(jsonNodeFlux);
-    stringFlux.subscribe(node -> {
+  public void testToStringStream() {
+    Stream<String> initialStream = createPrimary(10).stream();
+    Stream<JsonNode> jsonNodeStream = streamService.toJsonNodeStream(initialStream);
+    Stream<String> stringStream = streamService.toStringStream(jsonNodeStream);
+    stringStream.forEach(node -> {
       assertTrue(node instanceof String);
     });
   }

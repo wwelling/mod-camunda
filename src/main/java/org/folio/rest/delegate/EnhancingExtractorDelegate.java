@@ -1,6 +1,7 @@
 package org.folio.rest.delegate;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -13,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import reactor.core.publisher.Flux;
 
 @Service
 @Scope("prototype")
@@ -39,7 +38,7 @@ public class EnhancingExtractorDelegate extends AbstractExtractorDelegate {
     String comparisonsSerialized = comparisons.getValue(execution).toString();
     String mappingsSerialized = mappings.getValue(execution).toString();
 
-    Flux<String> newStream = this.getStream(execution);
+    Stream<String> newStream = this.getStream(execution);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
@@ -48,7 +47,7 @@ public class EnhancingExtractorDelegate extends AbstractExtractorDelegate {
     List<EnhancementMapping> enhancementMappings = objectMapper.readValue(mappingsSerialized,
       new TypeReference<List<EnhancementMapping>>() {});
 
-    streamService.enhanceFlux(primaryStreamId, newStream, enhancementComparisons, enhancementMappings);
+    streamService.enhanceStream(primaryStreamId, newStream, enhancementComparisons, enhancementMappings);
   }
 
   public void setComparisons(Expression comparisons) {

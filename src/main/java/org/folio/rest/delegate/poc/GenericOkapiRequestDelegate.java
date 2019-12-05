@@ -20,7 +20,7 @@ public class GenericOkapiRequestDelegate extends TestAbstractRuntimeDelegate {
   private static final String REQUEST_URL = "requestUrl";
   private static final String REQUEST_METHOD = "requestMethod";
   private static final String REQUEST_PAYLOAD = "requestPayload";
-  private static final String REQUEST_URI_VARIABLES = "requestUriVariables";
+  // private static final String REQUEST_URI_VARIABLES = "requestUriVariables";
 
   private static final String REQUEST_CONTENT_TYPE = "requestContentType";
 
