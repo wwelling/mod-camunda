@@ -155,4 +155,5 @@ public class StreamService {
   public void clearReport(String primaryStreamId) {
     reports.remove(primaryStreamId);
   }
+
 }

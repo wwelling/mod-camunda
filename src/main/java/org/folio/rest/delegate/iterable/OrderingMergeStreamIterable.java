@@ -42,6 +42,8 @@ public class OrderingMergeStreamIterable implements Iterable<JsonNode> {
       @Override
       public JsonNode next() {
 
+        Optional<JsonNode> currentNode = Optional.empty();
+
         if (!primaryNode.isPresent() && primary.hasNext()) {
           primaryNode = Optional.of(primary.next());
         }
@@ -51,22 +53,39 @@ public class OrderingMergeStreamIterable implements Iterable<JsonNode> {
         }
 
         if (!inputNode.isPresent()) {
-          return primaryNode.get();
+          currentNode = primaryNode;
+          nextPrimary();
         }
 
-        if (!primaryNode.isPresent()) {
-          return inputNode.get();
+        if (!currentNode.isPresent() && !primaryNode.isPresent()) {
+          currentNode = inputNode;
+          nextInput();
         }
 
-        if (sortingComparator.compare(primaryNode.get(), inputNode.get()) > 0) {
-          return inputNode.get();
+        if (!currentNode.isPresent()) {
+          if (sortingComparator.compare(primaryNode.get(), inputNode.get()) > 0) {
+            currentNode = inputNode;
+            nextInput();
+          } else {
+            currentNode = primaryNode;
+            nextPrimary();
+          }
         }
-        return primaryNode.get();
+
+        return currentNode.get();
       }
 
       @Override
       public void remove() {
         throw new UnsupportedOperationException();
+      }
+
+      private void nextPrimary() {
+        this.primaryNode = primary.hasNext() ? Optional.of(primary.next()) : Optional.empty();
+      }
+
+      private void nextInput() {
+        this.inputNode = input.hasNext() ? Optional.of(input.next()) : Optional.empty();
       }
 
     };
