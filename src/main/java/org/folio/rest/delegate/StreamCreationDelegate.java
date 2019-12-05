@@ -22,9 +22,11 @@ public class StreamCreationDelegate extends AbstractRuntimeDelegate {
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     Stream<String> primaryStream = Stream.empty();
-    String primaryStreamId = streamService.createStream(primaryStream);
+    
     Boolean isReportingValue = (isReporting) != null ? Boolean.parseBoolean(isReporting.getValue(execution).toString())
         : false;
+    
+    String primaryStreamId = streamService.createStream(primaryStream);
 
     execution.setVariable("primaryStreamId", primaryStreamId);
     execution.setVariable("isReporting", isReportingValue);

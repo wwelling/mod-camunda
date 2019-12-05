@@ -152,7 +152,7 @@ public class StreamService {
     return reports.get(primaryStreamId);
   }
 
-  public void clearReport(String primaryStreamId) {
+  public void removeReport(String primaryStreamId) {
     reports.remove(primaryStreamId);
   }
 
