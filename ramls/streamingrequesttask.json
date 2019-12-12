@@ -25,6 +25,12 @@
     },
     "storageDestination" : {
       "type" : "string"
+    },
+    "contentType" : {
+      "type" : "string"
+    },
+    "accept" : {
+      "type" : "string"
     }
   },
   "required" : [ "deserializeAs", "name" ]

@@ -271,6 +271,12 @@
         },
         "storageDestination" : {
           "type" : "string"
+        },
+        "contentType" : {
+          "type" : "string"
+        },
+        "accept" : {
+          "type" : "string"
         }
       },
       "title" : "StreamingRequestTask",
