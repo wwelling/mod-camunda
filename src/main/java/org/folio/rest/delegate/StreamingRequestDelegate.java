@@ -74,4 +74,8 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
     this.contentType = contentType;
   }
 
+  public void setAccept(Expression accept) {
+    this.accept = accept;
+  }
+
 }
