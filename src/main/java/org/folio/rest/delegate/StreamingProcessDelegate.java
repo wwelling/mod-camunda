@@ -43,7 +43,7 @@ public class StreamingProcessDelegate extends AbstractRuntimeDelegate {
         try {
           d = (String) scriptEngineService.runScript(scriptTypeValue, delegateName, d);
         } catch (NoSuchMethodException | ScriptException e) {
-         e.printStackTrace();
+          e.printStackTrace();
         }
 
         return d;
