@@ -8,6 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -47,6 +49,8 @@ public class ScriptEngineUtility {
   private static final Pattern URL_PATTERN = compile(URL_REGEX, CASE_INSENSITIVE | MULTILINE);
 
   private static final ObjectMapper mapper = new ObjectMapper();
+  
+  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   public ScriptEngineUtility() {
     mapper.setSerializationInclusion(Include.NON_NULL);
@@ -219,8 +223,8 @@ public class ScriptEngineUtility {
   }
 
   private Optional<Record> rawMarcToRecord(String rawMarc) {
-    try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes())) {
-      final MarcStreamReader reader = new MarcStreamReader(in);
+    try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(DEFAULT_CHARSET))) {
+      final MarcStreamReader reader = new MarcStreamReader(in, DEFAULT_CHARSET.name());
       if (reader.hasNext()) {
         return Optional.of(reader.next());
       }

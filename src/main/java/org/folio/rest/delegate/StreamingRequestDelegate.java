@@ -7,13 +7,13 @@ import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 @Service
+@Scope("prototype")
 public class StreamingRequestDelegate extends AbstractReportableDelegate {
 
   @Value("${tenant.default-tenant}")
@@ -29,13 +29,19 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
   private WebClient webClient;
 
   private Expression storageDestination;
+  
+  private Expression contentType;
+  
+  private Expression accept;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     super.execute(execution);
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
-    String destinationUrl = storageDestination != null ? storageDestination.getValue(execution).toString() : OKAPI_LOCATION;
+    String storageDestination = this.storageDestination != null ? this.storageDestination.getValue(execution).toString() : OKAPI_LOCATION;
+    String contentType = this.contentType != null ? this.contentType.getValue(execution).toString() : MediaType.APPLICATION_JSON_VALUE;
+    String accept = this.accept != null ? this.accept.getValue(execution).toString() : MediaType.APPLICATION_JSON_VALUE;
 
     String token = (String) execution.getVariable("token");
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
@@ -45,15 +51,15 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
     streamService.map(primaryStreamId, d -> {
       webClient
         .post()
-        .uri(destinationUrl)
+        .uri(storageDestination)
         .bodyValue(d.getBytes())
         .header("X-Okapi-Url", OKAPI_LOCATION)
         .header("X-Okapi-Tenant", DEFAULT_TENANT)
         .header("X-Okapi-Token", token)
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", contentType)
+        .header("Accept", accept)
         .retrieve()
-        .bodyToFlux(JsonNode.class)
+        .bodyToFlux(String.class)
         .subscribe();
       updateReport(primaryStreamId, String.format("Sent POST to Storage Destination: %s", d));
       return d;
@@ -62,6 +68,14 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
 
   public void setStorageDestination(Expression storageDestination) {
     this.storageDestination = storageDestination;
+  }
+  
+  public void setContentType(Expression contentType) {
+    this.contentType = contentType;
+  }
+
+  public void setAccept(Expression accept) {
+    this.accept = accept;
   }
 
 }

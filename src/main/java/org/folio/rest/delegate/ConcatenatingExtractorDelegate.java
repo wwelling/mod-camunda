@@ -1,13 +1,12 @@
 package org.folio.rest.delegate;
 
+import java.util.stream.Stream;
+
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import reactor.core.publisher.Flux;
 
 /*
  *  This delegate concatenates a new stream of data to the end of the primary stream
@@ -19,17 +18,17 @@ public class ConcatenatingExtractorDelegate extends AbstractExtractorDelegate {
   @Autowired
   private StreamService streamService;
 
-  public ConcatenatingExtractorDelegate(WebClient.Builder webClientBuilder) {
-    super(webClientBuilder);
+  public ConcatenatingExtractorDelegate() {
+    super();
   }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
 
-    Flux<String> newStream = this.getStream(execution);
+    Stream<String> newStream = this.getStream(execution);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
-    streamService.concatenateFlux(primaryStreamId, newStream);
+    streamService.concatenateStream(primaryStreamId, newStream);
 
     log.info("CONCATENATING EXTRACTOR DELEGATE FINISHED");
   }

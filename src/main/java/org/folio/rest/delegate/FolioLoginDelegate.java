@@ -10,9 +10,11 @@ import org.folio.rest.model.OkapiRequest;
 import org.folio.rest.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 @Service
+@Scope("prototype")
 public class FolioLoginDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
@@ -43,7 +45,8 @@ public class FolioLoginDelegate extends AbstractRuntimeDelegate {
     okapiRequest.setResponseStatusName("loginResponseStatus");
     okapiRequest.setTenant(DEFAULT_TENANT);
 
-    // A bit redundant, may want to create a login payload model, or eventually handle this better.
+    // A bit redundant, may want to create a login payload model, or eventually
+    // handle this better.
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("username", OKAPI_USERNAME);
     jsonObject.put("password", OKAPI_PASSWORD);

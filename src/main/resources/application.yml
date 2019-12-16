@@ -5,7 +5,6 @@ logging:
       folio: INFO
       hibernate: INFO
       springframework: INFO
-  path:
 
 server:
   port: 9000
@@ -27,6 +26,11 @@ spring:
 
     username: folio
     password: folio
+  devtools:
+    add-properties: false
+    restart:
+      enabled: false
+      exclude: target
   h2:
     console:
       enabled: true
