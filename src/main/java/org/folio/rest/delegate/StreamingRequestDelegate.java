@@ -8,6 +8,7 @@ import org.folio.rest.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -49,15 +50,18 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
     updateReport(primaryStreamId, String.format("%s STARTED AT %s",delegateName, Instant.now()));
 
     streamService.map(primaryStreamId, d -> {
+      byte[] body = d.getBytes();
+      String contentLength = String.valueOf(body.length);
       webClient
         .post()
         .uri(storageDestination)
-        .bodyValue(d.getBytes())
+        .bodyValue(body)
         .header("X-Okapi-Url", OKAPI_LOCATION)
         .header("X-Okapi-Tenant", DEFAULT_TENANT)
         .header("X-Okapi-Token", token)
-        .header("Content-Type", contentType)
-        .header("Accept", accept)
+        .header(HttpHeaders.CONTENT_TYPE, contentType)
+        .header(HttpHeaders.CONTENT_LENGTH, contentLength)
+        .header(HttpHeaders.ACCEPT, accept)
         .retrieve()
         .bodyToFlux(String.class)
         .subscribe();
