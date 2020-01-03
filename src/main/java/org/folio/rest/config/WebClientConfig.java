@@ -1,7 +1,5 @@
 package org.folio.rest.config;
 
-import java.time.Duration;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -23,7 +21,7 @@ public class WebClientConfig {
 
   @Bean
   public ConnectionProvider connectionProvider() {
-    return ConnectionProvider.fixed("camunda-web-client-thread-pool", 100, 3600000, Duration.ofMillis(3600000));
+    return ConnectionProvider.fixed("camunda-web-client-thread-pool", 100, 3600000, null);
   }
 
   @Bean

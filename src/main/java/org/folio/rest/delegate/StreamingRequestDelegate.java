@@ -5,16 +5,24 @@ import java.time.Instant;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import reactor.core.publisher.Mono;
+
 @Service
 @Scope("prototype")
 public class StreamingRequestDelegate extends AbstractReportableDelegate {
+  
+  private final static Logger logger = LoggerFactory.getLogger(StreamingRequestDelegate.class);
 
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
@@ -49,17 +57,28 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
     updateReport(primaryStreamId, String.format("%s STARTED AT %s",delegateName, Instant.now()));
 
     streamService.map(primaryStreamId, d -> {
+      byte[] body = d.getBytes();
+      String contentLength = String.valueOf(body.length);
       webClient
         .post()
         .uri(storageDestination)
-        .bodyValue(d.getBytes())
+        .bodyValue(body)
         .header("X-Okapi-Url", OKAPI_LOCATION)
         .header("X-Okapi-Tenant", DEFAULT_TENANT)
         .header("X-Okapi-Token", token)
-        .header("Content-Type", contentType)
-        .header("Accept", accept)
+        .header(HttpHeaders.CONTENT_TYPE, contentType)
+        .header(HttpHeaders.CONTENT_LENGTH, contentLength)
+        .header(HttpHeaders.ACCEPT, accept)
         .retrieve()
-        .bodyToFlux(String.class)
+        .onStatus(HttpStatus::is4xxClientError, response -> {
+          logger.error(String.format("Response status: %s", response.statusCode()));
+          return Mono.empty();
+        })
+        .onStatus(HttpStatus::is5xxServerError, response -> {
+          logger.error(String.format("Response status: %s", response.statusCode()));
+          return Mono.empty();
+        })
+        .bodyToMono(String.class)
         .subscribe();
       updateReport(primaryStreamId, String.format("Sent POST to Storage Destination: %s", d));
       return d;
