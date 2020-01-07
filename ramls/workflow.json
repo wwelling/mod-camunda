@@ -384,7 +384,7 @@
         }
       },
       "title" : "StreamingFileReadTask",
-      "required" : [ "deserializeAs", "name", "path", "workflow" ]
+      "required" : [ "deserializeAs", "name" ]
     },
     "StreamingFileWriteTask" : {
       "type" : "object",
@@ -417,7 +417,7 @@
         }
       },
       "title" : "StreamingFileWriteTask",
-      "required" : [ "deserializeAs", "name", "path", "workflow" ]
+      "required" : [ "deserializeAs", "name" ]
     },
     "EventTrigger" : {
       "type" : "object",

@@ -33,5 +33,5 @@
       "type" : "integer"
     }
   },
-  "required" : [ "deserializeAs", "name", "path", "workflow" ]
+  "required" : [ "deserializeAs", "name" ]
 }
