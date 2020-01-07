@@ -12,8 +12,6 @@ import org.apache.commons.io.IOUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -22,8 +20,6 @@ import org.springframework.stereotype.Service;
 @Service
 @Scope("prototype")
 public class FileExtractorDelegate extends AbstractReportableDelegate {
-
-  private final static Logger logger = LoggerFactory.getLogger(FileExtractorDelegate.class);
 
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
@@ -49,33 +45,33 @@ public class FileExtractorDelegate extends AbstractReportableDelegate {
     String workflow = this.workflow.getValue(execution).toString();
 
     File workflowDirectory = new File(String.join(File.separator, path, tenant, workflow));
-    if (!workflowDirectory.exists()) {
-      workflowDirectory.mkdir();
+    if (workflowDirectory.exists()) {
+      long delay = Long.parseLong(this.delay.getValue(execution).toString());
+
+      String primaryStreamId = (String) execution.getVariable("primaryStreamId");
+
+      updateReport(primaryStreamId, String.format("%s STARTED AT %s", delegateName, Instant.now()));
+
+      Stream<String> requestStream = Arrays.asList(workflowDirectory.listFiles()).stream()
+          .filter(file -> file.isFile() && !file.getName().startsWith(".")).map(file -> {
+            Optional<String> request = Optional.empty();
+            try {
+              request = Optional.of(IOUtils.toString(file.toURI(), StandardCharsets.UTF_8));
+              String renamedPath = file.getAbsolutePath().replace(file.getName(), String.format(".%s", file.getName()));
+              file.renameTo(new File(renamedPath));
+              Thread.sleep(delay);
+            } catch (InterruptedException | IOException e) {
+              String errmsg = String.format("Failed to write file %s: %s", file.getAbsolutePath(), e.getMessage());
+              log.error(errmsg);
+              updateReport(primaryStreamId, errmsg);
+            }
+            return request;
+          }).filter(request -> request.isPresent()).map(request -> request.get());
+
+      streamService.concatenateStream(primaryStreamId, requestStream);
+    } else {
+      log.error("%s directory does not exists!", String.join(File.separator, path, tenant, workflow));
     }
-
-    long delay = Long.parseLong(this.delay.getValue(execution).toString());
-
-    String primaryStreamId = (String) execution.getVariable("primaryStreamId");
-
-    updateReport(primaryStreamId, String.format("%s STARTED AT %s", delegateName, Instant.now()));
-
-    Stream<String> requestStream = Arrays.asList(workflowDirectory.listFiles()).stream()
-        .filter(file -> file.isFile() && !file.getName().startsWith(".")).map(file -> {
-          Optional<String> request = Optional.empty();
-          try {
-            request = Optional.of(IOUtils.toString(file.toURI(), StandardCharsets.UTF_8));
-            String renamedPath = file.getAbsolutePath().replace(file.getName(), String.format(".%s", file.getName()));
-            file.renameTo(new File(renamedPath));
-            Thread.sleep(delay);
-          } catch (InterruptedException | IOException e) {
-            String errmsg = String.format("Failed to write file %s: %s", file.getAbsolutePath(), e.getMessage());
-            logger.error(errmsg);
-            updateReport(primaryStreamId, errmsg);
-          }
-          return request;
-        }).filter(request -> request.isPresent()).map(request -> request.get());
-
-    streamService.concatenateStream(primaryStreamId, requestStream);
 
     log.info("FILE EXTRACTOR DELEGATE FINISHED");
   }

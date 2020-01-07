@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -21,8 +19,6 @@ import org.springframework.stereotype.Service;
 @Service
 @Scope("prototype")
 public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
-
-  private final static Logger logger = LoggerFactory.getLogger(StreamingFileWriteDelegate.class);
 
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
@@ -77,14 +73,13 @@ public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
         updateReport(primaryStreamId, String.format("Created JSON request file: %s", filePath));
       } catch (IOException e) {
         String errmsg = String.format("Failed to write file %s: %s", filePath, e.getMessage());
-        logger.error(errmsg);
+        log.error(errmsg);
         updateReport(primaryStreamId, errmsg);
       }
       return d;
     });
 
     log.info("STREAMING FILE WRITER DELEGATE FINISHED");
-
   }
 
   public Expression getPath() {
