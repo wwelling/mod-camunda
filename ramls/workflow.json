@@ -414,6 +414,9 @@
         },
         "workflow" : {
           "type" : "string"
+        },
+        "filenameTemplate" : {
+          "type" : "string"
         }
       },
       "title" : "StreamingFileWriteTask",

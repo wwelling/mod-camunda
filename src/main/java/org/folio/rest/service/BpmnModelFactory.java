@@ -218,6 +218,9 @@ public class BpmnModelFactory {
         CamundaField workflowName = createElement(modelInstance, extensionElements, String.format("t_%s-workflow", index), CamundaField.class);
         workflowName.setCamundaName("workflow");
         workflowName.setCamundaStringValue(sfwTask.getWorkflow());
+        CamundaField filenameTemplate = createElement(modelInstance, extensionElements, String.format("t_%s-filename-template", index), CamundaField.class);
+        filenameTemplate.setCamundaName("filenameTemplate");
+        filenameTemplate.setCamundaStringValue(sfwTask.getFilenameTemplate());
       } else if(task instanceof RestRequestTask) {
         RestRequestTask sRRTask = (RestRequestTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
