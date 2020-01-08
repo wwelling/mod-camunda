@@ -5,8 +5,6 @@ import java.time.Instant;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.service.StreamService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -21,8 +19,6 @@ import reactor.core.publisher.Mono;
 @Service
 @Scope("prototype")
 public class StreamingRequestDelegate extends AbstractReportableDelegate {
-  
-  private final static Logger logger = LoggerFactory.getLogger(StreamingRequestDelegate.class);
 
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
@@ -71,11 +67,11 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
         .header(HttpHeaders.ACCEPT, accept)
         .retrieve()
         .onStatus(HttpStatus::is4xxClientError, response -> {
-          logger.error(String.format("Response status: %s", response.statusCode()));
+          log.error(String.format("Response status: %s", response.statusCode()));
           return Mono.empty();
         })
         .onStatus(HttpStatus::is5xxServerError, response -> {
-          logger.error(String.format("Response status: %s", response.statusCode()));
+          log.error(String.format("Response status: %s", response.statusCode()));
           return Mono.empty();
         })
         .bodyToMono(String.class)
