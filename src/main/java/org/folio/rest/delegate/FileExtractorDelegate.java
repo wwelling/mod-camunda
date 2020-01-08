@@ -53,20 +53,24 @@ public class FileExtractorDelegate extends AbstractReportableDelegate {
       updateReport(primaryStreamId, String.format("%s STARTED AT %s", delegateName, Instant.now()));
 
       Stream<String> requestStream = Arrays.asList(workflowDirectory.listFiles()).stream()
-          .filter(file -> file.isFile() && !file.getName().startsWith(".")).map(file -> {
-            Optional<String> request = Optional.empty();
-            try {
-              request = Optional.of(IOUtils.toString(file.toURI(), StandardCharsets.UTF_8));
-              String renamedPath = file.getAbsolutePath().replace(file.getName(), String.format(".%s", file.getName()));
-              file.renameTo(new File(renamedPath));
-              Thread.sleep(delay);
-            } catch (InterruptedException | IOException e) {
-              String errmsg = String.format("Failed to write file %s: %s", file.getAbsolutePath(), e.getMessage());
-              log.error(errmsg);
-              updateReport(primaryStreamId, errmsg);
-            }
-            return request;
-          }).filter(request -> request.isPresent()).map(request -> request.get());
+        .filter(file -> file.isFile() && !file.getName().startsWith(".")).map(file -> {
+          Optional<String> data = Optional.empty();
+          try {
+            data = Optional.of(IOUtils.toString(file.toURI(), StandardCharsets.UTF_8));
+          } catch (IOException e) {
+            String errmsg = String.format("Failed to write file %s: %s", file.getAbsolutePath(), e.getMessage());
+            log.error(errmsg);
+            updateReport(primaryStreamId, errmsg);
+          }
+          String renamedPath = file.getAbsolutePath().replace(file.getName(), String.format(".%s", file.getName()));
+          file.renameTo(new File(renamedPath));
+          try {
+            Thread.sleep(delay);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+          return data;
+        }).filter(data -> data.isPresent()).map(data -> data.get());
 
       streamService.concatenateStream(primaryStreamId, requestStream);
     } else {

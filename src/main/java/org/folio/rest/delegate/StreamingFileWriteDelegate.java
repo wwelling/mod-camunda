@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -120,7 +121,7 @@ public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
 
   private String getFilename(Map<String, String> valuesMap, String template) {
     StringSubstitutor sub = new StringSubstitutor(valuesMap);
-    return sub.replace(template);
+    return StringUtils.leftPad(sub.replace(template), 16, "0");
   }
 
 }
