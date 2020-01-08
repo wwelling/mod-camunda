@@ -65,7 +65,7 @@ public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
     AtomicInteger index = new AtomicInteger(1);
 
     streamService.map(primaryStreamId, d -> {
-      String name = String.format("%09d.json", index.getAndIncrement());
+      String name = String.format("%09d", index.getAndIncrement());
       byte[] content = d.getBytes(StandardCharsets.UTF_8);
       String filePath = String.join(File.separator, workflowDataPath, name);
       try {
