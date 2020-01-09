@@ -75,7 +75,7 @@ public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
         String filename = getFilename(valuesMap, filenameTemplate);
         String filePath = String.join(File.separator, workflowDataPath, filename);
         Files.write(Paths.get(filePath), content);
-        updateReport(primaryStreamId, String.format("Created JSON request file: %s", filePath));
+        updateReport(primaryStreamId, String.format("Created file: %s", filePath));
         int c = count.incrementAndGet();
         if (c % 1000 == 0) {
           log.info("{} files written", c);
