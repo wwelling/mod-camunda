@@ -66,8 +66,6 @@ public class FileExtractorDelegate extends AbstractReportableDelegate {
             log.error(errmsg);
             updateReport(primaryStreamId, errmsg);
           }
-          String renamedPath = file.getAbsolutePath().replace(file.getName(), String.format(".%s", file.getName()));
-          file.renameTo(new File(renamedPath));
           try {
             Thread.sleep(delay);
           } catch (InterruptedException e) {
