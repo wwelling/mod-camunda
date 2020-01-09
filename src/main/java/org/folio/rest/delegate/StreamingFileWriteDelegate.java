@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
@@ -63,6 +64,8 @@ public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
     updateReport(primaryStreamId, String.format("%s STARTED AT %s", delegateName, Instant.now()));
+    
+    AtomicInteger count = new AtomicInteger(0);
 
     streamService.map(primaryStreamId, d -> {
       byte[] content = d.getBytes(StandardCharsets.UTF_8);
@@ -73,6 +76,10 @@ public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
         String filePath = String.join(File.separator, workflowDataPath, filename);
         Files.write(Paths.get(filePath), content);
         updateReport(primaryStreamId, String.format("Created JSON request file: %s", filePath));
+        int c = count.incrementAndGet();
+        if (c % 1000 == 0) {
+          log.info("{} files written", c);
+        }
       } catch (IOException e) {
         log.error(e.getMessage());
         updateReport(primaryStreamId, e.getMessage());
