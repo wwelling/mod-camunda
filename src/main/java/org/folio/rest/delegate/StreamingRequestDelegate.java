@@ -50,7 +50,7 @@ public class StreamingRequestDelegate extends AbstractReportableDelegate {
     String token = (String) execution.getVariable("token");
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    updateReport(primaryStreamId, String.format("%s STARTED AT %s",delegateName, Instant.now()));
+    updateReport(primaryStreamId, String.format("%s started at %s",delegateName, Instant.now()));
 
     streamService.map(primaryStreamId, d -> {
       byte[] body = d.getBytes();

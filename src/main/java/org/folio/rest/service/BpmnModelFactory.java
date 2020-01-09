@@ -154,13 +154,20 @@ public class BpmnModelFactory {
       } else if(task instanceof ProcessorTask) {
         ProcessorTask pTask = (ProcessorTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField scriptTypeField = createElement(modelInstance, extensionElements, String.format("t_%s-script-type", index), CamundaField.class);
-        scriptTypeField.setCamundaName("scriptType");
-        scriptTypeField.setCamundaStringValue(pTask.getScriptType().engineName);
         CamundaField scriptField = createElement(modelInstance, extensionElements, String.format("t_%s-script", index), CamundaField.class);
         scriptField.setCamundaName("script");
         CamundaString script = createElement(modelInstance, scriptField, null, CamundaString.class);
         script.setTextContent(pTask.getScript());
+        CamundaField scriptTypeField = createElement(modelInstance, extensionElements, String.format("t_%s-script-type", index), CamundaField.class);
+        scriptTypeField.setCamundaName("scriptType");
+        scriptTypeField.setCamundaStringValue(pTask.getScriptType().engineName);
+        CamundaField contextProperties = createElement(modelInstance, extensionElements, String.format("t_%s-context-properties", index), CamundaField.class);
+        contextProperties.setCamundaName("contextProperties");
+        try {
+          contextProperties.setCamundaStringValue(mapper.writeValueAsString(pTask.getContextProperties()));
+        } catch (JsonProcessingException e) {
+          e.printStackTrace();
+        }
       } else if (task instanceof StreamCreateForEachTask) {
         StreamCreateForEachTask cTask = (StreamCreateForEachTask) task;
         ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);

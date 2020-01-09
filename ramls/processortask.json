@@ -29,6 +29,12 @@
     "scriptType" : {
       "type" : "string",
       "enum" : [ "NONE", "GROOVY", "JAVA", "JS", "PYTHON", "RUBY", "XSLT" ]
+    },
+    "contextProperties" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
     }
   },
   "required" : [ "deserializeAs", "name" ]

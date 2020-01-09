@@ -24,7 +24,7 @@ public class StreamConsumerDelegate extends AbstractReportableDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
-    log.info("{} STARTED", delegateName);
+    log.info("{} started", delegateName);
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
@@ -39,7 +39,7 @@ public class StreamConsumerDelegate extends AbstractReportableDelegate {
 
     if (isReporting()) {
       AtomicInteger counter = new AtomicInteger(1);
-      log.info("Building Report at {}", Instant.now());
+      log.info("Building report at {}", Instant.now());
       streamService.getReport(primaryStreamId).forEach(e -> {
         log.info("Entry " + counter + ": " + e);
         counter.getAndIncrement();

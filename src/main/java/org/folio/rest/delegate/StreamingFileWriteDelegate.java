@@ -63,7 +63,7 @@ public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
 
     String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-    updateReport(primaryStreamId, String.format("%s STARTED AT %s", delegateName, Instant.now()));
+    updateReport(primaryStreamId, String.format("%s started at %s", delegateName, Instant.now()));
     
     AtomicInteger count = new AtomicInteger(0);
 
@@ -86,27 +86,14 @@ public class StreamingFileWriteDelegate extends AbstractReportableDelegate {
       }
       return d;
     });
-    log.info("STREAMING FILE WRITER DELEGATE FINISHED");
-  }
-
-  public Expression getPath() {
-    return path;
   }
 
   public void setPath(Expression path) {
     this.path = path;
   }
 
-  public Expression getWorkflow() {
-    return workflow;
-  }
-
   public void setWorkflow(Expression workflow) {
     this.workflow = workflow;
-  }
-
-  public Expression getFilenameTemplate() {
-    return filenameTemplate;
   }
 
   public void setFilenameTemplate(Expression filenameTemplate) {

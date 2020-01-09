@@ -23,7 +23,7 @@ public abstract class AbstractExtractorDelegate extends AbstractRuntimeDelegate 
     String sourceUrl = streamSource.getValue(execution).toString();
 
     String delegateName = execution.getBpmnModelElementInstance().getName();
-    log.info(String.format("%s STARTED", delegateName));
+    log.info(String.format("%s started", delegateName));
 
     String tenant = execution.getTenantId();
     String token = (String) execution.getVariable("token");
