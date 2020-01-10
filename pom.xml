@@ -142,8 +142,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.folio.rest.workflow</groupId>
-      <artifactId>components</artifactId>
+      <groupId>org.folio</groupId>
+      <artifactId>workflow-components</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
