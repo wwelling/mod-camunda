@@ -3,8 +3,8 @@ package org.folio.rest.delegate;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -50,54 +50,54 @@ public class FileExtractorDelegate extends AbstractReportableDelegate {
 
       String primaryStreamId = (String) execution.getVariable("primaryStreamId");
 
-      updateReport(primaryStreamId, String.format("%s STARTED AT %s", delegateName, Instant.now()));
+      updateReport(primaryStreamId, String.format("%s started at %s", delegateName, Instant.now()));
 
-      Stream<String> requestStream = Arrays.asList(workflowDirectory.listFiles()).stream()
-          .filter(file -> file.isFile() && !file.getName().startsWith(".")).map(file -> {
-            Optional<String> request = Optional.empty();
-            try {
-              request = Optional.of(IOUtils.toString(file.toURI(), StandardCharsets.UTF_8));
-              String renamedPath = file.getAbsolutePath().replace(file.getName(), String.format(".%s", file.getName()));
-              file.renameTo(new File(renamedPath));
-              Thread.sleep(delay);
-            } catch (InterruptedException | IOException e) {
-              String errmsg = String.format("Failed to write file %s: %s", file.getAbsolutePath(), e.getMessage());
-              log.error(errmsg);
-              updateReport(primaryStreamId, errmsg);
-            }
-            return request;
-          }).filter(request -> request.isPresent()).map(request -> request.get());
+      long count = getFileStream(workflowDirectory).count();
 
-      streamService.concatenateStream(primaryStreamId, requestStream);
+      execution.setVariable("count", count);
+
+      Stream<String> stream = getFileStream(workflowDirectory)
+        .map(file -> {
+          Optional<String> data = Optional.empty();
+          try {
+            data = Optional.of(IOUtils.toString(file.toURI(), StandardCharsets.UTF_8));
+          } catch (IOException e) {
+            String errmsg = String.format("Failed to write file %s: %s", file.getAbsolutePath(), e.getMessage());
+            log.error(errmsg);
+            updateReport(primaryStreamId, errmsg);
+          }
+          try {
+            Thread.sleep(delay);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+          return data;
+        })
+        .filter(data -> data.isPresent())
+        .map(data -> data.get());
+
+      streamService.concatenateStream(primaryStreamId, stream);
     } else {
       log.error("%s directory does not exists!", String.join(File.separator, path, tenant, workflow));
     }
-
-    log.info("FILE EXTRACTOR DELEGATE FINISHED");
   }
 
   public Expression getPath() {
     return path;
   }
 
-  public void setPath(Expression path) {
-    this.path = path;
-  }
-
-  public Expression getWorkflow() {
-    return workflow;
-  }
-
   public void setWorkflow(Expression workflow) {
     this.workflow = workflow;
   }
 
-  public Expression getDelay() {
-    return delay;
-  }
-
   public void setDelay(Expression delay) {
     this.delay = delay;
+  }
+
+  private Stream<File> getFileStream(File directory) throws IOException {
+    return Files.list(directory.toPath())
+      .map(p -> p.toFile())
+      .filter(file -> file.isFile() && !file.getName().startsWith("."));
   }
 
 }

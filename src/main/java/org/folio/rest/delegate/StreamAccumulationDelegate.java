@@ -26,7 +26,7 @@ public class StreamAccumulationDelegate extends AbstractRuntimeDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     String delegateName = execution.getBpmnModelElementInstance().getName();
 
-    log.info(String.format("%s STARTED", delegateName));
+    log.info(String.format("%s started", delegateName));
 
     int buffer = accumulateTo != null ? Integer.parseInt(accumulateTo.getValue(execution).toString()) : 500;
     Long delay = delayDuration != null ? Long.parseLong(delayDuration.getValue(execution).toString()) : 10L;

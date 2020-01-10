@@ -11,7 +11,7 @@ public class ResetFolioLoginTokenDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    log.info("Executing Reset Folio Login Delegate");
+    log.info("Executing reset Folio login delegate");
 
     FolioLogin folioLogin = (FolioLogin) execution.getVariable("folioLogin");
     folioLogin.setxOkapiToken("");

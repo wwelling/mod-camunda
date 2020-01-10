@@ -17,11 +17,7 @@ import org.springframework.stereotype.Service;
 @Scope("prototype")
 public class RestRequestDelegate extends AbstractRuntimeDelegate {
 
-  private Expression url;
-
-  private Expression httpMethod;
-
-  private Expression requestBody;
+  private static final String NO_VALUE = "NO_VALUE";
 
   @Value("${tenant.default-tenant}")
   private String DEFAULT_TENANT;
@@ -29,12 +25,16 @@ public class RestRequestDelegate extends AbstractRuntimeDelegate {
   @Autowired
   HttpService httpService;
 
-  private static final String NO_VALUE = "NO_VALUE";
+  private Expression url;
+
+  private Expression httpMethod;
+
+  private Expression requestBody;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
 
-    log.info("STARTING RestRequestDelegate {}", execution.getEventName());
+    log.info("Starting RestRequestDelegate {}", execution.getEventName());
 
     String urlValue = url.getValue(execution).toString();
     String httpMethodValue = httpMethod.getValue(execution).toString();
@@ -42,14 +42,11 @@ public class RestRequestDelegate extends AbstractRuntimeDelegate {
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<String> entity = new HttpEntity<String>(requestBodyValue.equals(NO_VALUE) ? null : requestBodyValue,
-        headers);
+    HttpEntity<String> entity = new HttpEntity<String>(requestBodyValue.equals(NO_VALUE) ? null : requestBodyValue, headers);
 
-    ResponseEntity<String> res = httpService.exchange(urlValue, HttpMethod.valueOf(httpMethodValue), entity,
-        String.class);
+    ResponseEntity<String> res = httpService.exchange(urlValue, HttpMethod.valueOf(httpMethodValue), entity, String.class);
 
     log.info("{}", res.getBody());
-
   }
 
   public void setUrl(Expression url) {

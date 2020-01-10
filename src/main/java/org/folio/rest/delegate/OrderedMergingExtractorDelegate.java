@@ -42,8 +42,6 @@ public class OrderedMergingExtractorDelegate extends AbstractExtractorDelegate {
     List<EnhancementComparison> enhancementComparisons = objectMapper.readValue(comparisonsSerialized, new TypeReference<List<EnhancementComparison>>() {});
 
     streamService.orderedMergeStream(primaryStreamId, newStream, enhancementComparisons);
-
-    log.info("ORDERED MERGING EXTRACTOR DELEGATE FINISHED");
   }
 
   public void setComparisons(Expression comparisons) {

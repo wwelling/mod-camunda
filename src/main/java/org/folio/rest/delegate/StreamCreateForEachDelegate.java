@@ -35,7 +35,7 @@ public class StreamCreateForEachDelegate extends AbstractRuntimeDelegate {
   private ObjectMapper objectMapper;
 
   @Autowired
-  OkapiRequestService okapiRequestService;
+  private OkapiRequestService okapiRequestService;
 
   private Expression endpoint;
 

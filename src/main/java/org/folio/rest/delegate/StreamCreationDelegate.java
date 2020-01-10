@@ -21,23 +21,20 @@ public class StreamCreationDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    Stream<String> primaryStream = Stream.empty();
-    
-    Boolean isReportingValue = (isReporting) != null ? Boolean.parseBoolean(isReporting.getValue(execution).toString())
-        : false;
-    
-    String primaryStreamId = streamService.createStream(primaryStream);
+    Boolean isReportingValue = (isReporting) != null ? Boolean.parseBoolean(isReporting.getValue(execution).toString()) : false;
+
+    String primaryStreamId = streamService.createStream(Stream.empty());
 
     execution.setVariable("primaryStreamId", primaryStreamId);
     execution.setVariable("isReporting", isReportingValue);
 
     if (isReportingValue) {
       log.info("Reporting enabled");
-      streamService.appendToReport(primaryStreamId, String.format("Beginning Streaming Report at %s", Instant.now()));
+      streamService.appendToReport(primaryStreamId, String.format("Streaming report started at %s", Instant.now()));
     } else {
       log.info("Reporting disabled");
     }
-    log.info("CREATED PRIMARY STREAM");
+    log.info("Primary stream created");
   }
 
   public void setIsReporting(Expression isReporting) {
