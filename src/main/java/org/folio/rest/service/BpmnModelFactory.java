@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BpmnModelFactory {
 
-  public BpmnModelInstance makeBPMNFromWorkflow(Workflow workflow) {
+  public BpmnModelInstance fromWorkflow(Workflow workflow) {
     BpmnModelInstance modelInstance = Bpmn.createEmptyModel();
 
     return modelInstance;

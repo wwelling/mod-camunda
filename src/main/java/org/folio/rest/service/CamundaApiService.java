@@ -38,7 +38,7 @@ public class CamundaApiService {
       throw new WorkflowAlreadyActiveException(workflow.getId());
     }
 
-    BpmnModelInstance modelInstance = bpmnModelFactory.makeBPMNFromWorkflow(workflow);
+    BpmnModelInstance modelInstance = bpmnModelFactory.fromWorkflow(workflow);
 
     Bpmn.validateModel(modelInstance);
 
@@ -82,4 +82,5 @@ public class CamundaApiService {
 
     return workflow;
   }
+
 }
