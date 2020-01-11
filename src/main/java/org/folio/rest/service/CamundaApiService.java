@@ -32,40 +32,37 @@ public class CamundaApiService {
   @Autowired
   private BpmnModelFactory bpmnModelFactory;
 
-  public Workflow deployWorkflow(Workflow workflow)
-    throws WorkflowAlreadyActiveException {
+  public Workflow deployWorkflow(Workflow workflow) throws WorkflowAlreadyActiveException {
 
     if (workflow.isActive()) {
       throw new WorkflowAlreadyActiveException(workflow.getId());
     }
-    
+
     BpmnModelInstance modelInstance = bpmnModelFactory.makeBPMNFromWorkflow(workflow);
 
     Bpmn.validateModel(modelInstance);
-    
+
     log.info("BPMN: {}", Bpmn.convertToString(modelInstance));
 
     ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
     RepositoryService repositoryService = processEngine.getRepositoryService();
 
     Deployment deployment = repositoryService.createDeployment()
-      .addModelInstance(workflow.getName().replace(" ", "") + ".bpmn", modelInstance)
-      .tenantId(TENANT_NAME)
-      .deploy();
+        .addModelInstance(workflow.getName().replace(" ", "") + ".bpmn", modelInstance).tenantId(TENANT_NAME).deploy();
 
     workflow.setActive(true);
     String deploymentId = deployment.getId();
     workflow.setDeploymentId(deploymentId);
-    List<ProcessDefinition> deployedProcessDefinitions = repositoryService.createProcessDefinitionQuery().deploymentId(deploymentId).list();
+    List<ProcessDefinition> deployedProcessDefinitions = repositoryService.createProcessDefinitionQuery()
+        .deploymentId(deploymentId).list();
     for (ProcessDefinition processDefinition : deployedProcessDefinitions) {
-      workflow.addProcessDefinitionId(processDefinition.getId());
+      workflow.getProcessDefinitionIds().add(processDefinition.getId());
     }
 
     return workflow;
   }
 
-  public Workflow undeployWorkflow(Workflow workflow)
-      throws WorkflowAlreadyDeactivatedException {
+  public Workflow undeployWorkflow(Workflow workflow) throws WorkflowAlreadyDeactivatedException {
 
     if (!workflow.isActive()) {
       throw new WorkflowAlreadyDeactivatedException(workflow.getId());
@@ -77,7 +74,7 @@ public class CamundaApiService {
 
     workflow.setActive(false);
     workflow.setDeploymentId(null);
-    workflow.clearProcessDefinitionIds();
+    workflow.getProcessDefinitionIds().clear();
 
     return workflow;
   }

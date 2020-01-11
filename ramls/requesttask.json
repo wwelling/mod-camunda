@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "EventTrigger",
+  "title" : "RequestTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "EventTrigger" ],
-      "default" : "EventTrigger"
+      "enum" : [ "RequestTask" ],
+      "default" : "RequestTask"
     },
     "id" : {
       "type" : "string"
@@ -20,20 +20,27 @@
     "description" : {
       "type" : "string",
       "minLength" : 4,
-      "maxLength" : 256
-    },
-    "type" : {
-      "type" : "string",
-      "enum" : [ "PROCESS_START", "TASK_COMPLETE", "MESSAGE_CORRELATE" ]
-    },
-    "pathPattern" : {
-      "type" : "string",
-      "maxLength" : 256
+      "maxLength" : 512
     },
     "method" : {
       "type" : "string",
       "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+    },
+    "contentType" : {
+      "type" : "string"
+    },
+    "accept" : {
+      "type" : "string"
+    },
+    "bodyTemplate" : {
+      "type" : "string"
+    },
+    "contextRequestKey" : {
+      "type" : "string"
+    },
+    "contextResponseKey" : {
+      "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "description", "type", "pathPattern", "method" ]
+  "required" : [ "deserializeAs", "name", "description", "method", "contentType", "accept", "bodyTemplate", "contextRequestKey", "contextResponseKey" ]
 }

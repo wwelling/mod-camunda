@@ -18,18 +18,12 @@ public class WorkflowController {
   private CamundaApiService camundaApiService;
 
   @PostMapping("/activate")
-  public Workflow activateWorkflow(
-    @RequestBody Workflow workflow
-  ) throws WorkflowAlreadyActiveException {
-
+  public Workflow activateWorkflow(@RequestBody Workflow workflow) throws WorkflowAlreadyActiveException {
     return camundaApiService.deployWorkflow(workflow);
   }
 
   @PostMapping("/deactivate")
-  public Workflow deactivateWorkflow(
-    @RequestBody Workflow workflow
-  ) throws WorkflowAlreadyDeactivatedException {
-
+  public Workflow deactivateWorkflow(@RequestBody Workflow workflow) throws WorkflowAlreadyDeactivatedException {
     return camundaApiService.undeployWorkflow(workflow);
   }
 }

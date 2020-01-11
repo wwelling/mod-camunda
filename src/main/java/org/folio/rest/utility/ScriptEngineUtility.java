@@ -49,7 +49,7 @@ public class ScriptEngineUtility {
   private static final Pattern URL_PATTERN = compile(URL_REGEX, CASE_INSENSITIVE | MULTILINE);
 
   private static final ObjectMapper mapper = new ObjectMapper();
-  
+
   private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   public ScriptEngineUtility() {

@@ -26,13 +26,9 @@
       "type" : "string",
       "enum" : [ "PROCESS_START", "TASK_COMPLETE", "MESSAGE_CORRELATE" ]
     },
-    "method" : {
-      "type" : "string",
-      "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
-    },
     "chronExpression" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "description", "type", "method", "chronExpression" ]
+  "required" : [ "deserializeAs", "name", "description", "type", "chronExpression" ]
 }

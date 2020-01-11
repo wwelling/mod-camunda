@@ -15,7 +15,7 @@ import javax.script.ScriptException;
 
 import org.folio.rest.exception.ScriptEngineLoadFailed;
 import org.folio.rest.exception.ScriptEngineUnsupported;
-import org.folio.rest.model.ScriptEngineType;
+import org.folio.rest.workflow.components.TaskScriptType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
@@ -25,15 +25,22 @@ import org.springframework.util.StreamUtils;
  */
 @Service
 public class ScriptEngineService {
+
   private static final String UTILS_PREFIX = "scripts/utils.";
+
   private static final String ENGINE_PREFIX = "scripts/engine.";
 
-  private static final Map<ScriptEngineType, String> SCRIPT_ENGINE_TYPES = new EnumMap<ScriptEngineType, String>(ScriptEngineType.class);
-  {{{
-    for (ScriptEngineType type : ScriptEngineType.values()) {
-      SCRIPT_ENGINE_TYPES.put(type, type.extension);
+  private static final Map<TaskScriptType, String> SCRIPT_ENGINE_TYPES = new EnumMap<TaskScriptType, String>(
+      TaskScriptType.class);
+  {
+    {
+      {
+        for (TaskScriptType type : TaskScriptType.values()) {
+          SCRIPT_ENGINE_TYPES.put(type, type.getExtension());
+        }
+      }
     }
-  }}}
+  }
 
   private ScriptEngineManager scriptEngineManager;
 
@@ -54,12 +61,12 @@ public class ScriptEngineService {
   /**
    * Register a script for later execution.
    *
-   * @param extension
-   *   The extension of the language associated with the desired engine.
-   * @param name
-   *   The name of the script function to execute.
-   * @param script
-   *   The code associated with the given language that will be executed when the script engine for the given extension is run.
+   * @param extension The extension of the language associated with the desired
+   *                  engine.
+   * @param name      The name of the script function to execute.
+   * @param script    The code associated with the given language that will be
+   *                  executed when the script engine for the given extension is
+   *                  run.
    * @throws ScriptException
    *
    * @throws IOException
@@ -67,7 +74,8 @@ public class ScriptEngineService {
    * @throws NoSuchMethodException
    * @throws ScriptEngineLoadFailed
    */
-  public void registerScript(String extension, String name, String script) throws ScriptException, IOException, ScriptEngineUnsupported, NoSuchMethodException, ScriptEngineLoadFailed {
+  public void registerScript(String extension, String name, String script)
+      throws ScriptException, IOException, ScriptEngineUnsupported, NoSuchMethodException, ScriptEngineLoadFailed {
     if (!SCRIPT_ENGINE_TYPES.containsValue(extension)) {
       throw new ScriptEngineUnsupported(extension);
     }
@@ -97,21 +105,18 @@ public class ScriptEngineService {
   /**
    * Execute a registered script.
    *
-   * @param extension
-   *   The extension of the language associated with the desired engine.
-   * @param name
-   *   The name of the script function to execute.
-   * @param args
-   *   Additional arguments to pass to the script function.
+   * @param extension The extension of the language associated with the desired
+   *                  engine.
+   * @param name      The name of the script function to execute.
+   * @param args      Additional arguments to pass to the script function.
    *
-   * @return
-   *   The return results of the executed script.
-   *   This will often be a JSON encoded String.
+   * @return The return results of the executed script. This will often be a JSON
+   *         encoded String.
    *
    * @throws NoSuchMethodException
    * @throws ScriptException
    */
-  public Object runScript(String extension, String name, Object ...args) throws NoSuchMethodException, ScriptException {
+  public Object runScript(String extension, String name, Object... args) throws NoSuchMethodException, ScriptException {
     Invocable invocable = (Invocable) scriptEngines.get(extension);
     return invocable.invokeFunction(name, args);
   }
@@ -119,11 +124,9 @@ public class ScriptEngineService {
   /**
    * Load a script from the resources directory.
    *
-   * @param filename
-   *   The path to a file, within the resource directory.
+   * @param filename The path to a file, within the resource directory.
    *
-   * @return
-   *   The contents of the script file.
+   * @return The contents of the script file.
    *
    * @throws IOException
    */
@@ -133,22 +136,22 @@ public class ScriptEngineService {
   }
 
   /**
-   * Pre-process a script to ensure that it is more friendly for any exceptional language.
+   * Pre-process a script to ensure that it is more friendly for any exceptional
+   * language.
    *
-   * For example, Python is space/tab conscious, so make the tabs consistent with the two spaces used in the engine.py.
+   * For example, Python is space/tab conscious, so make the tabs consistent with
+   * the two spaces used in the engine.py.
    *
-   * @param script
-   *   The script to potentially pre-process.
-   * @param extension
-   *   The extension representing the language of the script.
+   * @param script    The script to potentially pre-process.
+   * @param extension The extension representing the language of the script.
    *
-   * @return
-   *   The pre-processed script.
+   * @return The pre-processed script.
    */
   private String preprocessScript(String script, String extension) {
 
-    if (extension.equals(ScriptEngineType.PYTHON.extension)) {
-      // Ensure that 2 leading spaces exist before newlines and that there are no trailing white spaces.
+    if (extension.equals(TaskScriptType.PYTHON.getExtension())) {
+      // Ensure that 2 leading spaces exist before newlines and that there are no
+      // trailing white spaces.
       String processed = script.replace("\r\n", "\n");
       processed = script.replace("\r", "\n");
       processed = script.replace("\n", "\n  ");

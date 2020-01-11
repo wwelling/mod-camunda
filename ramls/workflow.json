@@ -7,6 +7,9 @@
     "id" : {
       "type" : "string"
     },
+    "active" : {
+      "type" : "boolean"
+    },
     "name" : {
       "type" : "string",
       "minLength" : 4,
@@ -21,37 +24,11 @@
         "type" : "string"
       }
     },
-    "active" : {
+    "reportingEnabled" : {
       "type" : "boolean"
     },
     "requiresAuthentication" : {
       "type" : "boolean"
-    },
-    "tasks" : {
-      "type" : "array",
-      "items" : {
-        "oneOf" : [ {
-          "$ref" : "#/definitions/ProcessorTask"
-        }, {
-          "$ref" : "#/definitions/ExtractorTask"
-        }, {
-          "$ref" : "#/definitions/StreamingExtractorTask"
-        }, {
-          "$ref" : "#/definitions/AccumulatorTask"
-        }, {
-          "$ref" : "#/definitions/StreamCreateForEachTask"
-        }, {
-          "$ref" : "#/definitions/StreamingRequestTask"
-        }, {
-          "$ref" : "#/definitions/RestRequestTask"
-        }, {
-          "$ref" : "#/definitions/StreamingReportingTask"
-        }, {
-          "$ref" : "#/definitions/StreamingFileReadTask"
-        }, {
-          "$ref" : "#/definitions/StreamingFileWriteTask"
-        } ]
-      }
     },
     "startTrigger" : {
       "oneOf" : [ {
@@ -61,373 +38,22 @@
       }, {
         "$ref" : "#/definitions/ScheduleTrigger"
       } ]
+    },
+    "tasks" : {
+      "type" : "array",
+      "items" : {
+        "oneOf" : [ {
+          "$ref" : "#/definitions/EmailTask"
+        }, {
+          "$ref" : "#/definitions/ProcessorTask"
+        }, {
+          "$ref" : "#/definitions/RequestTask"
+        } ]
+      }
     }
   },
-  "required" : [ "name", "active" ],
+  "required" : [ "active", "name" ],
   "definitions" : {
-    "ProcessorTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "ProcessorTask" ],
-          "default" : "ProcessorTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "script" : {
-          "type" : "string"
-        },
-        "scriptType" : {
-          "type" : "string",
-          "enum" : [ "NONE", "GROOVY", "JAVA", "JS", "PYTHON", "RUBY", "XSLT" ]
-        },
-        "contextProperties" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
-        }
-      },
-      "title" : "ProcessorTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
-    "ExtractorTask" : {
-      "oneOf" : [ {
-        "$ref" : "#/definitions/StreamingExtractorTask"
-      } ]
-    },
-    "StreamingExtractorTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamingExtractorTask" ],
-          "default" : "StreamingExtractorTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "enhancementComparisons" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/EnhancementComparison"
-          }
-        },
-        "enhancementMappings" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/EnhancementMapping"
-          }
-        },
-        "mergeStrategy" : {
-          "type" : "string",
-          "enum" : [ "MERGE", "CONCAT", "ENHANCE" ]
-        },
-        "streamSource" : {
-          "type" : "string"
-        }
-      },
-      "title" : "StreamingExtractorTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
-    "EnhancementComparison" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "sourceProperty" : {
-          "type" : "string"
-        },
-        "targetProperty" : {
-          "type" : "string"
-        }
-      }
-    },
-    "EnhancementMapping" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "toProperty" : {
-          "type" : "string"
-        },
-        "fromProperty" : {
-          "type" : "string"
-        },
-        "multiple" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "multiple" ]
-    },
-    "AccumulatorTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "AccumulatorTask" ],
-          "default" : "AccumulatorTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "accumulateTo" : {
-          "type" : "integer"
-        },
-        "delayDuration" : {
-          "type" : "integer"
-        }
-      },
-      "title" : "AccumulatorTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
-    "StreamCreateForEachTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamCreateForEachTask" ],
-          "default" : "StreamCreateForEachTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "endpoint" : {
-          "type" : "string"
-        },
-        "target" : {
-          "type" : "string"
-        },
-        "source" : {
-          "type" : "string"
-        },
-        "uniqueBy" : {
-          "type" : "string"
-        }
-      },
-      "title" : "StreamCreateForEachTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
-    "StreamingRequestTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamingRequestTask" ],
-          "default" : "StreamingRequestTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "storageDestination" : {
-          "type" : "string"
-        },
-        "contentType" : {
-          "type" : "string"
-        },
-        "accept" : {
-          "type" : "string"
-        }
-      },
-      "title" : "StreamingRequestTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
-    "RestRequestTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "RestRequestTask" ],
-          "default" : "RestRequestTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "url" : {
-          "type" : "string"
-        },
-        "httpMethod" : {
-          "type" : "string",
-          "pattern" : "GET|POST|PUT|DELETE"
-        },
-        "requestBody" : {
-          "type" : "string"
-        }
-      },
-      "title" : "RestRequestTask",
-      "required" : [ "deserializeAs", "name", "url", "httpMethod" ]
-    },
-    "StreamingReportingTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamingReportingTask" ],
-          "default" : "StreamingReportingTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        }
-      },
-      "title" : "StreamingReportingTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
-    "StreamingFileReadTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamingFileReadTask" ],
-          "default" : "StreamingFileReadTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "path" : {
-          "type" : "string"
-        },
-        "workflow" : {
-          "type" : "string"
-        },
-        "delay" : {
-          "type" : "integer"
-        }
-      },
-      "title" : "StreamingFileReadTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
-    "StreamingFileWriteTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamingFileWriteTask" ],
-          "default" : "StreamingFileWriteTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "delegate" : {
-          "type" : "string"
-        },
-        "streaming" : {
-          "type" : "boolean"
-        },
-        "path" : {
-          "type" : "string"
-        },
-        "workflow" : {
-          "type" : "string"
-        },
-        "filenameTemplate" : {
-          "type" : "string"
-        }
-      },
-      "title" : "StreamingFileWriteTask",
-      "required" : [ "deserializeAs", "name" ]
-    },
     "EventTrigger" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -454,16 +80,17 @@
           "type" : "string",
           "enum" : [ "PROCESS_START", "TASK_COMPLETE", "MESSAGE_CORRELATE" ]
         },
+        "pathPattern" : {
+          "type" : "string",
+          "maxLength" : 256
+        },
         "method" : {
           "type" : "string",
           "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
-        },
-        "pathPattern" : {
-          "type" : "string"
         }
       },
       "title" : "EventTrigger",
-      "required" : [ "deserializeAs", "name", "description", "type", "method", "pathPattern" ]
+      "required" : [ "deserializeAs", "name", "description", "type", "pathPattern", "method" ]
     },
     "ManualTrigger" : {
       "type" : "object",
@@ -490,14 +117,10 @@
         "type" : {
           "type" : "string",
           "enum" : [ "PROCESS_START", "TASK_COMPLETE", "MESSAGE_CORRELATE" ]
-        },
-        "method" : {
-          "type" : "string",
-          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
         }
       },
       "title" : "ManualTrigger",
-      "required" : [ "deserializeAs", "name", "description", "type", "method" ]
+      "required" : [ "deserializeAs", "name", "description", "type" ]
     },
     "ScheduleTrigger" : {
       "type" : "object",
@@ -525,16 +148,137 @@
           "type" : "string",
           "enum" : [ "PROCESS_START", "TASK_COMPLETE", "MESSAGE_CORRELATE" ]
         },
-        "method" : {
-          "type" : "string",
-          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
-        },
         "chronExpression" : {
           "type" : "string"
         }
       },
       "title" : "ScheduleTrigger",
-      "required" : [ "deserializeAs", "name", "description", "type", "method", "chronExpression" ]
+      "required" : [ "deserializeAs", "name", "description", "type", "chronExpression" ]
+    },
+    "EmailTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "EmailTask" ],
+          "default" : "EmailTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "bodyContextKey" : {
+          "type" : "string"
+        },
+        "subject" : {
+          "type" : "string"
+        },
+        "to" : {
+          "type" : "string"
+        },
+        "cc" : {
+          "type" : "string"
+        },
+        "bcc" : {
+          "type" : "string"
+        }
+      },
+      "title" : "EmailTask",
+      "required" : [ "deserializeAs", "name", "description", "bodyContextKey", "subject", "to" ]
+    },
+    "ProcessorTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ProcessorTask" ],
+          "default" : "ProcessorTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "script" : {
+          "type" : "string"
+        },
+        "scriptType" : {
+          "type" : "string",
+          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
+        },
+        "contextProperties" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "title" : "ProcessorTask",
+      "required" : [ "deserializeAs", "name", "description", "script", "scriptType" ]
+    },
+    "RequestTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "RequestTask" ],
+          "default" : "RequestTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "method" : {
+          "type" : "string",
+          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "contentType" : {
+          "type" : "string"
+        },
+        "accept" : {
+          "type" : "string"
+        },
+        "bodyTemplate" : {
+          "type" : "string"
+        },
+        "contextRequestKey" : {
+          "type" : "string"
+        },
+        "contextResponseKey" : {
+          "type" : "string"
+        }
+      },
+      "title" : "RequestTask",
+      "required" : [ "deserializeAs", "name", "description", "method", "contentType", "accept", "bodyTemplate", "contextRequestKey", "contextResponseKey" ]
     }
   }
 }
