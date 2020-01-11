@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.camunda.bpm.engine.impl.util.json.JSONObject;
 import org.marc4j.MarcException;
 import org.marc4j.MarcJsonReader;
 import org.marc4j.MarcJsonWriter;
@@ -137,41 +136,6 @@ public class ScriptEngineUtility {
     }
 
     return URL_PATTERN.matcher(string).find();
-  }
-
-  /**
-   * Creating JSONObject.
-   *
-   * @return A generated JSON object.
-   */
-  public JSONObject createJson() {
-    return new JSONObject();
-  }
-
-  /**
-   * Decode a JSON string into a JSONObject.
-   *
-   * @param json The JSON string to decode.
-   *
-   * @return A generated JSON object, containing the decoded JSON string.
-   */
-  public JSONObject decodeJson(String json) {
-    return new JSONObject(json);
-  }
-
-  /**
-   * Encode a JSONObject into a JSON string.
-   *
-   * @param json The JSONObject to encode.
-   *
-   * @return A String containing the encoded JSON data.
-   */
-  public String encodeJson(JSONObject json) {
-    if (json == null) {
-      return "{}";
-    }
-
-    return json.toString(2);
   }
 
   /**

@@ -48,13 +48,17 @@ public class CamundaApiService {
     RepositoryService repositoryService = processEngine.getRepositoryService();
 
     Deployment deployment = repositoryService.createDeployment()
-        .addModelInstance(workflow.getName().replace(" ", "") + ".bpmn", modelInstance).tenantId(TENANT_NAME).deploy();
+        .addModelInstance(workflow.getName().replace(" ", "") + ".bpmn", modelInstance)
+        .tenantId(TENANT_NAME)
+        .deploy();
 
     workflow.setActive(true);
     String deploymentId = deployment.getId();
     workflow.setDeploymentId(deploymentId);
     List<ProcessDefinition> deployedProcessDefinitions = repositoryService.createProcessDefinitionQuery()
-        .deploymentId(deploymentId).list();
+        .deploymentId(deploymentId)
+        .list();
+
     for (ProcessDefinition processDefinition : deployedProcessDefinitions) {
       workflow.getProcessDefinitionIds().add(processDefinition.getId());
     }
