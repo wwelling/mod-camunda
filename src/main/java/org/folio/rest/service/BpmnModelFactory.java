@@ -9,7 +9,16 @@ import org.springframework.stereotype.Service;
 public class BpmnModelFactory {
 
   public BpmnModelInstance fromWorkflow(Workflow workflow) {
-    BpmnModelInstance modelInstance = Bpmn.createEmptyModel();
+    BpmnModelInstance modelInstance = Bpmn.createExecutableProcess()
+      .name(workflow.getName())
+      .startEvent()
+        .name("Inventory Reference Link Workflow Trigger")
+        .message("/events/referencelink/voyager/inventory")
+      .serviceTask(String.format("t_%s", "extract"))
+        .name("Extract")
+        .camundaDelegateExpression(String.format("${%s}", "requestDelegate"))
+      .endEvent()
+      .done();
 
     return modelInstance;
   }
