@@ -3,7 +3,7 @@ package org.folio.rest.controller;
 import org.folio.rest.exception.WorkflowAlreadyActiveException;
 import org.folio.rest.exception.WorkflowAlreadyDeactivatedException;
 import org.folio.rest.service.CamundaApiService;
-import org.folio.rest.workflow.components.Workflow;
+import org.folio.rest.workflow.model.Workflow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

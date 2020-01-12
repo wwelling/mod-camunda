@@ -8,6 +8,7 @@ import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
+import org.camunda.bpm.model.cmmn.instance.ProcessTask;
 import org.folio.spring.service.HttpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -51,11 +52,19 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
 
     String reqUrl = url.getValue(execution).toString();
 
+    logger.info("url: {}", reqUrl);
+
     String reqMethod = method.getValue(execution).toString();
+
+    logger.info("method: {}", reqMethod);
 
     String reqAccept = accept.getValue(execution).toString();
 
+    logger.info("accept: {}", reqAccept);
+
     String reqContentType = contentType.getValue(execution).toString();
+
+    logger.info("content-type: {}", reqContentType);
 
     Set<String> reqKeys = objectMapper.readValue(contextRequestKeys.getValue(execution).toString(),
         new TypeReference<Set<String>>() {});
@@ -110,6 +119,11 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
 
   public void setContextResponseKey(Expression contextResponseKey) {
     this.contextResponseKey = contextResponseKey;
+  }
+
+  @Override
+  public Class<?> fromTask() {
+    return ProcessTask.class;
   }
 
 }

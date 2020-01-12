@@ -9,6 +9,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.service.ScriptEngineService;
+import org.folio.rest.workflow.model.RequestTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class ProcessDelegate extends AbstractRuntimeDelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
 
     String delegateName = bpmnModelElement.getName();
-    
+
     logger.info("{} started", delegateName);
 
     String scriptTypeValue = scriptType.getValue(execution).toString();
@@ -85,6 +86,11 @@ public class ProcessDelegate extends AbstractRuntimeDelegate {
 
   public void setContextOutputKey(Expression contextOutputKey) {
     this.contextOutputKey = contextOutputKey;
+  }
+
+  @Override
+  public Class<?> fromTask() {
+    return RequestTask.class;
   }
 
 }

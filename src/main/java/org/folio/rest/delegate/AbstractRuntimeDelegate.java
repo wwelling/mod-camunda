@@ -18,4 +18,12 @@ public abstract class AbstractRuntimeDelegate implements JavaDelegate {
   @Autowired
   protected ObjectMapper objectMapper;
 
+  public abstract Class<?> fromTask();
+
+  public String getExpression() {
+    String simpleName = getClass().getSimpleName();
+    String delegateName = simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1);
+    return String.format("${%s}", delegateName);
+  }
+
 }

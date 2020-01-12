@@ -15,7 +15,7 @@ import javax.script.ScriptException;
 
 import org.folio.rest.exception.ScriptEngineLoadFailed;
 import org.folio.rest.exception.ScriptEngineUnsupported;
-import org.folio.rest.workflow.components.TaskScriptType;
+import org.folio.rest.workflow.model.TaskScriptType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
