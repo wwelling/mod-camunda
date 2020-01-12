@@ -225,15 +225,15 @@
           "type" : "string",
           "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
         },
-        "contextProperties" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
+        "contextInputKey" : {
+          "type" : "string"
+        },
+        "contextOutputKey" : {
+          "type" : "string"
         }
       },
       "title" : "ProcessorTask",
-      "required" : [ "deserializeAs", "name", "description", "script", "scriptType" ]
+      "required" : [ "deserializeAs", "name", "description", "script", "scriptType", "contextInputKey", "contextOutputKey" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -257,6 +257,9 @@
           "minLength" : 4,
           "maxLength" : 512
         },
+        "url" : {
+          "type" : "string"
+        },
         "method" : {
           "type" : "string",
           "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
@@ -270,15 +273,18 @@
         "bodyTemplate" : {
           "type" : "string"
         },
-        "contextRequestKey" : {
-          "type" : "string"
+        "contextRequestKeys" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
         },
         "contextResponseKey" : {
           "type" : "string"
         }
       },
       "title" : "RequestTask",
-      "required" : [ "deserializeAs", "name", "description", "method", "contentType", "accept", "bodyTemplate", "contextRequestKey", "contextResponseKey" ]
+      "required" : [ "deserializeAs", "name", "description", "url", "method", "contentType", "accept", "bodyTemplate", "contextResponseKey" ]
     }
   }
 }
