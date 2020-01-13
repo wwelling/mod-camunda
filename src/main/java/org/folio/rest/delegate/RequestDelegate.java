@@ -51,20 +51,9 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
     logger.info("{} started", delegateName);
 
     String reqUrl = url.getValue(execution).toString();
-
-    logger.info("url: {}", reqUrl);
-
     String reqMethod = method.getValue(execution).toString();
-
-    logger.info("method: {}", reqMethod);
-
     String reqAccept = accept.getValue(execution).toString();
-
-    logger.info("accept: {}", reqAccept);
-
     String reqContentType = contentType.getValue(execution).toString();
-
-    logger.info("content-type: {}", reqContentType);
 
     Set<String> reqKeys = objectMapper.readValue(contextRequestKeys.getValue(execution).toString(),
         new TypeReference<Set<String>>() {});
@@ -77,6 +66,10 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
 
     String reqBody = sub.replace(bodyTemplate.getValue(execution).toString());
 
+    logger.info("method: {}", reqMethod);
+    logger.info("url: {}", reqUrl);
+    logger.info("accept: {}", reqAccept);
+    logger.info("content-type: {}", reqContentType);
     logger.info("body: {}", reqBody);
 
     String outputKey = contextResponseKey.getValue(execution).toString();
@@ -87,7 +80,7 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
 
     HttpEntity<String> entity = new HttpEntity<String>(reqBody, headers);
     ResponseEntity<String> response = httpService.exchange(reqUrl, HttpMethod.valueOf(reqMethod), entity, String.class);
-    
+
     execution.setVariable(outputKey, response.getBody());
 
     long endTime = System.nanoTime();

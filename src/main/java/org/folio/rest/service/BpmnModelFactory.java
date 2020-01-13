@@ -46,12 +46,11 @@ public class BpmnModelFactory {
 
     ServiceTaskBuilder serviceTaskBuilder = tasks(startEventBuilder, workflow.getTasks());
 
-    // TODO: use super class to avoid null check
     BpmnModelInstance model = serviceTaskBuilder != null ? 
       serviceTaskBuilder.endEvent().done() :
         startEventBuilder.endEvent().done();
 
-    enhance(model, workflow.getTasks());
+    expressions(model, workflow.getTasks());
 
     return model;
   }
@@ -63,9 +62,9 @@ public class BpmnModelFactory {
         .name(trigger.getName())
         .message(((EventTrigger) trigger).getPathPattern());
     } else if (trigger instanceof ManualTrigger) {
-
+      // TODO: build start event for manual trigger
     } else if (trigger instanceof ScheduleTrigger) {
-
+      // TODO: build start event for schedule trigger
     }
     return startEventBuilder;
   }
@@ -78,7 +77,6 @@ public class BpmnModelFactory {
         .filter(d -> d.fromTask().equals(task.getClass()))
         .findAny();
       if (delegate.isPresent()) {
-        // TODO: use super class to avoid null check
         if (serviceTaskBuilder == null) {
           serviceTaskBuilder = startEventBuilder
             .serviceTask(task.id(index.getAndIncrement()))
@@ -97,7 +95,7 @@ public class BpmnModelFactory {
     return serviceTaskBuilder;
   }
 
-  private void enhance(BpmnModelInstance model, List<Task> tasks) {
+  private void expressions(BpmnModelInstance model, List<Task> tasks) {
     AtomicInteger index = new AtomicInteger(1);
     tasks.stream()
       .filter(task -> delegates.stream().anyMatch(d -> d.fromTask().equals(task.getClass())))

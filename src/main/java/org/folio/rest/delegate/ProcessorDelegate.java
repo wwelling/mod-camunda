@@ -1,20 +1,14 @@
 package org.folio.rest.delegate;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.script.ScriptException;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.service.ScriptEngineService;
 import org.folio.rest.workflow.model.ProcessorTask;
+import org.folio.rest.workflow.model.TaskScriptType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 @Scope("prototype")
@@ -40,30 +34,19 @@ public class ProcessorDelegate extends AbstractRuntimeDelegate {
 
     logger.info("{} started", delegateName);
 
-    String scriptTypeValue = scriptType.getValue(execution).toString();
+    String scriptTypeExtension = TaskScriptType.valueOf(scriptType.getValue(execution).toString()).getExtension();
 
-    scriptEngineService.registerScript(scriptTypeValue, delegateName, script.getValue(execution).toString());
+    scriptEngineService.registerScript(scriptTypeExtension, delegateName, script.getValue(execution).toString());
 
     String inputKey = contextInputKey.getValue(execution).toString();
 
     String outputKey = contextOutputKey.getValue(execution).toString();
 
-    List<String> input = objectMapper.readValue((String) execution.getVariable(inputKey),
-        new TypeReference<List<String>>() {
-        });
+    String input = (String) execution.getVariable(inputKey);
 
-    List<String> output = input.parallelStream().map(d -> {
-      try {
-        d = (String) scriptEngineService.runScript(scriptTypeValue, delegateName, d);
-      } catch (NoSuchMethodException e) {
-        e.printStackTrace();
-      } catch (ScriptException e) {
-        e.printStackTrace();
-      }
-      return d;
-    }).collect(Collectors.toList());
+    String output = (String) scriptEngineService.runScript(scriptTypeExtension, delegateName, input);
 
-    execution.setVariable(outputKey, objectMapper.writeValueAsString(output));
+    execution.setVariable(outputKey, output);
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);

@@ -13,6 +13,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.commons.text.WordUtils;
 import org.folio.rest.exception.ScriptEngineLoadFailed;
 import org.folio.rest.exception.ScriptEngineUnsupported;
 import org.folio.rest.workflow.model.TaskScriptType;
@@ -32,13 +33,10 @@ public class ScriptEngineService {
 
   private static final Map<TaskScriptType, String> SCRIPT_ENGINE_TYPES = new EnumMap<TaskScriptType, String>(
       TaskScriptType.class);
-  {
-    {
-      {
-        for (TaskScriptType type : TaskScriptType.values()) {
-          SCRIPT_ENGINE_TYPES.put(type, type.getExtension());
-        }
-      }
+
+  static {
+    for (TaskScriptType type : TaskScriptType.values()) {
+      SCRIPT_ENGINE_TYPES.put(type, type.getExtension());
     }
   }
 
@@ -74,7 +72,7 @@ public class ScriptEngineService {
    * @throws NoSuchMethodException
    * @throws ScriptEngineLoadFailed
    */
-  public void registerScript(String extension, String name, String script)
+  public void registerScript(String extension, String delegateName, String script)
       throws ScriptException, IOException, ScriptEngineUnsupported, NoSuchMethodException, ScriptEngineLoadFailed {
     if (!SCRIPT_ENGINE_TYPES.containsValue(extension)) {
       throw new ScriptEngineUnsupported(extension);
@@ -99,7 +97,9 @@ public class ScriptEngineService {
     }
 
     ScriptEngine scriptEngine = maybeScriptEngine.get();
-    scriptEngine.eval(String.format(loadScript(ENGINE_PREFIX + extension), name, preprocessScript(script, extension)));
+    String scriptFunctionName = toScriptFunctionName(delegateName);
+    scriptEngine.eval(
+        String.format(loadScript(ENGINE_PREFIX + extension), scriptFunctionName, preprocessScript(script, extension)));
   }
 
   /**
@@ -116,9 +116,10 @@ public class ScriptEngineService {
    * @throws NoSuchMethodException
    * @throws ScriptException
    */
-  public Object runScript(String extension, String name, Object... args) throws NoSuchMethodException, ScriptException {
+  public Object runScript(String extension, String delegateName, Object... args)
+      throws NoSuchMethodException, ScriptException {
     Invocable invocable = (Invocable) scriptEngines.get(extension);
-    return invocable.invokeFunction(name, args);
+    return invocable.invokeFunction(toScriptFunctionName(delegateName), args);
   }
 
   /**
@@ -150,8 +151,8 @@ public class ScriptEngineService {
   private String preprocessScript(String script, String extension) {
 
     if (extension.equals(TaskScriptType.PYTHON.getExtension())) {
-      // Ensure that 2 leading spaces exist before newlines and that there are no
-      // trailing white spaces.
+      // Ensure that 2 leading spaces exist before newlines and that
+      // there are no trailing white spaces.
       String processed = script.replace("\r\n", "\n");
       processed = script.replace("\r", "\n");
       processed = script.replace("\n", "\n  ");
@@ -162,4 +163,8 @@ public class ScriptEngineService {
     return script;
   }
 
+  private String toScriptFunctionName(String delegateName) {
+    return delegateName.substring(0, 1).toLowerCase()
+        + WordUtils.capitalize(delegateName.substring(1)).replace(" ", "");
+  }
 }
