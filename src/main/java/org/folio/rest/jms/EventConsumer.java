@@ -3,7 +3,6 @@ package org.folio.rest.jms;
 import static org.camunda.spin.Spin.JSON;
 
 import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.spin.json.SpinJsonNode;
 import org.folio.rest.workflow.jms.model.Event;
 import org.folio.spring.tenant.storage.ThreadLocalStorage;
@@ -64,12 +63,10 @@ public class EventConsumer {
     String tenant = event.getTenant();
     JsonNode payload = event.getPayload();
 
-    ProcessInstance processInstance = runtimeService.createMessageCorrelation(event.getPathPattern())
+    runtimeService.createMessageCorrelation(event.getPathPattern())
       .tenantId(tenant)
       .setVariable("payload", payload)
       .correlateStartMessage();
-
-    logger.info("New Process Instance Id: {}", processInstance.getProcessInstanceId());
   }
 
   private void startProcess(Event event) {

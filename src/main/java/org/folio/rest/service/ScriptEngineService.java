@@ -164,7 +164,8 @@ public class ScriptEngineService {
   }
 
   private String toScriptFunctionName(String delegateName) {
-    return delegateName.substring(0, 1).toLowerCase()
-        + WordUtils.capitalize(delegateName.substring(1)).replace(" ", "");
+    String name = WordUtils.capitalize(delegateName);
+    return name.substring(0, 1).toLowerCase()
+        + name.substring(1).replace(" ", "");
   }
 }

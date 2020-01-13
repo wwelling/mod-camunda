@@ -29,12 +29,15 @@
       "type" : "string",
       "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
     },
-    "contextInputKey" : {
-      "type" : "string"
+    "contextInputKeys" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
     },
     "contextOutputKey" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "description", "script", "scriptType", "contextInputKey", "contextOutputKey" ]
+  "required" : [ "deserializeAs", "name", "description", "script", "scriptType", "contextInputKeys", "contextOutputKey" ]
 }

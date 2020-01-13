@@ -49,6 +49,12 @@
           "$ref" : "#/definitions/RequestTask"
         } ]
       }
+    },
+    "initialContext" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "type" : "string"
+      }
     }
   },
   "required" : [ "active", "name", "description" ],
@@ -225,15 +231,18 @@
           "type" : "string",
           "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
         },
-        "contextInputKey" : {
-          "type" : "string"
+        "contextInputKeys" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
         },
         "contextOutputKey" : {
           "type" : "string"
         }
       },
       "title" : "ProcessorTask",
-      "required" : [ "deserializeAs", "name", "description", "script", "scriptType", "contextInputKey", "contextOutputKey" ]
+      "required" : [ "deserializeAs", "name", "description", "script", "scriptType", "contextInputKeys", "contextOutputKey" ]
     },
     "RequestTask" : {
       "type" : "object",

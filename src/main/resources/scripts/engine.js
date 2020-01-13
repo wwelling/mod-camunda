@@ -1,5 +1,4 @@
-var %s = function(inArgs) {
-  var args = JSON.parse(inArgs);
+var %s = function(args) {
   var returnObj = {};
   %s
   return JSON.stringify(returnObj);

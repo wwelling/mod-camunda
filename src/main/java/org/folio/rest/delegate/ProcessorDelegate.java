@@ -1,5 +1,8 @@
 package org.folio.rest.delegate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -10,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 @Service
 @Scope("prototype")
-public class ProcessorDelegate extends AbstractRuntimeDelegate {
+public class ProcessorDelegate extends AbstractWorkflowDelegate {
 
   @Autowired
   private ScriptEngineService scriptEngineService;
@@ -21,7 +26,7 @@ public class ProcessorDelegate extends AbstractRuntimeDelegate {
 
   private Expression scriptType;
 
-  private Expression contextInputKey;
+  private Expression contextInputKeys;
 
   private Expression contextOutputKey;
 
@@ -29,7 +34,6 @@ public class ProcessorDelegate extends AbstractRuntimeDelegate {
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-
     String delegateName = bpmnModelElement.getName();
 
     logger.info("{} started", delegateName);
@@ -38,11 +42,17 @@ public class ProcessorDelegate extends AbstractRuntimeDelegate {
 
     scriptEngineService.registerScript(scriptTypeExtension, delegateName, script.getValue(execution).toString());
 
-    String inputKey = contextInputKey.getValue(execution).toString();
+    String[] inputKeys = objectMapper.readValue(contextInputKeys.getValue(execution).toString(), String[].class);
+
+    Map<String, Object> inputs = new HashMap<String, Object>();
+
+    for (String inputKey : inputKeys) {
+      inputs.put(inputKey, execution.getVariable(inputKey));
+    }
+
+    JsonNode input = objectMapper.valueToTree(inputs);
 
     String outputKey = contextOutputKey.getValue(execution).toString();
-
-    String input = (String) execution.getVariable(inputKey);
 
     String output = (String) scriptEngineService.runScript(scriptTypeExtension, delegateName, input);
 
@@ -64,8 +74,8 @@ public class ProcessorDelegate extends AbstractRuntimeDelegate {
     this.scriptEngineService = scriptEngineService;
   }
 
-  public void setContextInputKey(Expression contextInputKey) {
-    this.contextInputKey = contextInputKey;
+  public void setContextInputKeys(Expression contextInputKeys) {
+    this.contextInputKeys = contextInputKeys;
   }
 
   public void setContextOutputKey(Expression contextOutputKey) {

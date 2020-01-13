@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 @Scope("prototype")
-public class RequestDelegate extends AbstractRuntimeDelegate {
+public class RequestDelegate extends AbstractWorkflowDelegate {
 
   @Autowired
   private HttpService httpService;
@@ -66,8 +66,9 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
 
     String reqBody = sub.replace(bodyTemplate.getValue(execution).toString());
 
-    logger.info("method: {}", reqMethod);
     logger.info("url: {}", reqUrl);
+    logger.info("method: {}", reqMethod);
+    
     logger.info("accept: {}", reqAccept);
     logger.info("content-type: {}", reqContentType);
     logger.info("body: {}", reqBody);
@@ -78,8 +79,8 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
     headers.add("Accept", reqAccept);
     headers.add("Content-Type", reqContentType);
 
-    HttpEntity<String> entity = new HttpEntity<String>(reqBody, headers);
-    ResponseEntity<String> response = httpService.exchange(reqUrl, HttpMethod.valueOf(reqMethod), entity, String.class);
+    HttpEntity<Object> entity = new HttpEntity<Object>(reqBody, headers);
+    ResponseEntity<Object> response = httpService.exchange(reqUrl, HttpMethod.valueOf(reqMethod), entity, Object.class);
 
     execution.setVariable(outputKey, response.getBody());
 
