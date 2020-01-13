@@ -8,7 +8,7 @@ import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
-import org.camunda.bpm.model.cmmn.instance.ProcessTask;
+import org.folio.rest.workflow.model.RequestTask;
 import org.folio.spring.service.HttpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -77,6 +77,8 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
 
     String reqBody = sub.replace(bodyTemplate.getValue(execution).toString());
 
+    logger.info("body: {}", reqBody);
+
     String outputKey = contextResponseKey.getValue(execution).toString();
 
     HttpHeaders headers = new HttpHeaders();
@@ -84,9 +86,8 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
     headers.add("Content-Type", reqContentType);
 
     HttpEntity<String> entity = new HttpEntity<String>(reqBody, headers);
-
     ResponseEntity<String> response = httpService.exchange(reqUrl, HttpMethod.valueOf(reqMethod), entity, String.class);
-
+    
     execution.setVariable(outputKey, response.getBody());
 
     long endTime = System.nanoTime();
@@ -123,7 +124,7 @@ public class RequestDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public Class<?> fromTask() {
-    return ProcessTask.class;
+    return RequestTask.class;
   }
 
 }

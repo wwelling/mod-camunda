@@ -9,7 +9,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.service.ScriptEngineService;
-import org.folio.rest.workflow.model.RequestTask;
+import org.folio.rest.workflow.model.ProcessorTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 @Scope("prototype")
-public class ProcessDelegate extends AbstractRuntimeDelegate {
+public class ProcessorDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
   private ScriptEngineService scriptEngineService;
@@ -49,7 +49,8 @@ public class ProcessDelegate extends AbstractRuntimeDelegate {
     String outputKey = contextOutputKey.getValue(execution).toString();
 
     List<String> input = objectMapper.readValue((String) execution.getVariable(inputKey),
-        new TypeReference<List<String>>() {});
+        new TypeReference<List<String>>() {
+        });
 
     List<String> output = input.parallelStream().map(d -> {
       try {
@@ -90,7 +91,7 @@ public class ProcessDelegate extends AbstractRuntimeDelegate {
 
   @Override
   public Class<?> fromTask() {
-    return RequestTask.class;
+    return ProcessorTask.class;
   }
 
 }
