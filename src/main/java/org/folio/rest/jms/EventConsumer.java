@@ -28,7 +28,7 @@ public class EventConsumer {
 
   @JmsListener(destination = "${event.queue.name}")
   public void receive(Event event) {
-    logger.info("Receive [{}]: {}, {}, {}, {}", eventQueueName, event.getMethod(), event.getPath(), event.getTriggerType(), event.getPayload());
+    logger.info("Receive [{}]: {}, {}, {}", eventQueueName, event.getMethod(), event.getPath(), event.getPayload());
     logger.info("Event: {}", event.getPathPattern(), event.getTriggerId());
 
     SpinJsonNode jsonNode = JSON(event.getPayload());
@@ -41,43 +41,14 @@ public class EventConsumer {
 
     ThreadLocalStorage.setTenant(tenant);
 
-    switch (event.getTriggerType()) {
-    case MESSAGE_CORRELATE:
-      correlateMessage(event);
-      break;
-    case PROCESS_START:
-      startProcess(event);
-      break;
-    case TASK_COMPLETE:
-      completeTask(event);
-      break;
-    default:
-      break;
-    }
-
-  }
-
-  private void correlateMessage(Event event) {
     logger.info("Correlating message {}", event.getPathPattern());
 
-    String tenant = event.getTenant();
     JsonNode payload = event.getPayload();
 
     runtimeService.createMessageCorrelation(event.getPathPattern())
       .tenantId(tenant)
       .setVariable("payload", payload)
       .correlateStartMessage();
-  }
-
-  private void startProcess(Event event) {
-    logger.info("Starting process {}", String.join(",", event.getProcessDefinitionIds()));
-    event.getProcessDefinitionIds().forEach(processDefinitionId -> {
-      runtimeService.startProcessInstanceById(processDefinitionId);
-    });
-  }
-
-  private void completeTask(Event event) {
-
   }
 
 }

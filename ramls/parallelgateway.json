@@ -1,0 +1,29 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : null,
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ null ],
+      "default" : null
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "description" : {
+      "type" : "string",
+      "maxLength" : 512
+    },
+    "identifier" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "deserializeAs", "name" ]
+}

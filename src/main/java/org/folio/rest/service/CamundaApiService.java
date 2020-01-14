@@ -1,12 +1,9 @@
 package org.folio.rest.service;
 
-import java.util.List;
-
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngines;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
-import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.folio.rest.exception.WorkflowAlreadyActiveException;
@@ -56,14 +53,6 @@ public class CamundaApiService {
     workflow.setActive(true);
     workflow.setDeploymentId(deploymentId);
 
-    List<ProcessDefinition> deployedProcessDefinitions = repositoryService.createProcessDefinitionQuery()
-      .deploymentId(deploymentId)
-      .list();
-
-    for (ProcessDefinition processDefinition : deployedProcessDefinitions) {
-      workflow.getProcessDefinitionIds().add(processDefinition.getId());
-    }
-
     return workflow;
   }
 
@@ -79,7 +68,6 @@ public class CamundaApiService {
 
     workflow.setActive(false);
     workflow.setDeploymentId(null);
-    workflow.getProcessDefinitionIds().clear();
 
     return workflow;
   }

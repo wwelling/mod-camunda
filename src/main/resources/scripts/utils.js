@@ -49,5 +49,3 @@ var isPhone = function(string) {
 };
 
 var UUID = Java.type("java.util.UUID");
-
-print("UTILS LOADED");

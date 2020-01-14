@@ -3,12 +3,13 @@ package org.folio.rest.delegate;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.text.CaseUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.service.ScriptEngineService;
 import org.folio.rest.workflow.model.ProcessorTask;
-import org.folio.rest.workflow.model.TaskScriptType;
+import org.folio.rest.workflow.model.ScriptType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class ProcessorDelegate extends AbstractWorkflowDelegate {
   @Autowired
   private ScriptEngineService scriptEngineService;
 
+  @SuppressWarnings("unused")
   private Expression script;
 
   private Expression scriptType;
@@ -38,9 +40,9 @@ public class ProcessorDelegate extends AbstractWorkflowDelegate {
 
     logger.info("{} started", delegateName);
 
-    String scriptTypeExtension = TaskScriptType.valueOf(scriptType.getValue(execution).toString()).getExtension();
+    String scriptTypeExtension = ScriptType.valueOf(scriptType.getValue(execution).toString()).getExtension();
 
-    scriptEngineService.registerScript(scriptTypeExtension, delegateName, script.getValue(execution).toString());
+    // TODO: ensure script has been registered
 
     String[] inputKeys = objectMapper.readValue(contextInputKeys.getValue(execution).toString(), String[].class);
 
@@ -54,7 +56,8 @@ public class ProcessorDelegate extends AbstractWorkflowDelegate {
 
     String outputKey = contextOutputKey.getValue(execution).toString();
 
-    String output = (String) scriptEngineService.runScript(scriptTypeExtension, delegateName, input);
+    String scriptName = CaseUtils.toCamelCase(delegateName, false, ' ');
+    String output = (String) scriptEngineService.runScript(scriptTypeExtension, scriptName, input);
 
     execution.setVariable(outputKey, output);
 
