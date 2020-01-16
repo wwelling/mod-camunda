@@ -46,9 +46,12 @@
     "contextResponseKey" : {
       "type" : "string"
     },
+    "asyncBefore" : {
+      "type" : "boolean"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "contextResponseKey" ]
+  "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "contextResponseKey", "asyncBefore" ]
 }

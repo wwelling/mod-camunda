@@ -2,6 +2,7 @@ package org.folio.rest.service;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,13 +50,19 @@ public class BpmnModelFactory {
 
   private final static Logger logger = LoggerFactory.getLogger(BpmnModelFactory.class);
 
-  //@formatter:off
+  // @formatter:off
   private final static Class<?>[] SERIALIZABLE_TYPES = new Class<?>[] {
     String.class,
     Number.class,
     Boolean.class,
     Enum.class
   };
+  // @formatter:on
+
+  // @formatter:off
+  private final static List<String> RESERVED_PROPERTIES = Arrays.asList(
+    "asyncBefore"
+  );
   // @formatter:on
 
   @Autowired
@@ -100,6 +107,11 @@ public class BpmnModelFactory {
 
       if (node instanceof Event) {
         if (node instanceof StartEvent) {
+
+          if (((StartEvent) node).isAsyncBefore()) {
+            builder = builder.camundaAsyncBefore();
+          }
+
           if (node instanceof ScheduleStartEvent) {
             builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
                 .timerWithCycle(((ScheduleStartEvent) node).getChronExpression());
@@ -109,6 +121,7 @@ public class BpmnModelFactory {
           } else {
             // unknown start event
           }
+
         } else if (node instanceof EndEvent) {
           builder = builder.endEvent();
         } else {
@@ -120,18 +133,15 @@ public class BpmnModelFactory {
             .filter(d -> d.fromTask().equals(node.getClass())).findAny();
 
         if (delegate.isPresent()) {
-
           builder = builder.serviceTask(node.getIdentifier()).name(node.getName())
               .camundaDelegateExpression(delegate.get().getExpression());
-
-          // TODO: figure out how to use input/output variables of tasks to enable async
-          // currently, putting large result sets on the context causes errors while persisting
-          // state between asynchronous tasks
-          //    .camundaAsyncBefore()
-          //    .camundaAsyncAfter();
         } else {
           // TODO: create custom exception and controller advice to handle better
           throw new RuntimeException("Task must have delegate representation!");
+        }
+
+        if (((Task) node).isAsyncBefore()) {
+          builder = builder.camundaAsyncBefore();
         }
 
       } else if (node instanceof Branch) {
@@ -236,6 +246,11 @@ public class BpmnModelFactory {
         ExtensionElements extensions = model.newInstance(ExtensionElements.class);
 
         for (Field f : node.getClass().getDeclaredFields()) {
+
+          if (RESERVED_PROPERTIES.contains(f.getName())) {
+            continue;
+          }
+
           f.setAccessible(true);
 
           CamundaField field = model.newInstance(CamundaField.class);

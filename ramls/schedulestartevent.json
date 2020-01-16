@@ -24,9 +24,12 @@
     "chronExpression" : {
       "type" : "string"
     },
+    "asyncBefore" : {
+      "type" : "boolean"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "chronExpression" ]
+  "required" : [ "deserializeAs", "name", "chronExpression", "asyncBefore" ]
 }

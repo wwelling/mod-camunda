@@ -37,9 +37,12 @@
     "contextOutputKey" : {
       "type" : "string"
     },
+    "asyncBefore" : {
+      "type" : "boolean"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "script", "scriptType", "contextInputKeys", "contextOutputKey" ]
+  "required" : [ "deserializeAs", "name", "script", "scriptType", "contextInputKeys", "contextOutputKey", "asyncBefore" ]
 }

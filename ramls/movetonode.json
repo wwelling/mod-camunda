@@ -80,12 +80,15 @@
         "chronExpression" : {
           "type" : "string"
         },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "ChronExpressionStartEvent",
-      "required" : [ "deserializeAs", "name", "chronExpression" ]
+      "required" : [ "deserializeAs", "name", "chronExpression", "asyncBefore" ]
     },
     "ConnectTo" : {
       "type" : "object",
@@ -236,12 +239,15 @@
           "minLength" : 4,
           "maxLength" : 256
         },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "MessageCorrelationStartEvent",
-      "required" : [ "deserializeAs", "name", "message" ]
+      "required" : [ "deserializeAs", "name", "message", "asyncBefore" ]
     },
     "MoveToLastGateway" : {
       "type" : "object",
@@ -401,12 +407,15 @@
         "contextOutputKey" : {
           "type" : "string"
         },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "ProcessorTask",
-      "required" : [ "deserializeAs", "name", "script", "scriptType", "contextInputKeys", "contextOutputKey" ]
+      "required" : [ "deserializeAs", "name", "script", "scriptType", "contextInputKeys", "contextOutputKey", "asyncBefore" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -454,12 +463,15 @@
         "contextResponseKey" : {
           "type" : "string"
         },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "RequestTask",
-      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "contextResponseKey" ]
+      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "contextResponseKey", "asyncBefore" ]
     },
     "SetupTask" : {
       "type" : "object",
@@ -485,12 +497,15 @@
         "loadInitialContext" : {
           "type" : "boolean"
         },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "SetupTask",
-      "required" : [ "deserializeAs", "name" ]
+      "required" : [ "deserializeAs", "name", "asyncBefore" ]
     }
   }
 }

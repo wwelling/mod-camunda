@@ -1,9 +1,8 @@
 package org.folio.rest.jms;
 
-import static org.camunda.spin.Spin.JSON;
+import java.util.Map;
 
 import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.spin.json.SpinJsonNode;
 import org.folio.rest.workflow.jms.model.Event;
 import org.folio.spring.tenant.storage.ThreadLocalStorage;
 import org.slf4j.Logger;
@@ -13,7 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class EventConsumer {
@@ -24,18 +25,15 @@ public class EventConsumer {
   private String eventQueueName;
 
   @Autowired
-  protected RuntimeService runtimeService;
+  private RuntimeService runtimeService;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @JmsListener(destination = "${event.queue.name}")
-  public void receive(Event event) {
+  public void receive(Event event) throws JsonProcessingException {
     logger.info("Receive [{}]: {}, {}, {}", eventQueueName, event.getMethod(), event.getPath(), event.getPayload());
     logger.info("Event: {}", event.getPathPattern(), event.getTriggerId());
-
-    SpinJsonNode jsonNode = JSON(event.getPayload());
-    if (jsonNode.hasProp("errors")) {
-      logger.info("Event contains error in payload");
-      return;
-    }
 
     String tenant = event.getTenant();
 
@@ -43,11 +41,12 @@ public class EventConsumer {
 
     logger.info("Correlating message {}", event.getPathPattern());
 
-    JsonNode payload = event.getPayload();
+    Map<String, Object> variables = objectMapper.convertValue(event.getPayload(),
+        new TypeReference<Map<String, Object>>() {});
 
     runtimeService.createMessageCorrelation(event.getPathPattern())
       .tenantId(tenant)
-      .setVariable("payload", payload)
+      .setVariables(variables)
       .correlateStartMessage();
   }
 

@@ -26,9 +26,12 @@
       "minLength" : 4,
       "maxLength" : 256
     },
+    "asyncBefore" : {
+      "type" : "boolean"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "message" ]
+  "required" : [ "deserializeAs", "name", "message", "asyncBefore" ]
 }

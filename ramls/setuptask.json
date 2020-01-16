@@ -24,9 +24,12 @@
     "loadInitialContext" : {
       "type" : "boolean"
     },
+    "asyncBefore" : {
+      "type" : "boolean"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name" ]
+  "required" : [ "deserializeAs", "name", "asyncBefore" ]
 }
