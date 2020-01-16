@@ -12,7 +12,6 @@ import org.folio.rest.workflow.model.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,16 +19,10 @@ public class CamundaApiService {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Value("${okapi.location}")
-  private String OKAPI_LOCATION;
-
-  @Value("${tenant.default-tenant}")
-  private String TENANT_NAME;
-
   @Autowired
   private BpmnModelFactory bpmnModelFactory;
 
-  public Workflow deployWorkflow(Workflow workflow) throws WorkflowAlreadyActiveException {
+  public Workflow deployWorkflow(Workflow workflow, String tenant) throws WorkflowAlreadyActiveException {
     if (workflow.isActive()) {
       throw new WorkflowAlreadyActiveException(workflow.getId());
     }
@@ -43,10 +36,11 @@ public class CamundaApiService {
     ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
     RepositoryService repositoryService = processEngine.getRepositoryService();
 
-    Deployment deployment = repositoryService.createDeployment()
-      .addModelInstance(workflow.getName().replace(" ", "") + ".bpmn", modelInstance)
-      .tenantId(TENANT_NAME)
-      .deploy();
+    Deployment deployment = repositoryService.createDeployment().name(workflow.getName())
+        .addModelInstance(workflow.getName().replace(" ", "") + ".bpmn", modelInstance)
+        .source("mod-workflow")
+        .tenantId(tenant)
+        .deploy();
 
     String deploymentId = deployment.getId();
 
@@ -57,7 +51,6 @@ public class CamundaApiService {
   }
 
   public Workflow undeployWorkflow(Workflow workflow) throws WorkflowAlreadyDeactivatedException {
-
     if (!workflow.isActive()) {
       throw new WorkflowAlreadyDeactivatedException(workflow.getId());
     }

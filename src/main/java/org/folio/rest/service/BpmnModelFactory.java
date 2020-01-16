@@ -72,7 +72,9 @@ public class BpmnModelFactory {
 
   private BpmnModelInstance build(Workflow workflow) {
 
-    ProcessBuilder processBuilder = Bpmn.createExecutableProcess().name(workflow.getName());
+    ProcessBuilder processBuilder = Bpmn.createExecutableProcess().name(workflow.getName())
+        .camundaHistoryTimeToLive(workflow.getHistoryTimeToLive())
+        .camundaVersionTag(workflow.getVersionTag());
 
     List<Node> nodes = workflow.getNodes();
 
