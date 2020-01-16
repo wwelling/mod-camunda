@@ -29,7 +29,7 @@ spring:
   devtools:
     add-properties: false
     restart:
-      enabled: false
+      enabled: true
       exclude: target
   h2:
     console:

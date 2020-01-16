@@ -67,11 +67,11 @@ public class RequestDelegate extends AbstractWorkflowDelegate {
     String reqBody = sub.replace(bodyTemplate.getValue(execution).toString());
 
     logger.info("url: {}", reqUrl);
-    logger.info("method: {}", reqMethod);
+    logger.debug("method: {}", reqMethod);
     
-    logger.info("accept: {}", reqAccept);
-    logger.info("content-type: {}", reqContentType);
-    logger.info("body: {}", reqBody);
+    logger.debug("accept: {}", reqAccept);
+    logger.debug("content-type: {}", reqContentType);
+    logger.debug("body: {}", reqBody);
 
     String outputKey = contextResponseKey.getValue(execution).toString();
 
