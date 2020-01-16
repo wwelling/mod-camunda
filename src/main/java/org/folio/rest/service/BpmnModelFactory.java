@@ -99,9 +99,7 @@ public class BpmnModelFactory {
     for (Node node : nodes) {
 
       if (node instanceof Event) {
-
         if (node instanceof StartEvent) {
-
           if (node instanceof ScheduleStartEvent) {
             builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
                 .timerWithCycle(((ScheduleStartEvent) node).getChronExpression());
@@ -111,15 +109,11 @@ public class BpmnModelFactory {
           } else {
             // unknown start event
           }
-
         } else if (node instanceof EndEvent) {
-
           builder = builder.endEvent();
-
         } else {
           // unknown event
         }
-
       } else if (node instanceof Task) {
 
         Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
@@ -130,6 +124,11 @@ public class BpmnModelFactory {
           builder = builder.serviceTask(node.getIdentifier()).name(node.getName())
               .camundaDelegateExpression(delegate.get().getExpression());
 
+          // TODO: figure out how to use input/output variables of tasks to enable async
+          // currently, putting large result sets on the context causes errors while persisting
+          // state between asynchronous tasks
+          //    .camundaAsyncBefore()
+          //    .camundaAsyncAfter();
         } else {
           // TODO: create custom exception and controller advice to handle better
           throw new RuntimeException("Task must have delegate representation!");
