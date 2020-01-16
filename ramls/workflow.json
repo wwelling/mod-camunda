@@ -174,12 +174,43 @@
           "minLength" : 4,
           "maxLength" : 128
         },
+        "answer" : {
+          "type" : "string",
+          "minLength" : 2,
+          "maxLength" : 64
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/SetupTask"
+            } ]
+          }
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "ExclusiveGateway",
-      "required" : [ "deserializeAs", "name", "condition" ]
+      "required" : [ "deserializeAs", "name", "condition", "answer" ]
     },
     "MessageCorrelationStartEvent" : {
       "type" : "object",
@@ -235,12 +266,48 @@
           "type" : "string",
           "maxLength" : 512
         },
+        "condition" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 128
+        },
+        "answer" : {
+          "type" : "string",
+          "minLength" : 2,
+          "maxLength" : 64
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/SetupTask"
+            } ]
+          }
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "MoveToLastGateway",
-      "required" : [ "deserializeAs", "name" ]
+      "required" : [ "deserializeAs", "name", "condition", "answer" ]
     },
     "MoveToNode" : {
       "type" : "object",
@@ -263,15 +330,41 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "nodeId" : {
+        "gatewayId" : {
           "type" : "string"
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/SetupTask"
+            } ]
+          }
         },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "MoveToNode",
-      "required" : [ "deserializeAs", "name", "nodeId" ]
+      "required" : [ "deserializeAs", "name", "gatewayId" ]
     },
     "ProcessorTask" : {
       "type" : "object",

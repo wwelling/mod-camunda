@@ -12,16 +12,17 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
-import org.camunda.bpm.model.bpmn.instance.ExclusiveGateway;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.folio.rest.delegate.AbstractWorkflowDelegate;
 import org.folio.rest.model.Script;
 import org.folio.rest.workflow.model.Branch;
+import org.folio.rest.workflow.model.Conditional;
 import org.folio.rest.workflow.model.ConnectTo;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.Event;
+import org.folio.rest.workflow.model.ExclusiveGateway;
 import org.folio.rest.workflow.model.MessageCorrelationStartEvent;
 import org.folio.rest.workflow.model.MoveToLastGateway;
 import org.folio.rest.workflow.model.MoveToNode;
@@ -34,7 +35,6 @@ import org.folio.rest.workflow.model.ScriptType;
 import org.folio.rest.workflow.model.SetupTask;
 import org.folio.rest.workflow.model.StartEvent;
 import org.folio.rest.workflow.model.Task;
-//
 import org.folio.rest.workflow.model.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public class BpmnModelFactory {
 
   public BpmnModelInstance fromWorkflow(Workflow workflow) {
     BpmnModelInstance model = build(workflow);
-    expressions(model, workflow);
+    setup(model, workflow);
     return model;
   }
 
@@ -76,19 +76,25 @@ public class BpmnModelFactory {
 
     List<Node> nodes = workflow.getNodes();
 
-    if (workflow.getNodes().isEmpty()) {
+    if (nodes.isEmpty()) {
       return processBuilder.done();
     }
 
     AbstractFlowNodeBuilder<?, ?> builder = processBuilder.startEvent();
 
-    for (int i = 0; i < nodes.size(); i++) {
-      Node node = nodes.get(i);
+    if (!(nodes.get(0) instanceof StartEvent)) {
+      // TODO: create custom exception and controller advice to handle better
+      throw new RuntimeException("Workflow must start with a start event!");
+    }
 
-      if (i == 0 && !(node instanceof StartEvent)) {
-        // TODO: create custom exception and controller advice to handle better
-        throw new RuntimeException("Workflow must start with a start event!");
-      }
+    builder = build(builder, nodes);
+
+    return builder.done();
+  }
+
+  private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes) {
+
+    for (Node node : nodes) {
 
       if (node instanceof Event) {
 
@@ -106,15 +112,13 @@ public class BpmnModelFactory {
 
         } else if (node instanceof EndEvent) {
 
-          builder.endEvent();
+          builder = builder.endEvent();
 
         } else {
           // unknown event
         }
 
       } else if (node instanceof Task) {
-
-        System.out.println("\n\n" + node.getClass().getSimpleName() + "\n\n");
 
         Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
             .filter(d -> d.fromTask().equals(node.getClass())).findAny();
@@ -132,23 +136,30 @@ public class BpmnModelFactory {
       } else if (node instanceof Branch) {
 
         if (node instanceof ExclusiveGateway) {
-
+          builder = builder.exclusiveGateway().name(node.getName());
         } else if (node instanceof MoveToLastGateway) {
-
+          builder = builder.moveToLastGateway();
         } else if (node instanceof ParallelGateway) {
-
+          // TODO: implement and ensure validation
+          throw new RuntimeException("Parallel gateway not yet supported!");
         } else if (node instanceof MoveToNode) {
-
+          // TODO: implement and ensure validation
+          throw new RuntimeException("Move to node not yet supported!");
         } else {
           // unknown branch
         }
 
-        // must end in end event or connect to
+        if (node instanceof Conditional) {
+          builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
+        }
+
+        builder = build(builder, ((Branch) node).getNodes());
 
       } else if (node instanceof Navigation) {
 
         if (node instanceof ConnectTo) {
 
+          // TODO: figure out way to get identifier from id
           builder = builder.connectTo(((ConnectTo) node).getNodeId());
 
         } else {
@@ -161,14 +172,14 @@ public class BpmnModelFactory {
 
     // must end in end event or connect to
 
-    return builder.done();
+    return builder;
   }
 
-  private void expressions(BpmnModelInstance model, Workflow workflow) {
+  private void setup(BpmnModelInstance model, Workflow workflow) {
 
     List<Node> nodes = workflow.getNodes();
 
-    nodes.stream().filter(node -> node instanceof Task).forEach(node -> {
+    nodes.stream().filter(node -> (node instanceof SetupTask)).forEach(node -> {
 
       Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
           .filter(d -> d.fromTask().equals(node.getClass())).findAny();
@@ -177,57 +188,27 @@ public class BpmnModelFactory {
 
         ExtensionElements extensions = model.newInstance(ExtensionElements.class);
 
-        if (node instanceof SetupTask) {
-
-          if (((SetupTask) node).getLoadInitialContext()) {
-            Map<String, String> initialContext = workflow.getInitialContext();
-            CamundaField field = model.newInstance(CamundaField.class);
-            field.setCamundaName("initialContext");
-            try {
-              field.setCamundaStringValue(objectMapper.writeValueAsString(initialContext));
-            } catch (JsonProcessingException e) {
-              logger.warn("Failed to serialize initial context");
-            }
-            extensions.addChildElement(field);
-          }
-
-          List<Script> processorScripts = getProcessorScripts(nodes);
+        if (((SetupTask) node).getLoadInitialContext()) {
+          Map<String, String> initialContext = workflow.getInitialContext();
           CamundaField field = model.newInstance(CamundaField.class);
-          field.setCamundaName("processorScripts");
+          field.setCamundaName("initialContext");
           try {
-            field.setCamundaStringValue(objectMapper.writeValueAsString(processorScripts));
+            field.setCamundaStringValue(objectMapper.writeValueAsString(initialContext));
           } catch (JsonProcessingException e) {
-            logger.warn("Failed to serialize processor scripts");
+            logger.warn("Failed to serialize initial context");
           }
           extensions.addChildElement(field);
-
-        } else {
-
-          for (Field f : node.getClass().getDeclaredFields()) {
-            f.setAccessible(true);
-
-            CamundaField field = model.newInstance(CamundaField.class);
-            field.setCamundaName(f.getName());
-
-            try {
-              if (isSerializableType(f.getType())) {
-                field.setCamundaStringValue(f.get(node).toString());
-              } else {
-                field.setCamundaStringValue(objectMapper.writeValueAsString(f.get(node)));
-              }
-            } catch (JsonProcessingException e) {
-              logger.warn("Failed to serialize field {} of node {}", f.getName(), node.getClass().getSimpleName());
-            } catch (IllegalArgumentException e) {
-              logger.warn("Unknown field {} of node {}", f.getName(), node.getClass().getSimpleName());
-            } catch (IllegalAccessException e) {
-              logger.warn("Cannot access field {} of node {}", f.getName(), node.getClass().getSimpleName());
-            }
-            extensions.addChildElement(field);
-          }
-
         }
 
-        System.out.println("\n\n" + node.getIdentifier() + "\n\n");
+        List<Script> processorScripts = getProcessorScripts(workflow.getNodes());
+        CamundaField field = model.newInstance(CamundaField.class);
+        field.setCamundaName("processorScripts");
+        try {
+          field.setCamundaStringValue(objectMapper.writeValueAsString(processorScripts));
+        } catch (JsonProcessingException e) {
+          logger.warn("Failed to serialize processor scripts");
+        }
+        extensions.addChildElement(field);
 
         ModelElementInstance element = model.getModelElementById(node.getIdentifier());
         element.addChildElement(extensions);
@@ -238,15 +219,70 @@ public class BpmnModelFactory {
       }
 
     });
+
+    expressions(model, nodes);
+  }
+
+  private void expressions(BpmnModelInstance model, List<Node> nodes) {
+
+    nodes.stream().filter(node -> !(node instanceof SetupTask)).forEach(node -> {
+
+      Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
+          .filter(d -> d.fromTask().equals(node.getClass())).findAny();
+
+      if (delegate.isPresent()) {
+
+        ExtensionElements extensions = model.newInstance(ExtensionElements.class);
+
+        for (Field f : node.getClass().getDeclaredFields()) {
+          f.setAccessible(true);
+
+          CamundaField field = model.newInstance(CamundaField.class);
+          field.setCamundaName(f.getName());
+
+          try {
+            if (isSerializableType(f.getType())) {
+              field.setCamundaStringValue(f.get(node).toString());
+            } else {
+              field.setCamundaStringValue(objectMapper.writeValueAsString(f.get(node)));
+            }
+          } catch (JsonProcessingException e) {
+            logger.warn("Failed to serialize field {} of node {}", f.getName(), node.getClass().getSimpleName());
+          } catch (IllegalArgumentException e) {
+            logger.warn("Unknown field {} of node {}", f.getName(), node.getClass().getSimpleName());
+          } catch (IllegalAccessException e) {
+            logger.warn("Cannot access field {} of node {}", f.getName(), node.getClass().getSimpleName());
+          }
+          extensions.addChildElement(field);
+        }
+
+        ModelElementInstance element = model.getModelElementById(node.getIdentifier());
+        element.addChildElement(extensions);
+
+      } else {
+
+        if (node instanceof Branch) {
+          expressions(model, ((Branch) node).getNodes());
+        } else if (node instanceof Task) {
+          // TODO: create custom exception and controller advice to handle better
+          throw new RuntimeException("Task must have delegate representation!");
+        }
+
+      }
+    });
   }
 
   private List<Script> getProcessorScripts(List<Node> nodes) {
     List<Script> scripts = new ArrayList<Script>();
-    nodes.stream().filter(node -> node instanceof ProcessorTask).forEach(node -> {
-      String name = CaseUtils.toCamelCase(((ProcessorTask) node).getName(), false, ' ');
-      String code = ((ProcessorTask) node).getScript();
-      ScriptType type = ((ProcessorTask) node).getScriptType();
-      scripts.add(Script.of(name, code, type));
+    nodes.stream().forEach(node -> {
+      if (node instanceof ProcessorTask) {
+        String name = CaseUtils.toCamelCase(((ProcessorTask) node).getName(), false, ' ');
+        String code = ((ProcessorTask) node).getScript();
+        ScriptType type = ((ProcessorTask) node).getScriptType();
+        scripts.add(Script.of(name, code, type));
+      } else if (node instanceof Branch) {
+        scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
+      }
     });
     return scripts;
   }
