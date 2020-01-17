@@ -8,7 +8,6 @@ import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.model.Script;
 import org.folio.rest.service.ScriptEngineService;
-import org.folio.rest.workflow.model.SetupTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 @Scope("prototype")
-public class SetupDelegate extends AbstractWorkflowDelegate {
+public class SetupDelegate extends AbstractRuntimeDelegate {
 
   @Autowired
   private ScriptEngineService scriptEngineService;
@@ -66,11 +65,6 @@ public class SetupDelegate extends AbstractWorkflowDelegate {
 
   public void setProcessorScripts(Expression processorScripts) {
     this.processorScripts = processorScripts;
-  }
-
-  @Override
-  public Class<?> fromTask() {
-    return SetupTask.class;
   }
 
 }

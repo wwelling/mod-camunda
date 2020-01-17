@@ -2,6 +2,8 @@ package org.folio.rest.delegate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.text.CaseUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
@@ -28,10 +31,6 @@ public class ProcessorDelegate extends AbstractWorkflowDelegate {
 
   private Expression scriptType;
 
-  private Expression contextInputKeys;
-
-  private Expression contextOutputKey;
-
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
@@ -44,22 +43,42 @@ public class ProcessorDelegate extends AbstractWorkflowDelegate {
 
     // TODO: ensure script has been registered
 
-    String[] inputKeys = objectMapper.readValue(contextInputKeys.getValue(execution).toString(), String[].class);
-
     Map<String, Object> inputs = new HashMap<String, Object>();
 
-    for (String inputKey : inputKeys) {
-      inputs.put(inputKey, execution.getVariable(inputKey));
-    }
+    Set<String> contextReqKeys = objectMapper.readValue(getContextInputKeys().getValue(execution).toString(),
+        new TypeReference<Set<String>>() {
+        });
+
+    contextReqKeys.forEach(reqKey -> inputs.put(reqKey, execution.getVariable(reqKey)));
+
+    Set<String> contextCacheReqKeys = objectMapper.readValue(getContextCacheInputKeys().getValue(execution).toString(),
+        new TypeReference<Set<String>>() {
+        });
+
+    contextCacheReqKeys.forEach(reqKey -> {
+      Optional<Object> cacheReqValue = contextCacheService.pull(reqKey);
+      if (cacheReqValue.isPresent()) {
+        inputs.put(reqKey, cacheReqValue.get());
+      } else {
+        logger.warn("Cannot find %s in context cache", reqKey);
+      }
+    });
 
     JsonNode input = objectMapper.valueToTree(inputs);
 
-    String outputKey = contextOutputKey.getValue(execution).toString();
-
     String scriptName = CaseUtils.toCamelCase(delegateName, false, ' ');
+
     String output = (String) scriptEngineService.runScript(scriptTypeExtension, scriptName, input);
 
-    execution.setVariable(outputKey, output);
+    boolean useCacheOutput = Boolean.parseBoolean(getUseCacheOutput().getValue(execution).toString());
+
+    String outputKey = getOutputKey().getValue(execution).toString();
+
+    if (useCacheOutput) {
+      contextCacheService.put(outputKey, output);
+    } else {
+      execution.setVariable(outputKey, output);
+    }
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
@@ -75,14 +94,6 @@ public class ProcessorDelegate extends AbstractWorkflowDelegate {
 
   public void setScriptEngineService(ScriptEngineService scriptEngineService) {
     this.scriptEngineService = scriptEngineService;
-  }
-
-  public void setContextInputKeys(Expression contextInputKeys) {
-    this.contextInputKeys = contextInputKeys;
-  }
-
-  public void setContextOutputKey(Expression contextOutputKey) {
-    this.contextOutputKey = contextOutputKey;
   }
 
   @Override

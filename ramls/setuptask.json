@@ -27,9 +27,12 @@
     "asyncBefore" : {
       "type" : "boolean"
     },
+    "asyncAfter" : {
+      "type" : "boolean"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "asyncBefore" ]
+  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
 }

@@ -37,21 +37,33 @@
     "bodyTemplate" : {
       "type" : "string"
     },
-    "contextRequestKeys" : {
+    "contextInputKeys" : {
       "type" : "array",
       "items" : {
         "type" : "string"
       }
     },
-    "contextResponseKey" : {
+    "contextCacheInputKeys" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    },
+    "outputKey" : {
       "type" : "string"
     },
+    "useCacheOutput" : {
+      "type" : "boolean"
+    },
     "asyncBefore" : {
+      "type" : "boolean"
+    },
+    "asyncAfter" : {
       "type" : "boolean"
     },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "contextResponseKey", "asyncBefore" ]
+  "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "outputKey", "asyncBefore", "asyncAfter" ]
 }

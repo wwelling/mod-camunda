@@ -2,6 +2,7 @@ package org.folio.rest.delegate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.text.StringSubstitutor;
@@ -37,10 +38,6 @@ public class RequestDelegate extends AbstractWorkflowDelegate {
 
   private Expression bodyTemplate;
 
-  private Expression contextRequestKeys;
-
-  private Expression contextResponseKey;
-
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
@@ -55,12 +52,26 @@ public class RequestDelegate extends AbstractWorkflowDelegate {
     String reqAccept = accept.getValue(execution).toString();
     String reqContentType = contentType.getValue(execution).toString();
 
-    Set<String> reqKeys = objectMapper.readValue(contextRequestKeys.getValue(execution).toString(),
-        new TypeReference<Set<String>>() {});
+    Map<String, Object> reqContext = new HashMap<String, Object>();
 
-    Map<String, String> reqContext = new HashMap<String, String>();
+    Set<String> contextReqKeys = objectMapper.readValue(getContextInputKeys().getValue(execution).toString(),
+        new TypeReference<Set<String>>() {
+        });
 
-    reqKeys.forEach(reqKey -> reqContext.put(reqKey, (String) execution.getVariable(reqKey)));
+    contextReqKeys.forEach(reqKey -> reqContext.put(reqKey, execution.getVariable(reqKey)));
+
+    Set<String> contextCacheReqKeys = objectMapper.readValue(getContextCacheInputKeys().getValue(execution).toString(),
+        new TypeReference<Set<String>>() {
+        });
+
+    contextCacheReqKeys.forEach(reqKey -> {
+      Optional<Object> cacheReqValue = contextCacheService.pull(reqKey);
+      if (cacheReqValue.isPresent()) {
+        reqContext.put(reqKey, cacheReqValue.get());
+      } else {
+        logger.warn("Cannot find %s in context cache", reqKey);
+      }
+    });
 
     StringSubstitutor sub = new StringSubstitutor(reqContext);
 
@@ -68,12 +79,10 @@ public class RequestDelegate extends AbstractWorkflowDelegate {
 
     logger.info("url: {}", reqUrl);
     logger.debug("method: {}", reqMethod);
-    
+
     logger.debug("accept: {}", reqAccept);
     logger.debug("content-type: {}", reqContentType);
     logger.debug("body: {}", reqBody);
-
-    String outputKey = contextResponseKey.getValue(execution).toString();
 
     HttpHeaders headers = new HttpHeaders();
     headers.add("Accept", reqAccept);
@@ -82,7 +91,15 @@ public class RequestDelegate extends AbstractWorkflowDelegate {
     HttpEntity<Object> entity = new HttpEntity<Object>(reqBody, headers);
     ResponseEntity<Object> response = httpService.exchange(reqUrl, HttpMethod.valueOf(reqMethod), entity, Object.class);
 
-    execution.setVariable(outputKey, response.getBody());
+    boolean useCacheOutput = Boolean.parseBoolean(getUseCacheOutput().getValue(execution).toString().trim());
+
+    String outputKey = getOutputKey().getValue(execution).toString();
+
+    if (useCacheOutput) {
+      contextCacheService.put(outputKey, response.getBody());
+    } else {
+      execution.setVariable(outputKey, response.getBody());
+    }
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
@@ -106,14 +123,6 @@ public class RequestDelegate extends AbstractWorkflowDelegate {
 
   public void setBodyTemplate(Expression bodyTemplate) {
     this.bodyTemplate = bodyTemplate;
-  }
-
-  public void setContextRequestKeys(Expression contextRequestKeys) {
-    this.contextRequestKeys = contextRequestKeys;
-  }
-
-  public void setContextResponseKey(Expression contextResponseKey) {
-    this.contextResponseKey = contextResponseKey;
   }
 
   @Override

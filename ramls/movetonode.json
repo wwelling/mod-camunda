@@ -404,10 +404,22 @@
             "type" : "string"
           }
         },
-        "contextOutputKey" : {
+        "contextCacheInputKeys" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "outputKey" : {
           "type" : "string"
         },
+        "useCacheOutput" : {
+          "type" : "boolean"
+        },
         "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
           "type" : "boolean"
         },
         "identifier" : {
@@ -415,7 +427,7 @@
         }
       },
       "title" : "ProcessorTask",
-      "required" : [ "deserializeAs", "name", "script", "scriptType", "contextInputKeys", "contextOutputKey", "asyncBefore" ]
+      "required" : [ "deserializeAs", "name", "script", "scriptType", "outputKey", "asyncBefore", "asyncAfter" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -454,16 +466,28 @@
         "bodyTemplate" : {
           "type" : "string"
         },
-        "contextRequestKeys" : {
+        "contextInputKeys" : {
           "type" : "array",
           "items" : {
             "type" : "string"
           }
         },
-        "contextResponseKey" : {
+        "contextCacheInputKeys" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "outputKey" : {
           "type" : "string"
         },
+        "useCacheOutput" : {
+          "type" : "boolean"
+        },
         "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
           "type" : "boolean"
         },
         "identifier" : {
@@ -471,7 +495,7 @@
         }
       },
       "title" : "RequestTask",
-      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "contextResponseKey", "asyncBefore" ]
+      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "outputKey", "asyncBefore", "asyncAfter" ]
     },
     "SetupTask" : {
       "type" : "object",
@@ -500,12 +524,15 @@
         "asyncBefore" : {
           "type" : "boolean"
         },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "SetupTask",
-      "required" : [ "deserializeAs", "name", "asyncBefore" ]
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     }
   }
 }

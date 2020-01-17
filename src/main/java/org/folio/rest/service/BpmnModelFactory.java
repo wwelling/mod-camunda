@@ -1,13 +1,13 @@
 package org.folio.rest.service;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.text.CaseUtils;
+import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
@@ -33,7 +33,6 @@ import org.folio.rest.workflow.model.ParallelGateway;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ScheduleStartEvent;
 import org.folio.rest.workflow.model.ScriptType;
-import org.folio.rest.workflow.model.SetupTask;
 import org.folio.rest.workflow.model.StartEvent;
 import org.folio.rest.workflow.model.Task;
 import org.folio.rest.workflow.model.Workflow;
@@ -50,6 +49,8 @@ public class BpmnModelFactory {
 
   private final static Logger logger = LoggerFactory.getLogger(BpmnModelFactory.class);
 
+  private final static String SETUP_TASK_ID = "setup_task_98832611_3d33_476b_adcc_fcb6c4e8718b";
+
   // @formatter:off
   private final static Class<?>[] SERIALIZABLE_TYPES = new Class<?>[] {
     String.class,
@@ -57,12 +58,6 @@ public class BpmnModelFactory {
     Boolean.class,
     Enum.class
   };
-  // @formatter:on
-
-  // @formatter:off
-  private final static List<String> RESERVED_PROPERTIES = Arrays.asList(
-    "asyncBefore"
-  );
   // @formatter:on
 
   @Autowired
@@ -74,14 +69,16 @@ public class BpmnModelFactory {
   public BpmnModelInstance fromWorkflow(Workflow workflow) {
     BpmnModelInstance model = build(workflow);
     setup(model, workflow);
+    expressions(model, workflow.getNodes());
     return model;
   }
 
   private BpmnModelInstance build(Workflow workflow) {
-
+    // @formatter:off
     ProcessBuilder processBuilder = Bpmn.createExecutableProcess().name(workflow.getName())
         .camundaHistoryTimeToLive(workflow.getHistoryTimeToLive())
         .camundaVersionTag(workflow.getVersionTag());
+    // @formatter:on
 
     List<Node> nodes = workflow.getNodes();
 
@@ -122,6 +119,12 @@ public class BpmnModelFactory {
             // unknown start event
           }
 
+          // @formatter:off
+          builder = builder.serviceTask(SETUP_TASK_ID).name("Setup")
+              .camundaDelegateExpression("${setupDelegate}")
+              .camundaAsyncAfter();
+          // @formatter:on
+
         } else if (node instanceof EndEvent) {
           builder = builder.endEvent();
         } else {
@@ -142,6 +145,10 @@ public class BpmnModelFactory {
 
         if (((Task) node).isAsyncBefore()) {
           builder = builder.camundaAsyncBefore();
+        }
+
+        if (((Task) node).isAsyncAfter()) {
+          builder = builder.camundaAsyncAfter();
         }
 
       } else if (node instanceof Branch) {
@@ -187,56 +194,34 @@ public class BpmnModelFactory {
   }
 
   private void setup(BpmnModelInstance model, Workflow workflow) {
+    ExtensionElements extensions = model.newInstance(ExtensionElements.class);
 
-    List<Node> nodes = workflow.getNodes();
+    Map<String, String> initialContext = workflow.getInitialContext();
+    CamundaField icField = model.newInstance(CamundaField.class);
+    icField.setCamundaName("initialContext");
+    try {
+      icField.setCamundaStringValue(objectMapper.writeValueAsString(initialContext));
+    } catch (JsonProcessingException e) {
+      logger.warn("Failed to serialize initial context");
+    }
+    extensions.addChildElement(icField);
 
-    nodes.stream().filter(node -> (node instanceof SetupTask)).forEach(node -> {
+    List<Script> processorScripts = getProcessorScripts(workflow.getNodes());
+    CamundaField psField = model.newInstance(CamundaField.class);
+    psField.setCamundaName("processorScripts");
+    try {
+      psField.setCamundaStringValue(objectMapper.writeValueAsString(processorScripts));
+    } catch (JsonProcessingException e) {
+      logger.warn("Failed to serialize processor scripts");
+    }
+    extensions.addChildElement(psField);
 
-      Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
-          .filter(d -> d.fromTask().equals(node.getClass())).findAny();
-
-      if (delegate.isPresent()) {
-
-        ExtensionElements extensions = model.newInstance(ExtensionElements.class);
-
-        if (((SetupTask) node).getLoadInitialContext()) {
-          Map<String, String> initialContext = workflow.getInitialContext();
-          CamundaField field = model.newInstance(CamundaField.class);
-          field.setCamundaName("initialContext");
-          try {
-            field.setCamundaStringValue(objectMapper.writeValueAsString(initialContext));
-          } catch (JsonProcessingException e) {
-            logger.warn("Failed to serialize initial context");
-          }
-          extensions.addChildElement(field);
-        }
-
-        List<Script> processorScripts = getProcessorScripts(workflow.getNodes());
-        CamundaField field = model.newInstance(CamundaField.class);
-        field.setCamundaName("processorScripts");
-        try {
-          field.setCamundaStringValue(objectMapper.writeValueAsString(processorScripts));
-        } catch (JsonProcessingException e) {
-          logger.warn("Failed to serialize processor scripts");
-        }
-        extensions.addChildElement(field);
-
-        ModelElementInstance element = model.getModelElementById(node.getIdentifier());
-        element.addChildElement(extensions);
-
-      } else {
-        // TODO: create custom exception and controller advice to handle better
-        throw new RuntimeException("Task must have delegate representation!");
-      }
-
-    });
-
-    expressions(model, nodes);
+    ModelElementInstance element = model.getModelElementById(SETUP_TASK_ID);
+    element.addChildElement(extensions);
   }
 
   private void expressions(BpmnModelInstance model, List<Node> nodes) {
-
-    nodes.stream().filter(node -> !(node instanceof SetupTask)).forEach(node -> {
+    nodes.stream().forEach(node -> {
 
       Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
           .filter(d -> d.fromTask().equals(node.getClass())).findAny();
@@ -245,32 +230,22 @@ public class BpmnModelFactory {
 
         ExtensionElements extensions = model.newInstance(ExtensionElements.class);
 
-        for (Field f : node.getClass().getDeclaredFields()) {
+        FieldUtils.getAllFieldsList(delegate.get().getClass()).stream()
+            .filter(df -> Expression.class.isAssignableFrom(df.getType()))
+            .map(df -> FieldUtils.getDeclaredField(node.getClass(), df.getName(), true)).forEach(f -> {
+              try {
 
-          if (RESERVED_PROPERTIES.contains(f.getName())) {
-            continue;
-          }
+                CamundaField field = model.newInstance(CamundaField.class);
+                field.setCamundaName(f.getName());
+                field.setCamundaStringValue(serialize(f.get(node)));
 
-          f.setAccessible(true);
+                extensions.addChildElement(field);
 
-          CamundaField field = model.newInstance(CamundaField.class);
-          field.setCamundaName(f.getName());
-
-          try {
-            if (isSerializableType(f.getType())) {
-              field.setCamundaStringValue(f.get(node).toString());
-            } else {
-              field.setCamundaStringValue(objectMapper.writeValueAsString(f.get(node)));
-            }
-          } catch (JsonProcessingException e) {
-            logger.warn("Failed to serialize field {} of node {}", f.getName(), node.getClass().getSimpleName());
-          } catch (IllegalArgumentException e) {
-            logger.warn("Unknown field {} of node {}", f.getName(), node.getClass().getSimpleName());
-          } catch (IllegalAccessException e) {
-            logger.warn("Cannot access field {} of node {}", f.getName(), node.getClass().getSimpleName());
-          }
-          extensions.addChildElement(field);
-        }
+              } catch (JsonProcessingException | IllegalArgumentException | IllegalAccessException e) {
+                // TODO: create custom exception and controller advice to handle better
+                throw new RuntimeException(e);
+              }
+            });
 
         ModelElementInstance element = model.getModelElementById(node.getIdentifier());
         element.addChildElement(extensions);
@@ -301,6 +276,14 @@ public class BpmnModelFactory {
       }
     });
     return scripts;
+  }
+
+  private String serialize(Object value) throws JsonProcessingException {
+    if (isSerializableType(value.getClass())) {
+      return value.toString();
+    } else {
+      return objectMapper.writeValueAsString(value);
+    }
   }
 
   private boolean isSerializableType(Class<?> type) {

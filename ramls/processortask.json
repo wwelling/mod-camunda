@@ -34,15 +34,27 @@
         "type" : "string"
       }
     },
-    "contextOutputKey" : {
+    "contextCacheInputKeys" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    },
+    "outputKey" : {
       "type" : "string"
     },
+    "useCacheOutput" : {
+      "type" : "boolean"
+    },
     "asyncBefore" : {
+      "type" : "boolean"
+    },
+    "asyncAfter" : {
       "type" : "boolean"
     },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "script", "scriptType", "contextInputKeys", "contextOutputKey", "asyncBefore" ]
+  "required" : [ "deserializeAs", "name", "script", "scriptType", "outputKey", "asyncBefore", "asyncAfter" ]
 }
