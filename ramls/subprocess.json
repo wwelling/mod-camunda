@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "EventSubprocess",
+  "title" : "Subprocess",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "EventSubprocess" ],
-      "default" : "EventSubprocess"
+      "enum" : [ "Subprocess" ],
+      "default" : "Subprocess"
     },
     "id" : {
       "type" : "string"
@@ -20,6 +20,10 @@
     "description" : {
       "type" : "string",
       "maxLength" : 512
+    },
+    "type" : {
+      "type" : "string",
+      "enum" : [ "EMBEDDED", "TRANSACTION" ]
     },
     "nodes" : {
       "type" : "array",
@@ -55,11 +59,17 @@
         } ]
       }
     },
+    "asyncBefore" : {
+      "type" : "boolean"
+    },
+    "asyncAfter" : {
+      "type" : "boolean"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name" ],
+  "required" : [ "deserializeAs", "name", "type", "asyncBefore", "asyncAfter" ],
   "definitions" : {
     "StartEvent" : {
       "type" : "object",

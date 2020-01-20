@@ -13,6 +13,7 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
+import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
@@ -22,24 +23,18 @@ import org.folio.rest.workflow.components.Branch;
 import org.folio.rest.workflow.components.Conditional;
 import org.folio.rest.workflow.components.Event;
 import org.folio.rest.workflow.components.Navigation;
-import org.folio.rest.workflow.components.StartEvent;
-import org.folio.rest.workflow.components.Subprocess;
 import org.folio.rest.workflow.components.Task;
 import org.folio.rest.workflow.components.Wait;
+import org.folio.rest.workflow.model.ConditionalGateway;
 import org.folio.rest.workflow.model.ConnectTo;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
-import org.folio.rest.workflow.model.ExclusiveGateway;
-import org.folio.rest.workflow.model.MessageCorrelationStartEvent;
-import org.folio.rest.workflow.model.MessageCorrelationWait;
-import org.folio.rest.workflow.model.MoveToLastGateway;
-import org.folio.rest.workflow.model.MoveToNode;
 import org.folio.rest.workflow.model.Node;
-import org.folio.rest.workflow.model.ParallelGateway;
 import org.folio.rest.workflow.model.ProcessorTask;
-import org.folio.rest.workflow.model.ScheduleStartEvent;
+import org.folio.rest.workflow.model.ReceiveTask;
 import org.folio.rest.workflow.model.ScriptType;
-import org.folio.rest.workflow.model.SignalStartEvent;
+import org.folio.rest.workflow.model.StartEvent;
+import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,9 +76,11 @@ public class BpmnModelFactory {
 
     BpmnModelInstance model = build(processBuilder, workflow);
 
-    workflow.getNodes().stream().filter(node -> node instanceof Subprocess).forEach(subprocess -> {
-      subprocess(processBuilder, subprocess);
-    });
+    // @formatter:off
+    workflow.getNodes().stream()
+      .filter(node -> node instanceof EventSubprocess)
+      .forEach(subprocess -> eventSubprocess(processBuilder, subprocess));
+    // @formatter:on
 
     setup(model, workflow);
     expressions(model, workflow.getNodes());
@@ -109,16 +106,12 @@ public class BpmnModelFactory {
     return builder.done();
   }
 
-  private void subprocess(ProcessBuilder processBuilder, Node node) {
+  private void eventSubprocess(ProcessBuilder processBuilder, Node node) {
     AbstractFlowNodeBuilder<?, ?> builder = null;
-    if (node instanceof EventSubprocess) {
-      String identifier = node.getIdentifier();
-      String name = node.getName();
-      builder = processBuilder.eventSubProcess(identifier).name(name).startEvent();
-    } else {
-      // unknown subprocess
-    }
-    builder = build(builder, ((Subprocess) node).getNodes(), false);
+    String identifier = node.getIdentifier();
+    String name = node.getName();
+    builder = processBuilder.eventSubProcess(identifier).name(name).startEvent();
+    builder = build(builder, ((EventSubprocess) node).getNodes(), false);
   }
 
   private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes, boolean setup) {
@@ -126,6 +119,7 @@ public class BpmnModelFactory {
     for (Node node : nodes) {
 
       if (node instanceof Event) {
+
         if (node instanceof StartEvent) {
 
           if (((StartEvent) node).isAsyncBefore()) {
@@ -134,17 +128,22 @@ public class BpmnModelFactory {
 
           boolean interrupting = ((StartEvent) node).isInterrupting();
 
-          if (node instanceof ScheduleStartEvent) {
+          switch (((StartEvent) node).getType()) {
+          case MESSAGE_CORRELATION:
             builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
-                .timerWithCycle(((ScheduleStartEvent) node).getChronExpression()).interrupting(interrupting);
-          } else if (node instanceof SignalStartEvent) {
+                .message(((StartEvent) node).getExpression()).interrupting(interrupting);
+            break;
+          case SCHEDULED:
             builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
-                .signal(((SignalStartEvent) node).getSignal()).interrupting(interrupting);
-          } else if (node instanceof MessageCorrelationStartEvent) {
+                .timerWithCycle(((StartEvent) node).getExpression()).interrupting(interrupting);
+            break;
+          case SIGNAL:
             builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
-                .message(((MessageCorrelationStartEvent) node).getMessage()).interrupting(interrupting);
-          } else {
+                .signal(((StartEvent) node).getExpression()).interrupting(interrupting);
+            break;
+          default:
             // unknown start event
+            break;
           }
 
           if (setup) {
@@ -160,6 +159,7 @@ public class BpmnModelFactory {
         } else {
           // unknown event
         }
+
       } else if (node instanceof Task) {
 
         Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
@@ -183,25 +183,57 @@ public class BpmnModelFactory {
 
       } else if (node instanceof Branch) {
 
-        if (node instanceof ExclusiveGateway) {
-          builder = builder.exclusiveGateway().name(node.getName());
-        } else if (node instanceof MoveToLastGateway) {
-          builder = builder.moveToLastGateway();
-        } else if (node instanceof ParallelGateway) {
-          // TODO: implement and ensure validation
-          throw new RuntimeException("Parallel gateway not yet supported!");
-        } else if (node instanceof MoveToNode) {
-          // TODO: implement and ensure validation
-          throw new RuntimeException("Move to node not yet supported!");
-        } else {
-          // unknown branch
+        if (node instanceof ConditionalGateway) {
+
+          switch (((ConditionalGateway) node).getType()) {
+
+          case EXCLUSIVE:
+            builder = builder.exclusiveGateway().name(node.getName());
+            break;
+          case INCLUSIVE:
+            // TODO: implement and ensure validation
+            throw new RuntimeException("Inclusive gateway not yet supported!");
+          case MOVE_TO_LAST:
+            builder = builder.moveToLastGateway();
+            break;
+          default:
+            break;
+
+          }
+        } else if ((node instanceof Subprocess)) {
+
+          SubProcessBuilder subProcessBuilder = builder.subProcess(node.getIdentifier()).name(node.getName());
+
+          if (((Subprocess) node).isAsyncBefore()) {
+            subProcessBuilder = subProcessBuilder.camundaAsyncBefore();
+          }
+
+          if (((Subprocess) node).isAsyncAfter()) {
+            subProcessBuilder = subProcessBuilder.camundaAsyncAfter();
+          }
+
+          switch (((Subprocess) node).getType()) {
+          case EMBEDDED:
+            builder = subProcessBuilder.embeddedSubProcess().startEvent();
+            builder = build(builder, ((Branch) node).getNodes(), false);
+            builder = builder.subProcessDone();
+            break;
+          case TRANSACTION:
+            // TODO: create custom exception and controller advice to handle better
+            throw new RuntimeException("Transaction subprocess not yet supported!");
+          default:
+            break;
+          }
+
         }
 
         if (node instanceof Conditional) {
           builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
         }
 
-        builder = build(builder, ((Branch) node).getNodes(), false);
+        if (!(node instanceof Subprocess)) {
+          builder = build(builder, ((Branch) node).getNodes(), false);
+        }
 
       } else if (node instanceof Navigation) {
 
@@ -216,10 +248,10 @@ public class BpmnModelFactory {
 
       } else if (node instanceof Wait) {
 
-        if (node instanceof MessageCorrelationWait) {
+        if (node instanceof ReceiveTask) {
 
           builder = builder.receiveTask(((Node) node).getIdentifier()).name(((Node) node).getName())
-              .message(((MessageCorrelationWait) node).getMessage());
+              .message(((ReceiveTask) node).getMessage());
 
         } else {
           // unknown wait
@@ -277,12 +309,14 @@ public class BpmnModelFactory {
       if (delegate.isPresent()) {
 
         ExtensionElements extensions = model.newInstance(ExtensionElements.class);
+        
+        System.out.println("\n" + delegate.get().getClass());
 
         FieldUtils.getAllFieldsList(delegate.get().getClass()).stream()
             .filter(df -> Expression.class.isAssignableFrom(df.getType()))
             .map(df -> FieldUtils.getDeclaredField(node.getClass(), df.getName(), true)).forEach(f -> {
               try {
-
+                System.out.println("\t" + f.getName());
                 CamundaField field = model.newInstance(CamundaField.class);
                 field.setCamundaName(f.getName());
                 field.setCamundaStringValue(serialize(f.get(node)));
@@ -318,8 +352,8 @@ public class BpmnModelFactory {
     nodes.stream().forEach(node -> {
       if (node instanceof ProcessorTask) {
         String name = CaseUtils.toCamelCase(((ProcessorTask) node).getName(), false, ' ');
-        String code = ((ProcessorTask) node).getScript();
-        ScriptType type = ((ProcessorTask) node).getScriptType();
+        String code = ((ProcessorTask) node).getProcess().getScript();
+        ScriptType type = ((ProcessorTask) node).getProcess().getScriptType();
         scripts.add(Script.of(name, code, type));
       } else if (node instanceof Branch) {
         scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));

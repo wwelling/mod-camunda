@@ -1,49 +1,33 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "RequestTask",
+  "title" : "Stream",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
-    "deserializeAs" : {
-      "type" : "string",
-      "enum" : [ "RequestTask" ],
-      "default" : "RequestTask"
-    },
     "id" : {
       "type" : "string"
-    },
-    "name" : {
-      "type" : "string",
-      "minLength" : 3,
-      "maxLength" : 64
-    },
-    "description" : {
-      "type" : "string",
-      "maxLength" : 512
     },
     "request" : {
       "$ref" : "#/definitions/Request"
     },
-    "inputVariables" : {
+    "mergeStrategy" : {
+      "type" : "string",
+      "enum" : [ "CONCAT", "MERGE", "ENHANCE" ]
+    },
+    "enhancementComparisons" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Variable"
+        "$ref" : "#/definitions/EnhancementComparison"
       }
     },
-    "outputVariable" : {
-      "$ref" : "#/definitions/Variable"
-    },
-    "asyncBefore" : {
-      "type" : "boolean"
-    },
-    "asyncAfter" : {
-      "type" : "boolean"
-    },
-    "identifier" : {
-      "type" : "string"
+    "enhancementMappings" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/EnhancementMapping"
+      }
     }
   },
-  "required" : [ "deserializeAs", "name", "request", "asyncBefore", "asyncAfter" ],
+  "required" : [ "request", "mergeStrategy" ],
   "definitions" : {
     "Request" : {
       "type" : "object",
@@ -68,21 +52,33 @@
       },
       "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
     },
-    "Variable" : {
+    "EnhancementComparison" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
-        "key" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
+        "sourceProperty" : {
+          "type" : "string"
         },
-        "type" : {
-          "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL", "CACHE" ]
+        "targetProperty" : {
+          "type" : "string"
+        }
+      }
+    },
+    "EnhancementMapping" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "toProperty" : {
+          "type" : "string"
+        },
+        "fromProperty" : {
+          "type" : "string"
+        },
+        "multiple" : {
+          "type" : "boolean"
         }
       },
-      "required" : [ "key" ]
+      "required" : [ "multiple" ]
     }
   }
 }

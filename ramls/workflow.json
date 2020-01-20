@@ -36,17 +36,13 @@
       "type" : "array",
       "items" : {
         "oneOf" : [ {
-          "$ref" : "#/definitions/ScheduleStartEvent"
-        }, {
-          "$ref" : "#/definitions/SignalStartEvent"
-        }, {
-          "$ref" : "#/definitions/MessageCorrelationStartEvent"
+          "$ref" : "#/definitions/StartEvent"
         }, {
           "$ref" : "#/definitions/EndEvent"
         }, {
-          "$ref" : "#/definitions/ExclusiveGateway"
+          "$ref" : "#/definitions/ConditionalGateway"
         }, {
-          "$ref" : "#/definitions/MoveToLastGateway"
+          "$ref" : "#/definitions/ParallelGateway"
         }, {
           "$ref" : "#/definitions/ConnectTo"
         }, {
@@ -56,15 +52,17 @@
         }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
-          "$ref" : "#/definitions/RemoveFileTask"
+          "$ref" : "#/definitions/DirectoryTask"
         }, {
-          "$ref" : "#/definitions/ReadDirectoryTask"
+          "$ref" : "#/definitions/ReceiveTask"
         }, {
           "$ref" : "#/definitions/StreamRequestToDirectoryTask"
         }, {
-          "$ref" : "#/definitions/EventSubprocess"
+          "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
         }, {
-          "$ref" : "#/definitions/MessageCorrelationWait"
+          "$ref" : "#/definitions/Subprocess"
+        }, {
+          "$ref" : "#/definitions/EventSubprocess"
         } ]
       }
     },
@@ -77,14 +75,14 @@
   },
   "required" : [ "name", "versionTag", "description", "active" ],
   "definitions" : {
-    "ScheduleStartEvent" : {
+    "StartEvent" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "ScheduleStartEvent" ],
-          "default" : "ScheduleStartEvent"
+          "enum" : [ "StartEvent" ],
+          "default" : "StartEvent"
         },
         "id" : {
           "type" : "string"
@@ -98,44 +96,11 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "chronExpression" : {
-          "type" : "string"
-        },
-        "interrupting" : {
-          "type" : "boolean"
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "ScheduleStartEvent",
-      "required" : [ "deserializeAs", "name", "chronExpression", "interrupting", "asyncBefore" ]
-    },
-    "SignalStartEvent" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
+        "type" : {
           "type" : "string",
-          "enum" : [ "SignalStartEvent" ],
-          "default" : "SignalStartEvent"
+          "enum" : [ "MESSAGE_CORRELATION", "SCHEDULED", "SIGNAL" ]
         },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "signal" : {
+        "expression" : {
           "type" : "string",
           "minLength" : 4,
           "maxLength" : 256
@@ -150,47 +115,8 @@
           "type" : "string"
         }
       },
-      "title" : "SignalStartEvent",
-      "required" : [ "deserializeAs", "name", "signal", "interrupting", "asyncBefore" ]
-    },
-    "MessageCorrelationStartEvent" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "MessageCorrelationStartEvent" ],
-          "default" : "MessageCorrelationStartEvent"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "message" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 256
-        },
-        "interrupting" : {
-          "type" : "boolean"
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "MessageCorrelationStartEvent",
-      "required" : [ "deserializeAs", "name", "message", "interrupting", "asyncBefore" ]
+      "title" : "StartEvent",
+      "required" : [ "deserializeAs", "name", "type", "expression", "interrupting", "asyncBefore" ]
     },
     "EndEvent" : {
       "type" : "object",
@@ -220,14 +146,14 @@
       "title" : "EndEvent",
       "required" : [ "deserializeAs", "name" ]
     },
-    "ExclusiveGateway" : {
+    "ConditionalGateway" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "ExclusiveGateway" ],
-          "default" : "ExclusiveGateway"
+          "enum" : [ "ConditionalGateway" ],
+          "default" : "ConditionalGateway"
         },
         "id" : {
           "type" : "string"
@@ -240,6 +166,10 @@
         "description" : {
           "type" : "string",
           "maxLength" : 512
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "EXCLUSIVE", "INCLUSIVE", "MOVE_TO_LAST" ]
         },
         "condition" : {
           "type" : "string",
@@ -255,17 +185,13 @@
           "type" : "array",
           "items" : {
             "oneOf" : [ {
-              "$ref" : "#/definitions/ScheduleStartEvent"
-            }, {
-              "$ref" : "#/definitions/SignalStartEvent"
-            }, {
-              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+              "$ref" : "#/definitions/StartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
-              "$ref" : "#/definitions/ExclusiveGateway"
+              "$ref" : "#/definitions/ConditionalGateway"
             }, {
-              "$ref" : "#/definitions/MoveToLastGateway"
+              "$ref" : "#/definitions/ParallelGateway"
             }, {
               "$ref" : "#/definitions/ConnectTo"
             }, {
@@ -275,15 +201,17 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/RemoveFileTask"
+              "$ref" : "#/definitions/DirectoryTask"
             }, {
-              "$ref" : "#/definitions/ReadDirectoryTask"
+              "$ref" : "#/definitions/ReceiveTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
-              "$ref" : "#/definitions/EventSubprocess"
+              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationWait"
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
             } ]
           }
         },
@@ -291,17 +219,17 @@
           "type" : "string"
         }
       },
-      "title" : "ExclusiveGateway",
-      "required" : [ "deserializeAs", "name", "condition", "answer" ]
+      "title" : "ConditionalGateway",
+      "required" : [ "deserializeAs", "name", "type", "condition", "answer" ]
     },
-    "MoveToLastGateway" : {
+    "ParallelGateway" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "MoveToLastGateway" ],
-          "default" : "MoveToLastGateway"
+          "enum" : [ "ParallelGateway" ],
+          "default" : "ParallelGateway"
         },
         "id" : {
           "type" : "string"
@@ -315,31 +243,17 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "condition" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 128
-        },
-        "answer" : {
-          "type" : "string",
-          "minLength" : 2,
-          "maxLength" : 64
-        },
         "nodes" : {
           "type" : "array",
           "items" : {
             "oneOf" : [ {
-              "$ref" : "#/definitions/ScheduleStartEvent"
-            }, {
-              "$ref" : "#/definitions/SignalStartEvent"
-            }, {
-              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+              "$ref" : "#/definitions/StartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
-              "$ref" : "#/definitions/ExclusiveGateway"
+              "$ref" : "#/definitions/ConditionalGateway"
             }, {
-              "$ref" : "#/definitions/MoveToLastGateway"
+              "$ref" : "#/definitions/ParallelGateway"
             }, {
               "$ref" : "#/definitions/ConnectTo"
             }, {
@@ -349,15 +263,17 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/RemoveFileTask"
+              "$ref" : "#/definitions/DirectoryTask"
             }, {
-              "$ref" : "#/definitions/ReadDirectoryTask"
+              "$ref" : "#/definitions/ReceiveTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
-              "$ref" : "#/definitions/EventSubprocess"
+              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationWait"
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
             } ]
           }
         },
@@ -365,8 +281,8 @@
           "type" : "string"
         }
       },
-      "title" : "MoveToLastGateway",
-      "required" : [ "deserializeAs", "name", "condition", "answer" ]
+      "title" : "ParallelGateway",
+      "required" : [ "deserializeAs", "name" ]
     },
     "ConnectTo" : {
       "type" : "object",
@@ -427,17 +343,13 @@
           "type" : "array",
           "items" : {
             "oneOf" : [ {
-              "$ref" : "#/definitions/ScheduleStartEvent"
-            }, {
-              "$ref" : "#/definitions/SignalStartEvent"
-            }, {
-              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+              "$ref" : "#/definitions/StartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
-              "$ref" : "#/definitions/ExclusiveGateway"
+              "$ref" : "#/definitions/ConditionalGateway"
             }, {
-              "$ref" : "#/definitions/MoveToLastGateway"
+              "$ref" : "#/definitions/ParallelGateway"
             }, {
               "$ref" : "#/definitions/ConnectTo"
             }, {
@@ -447,15 +359,17 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/RemoveFileTask"
+              "$ref" : "#/definitions/DirectoryTask"
             }, {
-              "$ref" : "#/definitions/ReadDirectoryTask"
+              "$ref" : "#/definitions/ReceiveTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
-              "$ref" : "#/definitions/EventSubprocess"
+              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationWait"
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
             } ]
           }
         },
@@ -487,30 +401,17 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "script" : {
-          "type" : "string"
+        "process" : {
+          "$ref" : "#/definitions/Process"
         },
-        "scriptType" : {
-          "type" : "string",
-          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
-        },
-        "contextInputKeys" : {
+        "inputVariables" : {
           "type" : "array",
           "items" : {
-            "type" : "string"
+            "$ref" : "#/definitions/Variable"
           }
         },
-        "contextCacheInputKeys" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
-        },
-        "outputKey" : {
-          "type" : "string"
-        },
-        "useCacheOutput" : {
-          "type" : "boolean"
+        "outputVariable" : {
+          "$ref" : "#/definitions/Variable"
         },
         "asyncBefore" : {
           "type" : "boolean"
@@ -523,7 +424,37 @@
         }
       },
       "title" : "ProcessorTask",
-      "required" : [ "deserializeAs", "name", "script", "scriptType", "outputKey", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "process", "asyncBefore", "asyncAfter" ]
+    },
+    "Process" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "script" : {
+          "type" : "string"
+        },
+        "scriptType" : {
+          "type" : "string",
+          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
+        }
+      },
+      "required" : [ "script", "scriptType" ]
+    },
+    "Variable" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "PROCESS", "LOCAL", "CACHE" ]
+        }
+      },
+      "required" : [ "key" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -546,39 +477,17 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "url" : {
-          "type" : "string"
+        "request" : {
+          "$ref" : "#/definitions/Request"
         },
-        "method" : {
-          "type" : "string",
-          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
-        },
-        "contentType" : {
-          "type" : "string"
-        },
-        "accept" : {
-          "type" : "string"
-        },
-        "bodyTemplate" : {
-          "type" : "string"
-        },
-        "contextInputKeys" : {
+        "inputVariables" : {
           "type" : "array",
           "items" : {
-            "type" : "string"
+            "$ref" : "#/definitions/Variable"
           }
         },
-        "contextCacheInputKeys" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
-        },
-        "outputKey" : {
-          "type" : "string"
-        },
-        "useCacheOutput" : {
-          "type" : "boolean"
+        "outputVariable" : {
+          "$ref" : "#/definitions/Variable"
         },
         "asyncBefore" : {
           "type" : "boolean"
@@ -591,121 +500,12 @@
         }
       },
       "title" : "RequestTask",
-      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "outputKey", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "request", "asyncBefore", "asyncAfter" ]
     },
-    "RemoveFileTask" : {
+    "Request" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "RemoveFileTask" ],
-          "default" : "RemoveFileTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "path" : {
-          "type" : "string"
-        },
-        "workflow" : {
-          "type" : "string"
-        },
-        "outputKey" : {
-          "type" : "string"
-        },
-        "useCacheOutput" : {
-          "type" : "boolean"
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "asyncAfter" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "RemoveFileTask",
-      "required" : [ "deserializeAs", "name", "path", "workflow", "outputKey", "asyncBefore", "asyncAfter" ]
-    },
-    "ReadDirectoryTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "ReadDirectoryTask" ],
-          "default" : "ReadDirectoryTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "path" : {
-          "type" : "string"
-        },
-        "workflow" : {
-          "type" : "string"
-        },
-        "outputKey" : {
-          "type" : "string"
-        },
-        "useCacheOutput" : {
-          "type" : "boolean"
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "asyncAfter" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "ReadDirectoryTask",
-      "required" : [ "deserializeAs", "name", "path", "workflow", "outputKey", "asyncBefore", "asyncAfter" ]
-    },
-    "StreamRequestToDirectoryTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamRequestToDirectoryTask" ],
-          "default" : "StreamRequestToDirectoryTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
         "url" : {
           "type" : "string"
         },
@@ -721,54 +521,18 @@
         },
         "bodyTemplate" : {
           "type" : "string"
-        },
-        "contextInputKeys" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
-        },
-        "contextCacheInputKeys" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
-        },
-        "path" : {
-          "type" : "string"
-        },
-        "workflow" : {
-          "type" : "string"
-        },
-        "batchSize" : {
-          "type" : "integer"
-        },
-        "completeMessage" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 256
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "asyncAfter" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
         }
       },
-      "title" : "StreamRequestToDirectoryTask",
-      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "path", "workflow", "batchSize", "completeMessage", "asyncBefore", "asyncAfter" ]
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
     },
-    "EventSubprocess" : {
+    "DirectoryTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "EventSubprocess" ],
-          "default" : "EventSubprocess"
+          "enum" : [ "DirectoryTask" ],
+          "default" : "DirectoryTask"
         },
         "id" : {
           "type" : "string"
@@ -782,57 +546,46 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "nodes" : {
+        "path" : {
+          "type" : "string"
+        },
+        "workflow" : {
+          "type" : "string"
+        },
+        "action" : {
+          "type" : "string",
+          "enum" : [ "READ_NEXT", "DELETE_NEXT", "LIST", "WRITE" ]
+        },
+        "inputVariables" : {
           "type" : "array",
           "items" : {
-            "oneOf" : [ {
-              "$ref" : "#/definitions/ScheduleStartEvent"
-            }, {
-              "$ref" : "#/definitions/SignalStartEvent"
-            }, {
-              "$ref" : "#/definitions/MessageCorrelationStartEvent"
-            }, {
-              "$ref" : "#/definitions/EndEvent"
-            }, {
-              "$ref" : "#/definitions/ExclusiveGateway"
-            }, {
-              "$ref" : "#/definitions/MoveToLastGateway"
-            }, {
-              "$ref" : "#/definitions/ConnectTo"
-            }, {
-              "$ref" : "#/definitions/MoveToNode"
-            }, {
-              "$ref" : "#/definitions/ProcessorTask"
-            }, {
-              "$ref" : "#/definitions/RequestTask"
-            }, {
-              "$ref" : "#/definitions/RemoveFileTask"
-            }, {
-              "$ref" : "#/definitions/ReadDirectoryTask"
-            }, {
-              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
-            }, {
-              "$ref" : "#/definitions/EventSubprocess"
-            }, {
-              "$ref" : "#/definitions/MessageCorrelationWait"
-            } ]
+            "$ref" : "#/definitions/Variable"
           }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/Variable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
         },
         "identifier" : {
           "type" : "string"
         }
       },
-      "title" : "EventSubprocess",
-      "required" : [ "deserializeAs", "name" ]
+      "title" : "DirectoryTask",
+      "required" : [ "deserializeAs", "name", "path", "workflow", "action", "asyncBefore", "asyncAfter" ]
     },
-    "MessageCorrelationWait" : {
+    "ReceiveTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "MessageCorrelationWait" ],
-          "default" : "MessageCorrelationWait"
+          "enum" : [ "ReceiveTask" ],
+          "default" : "ReceiveTask"
         },
         "id" : {
           "type" : "string"
@@ -861,8 +614,328 @@
           "type" : "string"
         }
       },
-      "title" : "MessageCorrelationWait",
+      "title" : "ReceiveTask",
       "required" : [ "deserializeAs", "name", "message", "asyncBefore", "asyncAfter" ]
+    },
+    "StreamRequestToDirectoryTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "StreamRequestToDirectoryTask" ],
+          "default" : "StreamRequestToDirectoryTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "request" : {
+          "$ref" : "#/definitions/Request"
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Variable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/Variable"
+        },
+        "path" : {
+          "type" : "string"
+        },
+        "workflow" : {
+          "type" : "string"
+        },
+        "batchSize" : {
+          "type" : "integer"
+        },
+        "completeMessage" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 256
+        },
+        "writeSignalMessage" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 256
+        },
+        "emitWriteSignal" : {
+          "type" : "boolean"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "StreamRequestToDirectoryTask",
+      "required" : [ "deserializeAs", "name", "request", "path", "workflow", "batchSize", "completeMessage", "writeSignalMessage", "emitWriteSignal", "asyncBefore", "asyncAfter" ]
+    },
+    "StreamingEctractTransformLoadTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "StreamingEctractTransformLoadTask" ],
+          "default" : "StreamingEctractTransformLoadTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "streams" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Stream"
+          }
+        },
+        "processes" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Process"
+          }
+        },
+        "requests" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Request"
+          }
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Variable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/Variable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "StreamingEctractTransformLoadTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "Stream" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "request" : {
+          "$ref" : "#/definitions/Request"
+        },
+        "mergeStrategy" : {
+          "type" : "string",
+          "enum" : [ "CONCAT", "MERGE", "ENHANCE" ]
+        },
+        "enhancementComparisons" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EnhancementComparison"
+          }
+        },
+        "enhancementMappings" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EnhancementMapping"
+          }
+        }
+      },
+      "required" : [ "request", "mergeStrategy" ]
+    },
+    "EnhancementComparison" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "sourceProperty" : {
+          "type" : "string"
+        },
+        "targetProperty" : {
+          "type" : "string"
+        }
+      }
+    },
+    "EnhancementMapping" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "toProperty" : {
+          "type" : "string"
+        },
+        "fromProperty" : {
+          "type" : "string"
+        },
+        "multiple" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "multiple" ]
+    },
+    "Subprocess" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "Subprocess" ],
+          "default" : "Subprocess"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "EMBEDDED", "TRANSACTION" ]
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/StartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ConditionalGateway"
+            }, {
+              "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/DirectoryTask"
+            }, {
+              "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            } ]
+          }
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "Subprocess",
+      "required" : [ "deserializeAs", "name", "type", "asyncBefore", "asyncAfter" ]
+    },
+    "EventSubprocess" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "EventSubprocess" ],
+          "default" : "EventSubprocess"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/StartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ConditionalGateway"
+            }, {
+              "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/DirectoryTask"
+            }, {
+              "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            } ]
+          }
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "EventSubprocess",
+      "required" : [ "deserializeAs", "name" ]
     }
   }
 }

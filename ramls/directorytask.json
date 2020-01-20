@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "ProcessorTask",
+  "title" : "DirectoryTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "ProcessorTask" ],
-      "default" : "ProcessorTask"
+      "enum" : [ "DirectoryTask" ],
+      "default" : "DirectoryTask"
     },
     "id" : {
       "type" : "string"
@@ -21,8 +21,15 @@
       "type" : "string",
       "maxLength" : 512
     },
-    "process" : {
-      "$ref" : "#/definitions/Process"
+    "path" : {
+      "type" : "string"
+    },
+    "workflow" : {
+      "type" : "string"
+    },
+    "action" : {
+      "type" : "string",
+      "enum" : [ "READ_NEXT", "DELETE_NEXT", "LIST", "WRITE" ]
     },
     "inputVariables" : {
       "type" : "array",
@@ -43,22 +50,8 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "process", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "path", "workflow", "action", "asyncBefore", "asyncAfter" ],
   "definitions" : {
-    "Process" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "script" : {
-          "type" : "string"
-        },
-        "scriptType" : {
-          "type" : "string",
-          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
-        }
-      },
-      "required" : [ "script", "scriptType" ]
-    },
     "Variable" : {
       "type" : "object",
       "additionalProperties" : false,

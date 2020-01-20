@@ -21,33 +21,17 @@
       "type" : "string",
       "maxLength" : 512
     },
-    "url" : {
-      "type" : "string"
+    "request" : {
+      "$ref" : "#/definitions/Request"
     },
-    "method" : {
-      "type" : "string",
-      "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
-    },
-    "contentType" : {
-      "type" : "string"
-    },
-    "accept" : {
-      "type" : "string"
-    },
-    "bodyTemplate" : {
-      "type" : "string"
-    },
-    "contextInputKeys" : {
+    "inputVariables" : {
       "type" : "array",
       "items" : {
-        "type" : "string"
+        "$ref" : "#/definitions/Variable"
       }
     },
-    "contextCacheInputKeys" : {
-      "type" : "array",
-      "items" : {
-        "type" : "string"
-      }
+    "outputVariable" : {
+      "$ref" : "#/definitions/Variable"
     },
     "path" : {
       "type" : "string"
@@ -63,6 +47,14 @@
       "minLength" : 4,
       "maxLength" : 256
     },
+    "writeSignalMessage" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 256
+    },
+    "emitWriteSignal" : {
+      "type" : "boolean"
+    },
     "asyncBefore" : {
       "type" : "boolean"
     },
@@ -73,5 +65,46 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "path", "workflow", "batchSize", "completeMessage", "asyncBefore", "asyncAfter" ]
+  "required" : [ "deserializeAs", "name", "request", "path", "workflow", "batchSize", "completeMessage", "writeSignalMessage", "emitWriteSignal", "asyncBefore", "asyncAfter" ],
+  "definitions" : {
+    "Request" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "url" : {
+          "type" : "string"
+        },
+        "method" : {
+          "type" : "string",
+          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "contentType" : {
+          "type" : "string"
+        },
+        "accept" : {
+          "type" : "string"
+        },
+        "bodyTemplate" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
+    },
+    "Variable" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "PROCESS", "LOCAL", "CACHE" ]
+        }
+      },
+      "required" : [ "key" ]
+    }
+  }
 }

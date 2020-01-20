@@ -2,10 +2,8 @@ package org.folio.rest.delegate;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,14 +11,13 @@ import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
+import org.folio.rest.workflow.model.Request;
 import org.folio.rest.workflow.model.StreamRequestToDirectoryTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 @Scope("prototype")
@@ -29,15 +26,7 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
   @Autowired
   private WebClient webClient;
 
-  private Expression url;
-
-  private Expression method;
-
-  private Expression contentType;
-
-  private Expression accept;
-
-  private Expression bodyTemplate;
+  private Expression request;
 
   private Expression path;
 
@@ -46,6 +35,10 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
   private Expression batchSize;
 
   private Expression completeMessage;
+
+  private Expression writeSignalMessage;
+
+  private Expression emitWriteSignal;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -57,32 +50,29 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
 
     logger.info("{} started", delegateName);
 
+    Request request = objectMapper.readValue(this.request.getValue(execution).toString(), Request.class);
+
+    String url = request.getUrl();
+    HttpMethod method = request.getMethod();
+    String accept = request.getAccept();
+    String contentType = request.getContentType();
+
+    Map<String, Object> inputs = getInputs(execution);
+
+    StringSubstitutor sub = new StringSubstitutor(inputs);
+
+    String body = sub.replace(request.getBodyTemplate());
+
     String tenant = execution.getTenantId();
-    String url = this.url.getValue(execution).toString();
-    String method = this.method.getValue(execution).toString();
-    String accept = this.accept.getValue(execution).toString();
-    String contentType = this.contentType.getValue(execution).toString();
 
-    Map<String, Object> context = new HashMap<String, Object>();
+    logger.info("url: {}", url);
+    logger.debug("method: {}", method);
 
-    Set<String> contextReqKeys = objectMapper.readValue(getContextInputKeys().getValue(execution).toString(),
-        new TypeReference<Set<String>>() {
-        });
+    logger.debug("accept: {}", accept);
+    logger.debug("content-type: {}", contentType);
+    logger.debug("tenant: {}", tenant);
 
-    contextReqKeys.forEach(reqKey -> context.put(reqKey, execution.getVariable(reqKey)));
-
-    Set<String> contextCacheReqKeys = objectMapper.readValue(getContextCacheInputKeys().getValue(execution).toString(),
-        new TypeReference<Set<String>>() {
-        });
-
-    contextCacheReqKeys.forEach(reqKey -> {
-      Optional<Object> cacheReqValue = contextCacheService.pull(reqKey);
-      if (cacheReqValue.isPresent()) {
-        context.put(reqKey, cacheReqValue.get());
-      } else {
-        logger.warn("Cannot find {} in context cache", reqKey);
-      }
-    });
+    logger.debug("body: {}", body);
 
     String path = this.path.getValue(execution).toString();
 
@@ -100,24 +90,17 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
       }
     }
 
-    StringSubstitutor sub = new StringSubstitutor(context);
-
-    String body = sub.replace(this.bodyTemplate.getValue(execution).toString());
-
-    logger.info("url: {}", url);
-    logger.debug("method: {}", method);
-
-    logger.debug("accept: {}", accept);
-    logger.debug("content-type: {}", contentType);
-    logger.debug("body: {}", body);
-
     int batchSize = Integer.parseInt(this.batchSize.getValue(execution).toString());
+
+    boolean emitWriteSignal = Boolean.parseBoolean(this.emitWriteSignal.getValue(execution).toString());
+
+    Optional<Object> writeSignalMessage = Optional.ofNullable(this.writeSignalMessage.getValue(execution));
 
     AtomicInteger count = new AtomicInteger(1);
 
     // @formatter:off
     webClient
-      .method(HttpMethod.valueOf(method))
+      .method(method)
       .uri(url)
       .bodyValue(body.getBytes())
       .header("Accept", accept)
@@ -141,6 +124,14 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
         logger.info("Writing file {}", filePath);
         try {
           objectMapper.writeValue(new File(filePath), batch);
+          if (emitWriteSignal) {            
+            if(writeSignalMessage.isPresent()) {
+              inputs.put("file", filePath);
+              runtimeService.createSignalEvent(writeSignalMessage.get().toString()).tenantId(tenant).setVariables(inputs).send();
+            } else {
+              logger.warn("Cannot emit write signal without message!");
+            }
+          }
         } catch (IOException e) {
           logger.error("Failed writing file {} {}", filePath, e.getMessage());
         }          
@@ -148,28 +139,8 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
     // @formatter:on
   }
 
-  public void setWebClient(WebClient webClient) {
-    this.webClient = webClient;
-  }
-
-  public void setUrl(Expression url) {
-    this.url = url;
-  }
-
-  public void setMethod(Expression method) {
-    this.method = method;
-  }
-
-  public void setContentType(Expression contentType) {
-    this.contentType = contentType;
-  }
-
-  public void setAccept(Expression accept) {
-    this.accept = accept;
-  }
-
-  public void setBodyTemplate(Expression bodyTemplate) {
-    this.bodyTemplate = bodyTemplate;
+  public void setRequest(Expression request) {
+    this.request = request;
   }
 
   public void setPath(Expression path) {
@@ -186,6 +157,14 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
 
   public void setCompleteMessage(Expression completeMessage) {
     this.completeMessage = completeMessage;
+  }
+
+  public void setWriteSignalMessage(Expression writeSignalMessage) {
+    this.writeSignalMessage = writeSignalMessage;
+  }
+
+  public void setEmitWriteSignal(Expression emitWriteSignal) {
+    this.emitWriteSignal = emitWriteSignal;
   }
 
   @Override
