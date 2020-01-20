@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Scope("prototype")
-public class ReadDirectoryDelegate extends AbstractWorkflowIODelegate {
+public class DirectoryDelegate extends AbstractWorkflowIODelegate {
 
   private Expression path;
 
@@ -94,6 +94,10 @@ public class ReadDirectoryDelegate extends AbstractWorkflowIODelegate {
 
   public void setWorkflow(Expression workflow) {
     this.workflow = workflow;
+  }
+
+  public void setAction(Expression action) {
+    this.action = action;
   }
 
   @Override
