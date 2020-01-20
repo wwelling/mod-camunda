@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "ExclusiveGateway",
+  "title" : "EmbeddedSubprocess",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "ExclusiveGateway" ],
-      "default" : "ExclusiveGateway"
+      "enum" : [ "EmbeddedSubprocess" ],
+      "default" : "EmbeddedSubprocess"
     },
     "id" : {
       "type" : "string"
@@ -21,23 +21,17 @@
       "type" : "string",
       "maxLength" : 512
     },
-    "condition" : {
-      "type" : "string",
-      "minLength" : 4,
-      "maxLength" : 128
+    "asyncBefore" : {
+      "type" : "boolean"
     },
-    "answer" : {
-      "type" : "string",
-      "minLength" : 2,
-      "maxLength" : 64
+    "asyncAfter" : {
+      "type" : "boolean"
     },
     "nodes" : {
       "type" : "array",
       "items" : {
         "oneOf" : [ {
           "$ref" : "#/definitions/ScheduleStartEvent"
-        }, {
-          "$ref" : "#/definitions/SignalStartEvent"
         }, {
           "$ref" : "#/definitions/MessageCorrelationStartEvent"
         }, {
@@ -55,15 +49,15 @@
         }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
-          "$ref" : "#/definitions/RemoveFileTask"
-        }, {
           "$ref" : "#/definitions/ReadDirectoryTask"
         }, {
           "$ref" : "#/definitions/StreamRequestToDirectoryTask"
         }, {
+          "$ref" : "#/definitions/EmbeddedSubprocess"
+        }, {
           "$ref" : "#/definitions/EventSubprocess"
         }, {
-          "$ref" : "#/definitions/MessageCorrelationWait"
+          "$ref" : "#/definitions/TransactionSubprocess"
         } ]
       }
     },
@@ -71,7 +65,7 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "condition", "answer" ],
+  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ],
   "definitions" : {
     "ScheduleStartEvent" : {
       "type" : "object",
@@ -79,8 +73,8 @@
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "ScheduleStartEvent" ],
-          "default" : "ScheduleStartEvent"
+          "enum" : [ "ChronExpressionStartEvent" ],
+          "default" : "ChronExpressionStartEvent"
         },
         "id" : {
           "type" : "string"
@@ -107,47 +101,8 @@
           "type" : "string"
         }
       },
-      "title" : "ScheduleStartEvent",
+      "title" : "ChronExpressionStartEvent",
       "required" : [ "deserializeAs", "name", "chronExpression", "interrupting", "asyncBefore" ]
-    },
-    "SignalStartEvent" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "SignalStartEvent" ],
-          "default" : "SignalStartEvent"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "signal" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 256
-        },
-        "interrupting" : {
-          "type" : "boolean"
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "SignalStartEvent",
-      "required" : [ "deserializeAs", "name", "signal", "interrupting", "asyncBefore" ]
     },
     "MessageCorrelationStartEvent" : {
       "type" : "object",
@@ -253,8 +208,6 @@
             "oneOf" : [ {
               "$ref" : "#/definitions/ScheduleStartEvent"
             }, {
-              "$ref" : "#/definitions/SignalStartEvent"
-            }, {
               "$ref" : "#/definitions/MessageCorrelationStartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
@@ -271,15 +224,15 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/RemoveFileTask"
-            }, {
               "$ref" : "#/definitions/ReadDirectoryTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
+              "$ref" : "#/definitions/EmbeddedSubprocess"
+            }, {
               "$ref" : "#/definitions/EventSubprocess"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationWait"
+              "$ref" : "#/definitions/TransactionSubprocess"
             } ]
           }
         },
@@ -327,8 +280,6 @@
             "oneOf" : [ {
               "$ref" : "#/definitions/ScheduleStartEvent"
             }, {
-              "$ref" : "#/definitions/SignalStartEvent"
-            }, {
               "$ref" : "#/definitions/MessageCorrelationStartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
@@ -345,15 +296,15 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/RemoveFileTask"
-            }, {
               "$ref" : "#/definitions/ReadDirectoryTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
+              "$ref" : "#/definitions/EmbeddedSubprocess"
+            }, {
               "$ref" : "#/definitions/EventSubprocess"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationWait"
+              "$ref" : "#/definitions/TransactionSubprocess"
             } ]
           }
         },
@@ -425,8 +376,6 @@
             "oneOf" : [ {
               "$ref" : "#/definitions/ScheduleStartEvent"
             }, {
-              "$ref" : "#/definitions/SignalStartEvent"
-            }, {
               "$ref" : "#/definitions/MessageCorrelationStartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
@@ -443,15 +392,15 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/RemoveFileTask"
-            }, {
               "$ref" : "#/definitions/ReadDirectoryTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
+              "$ref" : "#/definitions/EmbeddedSubprocess"
+            }, {
               "$ref" : "#/definitions/EventSubprocess"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationWait"
+              "$ref" : "#/definitions/TransactionSubprocess"
             } ]
           }
         },
@@ -589,52 +538,6 @@
       "title" : "RequestTask",
       "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "outputKey", "asyncBefore", "asyncAfter" ]
     },
-    "RemoveFileTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "RemoveFileTask" ],
-          "default" : "RemoveFileTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "path" : {
-          "type" : "string"
-        },
-        "workflow" : {
-          "type" : "string"
-        },
-        "outputKey" : {
-          "type" : "string"
-        },
-        "useCacheOutput" : {
-          "type" : "boolean"
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "asyncAfter" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "RemoveFileTask",
-      "required" : [ "deserializeAs", "name", "path", "workflow", "outputKey", "asyncBefore", "asyncAfter" ]
-    },
     "ReadDirectoryTask" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -662,6 +565,9 @@
         "workflow" : {
           "type" : "string"
         },
+        "filenameKey" : {
+          "type" : "string"
+        },
         "outputKey" : {
           "type" : "string"
         },
@@ -679,7 +585,7 @@
         }
       },
       "title" : "ReadDirectoryTask",
-      "required" : [ "deserializeAs", "name", "path", "workflow", "outputKey", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "path", "workflow", "filenameKey", "outputKey", "asyncBefore", "asyncAfter" ]
     },
     "StreamRequestToDirectoryTask" : {
       "type" : "object",
@@ -736,13 +642,17 @@
         "workflow" : {
           "type" : "string"
         },
+        "filenameKey" : {
+          "type" : "string"
+        },
         "batchSize" : {
           "type" : "integer"
         },
-        "completeMessage" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 256
+        "emitMessage" : {
+          "type" : "boolean"
+        },
+        "eventMessage" : {
+          "type" : "string"
         },
         "asyncBefore" : {
           "type" : "boolean"
@@ -755,7 +665,75 @@
         }
       },
       "title" : "StreamRequestToDirectoryTask",
-      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "path", "workflow", "batchSize", "completeMessage", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "path", "workflow", "filenameKey", "batchSize", "emitMessage", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedSubprocess" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "EmbeddedSubprocess" ],
+          "default" : "EmbeddedSubprocess"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/ReadDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/EmbeddedSubprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/TransactionSubprocess"
+            } ]
+          }
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "EmbeddedSubprocess",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
     "EventSubprocess" : {
       "type" : "object",
@@ -778,13 +756,17 @@
           "type" : "string",
           "maxLength" : 512
         },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
         "nodes" : {
           "type" : "array",
           "items" : {
             "oneOf" : [ {
               "$ref" : "#/definitions/ScheduleStartEvent"
-            }, {
-              "$ref" : "#/definitions/SignalStartEvent"
             }, {
               "$ref" : "#/definitions/MessageCorrelationStartEvent"
             }, {
@@ -802,15 +784,15 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/RemoveFileTask"
-            }, {
               "$ref" : "#/definitions/ReadDirectoryTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
+              "$ref" : "#/definitions/EmbeddedSubprocess"
+            }, {
               "$ref" : "#/definitions/EventSubprocess"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationWait"
+              "$ref" : "#/definitions/TransactionSubprocess"
             } ]
           }
         },
@@ -819,16 +801,16 @@
         }
       },
       "title" : "EventSubprocess",
-      "required" : [ "deserializeAs", "name" ]
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
-    "MessageCorrelationWait" : {
+    "TransactionSubprocess" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "MessageCorrelationWait" ],
-          "default" : "MessageCorrelationWait"
+          "enum" : [ "TransactionSubprocess" ],
+          "default" : "TransactionSubprocess"
         },
         "id" : {
           "type" : "string"
@@ -842,23 +824,52 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "message" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 256
-        },
         "asyncBefore" : {
           "type" : "boolean"
         },
         "asyncAfter" : {
           "type" : "boolean"
         },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/ReadDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/EmbeddedSubprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/TransactionSubprocess"
+            } ]
+          }
+        },
         "identifier" : {
           "type" : "string"
         }
       },
-      "title" : "MessageCorrelationWait",
-      "required" : [ "deserializeAs", "name", "message", "asyncBefore", "asyncAfter" ]
+      "title" : "TransactionSubprocess",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     }
   }
 }

@@ -38,15 +38,17 @@
         "oneOf" : [ {
           "$ref" : "#/definitions/ScheduleStartEvent"
         }, {
-          "$ref" : "#/definitions/ConnectTo"
+          "$ref" : "#/definitions/SignalStartEvent"
+        }, {
+          "$ref" : "#/definitions/MessageCorrelationStartEvent"
         }, {
           "$ref" : "#/definitions/EndEvent"
         }, {
           "$ref" : "#/definitions/ExclusiveGateway"
         }, {
-          "$ref" : "#/definitions/MessageCorrelationStartEvent"
-        }, {
           "$ref" : "#/definitions/MoveToLastGateway"
+        }, {
+          "$ref" : "#/definitions/ConnectTo"
         }, {
           "$ref" : "#/definitions/MoveToNode"
         }, {
@@ -54,7 +56,15 @@
         }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
-          "$ref" : "#/definitions/SetupTask"
+          "$ref" : "#/definitions/RemoveFileTask"
+        }, {
+          "$ref" : "#/definitions/ReadDirectoryTask"
+        }, {
+          "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+        }, {
+          "$ref" : "#/definitions/EventSubprocess"
+        }, {
+          "$ref" : "#/definitions/MessageCorrelationWait"
         } ]
       }
     },
@@ -73,8 +83,8 @@
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "ChronExpressionStartEvent" ],
-          "default" : "ChronExpressionStartEvent"
+          "enum" : [ "ScheduleStartEvent" ],
+          "default" : "ScheduleStartEvent"
         },
         "id" : {
           "type" : "string"
@@ -91,6 +101,9 @@
         "chronExpression" : {
           "type" : "string"
         },
+        "interrupting" : {
+          "type" : "boolean"
+        },
         "asyncBefore" : {
           "type" : "boolean"
         },
@@ -98,17 +111,17 @@
           "type" : "string"
         }
       },
-      "title" : "ChronExpressionStartEvent",
-      "required" : [ "deserializeAs", "name", "chronExpression", "asyncBefore" ]
+      "title" : "ScheduleStartEvent",
+      "required" : [ "deserializeAs", "name", "chronExpression", "interrupting", "asyncBefore" ]
     },
-    "ConnectTo" : {
+    "SignalStartEvent" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "ConnectTo" ],
-          "default" : "ConnectTo"
+          "enum" : [ "SignalStartEvent" ],
+          "default" : "SignalStartEvent"
         },
         "id" : {
           "type" : "string"
@@ -122,15 +135,62 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "nodeId" : {
-          "type" : "string"
+        "signal" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 256
+        },
+        "interrupting" : {
+          "type" : "boolean"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
         },
         "identifier" : {
           "type" : "string"
         }
       },
-      "title" : "ConnectTo",
-      "required" : [ "deserializeAs", "name", "nodeId" ]
+      "title" : "SignalStartEvent",
+      "required" : [ "deserializeAs", "name", "signal", "interrupting", "asyncBefore" ]
+    },
+    "MessageCorrelationStartEvent" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "MessageCorrelationStartEvent" ],
+          "default" : "MessageCorrelationStartEvent"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "message" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 256
+        },
+        "interrupting" : {
+          "type" : "boolean"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "MessageCorrelationStartEvent",
+      "required" : [ "deserializeAs", "name", "message", "interrupting", "asyncBefore" ]
     },
     "EndEvent" : {
       "type" : "object",
@@ -197,15 +257,17 @@
             "oneOf" : [ {
               "$ref" : "#/definitions/ScheduleStartEvent"
             }, {
-              "$ref" : "#/definitions/ConnectTo"
+              "$ref" : "#/definitions/SignalStartEvent"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
               "$ref" : "#/definitions/ExclusiveGateway"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationStartEvent"
-            }, {
               "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
@@ -213,7 +275,15 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/SetupTask"
+              "$ref" : "#/definitions/RemoveFileTask"
+            }, {
+              "$ref" : "#/definitions/ReadDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationWait"
             } ]
           }
         },
@@ -223,42 +293,6 @@
       },
       "title" : "ExclusiveGateway",
       "required" : [ "deserializeAs", "name", "condition", "answer" ]
-    },
-    "MessageCorrelationStartEvent" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "MessageCorrelationStartEvent" ],
-          "default" : "MessageCorrelationStartEvent"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "message" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 256
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "MessageCorrelationStartEvent",
-      "required" : [ "deserializeAs", "name", "message", "asyncBefore" ]
     },
     "MoveToLastGateway" : {
       "type" : "object",
@@ -297,15 +331,17 @@
             "oneOf" : [ {
               "$ref" : "#/definitions/ScheduleStartEvent"
             }, {
-              "$ref" : "#/definitions/ConnectTo"
+              "$ref" : "#/definitions/SignalStartEvent"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
               "$ref" : "#/definitions/ExclusiveGateway"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationStartEvent"
-            }, {
               "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
@@ -313,7 +349,15 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/SetupTask"
+              "$ref" : "#/definitions/RemoveFileTask"
+            }, {
+              "$ref" : "#/definitions/ReadDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationWait"
             } ]
           }
         },
@@ -323,6 +367,37 @@
       },
       "title" : "MoveToLastGateway",
       "required" : [ "deserializeAs", "name", "condition", "answer" ]
+    },
+    "ConnectTo" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ConnectTo" ],
+          "default" : "ConnectTo"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "nodeId" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "ConnectTo",
+      "required" : [ "deserializeAs", "name", "nodeId" ]
     },
     "MoveToNode" : {
       "type" : "object",
@@ -354,15 +429,17 @@
             "oneOf" : [ {
               "$ref" : "#/definitions/ScheduleStartEvent"
             }, {
-              "$ref" : "#/definitions/ConnectTo"
+              "$ref" : "#/definitions/SignalStartEvent"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
               "$ref" : "#/definitions/ExclusiveGateway"
             }, {
-              "$ref" : "#/definitions/MessageCorrelationStartEvent"
-            }, {
               "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
@@ -370,7 +447,15 @@
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
-              "$ref" : "#/definitions/SetupTask"
+              "$ref" : "#/definitions/RemoveFileTask"
+            }, {
+              "$ref" : "#/definitions/ReadDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationWait"
             } ]
           }
         },
@@ -508,14 +593,14 @@
       "title" : "RequestTask",
       "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "outputKey", "asyncBefore", "asyncAfter" ]
     },
-    "SetupTask" : {
+    "RemoveFileTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "SetupTask" ],
-          "default" : "SetupTask"
+          "enum" : [ "RemoveFileTask" ],
+          "default" : "RemoveFileTask"
         },
         "id" : {
           "type" : "string"
@@ -529,7 +614,16 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "loadInitialContext" : {
+        "path" : {
+          "type" : "string"
+        },
+        "workflow" : {
+          "type" : "string"
+        },
+        "outputKey" : {
+          "type" : "string"
+        },
+        "useCacheOutput" : {
           "type" : "boolean"
         },
         "asyncBefore" : {
@@ -542,8 +636,233 @@
           "type" : "string"
         }
       },
-      "title" : "SetupTask",
-      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+      "title" : "RemoveFileTask",
+      "required" : [ "deserializeAs", "name", "path", "workflow", "outputKey", "asyncBefore", "asyncAfter" ]
+    },
+    "ReadDirectoryTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ReadDirectoryTask" ],
+          "default" : "ReadDirectoryTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "path" : {
+          "type" : "string"
+        },
+        "workflow" : {
+          "type" : "string"
+        },
+        "outputKey" : {
+          "type" : "string"
+        },
+        "useCacheOutput" : {
+          "type" : "boolean"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "ReadDirectoryTask",
+      "required" : [ "deserializeAs", "name", "path", "workflow", "outputKey", "asyncBefore", "asyncAfter" ]
+    },
+    "StreamRequestToDirectoryTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "StreamRequestToDirectoryTask" ],
+          "default" : "StreamRequestToDirectoryTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "url" : {
+          "type" : "string"
+        },
+        "method" : {
+          "type" : "string",
+          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "contentType" : {
+          "type" : "string"
+        },
+        "accept" : {
+          "type" : "string"
+        },
+        "bodyTemplate" : {
+          "type" : "string"
+        },
+        "contextInputKeys" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "contextCacheInputKeys" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "path" : {
+          "type" : "string"
+        },
+        "workflow" : {
+          "type" : "string"
+        },
+        "batchSize" : {
+          "type" : "integer"
+        },
+        "completeMessage" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 256
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "StreamRequestToDirectoryTask",
+      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "path", "workflow", "batchSize", "completeMessage", "asyncBefore", "asyncAfter" ]
+    },
+    "EventSubprocess" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "EventSubprocess" ],
+          "default" : "EventSubprocess"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/SignalStartEvent"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/RemoveFileTask"
+            }, {
+              "$ref" : "#/definitions/ReadDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationWait"
+            } ]
+          }
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "EventSubprocess",
+      "required" : [ "deserializeAs", "name" ]
+    },
+    "MessageCorrelationWait" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "MessageCorrelationWait" ],
+          "default" : "MessageCorrelationWait"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "message" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 256
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "MessageCorrelationWait",
+      "required" : [ "deserializeAs", "name", "message", "asyncBefore", "asyncAfter" ]
     }
   }
 }

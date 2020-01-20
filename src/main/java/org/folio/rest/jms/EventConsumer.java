@@ -41,6 +41,7 @@ public class EventConsumer {
 
     logger.info("Correlating message {}", event.getPathPattern());
 
+    // @formatter:off
     Map<String, Object> variables = objectMapper.convertValue(event.getPayload(),
         new TypeReference<Map<String, Object>>() {});
 
@@ -48,6 +49,7 @@ public class EventConsumer {
       .tenantId(tenant)
       .setVariables(variables)
       .correlateStartMessage();
+    // @formatter:on
   }
 
 }

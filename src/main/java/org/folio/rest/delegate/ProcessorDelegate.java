@@ -21,46 +21,43 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
 @Scope("prototype")
-public class ProcessorDelegate extends AbstractWorkflowDelegate {
+public class ProcessorDelegate extends AbstractWorkflowIODelegate {
 
   @Autowired
   private ScriptEngineService scriptEngineService;
-
-  @SuppressWarnings("unused")
-  private Expression script;
 
   private Expression scriptType;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
+
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
+
     String delegateName = bpmnModelElement.getName();
 
     logger.info("{} started", delegateName);
 
     String scriptTypeExtension = ScriptType.valueOf(scriptType.getValue(execution).toString()).getExtension();
 
-    // TODO: ensure script has been registered
-
     Map<String, Object> inputs = new HashMap<String, Object>();
 
-    Set<String> contextReqKeys = objectMapper.readValue(getContextInputKeys().getValue(execution).toString(),
+    Set<String> contextKeys = objectMapper.readValue(getContextInputKeys().getValue(execution).toString(),
         new TypeReference<Set<String>>() {
         });
 
-    contextReqKeys.forEach(reqKey -> inputs.put(reqKey, execution.getVariable(reqKey)));
+    contextKeys.forEach(reqKey -> inputs.put(reqKey, execution.getVariable(reqKey)));
 
-    Set<String> contextCacheReqKeys = objectMapper.readValue(getContextCacheInputKeys().getValue(execution).toString(),
+    Set<String> contextCacheKeys = objectMapper.readValue(getContextCacheInputKeys().getValue(execution).toString(),
         new TypeReference<Set<String>>() {
         });
 
-    contextCacheReqKeys.forEach(reqKey -> {
-      Optional<Object> cacheReqValue = contextCacheService.pull(reqKey);
-      if (cacheReqValue.isPresent()) {
-        inputs.put(reqKey, cacheReqValue.get());
+    contextCacheKeys.forEach(key -> {
+      Optional<Object> cacheValue = contextCacheService.pull(key);
+      if (cacheValue.isPresent()) {
+        inputs.put(key, cacheValue.get());
       } else {
-        logger.warn("Cannot find %s in context cache", reqKey);
+        logger.warn("Cannot find {} in context cache", key);
       }
     });
 
@@ -82,10 +79,6 @@ public class ProcessorDelegate extends AbstractWorkflowDelegate {
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
-  }
-
-  public void setScript(Expression script) {
-    this.script = script;
   }
 
   public void setScriptType(Expression scriptType) {

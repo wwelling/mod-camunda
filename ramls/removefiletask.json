@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "ScheduleStartEvent",
+  "title" : "RemoveFileTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "ScheduleStartEvent" ],
-      "default" : "ScheduleStartEvent"
+      "enum" : [ "RemoveFileTask" ],
+      "default" : "RemoveFileTask"
     },
     "id" : {
       "type" : "string"
@@ -21,18 +21,27 @@
       "type" : "string",
       "maxLength" : 512
     },
-    "chronExpression" : {
+    "path" : {
       "type" : "string"
     },
-    "interrupting" : {
+    "workflow" : {
+      "type" : "string"
+    },
+    "outputKey" : {
+      "type" : "string"
+    },
+    "useCacheOutput" : {
       "type" : "boolean"
     },
     "asyncBefore" : {
+      "type" : "boolean"
+    },
+    "asyncAfter" : {
       "type" : "boolean"
     },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "chronExpression", "interrupting", "asyncBefore" ]
+  "required" : [ "deserializeAs", "name", "path", "workflow", "outputKey", "asyncBefore", "asyncAfter" ]
 }

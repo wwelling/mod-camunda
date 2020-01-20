@@ -18,23 +18,28 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.folio.rest.delegate.AbstractWorkflowDelegate;
 import org.folio.rest.model.Script;
-import org.folio.rest.workflow.model.Branch;
-import org.folio.rest.workflow.model.Conditional;
+import org.folio.rest.workflow.components.Branch;
+import org.folio.rest.workflow.components.Conditional;
+import org.folio.rest.workflow.components.Event;
+import org.folio.rest.workflow.components.Navigation;
+import org.folio.rest.workflow.components.StartEvent;
+import org.folio.rest.workflow.components.Subprocess;
+import org.folio.rest.workflow.components.Task;
+import org.folio.rest.workflow.components.Wait;
 import org.folio.rest.workflow.model.ConnectTo;
 import org.folio.rest.workflow.model.EndEvent;
-import org.folio.rest.workflow.model.Event;
+import org.folio.rest.workflow.model.EventSubprocess;
 import org.folio.rest.workflow.model.ExclusiveGateway;
 import org.folio.rest.workflow.model.MessageCorrelationStartEvent;
+import org.folio.rest.workflow.model.MessageCorrelationWait;
 import org.folio.rest.workflow.model.MoveToLastGateway;
 import org.folio.rest.workflow.model.MoveToNode;
-import org.folio.rest.workflow.model.Navigation;
 import org.folio.rest.workflow.model.Node;
 import org.folio.rest.workflow.model.ParallelGateway;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ScheduleStartEvent;
 import org.folio.rest.workflow.model.ScriptType;
-import org.folio.rest.workflow.model.StartEvent;
-import org.folio.rest.workflow.model.Task;
+import org.folio.rest.workflow.model.SignalStartEvent;
 import org.folio.rest.workflow.model.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,19 +72,25 @@ public class BpmnModelFactory {
   private List<AbstractWorkflowDelegate> workflowDelegates;
 
   public BpmnModelInstance fromWorkflow(Workflow workflow) {
-    BpmnModelInstance model = build(workflow);
-    setup(model, workflow);
-    expressions(model, workflow.getNodes());
-    return model;
-  }
 
-  private BpmnModelInstance build(Workflow workflow) {
     // @formatter:off
     ProcessBuilder processBuilder = Bpmn.createExecutableProcess().name(workflow.getName())
         .camundaHistoryTimeToLive(workflow.getHistoryTimeToLive())
         .camundaVersionTag(workflow.getVersionTag());
     // @formatter:on
 
+    BpmnModelInstance model = build(processBuilder, workflow);
+
+    workflow.getNodes().stream().filter(node -> node instanceof Subprocess).forEach(subprocess -> {
+      subprocess(processBuilder, subprocess);
+    });
+
+    setup(model, workflow);
+    expressions(model, workflow.getNodes());
+    return model;
+  }
+
+  private BpmnModelInstance build(ProcessBuilder processBuilder, Workflow workflow) {
     List<Node> nodes = workflow.getNodes();
 
     if (nodes.isEmpty()) {
@@ -93,12 +104,24 @@ public class BpmnModelFactory {
       throw new RuntimeException("Workflow must start with a start event!");
     }
 
-    builder = build(builder, nodes);
+    builder = build(builder, nodes, true);
 
     return builder.done();
   }
 
-  private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes) {
+  private void subprocess(ProcessBuilder processBuilder, Node node) {
+    AbstractFlowNodeBuilder<?, ?> builder = null;
+    if (node instanceof EventSubprocess) {
+      String identifier = node.getIdentifier();
+      String name = node.getName();
+      builder = processBuilder.eventSubProcess(identifier).name(name).startEvent();
+    } else {
+      // unknown subprocess
+    }
+    builder = build(builder, ((Subprocess) node).getNodes(), false);
+  }
+
+  private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes, boolean setup) {
 
     for (Node node : nodes) {
 
@@ -109,21 +132,28 @@ public class BpmnModelFactory {
             builder = builder.camundaAsyncBefore();
           }
 
+          boolean interrupting = ((StartEvent) node).isInterrupting();
+
           if (node instanceof ScheduleStartEvent) {
             builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
-                .timerWithCycle(((ScheduleStartEvent) node).getChronExpression());
+                .timerWithCycle(((ScheduleStartEvent) node).getChronExpression()).interrupting(interrupting);
+          } else if (node instanceof SignalStartEvent) {
+            builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
+                .signal(((SignalStartEvent) node).getSignal()).interrupting(interrupting);
           } else if (node instanceof MessageCorrelationStartEvent) {
             builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
-                .message(((MessageCorrelationStartEvent) node).getMessage());
+                .message(((MessageCorrelationStartEvent) node).getMessage()).interrupting(interrupting);
           } else {
             // unknown start event
           }
 
-          // @formatter:off
-          builder = builder.serviceTask(SETUP_TASK_ID).name("Setup")
-              .camundaDelegateExpression("${setupDelegate}")
-              .camundaAsyncAfter();
-          // @formatter:on
+          if (setup) {
+            // @formatter:off
+            builder = builder.serviceTask(SETUP_TASK_ID).name("Setup")
+                .camundaDelegateExpression("${setupDelegate}")
+                .camundaAsyncAfter();
+            // @formatter:on
+          }
 
         } else if (node instanceof EndEvent) {
           builder = builder.endEvent();
@@ -171,7 +201,7 @@ public class BpmnModelFactory {
           builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
         }
 
-        builder = build(builder, ((Branch) node).getNodes());
+        builder = build(builder, ((Branch) node).getNodes(), false);
 
       } else if (node instanceof Navigation) {
 
@@ -184,8 +214,26 @@ public class BpmnModelFactory {
           // unknown navigation
         }
 
-      }
+      } else if (node instanceof Wait) {
 
+        if (node instanceof MessageCorrelationWait) {
+
+          builder = builder.receiveTask(((Node) node).getIdentifier()).name(((Node) node).getName())
+              .message(((MessageCorrelationWait) node).getMessage());
+
+        } else {
+          // unknown wait
+        }
+
+        if (((Wait) node).isAsyncBefore()) {
+          builder = builder.camundaAsyncBefore();
+        }
+
+        if (((Wait) node).isAsyncAfter()) {
+          builder = builder.camundaAsyncAfter();
+        }
+
+      }
     }
 
     // must end in end event or connect to
@@ -254,6 +302,8 @@ public class BpmnModelFactory {
 
         if (node instanceof Branch) {
           expressions(model, ((Branch) node).getNodes());
+        } else if (node instanceof Subprocess) {
+          expressions(model, ((Subprocess) node).getNodes());
         } else if (node instanceof Task) {
           // TODO: create custom exception and controller advice to handle better
           throw new RuntimeException("Task must have delegate representation!");
@@ -273,6 +323,8 @@ public class BpmnModelFactory {
         scripts.add(Script.of(name, code, type));
       } else if (node instanceof Branch) {
         scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
+      } else if (node instanceof Subprocess) {
+        scripts.addAll(getProcessorScripts(((Subprocess) node).getNodes()));
       }
     });
     return scripts;

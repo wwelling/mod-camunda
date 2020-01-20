@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "ExclusiveGateway",
+  "title" : "EventSubprocess",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "ExclusiveGateway" ],
-      "default" : "ExclusiveGateway"
+      "enum" : [ "EventSubprocess" ],
+      "default" : "EventSubprocess"
     },
     "id" : {
       "type" : "string"
@@ -20,16 +20,6 @@
     "description" : {
       "type" : "string",
       "maxLength" : 512
-    },
-    "condition" : {
-      "type" : "string",
-      "minLength" : 4,
-      "maxLength" : 128
-    },
-    "answer" : {
-      "type" : "string",
-      "minLength" : 2,
-      "maxLength" : 64
     },
     "nodes" : {
       "type" : "array",
@@ -71,7 +61,7 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "condition", "answer" ],
+  "required" : [ "deserializeAs", "name" ],
   "definitions" : {
     "ScheduleStartEvent" : {
       "type" : "object",

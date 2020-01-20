@@ -23,7 +23,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 @Scope("prototype")
-public class RequestDelegate extends AbstractWorkflowDelegate {
+public class RequestDelegate extends AbstractWorkflowIODelegate {
 
   @Autowired
   private HttpService httpService;
@@ -41,57 +41,61 @@ public class RequestDelegate extends AbstractWorkflowDelegate {
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
+
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
 
     String delegateName = bpmnModelElement.getName();
 
+    String tenant = execution.getTenantId();
+
     logger.info("{} started", delegateName);
 
-    String reqUrl = url.getValue(execution).toString();
-    String reqMethod = method.getValue(execution).toString();
-    String reqAccept = accept.getValue(execution).toString();
-    String reqContentType = contentType.getValue(execution).toString();
+    String url = this.url.getValue(execution).toString();
+    String method = this.method.getValue(execution).toString();
+    String accept = this.accept.getValue(execution).toString();
+    String contentType = this.contentType.getValue(execution).toString();
 
     Map<String, Object> reqContext = new HashMap<String, Object>();
 
-    Set<String> contextReqKeys = objectMapper.readValue(getContextInputKeys().getValue(execution).toString(),
+    Set<String> contextKeys = objectMapper.readValue(getContextInputKeys().getValue(execution).toString(),
         new TypeReference<Set<String>>() {
         });
 
-    contextReqKeys.forEach(reqKey -> reqContext.put(reqKey, execution.getVariable(reqKey)));
+    contextKeys.forEach(reqKey -> reqContext.put(reqKey, execution.getVariable(reqKey)));
 
-    Set<String> contextCacheReqKeys = objectMapper.readValue(getContextCacheInputKeys().getValue(execution).toString(),
+    Set<String> contextCacheKeys = objectMapper.readValue(getContextCacheInputKeys().getValue(execution).toString(),
         new TypeReference<Set<String>>() {
         });
 
-    contextCacheReqKeys.forEach(reqKey -> {
-      Optional<Object> cacheReqValue = contextCacheService.pull(reqKey);
-      if (cacheReqValue.isPresent()) {
-        reqContext.put(reqKey, cacheReqValue.get());
+    contextCacheKeys.forEach(key -> {
+      Optional<Object> cacheValue = contextCacheService.pull(key);
+      if (cacheValue.isPresent()) {
+        reqContext.put(key, cacheValue.get());
       } else {
-        logger.warn("Cannot find %s in context cache", reqKey);
+        logger.warn("Cannot find {} in context cache", key);
       }
     });
 
     StringSubstitutor sub = new StringSubstitutor(reqContext);
 
-    String reqBody = sub.replace(bodyTemplate.getValue(execution).toString());
+    String body = sub.replace(bodyTemplate.getValue(execution).toString());
 
-    logger.info("url: {}", reqUrl);
-    logger.debug("method: {}", reqMethod);
+    logger.info("url: {}", url);
+    logger.debug("method: {}", method);
 
-    logger.debug("accept: {}", reqAccept);
-    logger.debug("content-type: {}", reqContentType);
-    logger.debug("body: {}", reqBody);
+    logger.debug("accept: {}", accept);
+    logger.debug("content-type: {}", contentType);
+    logger.debug("body: {}", body);
 
     HttpHeaders headers = new HttpHeaders();
-    headers.add("Accept", reqAccept);
-    headers.add("Content-Type", reqContentType);
+    headers.add("Accept", accept);
+    headers.add("Content-Type", contentType);
+    headers.add("X-Okapi-Tenant", tenant);
 
-    HttpEntity<Object> entity = new HttpEntity<Object>(reqBody, headers);
-    ResponseEntity<Object> response = httpService.exchange(reqUrl, HttpMethod.valueOf(reqMethod), entity, Object.class);
+    HttpEntity<Object> entity = new HttpEntity<Object>(body, headers);
+    ResponseEntity<Object> response = httpService.exchange(url, HttpMethod.valueOf(method), entity, Object.class);
 
-    boolean useCacheOutput = Boolean.parseBoolean(getUseCacheOutput().getValue(execution).toString().trim());
+    boolean useCacheOutput = Boolean.parseBoolean(getUseCacheOutput().getValue(execution).toString());
 
     String outputKey = getOutputKey().getValue(execution).toString();
 
