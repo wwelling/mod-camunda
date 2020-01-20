@@ -14,7 +14,7 @@
     },
     "name" : {
       "type" : "string",
-      "minLength" : 4,
+      "minLength" : 3,
       "maxLength" : 64
     },
     "description" : {
@@ -87,7 +87,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -124,7 +124,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -163,7 +163,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -202,7 +202,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -230,7 +230,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -304,7 +304,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -378,7 +378,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -409,7 +409,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -476,7 +476,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -535,7 +535,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -603,7 +603,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -649,7 +649,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -695,7 +695,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -771,7 +771,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
@@ -835,7 +835,7 @@
         },
         "name" : {
           "type" : "string",
-          "minLength" : 4,
+          "minLength" : 3,
           "maxLength" : 64
         },
         "description" : {
