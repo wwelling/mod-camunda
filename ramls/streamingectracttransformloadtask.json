@@ -74,10 +74,10 @@
           "type" : "string",
           "enum" : [ "CONCAT", "MERGE", "ENHANCE" ]
         },
-        "enhancementComparisons" : {
+        "comparisons" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/EnhancementComparison"
+            "$ref" : "#/definitions/Comparison"
           }
         },
         "enhancementMappings" : {
@@ -112,7 +112,7 @@
       },
       "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
     },
-    "EnhancementComparison" : {
+    "Comparison" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
