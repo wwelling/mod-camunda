@@ -6,8 +6,8 @@ import java.util.Map;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
-import org.folio.rest.model.Script;
 import org.folio.rest.service.ScriptEngineService;
+import org.folio.rest.workflow.model.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
 
   private Expression initialContext;
 
-  private Expression processorScripts;
+  private Expression processors;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -44,15 +44,15 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
       logger.info("{}: {}", entry.getKey(), entry.getValue());
     }
 
-    logger.info("loading processor scripts");
+    logger.info("loading scripts");
 
-    List<Script> scripts = objectMapper.readValue(processorScripts.getValue(execution).toString(),
-        new TypeReference<List<Script>>() {
+    List<Processor> processors = objectMapper.readValue(this.processors.getValue(execution).toString(),
+        new TypeReference<List<Processor>>() {
         });
 
-    for (Script script : scripts) {
-      scriptEngineService.registerScript(script.getType().getExtension(), script.getName(), script.getCode());
-      logger.info("{}: {}", script.getName(), script.getCode());
+    for (Processor processor : processors) {
+      scriptEngineService.registerScript(processor.getScriptType().getExtension(), processor.getFunctionName(), processor.getCode());
+      logger.info("{}: {}", processor.getFunctionName(), processor.getCode());
     }
 
     long endTime = System.nanoTime();
@@ -63,8 +63,8 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
     this.initialContext = initialContext;
   }
 
-  public void setProcessorScripts(Expression processorScripts) {
-    this.processorScripts = processorScripts;
+  public void setProcessors(Expression processors) {
+    this.processors = processors;
   }
 
 }

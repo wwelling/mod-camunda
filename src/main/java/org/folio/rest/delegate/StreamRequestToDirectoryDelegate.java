@@ -19,6 +19,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 @Service
 @Scope("prototype")
 public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDelegate {
@@ -107,7 +109,7 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
       .header("Content-Type", contentType)
       .header("X-Okapi-Tenant", tenant)
       .retrieve()
-      .bodyToFlux(Map.class)
+      .bodyToFlux(JsonNode.class)
       .buffer(batchSize)
       .doOnComplete(() -> {
         long endTime = System.nanoTime();

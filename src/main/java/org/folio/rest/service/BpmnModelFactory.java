@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.commons.text.CaseUtils;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -18,7 +17,6 @@ import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.folio.rest.delegate.AbstractWorkflowDelegate;
-import org.folio.rest.model.Script;
 import org.folio.rest.workflow.components.Branch;
 import org.folio.rest.workflow.components.Conditional;
 import org.folio.rest.workflow.components.Event;
@@ -32,8 +30,9 @@ import org.folio.rest.workflow.model.EventSubprocess;
 import org.folio.rest.workflow.model.Node;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ReceiveTask;
-import org.folio.rest.workflow.model.ScriptType;
+import org.folio.rest.workflow.model.Processor;
 import org.folio.rest.workflow.model.StartEvent;
+import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
 import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
 import org.slf4j.Logger;
@@ -286,11 +285,11 @@ public class BpmnModelFactory {
     }
     extensions.addChildElement(icField);
 
-    List<Script> processorScripts = getProcessorScripts(workflow.getNodes());
+    List<Processor> processors = getProcessorScripts(workflow.getNodes());
     CamundaField psField = model.newInstance(CamundaField.class);
-    psField.setCamundaName("processorScripts");
+    psField.setCamundaName("processors");
     try {
-      psField.setCamundaStringValue(objectMapper.writeValueAsString(processorScripts));
+      psField.setCamundaStringValue(objectMapper.writeValueAsString(processors));
     } catch (JsonProcessingException e) {
       logger.warn("Failed to serialize processor scripts");
     }
@@ -309,14 +308,11 @@ public class BpmnModelFactory {
       if (delegate.isPresent()) {
 
         ExtensionElements extensions = model.newInstance(ExtensionElements.class);
-        
-        System.out.println("\n" + delegate.get().getClass());
 
         FieldUtils.getAllFieldsList(delegate.get().getClass()).stream()
             .filter(df -> Expression.class.isAssignableFrom(df.getType()))
             .map(df -> FieldUtils.getDeclaredField(node.getClass(), df.getName(), true)).forEach(f -> {
               try {
-                System.out.println("\t" + f.getName());
                 CamundaField field = model.newInstance(CamundaField.class);
                 field.setCamundaName(f.getName());
                 field.setCamundaStringValue(serialize(f.get(node)));
@@ -347,14 +343,13 @@ public class BpmnModelFactory {
     });
   }
 
-  private List<Script> getProcessorScripts(List<Node> nodes) {
-    List<Script> scripts = new ArrayList<Script>();
+  private List<Processor> getProcessorScripts(List<Node> nodes) {
+    List<Processor> scripts = new ArrayList<Processor>();
     nodes.stream().forEach(node -> {
       if (node instanceof ProcessorTask) {
-        String name = CaseUtils.toCamelCase(((ProcessorTask) node).getName(), false, ' ');
-        String code = ((ProcessorTask) node).getProcess().getScript();
-        ScriptType type = ((ProcessorTask) node).getProcess().getScriptType();
-        scripts.add(Script.of(name, code, type));
+        scripts.add(((ProcessorTask) node).getProcessor());
+      } else if (node instanceof StreamingExtractTransformLoadTask) {
+        scripts.addAll(((StreamingExtractTransformLoadTask) node).getProcessors());
       } else if (node instanceof Branch) {
         scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
       } else if (node instanceof Subprocess) {

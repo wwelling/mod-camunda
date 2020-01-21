@@ -21,8 +21,8 @@
       "type" : "string",
       "maxLength" : 512
     },
-    "process" : {
-      "$ref" : "#/definitions/Process"
+    "processor" : {
+      "$ref" : "#/definitions/Processor"
     },
     "inputVariables" : {
       "type" : "array",
@@ -43,21 +43,32 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "process", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "processor", "asyncBefore", "asyncAfter" ],
   "definitions" : {
-    "Process" : {
+    "Processor" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
-        "script" : {
-          "type" : "string"
-        },
         "scriptType" : {
           "type" : "string",
           "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
+        },
+        "functionName" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 128
+        },
+        "code" : {
+          "type" : "string"
+        },
+        "buffer" : {
+          "type" : "integer"
+        },
+        "delay" : {
+          "type" : "integer"
         }
       },
-      "required" : [ "script", "scriptType" ]
+      "required" : [ "scriptType", "functionName", "code", "buffer", "delay" ]
     },
     "Variable" : {
       "type" : "object",

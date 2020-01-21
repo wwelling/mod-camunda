@@ -1,6 +1,7 @@
 package org.folio.rest.delegate;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -49,6 +50,8 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
 
     String tenant = execution.getTenantId();
 
+    Optional<Object> token = Optional.ofNullable(execution.getVariable("token"));
+
     logger.info("url: {}", url);
     logger.debug("method: {}", method);
 
@@ -62,6 +65,7 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     headers.add("Accept", accept);
     headers.add("Content-Type", contentType);
     headers.add("X-Okapi-Tenant", tenant);
+    headers.add("X-Okapi-Token", token.isPresent() ? token.get().toString() : null);
 
     HttpEntity<Object> entity = new HttpEntity<Object>(body, headers);
     ResponseEntity<Object> response = httpService.exchange(url, method, entity, Object.class);
