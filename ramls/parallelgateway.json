@@ -47,7 +47,7 @@
         }, {
           "$ref" : "#/definitions/StreamRequestToDirectoryTask"
         }, {
-          "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
+          "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
         }, {
           "$ref" : "#/definitions/Subprocess"
         }, {
@@ -193,7 +193,7 @@
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
-              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
+              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
@@ -255,7 +255,7 @@
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
-              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
+              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
@@ -351,7 +351,7 @@
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
-              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
+              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
@@ -671,7 +671,7 @@
       "title" : "StreamRequestToDirectoryTask",
       "required" : [ "deserializeAs", "name", "request", "path", "workflow", "batchSize", "completeMessage", "writeSignalMessage", "emitWriteSignal", "asyncBefore", "asyncAfter" ]
     },
-    "StreamingEctractTransformLoadTask" : {
+    "StreamingExtractTransformLoadTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -840,7 +840,7 @@
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
-              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
+              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
@@ -908,7 +908,7 @@
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
-              "$ref" : "#/definitions/StreamingEctractTransformLoadTask"
+              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
