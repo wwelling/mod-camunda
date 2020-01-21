@@ -65,7 +65,10 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     headers.add("Accept", accept);
     headers.add("Content-Type", contentType);
     headers.add("X-Okapi-Tenant", tenant);
-    headers.add("X-Okapi-Token", token.isPresent() ? token.get().toString() : null);
+
+    if (token.isPresent()) {
+      headers.add("X-Okapi-Token", token.get().toString());
+    }
 
     HttpEntity<Object> entity = new HttpEntity<Object>(body, headers);
     ResponseEntity<Object> response = httpService.exchange(url, method, entity, Object.class);

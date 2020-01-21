@@ -28,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -78,8 +79,15 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
         new TypeReference<List<Request>>() {
         });
 
-    runProcessors(processors, runExtractors(execution, extractors))
-        .forEach(node -> runRequests(execution, requests, node));
+    Stream<JsonNode> stream = runExtractors(execution, extractors);
+
+    runProcessors(processors, stream).forEach(node -> {
+      try {
+        runRequests(execution, requests, node);
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+      }
+    });
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
@@ -200,30 +208,20 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
     return stream;
   }
 
-  private void runRequests(DelegateExecution execution, List<Request> requests, JsonNode node) {
-    // @formatter:off
-    Map<String, Object> inputs = objectMapper.convertValue(node, new TypeReference<Map<String, Object>>() {});
-    runRequests(execution, requests, inputs);
-    // @formatter:on
-  }
-
-  private void runRequests(DelegateExecution execution, List<Request> requests, Map<String, Object> inputs) {
+  private void runRequests(DelegateExecution execution, List<Request> requests, JsonNode node)
+      throws JsonProcessingException {
     for (Request request : requests) {
-      runRequest(execution, request, inputs);
+      runRequest(execution, request, node);
     }
   }
 
-  private void runRequest(DelegateExecution execution, Request request, Map<String, Object> inputs) {
+  private void runRequest(DelegateExecution execution, Request request, JsonNode node) throws JsonProcessingException {
     String url = request.getUrl();
     HttpMethod method = request.getMethod();
     String accept = request.getAccept();
     String contentType = request.getContentType();
 
-    StringSubstitutor sub = new StringSubstitutor(inputs);
-
-    String payload = sub.replace(request.getBodyTemplate());
-
-    byte[] body = payload.getBytes();
+    String body = objectMapper.writeValueAsString(node);
 
     String tenant = execution.getTenantId();
 
@@ -238,30 +236,30 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
 
     logger.debug("body: {}", body);
 
-    String contentLength = String.valueOf(body.length);
     // @formatter:off
     webClient
-      .post()
+      .method(method)
       .uri(url)
-      .bodyValue(body)
-      .header("X-Okapi-Url", OKAPI_LOCATION)
-      .header("X-Okapi-Tenant", tenant)
-      .header("X-Okapi-Token", token.isPresent() ? token.get().toString() : null)
-      .header(HttpHeaders.CONTENT_TYPE, contentType)
-      .header(HttpHeaders.CONTENT_LENGTH, contentLength)
-      .header(HttpHeaders.ACCEPT, accept)
+      .bodyValue(body.getBytes())
+      .headers(headers -> {
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        headers.add(HttpHeaders.ACCEPT, accept);
+        headers.add("X-Okapi-Url", OKAPI_LOCATION);
+        headers.add("X-Okapi-Tenant", tenant);
+        if (token.isPresent()) {
+          headers.add("X-Okapi-Token", token.get().toString());
+        }
+      })
       .retrieve()
-      .onStatus(HttpStatus::is4xxClientError, response -> {
-        logger.error("status: {}", response.statusCode());
-        return Mono.empty();
-      })
-      .onStatus(HttpStatus::is5xxServerError, response -> {
-        logger.error("status: {}", response.statusCode());
-        return Mono.empty();
-      })
+      .onStatus(HttpStatus::isError, this::logStatus)
       .bodyToMono(String.class)
       .subscribe();
     // @formatter:on
+  }
+
+  private Mono<? extends Throwable> logStatus(ClientResponse response) {
+    logger.error("status: {}", response.statusCode());
+    return Mono.empty();
   }
 
 }
