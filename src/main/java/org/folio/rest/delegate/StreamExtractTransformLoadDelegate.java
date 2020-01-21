@@ -50,8 +50,6 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
   @Autowired
   private ScriptEngineService scriptEngineService;
 
-  // TODO: make interface where all three can be in any order, update code below
-
   private Expression extractors;
 
   private Expression processors;

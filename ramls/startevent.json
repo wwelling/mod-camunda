@@ -23,7 +23,7 @@
     },
     "type" : {
       "type" : "string",
-      "enum" : [ "MESSAGE_CORRELATION", "SCHEDULED", "SIGNAL" ]
+      "enum" : [ "MESSAGE_CORRELATION", "SCHEDULED", "SIGNAL", "NONE" ]
     },
     "expression" : {
       "type" : "string",
@@ -40,5 +40,5 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "type", "expression", "interrupting", "asyncBefore" ]
+  "required" : [ "deserializeAs", "name", "type", "interrupting", "asyncBefore" ]
 }

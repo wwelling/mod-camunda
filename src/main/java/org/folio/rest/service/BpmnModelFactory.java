@@ -28,10 +28,11 @@ import org.folio.rest.workflow.model.ConnectTo;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
 import org.folio.rest.workflow.model.Node;
+import org.folio.rest.workflow.model.Processor;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ReceiveTask;
-import org.folio.rest.workflow.model.Processor;
 import org.folio.rest.workflow.model.StartEvent;
+import org.folio.rest.workflow.model.StartEventType;
 import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
 import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
@@ -127,18 +128,29 @@ public class BpmnModelFactory {
 
           boolean interrupting = ((StartEvent) node).isInterrupting();
 
-          switch (((StartEvent) node).getType()) {
+          // NOTE: expression could be null
+          StartEventType type = ((StartEvent) node).getType();
+          String expression = ((StartEvent) node).getExpression();
+
+          if (type != StartEventType.NONE && expression == null) {
+            // TODO: implement and ensure validation
+            throw new RuntimeException(String.format("%s start event requests an expression", type));
+          }
+
+          builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName());
+
+          switch (type) {
           case MESSAGE_CORRELATION:
-            builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
-                .message(((StartEvent) node).getExpression()).interrupting(interrupting);
+            builder = ((StartEventBuilder) builder).message(expression).interrupting(interrupting);
             break;
           case SCHEDULED:
-            builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
-                .timerWithCycle(((StartEvent) node).getExpression()).interrupting(interrupting);
+            builder = ((StartEventBuilder) builder).timerWithCycle(expression).interrupting(interrupting);
             break;
           case SIGNAL:
-            builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName())
-                .signal(((StartEvent) node).getExpression()).interrupting(interrupting);
+            builder = ((StartEventBuilder) builder).signal(expression).interrupting(interrupting);
+            break;
+          case NONE:
+            builder = ((StartEventBuilder) builder).interrupting(interrupting);
             break;
           default:
             // unknown start event
