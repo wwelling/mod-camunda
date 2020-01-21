@@ -688,8 +688,8 @@
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "StreamingEctractTransformLoadTask" ],
-          "default" : "StreamingEctractTransformLoadTask"
+          "enum" : [ "StreamingExtractTransformLoadTask" ],
+          "default" : "StreamingExtractTransformLoadTask"
         },
         "id" : {
           "type" : "string"
@@ -740,7 +740,7 @@
           "type" : "string"
         }
       },
-      "title" : "StreamingEctractTransformLoadTask",
+      "title" : "StreamingExtractTransformLoadTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
     "Extractor" : {

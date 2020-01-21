@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "StreamingEctractTransformLoadTask",
+  "title" : "StreamingExtractTransformLoadTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "StreamingEctractTransformLoadTask" ],
-      "default" : "StreamingEctractTransformLoadTask"
+      "enum" : [ "StreamingExtractTransformLoadTask" ],
+      "default" : "StreamingExtractTransformLoadTask"
     },
     "id" : {
       "type" : "string"
