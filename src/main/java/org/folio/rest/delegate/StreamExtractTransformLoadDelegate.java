@@ -85,7 +85,8 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
       try {
         runRequests(execution, requests, node);
       } catch (JsonProcessingException e) {
-        e.printStackTrace();
+        logger.error("Error running requests: {}", e.getMessage());
+        throw new RuntimeException(e.getMessage());
       }
     });
 
@@ -186,16 +187,14 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
 
         try {
           node = Optional.ofNullable(objectMapper.readTree(output));
-        } catch (JsonMappingException e) {
-          e.printStackTrace();
         } catch (JsonProcessingException e) {
-          e.printStackTrace();
+          logger.error("Error deserializing json: {}", e.getMessage());
+          throw new RuntimeException(e.getMessage());
         }
 
-      } catch (NoSuchMethodException e) {
-        e.printStackTrace();
-      } catch (ScriptException e) {
-        e.printStackTrace();
+      } catch (NoSuchMethodException | ScriptException e) {
+        logger.error("Error running processor script: {}", e.getMessage());
+        throw new RuntimeException(e.getMessage());
       }
       return node;
     }).filter(node -> node.isPresent()).map(node -> node.get());

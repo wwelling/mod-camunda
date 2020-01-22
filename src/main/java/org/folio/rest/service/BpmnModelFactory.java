@@ -160,8 +160,7 @@ public class BpmnModelFactory {
           if (setup) {
             // @formatter:off
             builder = builder.serviceTask(SETUP_TASK_ID).name("Setup")
-                .camundaDelegateExpression("${setupDelegate}")
-                .camundaAsyncAfter();
+                .camundaDelegateExpression("${setupDelegate}");
             // @formatter:on
           }
 
