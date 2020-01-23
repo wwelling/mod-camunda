@@ -11,7 +11,7 @@ import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
-import org.folio.rest.workflow.model.Request;
+import org.folio.rest.workflow.dto.Request;
 import org.folio.rest.workflow.model.StreamRequestToDirectoryTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

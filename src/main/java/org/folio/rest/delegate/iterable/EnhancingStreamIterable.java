@@ -7,8 +7,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.folio.rest.delegate.comparator.SortingComparator;
-import org.folio.rest.workflow.model.Comparison;
-import org.folio.rest.workflow.model.Mapping;
+import org.folio.rest.workflow.dto.Comparison;
+import org.folio.rest.workflow.dto.Mapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;

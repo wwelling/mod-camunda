@@ -22,16 +22,16 @@
       "maxLength" : 512
     },
     "request" : {
-      "$ref" : "#/definitions/Request"
+      "$ref" : "#/definitions/EmbeddedRequest"
     },
     "inputVariables" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Variable"
+        "$ref" : "#/definitions/EmbeddedVariable"
       }
     },
     "outputVariable" : {
-      "$ref" : "#/definitions/Variable"
+      "$ref" : "#/definitions/EmbeddedVariable"
     },
     "asyncBefore" : {
       "type" : "boolean"
@@ -43,9 +43,9 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "request", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ],
   "definitions" : {
-    "Request" : {
+    "EmbeddedRequest" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -64,11 +64,14 @@
         },
         "bodyTemplate" : {
           "type" : "string"
+        },
+        "iterate" : {
+          "type" : "boolean"
         }
       },
-      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
     },
-    "Variable" : {
+    "EmbeddedVariable" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {

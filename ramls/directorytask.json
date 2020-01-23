@@ -34,11 +34,11 @@
     "inputVariables" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Variable"
+        "$ref" : "#/definitions/EmbeddedVariable"
       }
     },
     "outputVariable" : {
-      "$ref" : "#/definitions/Variable"
+      "$ref" : "#/definitions/EmbeddedVariable"
     },
     "asyncBefore" : {
       "type" : "boolean"
@@ -52,7 +52,7 @@
   },
   "required" : [ "deserializeAs", "name", "path", "workflow", "action", "asyncBefore", "asyncAfter" ],
   "definitions" : {
-    "Variable" : {
+    "EmbeddedVariable" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {

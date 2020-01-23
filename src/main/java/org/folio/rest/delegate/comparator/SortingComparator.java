@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.folio.rest.workflow.model.Comparison;
+import org.folio.rest.workflow.dto.Comparison;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

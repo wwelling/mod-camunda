@@ -22,16 +22,16 @@
       "maxLength" : 512
     },
     "processor" : {
-      "$ref" : "#/definitions/Processor"
+      "$ref" : "#/definitions/EmbeddedProcessor"
     },
     "inputVariables" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Variable"
+        "$ref" : "#/definitions/EmbeddedVariable"
       }
     },
     "outputVariable" : {
-      "$ref" : "#/definitions/Variable"
+      "$ref" : "#/definitions/EmbeddedVariable"
     },
     "asyncBefore" : {
       "type" : "boolean"
@@ -43,9 +43,9 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "processor", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ],
   "definitions" : {
-    "Processor" : {
+    "EmbeddedProcessor" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -70,7 +70,7 @@
       },
       "required" : [ "scriptType", "functionName", "code", "buffer", "delay" ]
     },
-    "Variable" : {
+    "EmbeddedVariable" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {

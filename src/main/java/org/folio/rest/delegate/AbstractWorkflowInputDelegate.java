@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.folio.rest.workflow.model.Variable;
+import org.folio.rest.workflow.model.EmbeddedVariable;
 import org.folio.rest.workflow.model.VariableType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,9 +22,9 @@ public abstract class AbstractWorkflowInputDelegate extends AbstractWorkflowDele
     super();
   }
 
-  public Set<Variable> getInputVariables(DelegateExecution execution)
+  public Set<EmbeddedVariable> getInputVariables(DelegateExecution execution)
       throws JsonMappingException, JsonProcessingException {
-    return objectMapper.readValue(inputVariables.getValue(execution).toString(), new TypeReference<Set<Variable>>() {
+    return objectMapper.readValue(inputVariables.getValue(execution).toString(), new TypeReference<Set<EmbeddedVariable>>() {
     });
   }
 

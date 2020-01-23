@@ -28,7 +28,7 @@ import org.folio.rest.workflow.model.ConnectTo;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
 import org.folio.rest.workflow.model.Node;
-import org.folio.rest.workflow.model.Processor;
+import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ReceiveTask;
 import org.folio.rest.workflow.model.StartEvent;
@@ -101,7 +101,7 @@ public class BpmnModelFactory {
       throw new RuntimeException("Workflow must start with a start event!");
     }
 
-    builder = build(builder, nodes, true);
+    builder = build(builder, nodes, Setup.from(workflow.getSetup()));
 
     return builder.done();
   }
@@ -111,10 +111,10 @@ public class BpmnModelFactory {
     String identifier = node.getIdentifier();
     String name = node.getName();
     builder = processBuilder.eventSubProcess(identifier).name(name).startEvent();
-    builder = build(builder, ((EventSubprocess) node).getNodes(), false);
+    builder = build(builder, ((EventSubprocess) node).getNodes(), Setup.NONE);
   }
 
-  private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes, boolean setup) {
+  private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes, Setup setup) {
 
     for (Node node : nodes) {
 
@@ -128,7 +128,6 @@ public class BpmnModelFactory {
 
           boolean interrupting = ((StartEvent) node).isInterrupting();
 
-          // NOTE: expression could be null
           StartEventType type = ((StartEvent) node).getType();
           String expression = ((StartEvent) node).getExpression();
 
@@ -157,11 +156,24 @@ public class BpmnModelFactory {
             break;
           }
 
-          if (setup) {
-            // @formatter:off
-            builder = builder.serviceTask(SETUP_TASK_ID).name("Setup")
-                .camundaDelegateExpression("${setupDelegate}");
-            // @formatter:on
+          if (!setup.equals(Setup.NONE)) {
+            builder = builder.serviceTask(SETUP_TASK_ID).name("Setup").camundaDelegateExpression("${setupDelegate}");
+
+            switch (setup) {
+            case ASYNC_AFTER:
+              builder = builder.camundaAsyncAfter();
+              break;
+            case ASYNC_BEFORE:
+              builder = builder.camundaAsyncBefore();
+              break;
+            case ASYNC_BEFORE_AFTER:
+              builder = builder.camundaAsyncBefore().camundaAsyncAfter();
+              break;
+            case NONE:
+            case SIMPLE:
+            default:
+              break;
+            }
           }
 
         } else if (node instanceof EndEvent) {
@@ -225,7 +237,7 @@ public class BpmnModelFactory {
           switch (((Subprocess) node).getType()) {
           case EMBEDDED:
             builder = subProcessBuilder.embeddedSubProcess().startEvent();
-            builder = build(builder, ((Branch) node).getNodes(), false);
+            builder = build(builder, ((Branch) node).getNodes(), Setup.NONE);
             builder = builder.subProcessDone();
             break;
           case TRANSACTION:
@@ -242,7 +254,7 @@ public class BpmnModelFactory {
         }
 
         if (!(node instanceof Subprocess)) {
-          builder = build(builder, ((Branch) node).getNodes(), false);
+          builder = build(builder, ((Branch) node).getNodes(), Setup.NONE);
         }
 
       } else if (node instanceof Navigation) {
@@ -296,7 +308,7 @@ public class BpmnModelFactory {
     }
     extensions.addChildElement(icField);
 
-    List<Processor> processors = getProcessorScripts(workflow.getNodes());
+    List<EmbeddedProcessor> processors = getProcessorScripts(workflow.getNodes());
     CamundaField psField = model.newInstance(CamundaField.class);
     psField.setCamundaName("processors");
     try {
@@ -354,8 +366,8 @@ public class BpmnModelFactory {
     });
   }
 
-  private List<Processor> getProcessorScripts(List<Node> nodes) {
-    List<Processor> scripts = new ArrayList<Processor>();
+  private List<EmbeddedProcessor> getProcessorScripts(List<Node> nodes) {
+    List<EmbeddedProcessor> scripts = new ArrayList<EmbeddedProcessor>();
     nodes.stream().forEach(node -> {
       if (node instanceof ProcessorTask) {
         scripts.add(((ProcessorTask) node).getProcessor());
@@ -385,6 +397,26 @@ public class BpmnModelFactory {
       }
     }
     return false;
+  }
+
+  private enum Setup {
+    NONE, SIMPLE, ASYNC_BEFORE, ASYNC_AFTER, ASYNC_BEFORE_AFTER;
+
+    public static Setup from(org.folio.rest.workflow.model.Setup setup) {
+      if (setup.isAsyncAfter()) {
+        if (setup.isAsyncBefore()) {
+          return ASYNC_BEFORE_AFTER;
+        } else {
+          return ASYNC_AFTER;
+        }
+      } else {
+        if (setup.isAsyncBefore()) {
+          return ASYNC_BEFORE;
+        } else {
+          return SIMPLE;
+        }
+      }
+    }
   }
 
 }

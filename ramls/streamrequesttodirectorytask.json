@@ -22,16 +22,16 @@
       "maxLength" : 512
     },
     "request" : {
-      "$ref" : "#/definitions/Request"
+      "$ref" : "#/definitions/EmbeddedRequest"
     },
     "inputVariables" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Variable"
+        "$ref" : "#/definitions/EmbeddedVariable"
       }
     },
     "outputVariable" : {
-      "$ref" : "#/definitions/Variable"
+      "$ref" : "#/definitions/EmbeddedVariable"
     },
     "path" : {
       "type" : "string"
@@ -65,9 +65,9 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "request", "path", "workflow", "batchSize", "completeMessage", "writeSignalMessage", "emitWriteSignal", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "path", "workflow", "batchSize", "completeMessage", "writeSignalMessage", "emitWriteSignal", "asyncBefore", "asyncAfter" ],
   "definitions" : {
-    "Request" : {
+    "EmbeddedRequest" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -86,11 +86,14 @@
         },
         "bodyTemplate" : {
           "type" : "string"
+        },
+        "iterate" : {
+          "type" : "boolean"
         }
       },
-      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
     },
-    "Variable" : {
+    "EmbeddedVariable" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {

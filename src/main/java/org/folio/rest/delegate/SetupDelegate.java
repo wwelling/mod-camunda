@@ -7,7 +7,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.service.ScriptEngineService;
-import org.folio.rest.workflow.model.Processor;
+import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -46,11 +46,11 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
 
     logger.info("loading scripts");
 
-    List<Processor> processors = objectMapper.readValue(this.processors.getValue(execution).toString(),
-        new TypeReference<List<Processor>>() {
+    List<EmbeddedProcessor> processors = objectMapper.readValue(this.processors.getValue(execution).toString(),
+        new TypeReference<List<EmbeddedProcessor>>() {
         });
 
-    for (Processor processor : processors) {
+    for (EmbeddedProcessor processor : processors) {
       scriptEngineService.registerScript(processor.getScriptType().getExtension(), processor.getFunctionName(), processor.getCode());
       logger.info("{}: {}", processor.getFunctionName(), processor.getCode());
     }

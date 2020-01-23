@@ -15,11 +15,11 @@ import org.folio.rest.delegate.iterable.BufferingStreamIterable;
 import org.folio.rest.delegate.iterable.EnhancingStreamIterable;
 import org.folio.rest.delegate.iterable.OrderingMergeStreamIterable;
 import org.folio.rest.service.ScriptEngineService;
-import org.folio.rest.workflow.model.Comparison;
-import org.folio.rest.workflow.model.Extractor;
-import org.folio.rest.workflow.model.Mapping;
-import org.folio.rest.workflow.model.Processor;
-import org.folio.rest.workflow.model.Request;
+import org.folio.rest.workflow.dto.Comparison;
+import org.folio.rest.workflow.dto.Mapping;
+import org.folio.rest.workflow.dto.Request;
+import org.folio.rest.workflow.model.EmbeddedExtractor;
+import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,12 +67,12 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
 
     logger.info("{} started", delegateName);
 
-    final List<Extractor> extractors = objectMapper.readValue(this.extractors.getValue(execution).toString(),
-        new TypeReference<List<Extractor>>() {
+    final List<EmbeddedExtractor> extractors = objectMapper.readValue(this.extractors.getValue(execution).toString(),
+        new TypeReference<List<EmbeddedExtractor>>() {
         });
 
-    final List<Processor> processors = objectMapper.readValue(this.processors.getValue(execution).toString(),
-        new TypeReference<List<Processor>>() {
+    final List<EmbeddedProcessor> processors = objectMapper.readValue(this.processors.getValue(execution).toString(),
+        new TypeReference<List<EmbeddedProcessor>>() {
         });
 
     final List<Request> requests = objectMapper.readValue(this.requests.getValue(execution).toString(),
@@ -111,10 +111,10 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
     return StreamingExtractTransformLoadTask.class;
   }
 
-  private Stream<JsonNode> runExtractors(DelegateExecution execution, List<Extractor> extractors)
+  private Stream<JsonNode> runExtractors(DelegateExecution execution, List<EmbeddedExtractor> extractors)
       throws JsonMappingException, JsonProcessingException {
     Stream<JsonNode> stream = Stream.empty();
-    for (Extractor extractor : extractors) {
+    for (EmbeddedExtractor extractor : extractors) {
       Stream<JsonNode> s = runExtractor(execution, extractor);
       // @formatter:off
       switch (extractor.getMergeStrategy()) {
@@ -138,7 +138,7 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
     return stream;
   }
 
-  private Stream<JsonNode> runExtractor(DelegateExecution execution, Extractor extractor)
+  private Stream<JsonNode> runExtractor(DelegateExecution execution, EmbeddedExtractor extractor)
       throws JsonMappingException, JsonProcessingException {
     Request request = extractor.getRequest();
     String url = request.getUrl();
@@ -168,14 +168,14 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
     // @formatter:on
   }
 
-  private Stream<JsonNode> runProcessors(List<Processor> processors, Stream<JsonNode> stream) {
-    for (Processor processor : processors) {
+  private Stream<JsonNode> runProcessors(List<EmbeddedProcessor> processors, Stream<JsonNode> stream) {
+    for (EmbeddedProcessor processor : processors) {
       stream = runProcessor(processor, stream);
     }
     return stream;
   }
 
-  private Stream<JsonNode> runProcessor(Processor processor, Stream<JsonNode> stream) {
+  private Stream<JsonNode> runProcessor(EmbeddedProcessor processor, Stream<JsonNode> stream) {
 
     final String scriptName = processor.getFunctionName();
     final String scriptTypeExtension = processor.getScriptType().getExtension();

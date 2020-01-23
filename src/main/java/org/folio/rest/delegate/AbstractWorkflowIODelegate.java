@@ -2,7 +2,7 @@ package org.folio.rest.delegate;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.folio.rest.workflow.model.Variable;
+import org.folio.rest.workflow.model.EmbeddedVariable;
 import org.folio.rest.workflow.model.VariableType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,13 +16,13 @@ public abstract class AbstractWorkflowIODelegate extends AbstractWorkflowInputDe
     super();
   }
 
-  public Variable getOutputVariable(DelegateExecution execution) throws JsonMappingException, JsonProcessingException {
-    return objectMapper.readValue(outputVariable.getValue(execution).toString(), Variable.class);
+  public EmbeddedVariable getOutputVariable(DelegateExecution execution) throws JsonMappingException, JsonProcessingException {
+    return objectMapper.readValue(outputVariable.getValue(execution).toString(), EmbeddedVariable.class);
   }
 
   public void setOutput(DelegateExecution execution, Object output)
       throws JsonMappingException, JsonProcessingException {
-    Variable variable = getOutputVariable(execution);
+    EmbeddedVariable variable = getOutputVariable(execution);
     String key = variable.getKey();
     VariableType type = variable.getType();
     switch (type) {

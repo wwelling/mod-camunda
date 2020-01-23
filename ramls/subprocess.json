@@ -398,16 +398,16 @@
           "maxLength" : 512
         },
         "processor" : {
-          "$ref" : "#/definitions/Processor"
+          "$ref" : "#/definitions/EmbeddedProcessor"
         },
         "inputVariables" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Variable"
+            "$ref" : "#/definitions/EmbeddedVariable"
           }
         },
         "outputVariable" : {
-          "$ref" : "#/definitions/Variable"
+          "$ref" : "#/definitions/EmbeddedVariable"
         },
         "asyncBefore" : {
           "type" : "boolean"
@@ -420,9 +420,9 @@
         }
       },
       "title" : "ProcessorTask",
-      "required" : [ "deserializeAs", "name", "processor", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
-    "Processor" : {
+    "EmbeddedProcessor" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -447,7 +447,7 @@
       },
       "required" : [ "scriptType", "functionName", "code", "buffer", "delay" ]
     },
-    "Variable" : {
+    "EmbeddedVariable" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -485,16 +485,16 @@
           "maxLength" : 512
         },
         "request" : {
-          "$ref" : "#/definitions/Request"
+          "$ref" : "#/definitions/EmbeddedRequest"
         },
         "inputVariables" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Variable"
+            "$ref" : "#/definitions/EmbeddedVariable"
           }
         },
         "outputVariable" : {
-          "$ref" : "#/definitions/Variable"
+          "$ref" : "#/definitions/EmbeddedVariable"
         },
         "asyncBefore" : {
           "type" : "boolean"
@@ -507,9 +507,9 @@
         }
       },
       "title" : "RequestTask",
-      "required" : [ "deserializeAs", "name", "request", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
-    "Request" : {
+    "EmbeddedRequest" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -528,9 +528,12 @@
         },
         "bodyTemplate" : {
           "type" : "string"
+        },
+        "iterate" : {
+          "type" : "boolean"
         }
       },
-      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
     },
     "DirectoryTask" : {
       "type" : "object",
@@ -566,11 +569,11 @@
         "inputVariables" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Variable"
+            "$ref" : "#/definitions/EmbeddedVariable"
           }
         },
         "outputVariable" : {
-          "$ref" : "#/definitions/Variable"
+          "$ref" : "#/definitions/EmbeddedVariable"
         },
         "asyncBefore" : {
           "type" : "boolean"
@@ -646,16 +649,16 @@
           "maxLength" : 512
         },
         "request" : {
-          "$ref" : "#/definitions/Request"
+          "$ref" : "#/definitions/EmbeddedRequest"
         },
         "inputVariables" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Variable"
+            "$ref" : "#/definitions/EmbeddedVariable"
           }
         },
         "outputVariable" : {
-          "$ref" : "#/definitions/Variable"
+          "$ref" : "#/definitions/EmbeddedVariable"
         },
         "path" : {
           "type" : "string"
@@ -690,7 +693,7 @@
         }
       },
       "title" : "StreamRequestToDirectoryTask",
-      "required" : [ "deserializeAs", "name", "request", "path", "workflow", "batchSize", "completeMessage", "writeSignalMessage", "emitWriteSignal", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "path", "workflow", "batchSize", "completeMessage", "writeSignalMessage", "emitWriteSignal", "asyncBefore", "asyncAfter" ]
     },
     "StreamingExtractTransformLoadTask" : {
       "type" : "object",
@@ -716,29 +719,29 @@
         "extractors" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Extractor"
+            "$ref" : "#/definitions/EmbeddedExtractor"
           }
         },
         "processors" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Processor"
+            "$ref" : "#/definitions/EmbeddedProcessor"
           }
         },
         "requests" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Request"
+            "$ref" : "#/definitions/EmbeddedRequest"
           }
         },
         "inputVariables" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Variable"
+            "$ref" : "#/definitions/EmbeddedVariable"
           }
         },
         "outputVariable" : {
-          "$ref" : "#/definitions/Variable"
+          "$ref" : "#/definitions/EmbeddedVariable"
         },
         "asyncBefore" : {
           "type" : "boolean"
@@ -753,13 +756,10 @@
       "title" : "StreamingExtractTransformLoadTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
-    "Extractor" : {
+    "EmbeddedExtractor" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
-        "id" : {
-          "type" : "string"
-        },
         "request" : {
           "$ref" : "#/definitions/Request"
         },
@@ -780,7 +780,33 @@
           }
         }
       },
-      "required" : [ "request", "mergeStrategy" ]
+      "required" : [ "mergeStrategy" ]
+    },
+    "Request" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "url" : {
+          "type" : "string"
+        },
+        "method" : {
+          "type" : "string",
+          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "contentType" : {
+          "type" : "string"
+        },
+        "accept" : {
+          "type" : "string"
+        },
+        "bodyTemplate" : {
+          "type" : "string"
+        },
+        "iterate" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
     },
     "Comparison" : {
       "type" : "object",
@@ -792,7 +818,8 @@
         "targetProperty" : {
           "type" : "string"
         }
-      }
+      },
+      "required" : [ "sourceProperty", "targetProperty" ]
     },
     "Mapping" : {
       "type" : "object",
@@ -808,7 +835,7 @@
           "type" : "boolean"
         }
       },
-      "required" : [ "multiple" ]
+      "required" : [ "toProperty", "fromProperty", "multiple" ]
     },
     "Subprocess" : {
       "type" : "object",

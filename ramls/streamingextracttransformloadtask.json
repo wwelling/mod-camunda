@@ -24,29 +24,29 @@
     "extractors" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Extractor"
+        "$ref" : "#/definitions/EmbeddedExtractor"
       }
     },
     "processors" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Processor"
+        "$ref" : "#/definitions/EmbeddedProcessor"
       }
     },
     "requests" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Request"
+        "$ref" : "#/definitions/EmbeddedRequest"
       }
     },
     "inputVariables" : {
       "type" : "array",
       "items" : {
-        "$ref" : "#/definitions/Variable"
+        "$ref" : "#/definitions/EmbeddedVariable"
       }
     },
     "outputVariable" : {
-      "$ref" : "#/definitions/Variable"
+      "$ref" : "#/definitions/EmbeddedVariable"
     },
     "asyncBefore" : {
       "type" : "boolean"
@@ -60,13 +60,10 @@
   },
   "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ],
   "definitions" : {
-    "Extractor" : {
+    "EmbeddedExtractor" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
-        "id" : {
-          "type" : "string"
-        },
         "request" : {
           "$ref" : "#/definitions/Request"
         },
@@ -87,7 +84,7 @@
           }
         }
       },
-      "required" : [ "request", "mergeStrategy" ]
+      "required" : [ "mergeStrategy" ]
     },
     "Request" : {
       "type" : "object",
@@ -108,9 +105,12 @@
         },
         "bodyTemplate" : {
           "type" : "string"
+        },
+        "iterate" : {
+          "type" : "boolean"
         }
       },
-      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
     },
     "Comparison" : {
       "type" : "object",
@@ -122,7 +122,8 @@
         "targetProperty" : {
           "type" : "string"
         }
-      }
+      },
+      "required" : [ "sourceProperty", "targetProperty" ]
     },
     "Mapping" : {
       "type" : "object",
@@ -138,9 +139,9 @@
           "type" : "boolean"
         }
       },
-      "required" : [ "multiple" ]
+      "required" : [ "toProperty", "fromProperty", "multiple" ]
     },
-    "Processor" : {
+    "EmbeddedProcessor" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -165,7 +166,33 @@
       },
       "required" : [ "scriptType", "functionName", "code", "buffer", "delay" ]
     },
-    "Variable" : {
+    "EmbeddedRequest" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "url" : {
+          "type" : "string"
+        },
+        "method" : {
+          "type" : "string",
+          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "contentType" : {
+          "type" : "string"
+        },
+        "accept" : {
+          "type" : "string"
+        },
+        "bodyTemplate" : {
+          "type" : "string"
+        },
+        "iterate" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
+    },
+    "EmbeddedVariable" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
