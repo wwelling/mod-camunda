@@ -35,6 +35,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import reactor.core.publisher.Mono;
 
@@ -145,7 +147,7 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
     HttpMethod method = request.getMethod();
     String accept = request.getAccept();
     String contentType = request.getContentType();
-    
+
     Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
 
     Map<String, Object> inputs = getInputs(execution);
@@ -228,8 +230,6 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
     String accept = request.getAccept();
     String contentType = request.getContentType();
 
-    String body = objectMapper.writeValueAsString(node);
-
     String tenant = execution.getTenantId();
 
     Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
@@ -241,27 +241,60 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
     logger.debug("content-type: {}", contentType);
     logger.debug("tenant: {}", tenant);
 
-    logger.debug("body: {}", body);
+    if (request.isIterable()) {
+      ArrayNode array = (ArrayNode) ((ObjectNode) node).remove(request.getIterableKey());
 
-    // @formatter:off
-    webClient
-      .method(method)
-      .uri(url)
-      .bodyValue(body.getBytes())
-      .headers(headers -> {
-        headers.add(HttpHeaders.ACCEPT, accept);
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-        headers.add("X-Okapi-Url", OKAPI_LOCATION);
-        headers.add("X-Okapi-Tenant", tenant);
-        if (token.isPresent()) {
-          headers.add("X-Okapi-Token", token.get().toString());
-        }
-      })
-      .retrieve()
-      .onStatus(HttpStatus::isError, this::logStatus)
-      .bodyToMono(String.class)
-      .subscribe();
-    // @formatter:on
+      ArrayNode ids = ((ObjectNode) node).putArray(request.getIterableKey());
+
+      for (JsonNode n : array) {
+        String body = objectMapper.writeValueAsString(n);
+        // @formatter:off
+        JsonNode response = webClient
+          .method(method)
+          .uri(url)
+          .bodyValue(body.getBytes())
+          .headers(headers -> {
+            headers.add(HttpHeaders.ACCEPT, accept);
+            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+            headers.add("X-Okapi-Url", OKAPI_LOCATION);
+            headers.add("X-Okapi-Tenant", tenant);
+            if (token.isPresent()) {
+              headers.add("X-Okapi-Token", token.get().toString());
+            }
+          })
+          .retrieve()
+          .onStatus(HttpStatus::isError, this::logStatus)
+          .bodyToMono(JsonNode.class)
+          .block();
+        // @formatter:on
+
+        ids.add(response.get(request.getResponseKey()));
+      }
+    } else {
+      String body = objectMapper.writeValueAsString(node);
+
+      logger.debug("body: {}", body);
+
+      // @formatter:off
+      webClient
+        .method(method)
+        .uri(url)
+        .bodyValue(body.getBytes())
+        .headers(headers -> {
+          headers.add(HttpHeaders.ACCEPT, accept);
+          headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+          headers.add("X-Okapi-Url", OKAPI_LOCATION);
+          headers.add("X-Okapi-Tenant", tenant);
+          if (token.isPresent()) {
+            headers.add("X-Okapi-Token", token.get().toString());
+          }
+        })
+        .retrieve()
+        .onStatus(HttpStatus::isError, this::logStatus)
+        .bodyToMono(String.class)
+        .subscribe();
+      // @formatter:on
+    }
   }
 
   private Mono<? extends Throwable> logStatus(ClientResponse response) {

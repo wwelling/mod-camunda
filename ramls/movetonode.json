@@ -528,11 +528,17 @@
         "bodyTemplate" : {
           "type" : "string"
         },
-        "iterate" : {
+        "iterable" : {
           "type" : "boolean"
+        },
+        "iterableKey" : {
+          "type" : "string"
+        },
+        "responseKey" : {
+          "type" : "string"
         }
       },
-      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
+      "required" : [ "url", "method", "contentType", "accept", "iterable" ]
     },
     "DirectoryTask" : {
       "type" : "object",
@@ -801,11 +807,17 @@
         "bodyTemplate" : {
           "type" : "string"
         },
-        "iterate" : {
+        "iterable" : {
           "type" : "boolean"
+        },
+        "iterableKey" : {
+          "type" : "string"
+        },
+        "responseKey" : {
+          "type" : "string"
         }
       },
-      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
+      "required" : [ "url", "method", "contentType", "accept", "iterable" ]
     },
     "Comparison" : {
       "type" : "object",

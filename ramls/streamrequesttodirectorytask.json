@@ -87,11 +87,17 @@
         "bodyTemplate" : {
           "type" : "string"
         },
-        "iterate" : {
+        "iterable" : {
           "type" : "boolean"
+        },
+        "iterableKey" : {
+          "type" : "string"
+        },
+        "responseKey" : {
+          "type" : "string"
         }
       },
-      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate", "iterate" ]
+      "required" : [ "url", "method", "contentType", "accept", "iterable" ]
     },
     "EmbeddedVariable" : {
       "type" : "object",
