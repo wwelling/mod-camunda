@@ -339,9 +339,7 @@ public class BpmnModelFactory {
                 CamundaField field = model.newInstance(CamundaField.class);
                 field.setCamundaName(f.getName());
                 field.setCamundaStringValue(serialize(f.get(node)));
-
                 extensions.addChildElement(field);
-
               } catch (JsonProcessingException | IllegalArgumentException | IllegalAccessException e) {
                 // TODO: create custom exception and controller advice to handle better
                 throw new RuntimeException(e);

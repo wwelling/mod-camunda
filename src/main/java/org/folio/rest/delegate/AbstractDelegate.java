@@ -20,4 +20,8 @@ public abstract class AbstractDelegate implements JavaDelegate {
     return String.format("${%s}", delegateName);
   }
 
+  public Logger getLogger() {
+    return logger;
+  }
+
 }

@@ -145,6 +145,8 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
     HttpMethod method = request.getMethod();
     String accept = request.getAccept();
     String contentType = request.getContentType();
+    
+    Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
 
     Map<String, Object> inputs = getInputs(execution);
 
@@ -159,9 +161,15 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
       .method(method)
       .uri(url)
       .bodyValue(body.getBytes())
-      .header("Accept", accept)
-      .header("Content-Type", contentType)
-      .header("X-Okapi-Tenant", tenant)
+      .headers(headers -> {
+        headers.add(HttpHeaders.ACCEPT, accept);
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);        
+        headers.add("X-Okapi-Url", OKAPI_LOCATION);
+        headers.add("X-Okapi-Tenant", tenant);
+        if (token.isPresent()) {
+          headers.add("X-Okapi-Token", token.get().toString());
+        }
+      })
       .retrieve()
       .bodyToFlux(JsonNode.class)
       .toStream();
@@ -224,7 +232,7 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
 
     String tenant = execution.getTenantId();
 
-    Optional<Object> token = Optional.ofNullable(execution.getVariable("token"));
+    Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
 
     logger.info("url: {}", url);
     logger.debug("method: {}", method);
@@ -241,8 +249,8 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
       .uri(url)
       .bodyValue(body.getBytes())
       .headers(headers -> {
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
         headers.add(HttpHeaders.ACCEPT, accept);
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
         headers.add("X-Okapi-Url", OKAPI_LOCATION);
         headers.add("X-Okapi-Tenant", tenant);
         if (token.isPresent()) {

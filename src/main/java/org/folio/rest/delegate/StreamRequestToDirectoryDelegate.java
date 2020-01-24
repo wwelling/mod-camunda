@@ -14,7 +14,9 @@ import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.dto.Request;
 import org.folio.rest.workflow.model.StreamRequestToDirectoryTask;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,6 +26,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 @Service
 @Scope("prototype")
 public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDelegate {
+
+  @Value("${okapi.location}")
+  private String OKAPI_LOCATION;
 
   @Autowired
   private WebClient webClient;
@@ -58,6 +63,8 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
     HttpMethod method = request.getMethod();
     String accept = request.getAccept();
     String contentType = request.getContentType();
+
+    Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
 
     Map<String, Object> inputs = getInputs(execution);
 
@@ -105,9 +112,15 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
       .method(method)
       .uri(url)
       .bodyValue(body.getBytes())
-      .header("Accept", accept)
-      .header("Content-Type", contentType)
-      .header("X-Okapi-Tenant", tenant)
+      .headers(headers -> {
+        headers.add(HttpHeaders.ACCEPT, accept);
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);        
+        headers.add("X-Okapi-Url", OKAPI_LOCATION);
+        headers.add("X-Okapi-Tenant", tenant);
+        if (token.isPresent()) {
+          headers.add("X-Okapi-Token", token.get().toString());
+        }
+      })
       .retrieve()
       .bodyToFlux(JsonNode.class)
       .buffer(batchSize)

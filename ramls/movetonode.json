@@ -486,6 +486,12 @@
             "$ref" : "#/definitions/EmbeddedVariable"
           }
         },
+        "headerOutputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
         "outputVariable" : {
           "$ref" : "#/definitions/EmbeddedVariable"
         },
