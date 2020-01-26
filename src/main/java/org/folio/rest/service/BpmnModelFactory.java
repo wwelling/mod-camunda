@@ -10,6 +10,7 @@ import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.MultiInstanceLoopCharacteristicsBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
@@ -17,18 +18,13 @@ import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.folio.rest.delegate.AbstractWorkflowDelegate;
-import org.folio.rest.workflow.components.Branch;
-import org.folio.rest.workflow.components.Conditional;
-import org.folio.rest.workflow.components.Event;
-import org.folio.rest.workflow.components.Navigation;
-import org.folio.rest.workflow.components.Task;
-import org.folio.rest.workflow.components.Wait;
 import org.folio.rest.workflow.model.ConditionalGateway;
 import org.folio.rest.workflow.model.ConnectTo;
+import org.folio.rest.workflow.model.EmbeddedLoopReference;
+import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
 import org.folio.rest.workflow.model.Node;
-import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ReceiveTask;
 import org.folio.rest.workflow.model.StartEvent;
@@ -36,6 +32,12 @@ import org.folio.rest.workflow.model.StartEventType;
 import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
 import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
+import org.folio.rest.workflow.model.components.Branch;
+import org.folio.rest.workflow.model.components.Conditional;
+import org.folio.rest.workflow.model.components.Event;
+import org.folio.rest.workflow.model.components.Navigation;
+import org.folio.rest.workflow.model.components.Task;
+import org.folio.rest.workflow.model.components.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -232,6 +234,25 @@ public class BpmnModelFactory {
 
           if (((Subprocess) node).isAsyncAfter()) {
             subProcessBuilder = subProcessBuilder.camundaAsyncAfter();
+          }
+
+          if (((Subprocess) node).isMultiInstance()) {
+            MultiInstanceLoopCharacteristicsBuilder multiInstanceBuilder = subProcessBuilder.multiInstance();
+
+            EmbeddedLoopReference loopRef = ((Subprocess) node).getLoopRef();
+
+            if (loopRef.hasCardinalityExpression()) {
+              multiInstanceBuilder = multiInstanceBuilder.cardinality(loopRef.getCardinalityExpression());
+            } else if (loopRef.hasDataInput()) {
+              multiInstanceBuilder = multiInstanceBuilder.camundaCollection(loopRef.getDataInputRefExpression())
+                  .camundaElementVariable(loopRef.getInputDataName());
+            }
+
+            if (loopRef.hasCompleteConditionExpression()) {
+              multiInstanceBuilder = multiInstanceBuilder.completionCondition(loopRef.getCompleteConditionExpression());
+            }
+
+            subProcessBuilder = multiInstanceBuilder.multiInstanceDone();
           }
 
           switch (((Subprocess) node).getType()) {
