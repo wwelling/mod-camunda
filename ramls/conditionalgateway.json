@@ -924,12 +924,18 @@
         "asyncAfter" : {
           "type" : "boolean"
         },
+        "loopRef" : {
+          "$ref" : "#/definitions/EmbeddedLoopReference"
+        },
+        "multiInstance" : {
+          "type" : "boolean"
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "Subprocess",
-      "required" : [ "deserializeAs", "name", "type", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "type", "asyncBefore", "asyncAfter", "multiInstance" ]
     },
     "EventSubprocess" : {
       "type" : "object",
@@ -992,6 +998,28 @@
       },
       "title" : "EventSubprocess",
       "required" : [ "deserializeAs", "name" ]
+    },
+    "EmbeddedLoopReference" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "cardinalityExpression" : {
+          "type" : "string"
+        },
+        "dataInputRefExpression" : {
+          "type" : "string"
+        },
+        "inputDataName" : {
+          "type" : "string"
+        },
+        "completeConditionExpression" : {
+          "type" : "string"
+        },
+        "sequential" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "sequential" ]
     }
   }
 }
