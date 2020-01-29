@@ -24,4 +24,8 @@ public abstract class AbstractDelegate implements JavaDelegate {
     return logger;
   }
 
+  public ObjectMapper getObjectMapper() {
+    return objectMapper;
+  }
+
 }

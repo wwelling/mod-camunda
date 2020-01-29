@@ -8,7 +8,6 @@ import org.folio.rest.workflow.model.EmbeddedVariable;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 public abstract class AbstractWorkflowInputDelegate extends AbstractWorkflowDelegate implements Input {
 
@@ -18,8 +17,7 @@ public abstract class AbstractWorkflowInputDelegate extends AbstractWorkflowDele
     super();
   }
 
-  public Set<EmbeddedVariable> getInputVariables(DelegateExecution execution)
-      throws JsonMappingException, JsonProcessingException {
+  public Set<EmbeddedVariable> getInputVariables(DelegateExecution execution) throws JsonProcessingException {
     // @formatter:off
     return objectMapper.readValue(inputVariables.getValue(execution).toString(),
         new TypeReference<Set<EmbeddedVariable>>() {});

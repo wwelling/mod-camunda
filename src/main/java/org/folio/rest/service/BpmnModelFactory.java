@@ -12,6 +12,7 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.MultiInstanceLoopCharacteristicsBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
+import org.camunda.bpm.model.bpmn.builder.ScriptTaskBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
@@ -27,6 +28,7 @@ import org.folio.rest.workflow.model.EventSubprocess;
 import org.folio.rest.workflow.model.Node;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ReceiveTask;
+import org.folio.rest.workflow.model.ScriptTask;
 import org.folio.rest.workflow.model.StartEvent;
 import org.folio.rest.workflow.model.StartEventType;
 import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
@@ -34,6 +36,7 @@ import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
 import org.folio.rest.workflow.model.components.Branch;
 import org.folio.rest.workflow.model.components.Conditional;
+import org.folio.rest.workflow.model.components.DelegateTask;
 import org.folio.rest.workflow.model.components.Event;
 import org.folio.rest.workflow.model.components.Navigation;
 import org.folio.rest.workflow.model.components.Task;
@@ -44,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -179,12 +183,12 @@ public class BpmnModelFactory {
           }
 
         } else if (node instanceof EndEvent) {
-          builder = builder.endEvent();
+          builder = builder.endEvent(node.getIdentifier()).name(node.getName());
         } else {
           // unknown event
         }
 
-      } else if (node instanceof Task) {
+      } else if (node instanceof DelegateTask) {
 
         Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
             .filter(d -> d.fromTask().equals(node.getClass())).findAny();
@@ -197,11 +201,11 @@ public class BpmnModelFactory {
           throw new RuntimeException("Task must have delegate representation!");
         }
 
-        if (((Task) node).isAsyncBefore()) {
+        if (((DelegateTask) node).isAsyncBefore()) {
           builder = builder.camundaAsyncBefore();
         }
 
-        if (((Task) node).isAsyncAfter()) {
+        if (((DelegateTask) node).isAsyncAfter()) {
           builder = builder.camundaAsyncAfter();
         }
 
@@ -289,25 +293,33 @@ public class BpmnModelFactory {
           // unknown navigation
         }
 
-      } else if (node instanceof Wait) {
+      } else if (node instanceof Task) {
+        if (node instanceof Wait) {
+          if (node instanceof ReceiveTask) {
+            builder = builder.receiveTask(node.getIdentifier()).name(node.getName())
+                .message(((ReceiveTask) node).getMessage());
+          } else {
+            // unknown wait
+          }
+        } else if (node instanceof ScriptTask) {
+          builder = builder.scriptTask(node.getIdentifier()).name(node.getName())
+              .scriptFormat(((ScriptTask) node).getScriptFormat()).scriptText(((ScriptTask) node).getCode());
 
-        if (node instanceof ReceiveTask) {
-
-          builder = builder.receiveTask(((Node) node).getIdentifier()).name(((Node) node).getName())
-              .message(((ReceiveTask) node).getMessage());
+          if (((ScriptTask) node).hasResultVariable()) {
+            builder = ((ScriptTaskBuilder) builder).camundaResultVariable(((ScriptTask) node).getResultVariable());
+          }
 
         } else {
-          // unknown wait
+          // unknown task
         }
 
-        if (((Wait) node).isAsyncBefore()) {
+        if (((Task) node).isAsyncBefore()) {
           builder = builder.camundaAsyncBefore();
         }
 
-        if (((Wait) node).isAsyncAfter()) {
+        if (((Task) node).isAsyncAfter()) {
           builder = builder.camundaAsyncAfter();
         }
-
       }
     }
 
@@ -319,7 +331,7 @@ public class BpmnModelFactory {
   private void setup(BpmnModelInstance model, Workflow workflow) {
     ExtensionElements extensions = model.newInstance(ExtensionElements.class);
 
-    Map<String, String> initialContext = workflow.getInitialContext();
+    Map<String, JsonNode> initialContext = workflow.getInitialContext();
     CamundaField icField = model.newInstance(CamundaField.class);
     icField.setCamundaName("initialContext");
     try {
@@ -376,7 +388,7 @@ public class BpmnModelFactory {
           expressions(model, ((Branch) node).getNodes());
         } else if (node instanceof Subprocess) {
           expressions(model, ((Subprocess) node).getNodes());
-        } else if (node instanceof Task) {
+        } else if (node instanceof DelegateTask) {
           // TODO: create custom exception and controller advice to handle better
           throw new RuntimeException("Task must have delegate representation!");
         }

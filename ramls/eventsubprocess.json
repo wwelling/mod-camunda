@@ -45,6 +45,8 @@
         }, {
           "$ref" : "#/definitions/ReceiveTask"
         }, {
+          "$ref" : "#/definitions/ScriptTask"
+        }, {
           "$ref" : "#/definitions/StreamRequestToDirectoryTask"
         }, {
           "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
@@ -191,6 +193,8 @@
             }, {
               "$ref" : "#/definitions/ReceiveTask"
             }, {
+              "$ref" : "#/definitions/ScriptTask"
+            }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
               "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
@@ -252,6 +256,8 @@
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ScriptTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
@@ -348,6 +354,8 @@
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ScriptTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
@@ -448,10 +456,13 @@
         },
         "type" : {
           "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL", "CACHE" ]
+          "enum" : [ "PROCESS", "LOCAL" ]
+        },
+        "spin" : {
+          "type" : "boolean"
         }
       },
-      "required" : [ "key" ]
+      "required" : [ "key", "spin" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -628,6 +639,49 @@
       },
       "title" : "ReceiveTask",
       "required" : [ "deserializeAs", "name", "message", "asyncBefore", "asyncAfter" ]
+    },
+    "ScriptTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ScriptTask" ],
+          "default" : "ScriptTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "scriptFormat" : {
+          "type" : "string"
+        },
+        "code" : {
+          "type" : "string"
+        },
+        "resultVariable" : {
+          "type" : "string"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "ScriptTask",
+      "required" : [ "deserializeAs", "name", "code", "asyncBefore", "asyncAfter" ]
     },
     "StreamRequestToDirectoryTask" : {
       "type" : "object",
@@ -894,6 +948,8 @@
             }, {
               "$ref" : "#/definitions/ReceiveTask"
             }, {
+              "$ref" : "#/definitions/ScriptTask"
+            }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {
               "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
@@ -967,6 +1023,8 @@
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ScriptTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
             }, {

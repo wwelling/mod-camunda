@@ -1,11 +1,14 @@
 package org.folio.rest.delegate;
 
+import static org.camunda.spin.Spin.JSON;
+
 import java.util.List;
 import java.util.Map;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
+import org.camunda.spin.json.SpinJsonNode;
 import org.folio.rest.service.ScriptEngineService;
 import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +38,14 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
 
     logger.info("loading initial context");
 
-    Map<String, String> context = objectMapper.readValue(initialContext.getValue(execution).toString(),
-        new TypeReference<Map<String, String>>() {
+    Map<String, Object> context = objectMapper.readValue(initialContext.getValue(execution).toString(),
+        new TypeReference<Map<String, Object>>() {
         });
 
-    for (Map.Entry<String, String> entry : context.entrySet()) {
-      execution.setVariable(entry.getKey(), entry.getValue());
-      logger.info("{}: {}", entry.getKey(), entry.getValue());
+    for (Map.Entry<String, Object> entry : context.entrySet()) {
+      SpinJsonNode node = JSON(objectMapper.writeValueAsString(entry.getValue()));
+      execution.setVariable(entry.getKey(), node);
+      logger.info("{}: {}", entry.getKey(), node);
     }
 
     logger.info("loading scripts");
@@ -51,7 +55,10 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
         });
 
     for (EmbeddedProcessor processor : processors) {
-      scriptEngineService.registerScript(processor.getScriptType().getExtension(), processor.getFunctionName(), processor.getCode());
+      String extension = processor.getScriptType().getExtension();
+      String functionName = processor.getFunctionName();
+      String code = processor.getCode();
+      scriptEngineService.registerScript(extension, functionName, code);
       logger.info("{}: {}", processor.getFunctionName(), processor.getCode());
     }
 

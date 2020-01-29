@@ -81,10 +81,13 @@
         },
         "type" : {
           "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL", "CACHE" ]
+          "enum" : [ "PROCESS", "LOCAL" ]
+        },
+        "spin" : {
+          "type" : "boolean"
         }
       },
-      "required" : [ "key" ]
+      "required" : [ "key", "spin" ]
     }
   }
 }

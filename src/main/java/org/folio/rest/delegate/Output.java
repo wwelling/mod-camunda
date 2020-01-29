@@ -1,39 +1,57 @@
 package org.folio.rest.delegate;
 
+import static org.camunda.spin.Spin.JSON;
+
+import java.util.Optional;
+
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.folio.rest.workflow.model.EmbeddedVariable;
 import org.folio.rest.workflow.model.VariableType;
+import org.slf4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public interface Output {
 
-  public abstract EmbeddedVariable getOutputVariable(DelegateExecution execution)
-      throws JsonMappingException, JsonProcessingException;
+  public abstract Logger getLogger();
 
-  public abstract void contextCachePut(String key, Object value);
+  public abstract ObjectMapper getObjectMapper();
+
+  public abstract EmbeddedVariable getOutputVariable(DelegateExecution execution) throws JsonProcessingException;
 
   public abstract void setOutputVariable(Expression outputVariable);
 
-  public default void setOutput(DelegateExecution execution, Object output)
-      throws JsonMappingException, JsonProcessingException {
+  public default void setOutput(DelegateExecution execution, Object output) throws JsonProcessingException {
     EmbeddedVariable variable = getOutputVariable(execution);
-    String key = variable.getKey();
-    VariableType type = variable.getType();
-    switch (type) {
-    case CACHE:
-      contextCachePut(key, output);
-      break;
-    case LOCAL:
-      execution.setVariableLocal(key, output);
-      break;
-    case PROCESS:
-      execution.setVariable(key, output);
-      break;
-    default:
-      break;
+    Optional<String> key = variable.getKey();
+    if (key.isPresent()) {
+      Optional<Object> value = Optional.ofNullable(output);
+      if (value.isPresent()) {
+        Optional<VariableType> type = variable.getType();
+        if (variable.isSpin()) {
+          value = Optional.ofNullable(JSON(getObjectMapper().writeValueAsString(output)));
+        }
+        if (type.isPresent()) {
+          switch (type.get()) {
+          case LOCAL:
+            execution.setVariableLocal(key.get(), value.get());
+            break;
+          case PROCESS:
+            execution.setVariable(key.get(), value.get());
+            break;
+          default:
+            break;
+          }
+        } else {
+          getLogger().warn("Variable type not present for {}", key.get());
+        }
+      } else {
+        getLogger().warn("Output not present for {}", key.get());
+      }
+    } else {
+      getLogger().warn("Output key is null");
     }
   }
 

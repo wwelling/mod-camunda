@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -21,10 +20,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -50,16 +52,22 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
 
     Request request = objectMapper.readValue(this.request.getValue(execution).toString(), Request.class);
 
-    String url = request.getUrl();
+    Map<String, Object> inputs = getInputs(execution);
+
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+
+    StringTemplateLoader stringLoader = new StringTemplateLoader();
+    stringLoader.putTemplate("url", request.getUrl());
+    stringLoader.putTemplate("request", request.getBodyTemplate());
+    cfg.setTemplateLoader(stringLoader);
+
+    String url = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("url"), inputs);
+
+    String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("request"), inputs);
+
     HttpMethod method = request.getMethod();
     String accept = request.getAccept();
     String contentType = request.getContentType();
-
-    Map<String, Object> inputs = getInputs(execution);
-
-    StringSubstitutor sub = new StringSubstitutor(inputs);
-
-    String body = sub.replace(request.getBodyTemplate());
 
     String tenant = execution.getTenantId();
 
@@ -90,23 +98,30 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     setOutput(execution, response.getBody());
 
     getHeaderOutputVariables(execution).forEach(headerOutputVariable -> {
-      String key = headerOutputVariable.getKey();
-      Optional<String> headerOutput = Optional.ofNullable(response.getHeaders().getFirst(key));
-      if (headerOutput.isPresent()) {
-        VariableType type = headerOutputVariable.getType();
-        switch (type) {
-        case CACHE:
-          contextCachePut(key, headerOutput.get());
-          break;
-        case LOCAL:
-          execution.setVariableLocal(key, headerOutput.get());
-          break;
-        case PROCESS:
-          execution.setVariable(key, headerOutput.get());
-          break;
-        default:
-          break;
+      Optional<String> key = headerOutputVariable.getKey();
+      if (key.isPresent()) {
+        Optional<String> headerOutput = Optional.ofNullable(response.getHeaders().getFirst(key.get()));
+        if (headerOutput.isPresent()) {
+          Optional<VariableType> type = headerOutputVariable.getType();
+          if (type.isPresent()) {
+            switch (type.get()) {
+            case LOCAL:
+              execution.setVariableLocal(key.get(), headerOutput.get());
+              break;
+            case PROCESS:
+              execution.setVariable(key.get(), headerOutput.get());
+              break;
+            default:
+              break;
+            }
+          } else {
+            logger.warn("Variable type not present for {}", key.get());
+          }
+        } else {
+          logger.warn("Header output not present for {}", key.get());
         }
+      } else {
+        logger.warn("Header output key is null");
       }
     });
 
@@ -127,8 +142,7 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     return RequestTask.class;
   }
 
-  public Set<EmbeddedVariable> getHeaderOutputVariables(DelegateExecution execution)
-      throws JsonMappingException, JsonProcessingException {
+  public Set<EmbeddedVariable> getHeaderOutputVariables(DelegateExecution execution) throws JsonProcessingException {
     // @formatter:off
     return objectMapper.readValue(headerOutputVariables.getValue(execution).toString(),
         new TypeReference<Set<EmbeddedVariable>>() {});

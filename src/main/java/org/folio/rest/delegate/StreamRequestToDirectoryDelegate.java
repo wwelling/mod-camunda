@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -19,9 +18,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -59,20 +62,26 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
 
     Request request = objectMapper.readValue(this.request.getValue(execution).toString(), Request.class);
 
-    String url = request.getUrl();
+    Map<String, Object> inputs = getInputs(execution);
+
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+
+    StringTemplateLoader stringLoader = new StringTemplateLoader();
+    stringLoader.putTemplate("url", request.getUrl());
+    stringLoader.putTemplate("request", request.getBodyTemplate());
+    cfg.setTemplateLoader(stringLoader);
+
+    String url = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("url"), inputs);
+
+    String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("request"), inputs);
+
     HttpMethod method = request.getMethod();
     String accept = request.getAccept();
     String contentType = request.getContentType();
 
-    Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
-
-    Map<String, Object> inputs = getInputs(execution);
-
-    StringSubstitutor sub = new StringSubstitutor(inputs);
-
-    String body = sub.replace(request.getBodyTemplate());
-
     String tenant = execution.getTenantId();
+
+    Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
 
     logger.info("url: {}", url);
     logger.debug("method: {}", method);

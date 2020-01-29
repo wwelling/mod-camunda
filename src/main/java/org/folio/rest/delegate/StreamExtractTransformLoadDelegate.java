@@ -1,5 +1,6 @@
 package org.folio.rest.delegate;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -7,7 +8,6 @@ import java.util.stream.Stream;
 
 import javax.script.ScriptException;
 
-import org.apache.commons.text.StringSubstitutor;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -28,16 +28,22 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import freemarker.cache.StringTemplateLoader;
+import freemarker.core.ParseException;
+import freemarker.template.Configuration;
+import freemarker.template.MalformedTemplateNameException;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateNotFoundException;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -114,7 +120,7 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
   }
 
   private Stream<JsonNode> runExtractors(DelegateExecution execution, List<EmbeddedExtractor> extractors)
-      throws JsonMappingException, JsonProcessingException {
+      throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException {
     Stream<JsonNode> stream = Stream.empty();
     for (EmbeddedExtractor extractor : extractors) {
       Stream<JsonNode> s = runExtractor(execution, extractor);
@@ -141,22 +147,29 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
   }
 
   private Stream<JsonNode> runExtractor(DelegateExecution execution, EmbeddedExtractor extractor)
-      throws JsonMappingException, JsonProcessingException {
+      throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException {
     Request request = extractor.getRequest();
-    String url = request.getUrl();
+
+    Map<String, Object> inputs = getInputs(execution);
+
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+
+    StringTemplateLoader stringLoader = new StringTemplateLoader();
+    stringLoader.putTemplate("url", request.getUrl());
+    stringLoader.putTemplate("request", request.getBodyTemplate());
+    cfg.setTemplateLoader(stringLoader);
+
+    String url = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("url"), inputs);
+
+    String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("request"), inputs);
+
     HttpMethod method = request.getMethod();
     String accept = request.getAccept();
     String contentType = request.getContentType();
 
-    Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
-
-    Map<String, Object> inputs = getInputs(execution);
-
-    StringSubstitutor sub = new StringSubstitutor(inputs);
-
-    String body = sub.replace(request.getBodyTemplate());
-
     String tenant = execution.getTenantId();
+
+    Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
 
     // @formatter:off
     return webClient
