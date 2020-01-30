@@ -29,7 +29,7 @@ public interface Input {
 
   public default Map<String, Object> getInputs(DelegateExecution execution) throws JsonProcessingException {
     Map<String, Object> inputs = new HashMap<String, Object>();
-    getInputVariables(execution).forEach(variable -> {
+    for (EmbeddedVariable variable : getInputVariables(execution)) {
       Optional<String> key = variable.getKey();
       if (key.isPresent()) {
         Optional<VariableType> type = variable.getType();
@@ -48,16 +48,20 @@ public interface Input {
           if (value.isPresent()) {
             if (variable.isSpin()) {
               JacksonJsonNode node = (JacksonJsonNode) value.get();
-              if (node.isObject()) {
-                inputs.put(key.get(), getObjectMapper().convertValue(((JacksonJsonNode) value.get()).unwrap(),
-                    new TypeReference<Map<String, Object>>() {
-                    }));
-              } else if (node.isArray()) {
-                inputs.put(key.get(), getObjectMapper().convertValue(((JacksonJsonNode) value.get()).unwrap(),
-                    new TypeReference<List<Object>>() {
-                    }));
-              } else if (node.isValue()) {
-                inputs.put(key.get(), node.value());
+              if (variable.getAsJson()) {
+                inputs.put(key.get(), getObjectMapper().writeValueAsString(((JacksonJsonNode) value.get()).unwrap()));
+              } else {
+                if (node.isObject()) {
+                  inputs.put(key.get(), getObjectMapper().convertValue(((JacksonJsonNode) value.get()).unwrap(),
+                      new TypeReference<Map<String, Object>>() {
+                      }));
+                } else if (node.isArray()) {
+                  inputs.put(key.get(), getObjectMapper().convertValue(((JacksonJsonNode) value.get()).unwrap(),
+                      new TypeReference<List<Object>>() {
+                      }));
+                } else if (node.isValue()) {
+                  inputs.put(key.get(), node.value());
+                }
               }
             } else {
               inputs.put(key.get(), value.get());
@@ -71,7 +75,7 @@ public interface Input {
       } else {
         getLogger().warn("Output key is null");
       }
-    });
+    }
     return inputs;
   }
 

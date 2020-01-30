@@ -85,6 +85,9 @@
         },
         "spin" : {
           "type" : "boolean"
+        },
+        "asJson" : {
+          "type" : "boolean"
         }
       },
       "required" : [ "key", "spin" ]
