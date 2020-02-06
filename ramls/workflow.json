@@ -1032,11 +1032,11 @@
         "completeConditionExpression" : {
           "type" : "string"
         },
-        "sequential" : {
+        "parallel" : {
           "type" : "boolean"
         }
       },
-      "required" : [ "sequential" ]
+      "required" : [ "parallel" ]
     }
   }
 }

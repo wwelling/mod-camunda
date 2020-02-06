@@ -252,6 +252,12 @@ public class BpmnModelFactory {
                   .camundaElementVariable(loopRef.getInputDataName());
             }
 
+            if (loopRef.isParallel()) {
+              multiInstanceBuilder = multiInstanceBuilder.parallel();
+            } else {
+              multiInstanceBuilder = multiInstanceBuilder.sequential();
+            }
+
             if (loopRef.hasCompleteConditionExpression()) {
               multiInstanceBuilder = multiInstanceBuilder.completionCondition(loopRef.getCompleteConditionExpression());
             }
