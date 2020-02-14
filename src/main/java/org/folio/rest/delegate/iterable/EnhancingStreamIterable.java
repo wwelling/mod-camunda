@@ -7,8 +7,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.folio.rest.delegate.comparator.SortingComparator;
-import org.folio.rest.workflow.components.EnhancementComparison;
-import org.folio.rest.workflow.components.EnhancementMapping;
+import org.folio.rest.workflow.dto.Comparison;
+import org.folio.rest.workflow.dto.Mapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -22,10 +22,10 @@ public class EnhancingStreamIterable implements Iterable<JsonNode> {
 
   private final SortingComparator sortingComparator;
 
-  private final List<EnhancementMapping> enhancementMappings;
+  private final List<Mapping> enhancementMappings;
 
   public EnhancingStreamIterable(Stream<JsonNode> primaryStream, Stream<JsonNode> inStream,
-      List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
+      List<Comparison> enhancementComparisons, List<Mapping> enhancementMappings) {
     this.primary = primaryStream.iterator();
     this.input = inStream.iterator();
     this.sortingComparator = SortingComparator.of(enhancementComparisons);
@@ -103,7 +103,7 @@ public class EnhancingStreamIterable implements Iterable<JsonNode> {
   }
 
   public static EnhancingStreamIterable of(Stream<JsonNode> primaryStream, Stream<JsonNode> inStream,
-      List<EnhancementComparison> enhancementComparisons, List<EnhancementMapping> enhancementMappings) {
+      List<Comparison> enhancementComparisons, List<Mapping> enhancementMappings) {
     return new EnhancingStreamIterable(primaryStream, inStream, enhancementComparisons, enhancementMappings);
   }
 

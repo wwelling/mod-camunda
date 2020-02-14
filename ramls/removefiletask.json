@@ -1,0 +1,47 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "RemoveFileTask",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "RemoveFileTask" ],
+      "default" : "RemoveFileTask"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 3,
+      "maxLength" : 64
+    },
+    "description" : {
+      "type" : "string",
+      "maxLength" : 512
+    },
+    "path" : {
+      "type" : "string"
+    },
+    "workflow" : {
+      "type" : "string"
+    },
+    "outputKey" : {
+      "type" : "string"
+    },
+    "useCacheOutput" : {
+      "type" : "boolean"
+    },
+    "asyncBefore" : {
+      "type" : "boolean"
+    },
+    "asyncAfter" : {
+      "type" : "boolean"
+    },
+    "identifier" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "deserializeAs", "name", "path", "workflow", "outputKey", "asyncBefore", "asyncAfter" ]
+}

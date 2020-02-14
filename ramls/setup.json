@@ -1,0 +1,647 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Setup",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "Setup" ],
+      "default" : "Setup"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "description" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 512
+    },
+    "nodes" : {
+      "type" : "array",
+      "items" : {
+        "oneOf" : [ {
+          "$ref" : "#/definitions/ScheduleStartEvent"
+        }, {
+          "$ref" : "#/definitions/ConnectTo"
+        }, {
+          "$ref" : "#/definitions/EndEvent"
+        }, {
+          "$ref" : "#/definitions/ExclusiveGateway"
+        }, {
+          "$ref" : "#/definitions/MessageCorrelationStartEvent"
+        }, {
+          "$ref" : "#/definitions/MoveToLastGateway"
+        }, {
+          "$ref" : "#/definitions/MoveToNode"
+        }, {
+          "$ref" : "#/definitions/ProcessorTask"
+        }, {
+          "$ref" : "#/definitions/RequestTask"
+        }, {
+          "$ref" : "#/definitions/Setup"
+        } ]
+      }
+    },
+    "loadInitialContext" : {
+      "type" : "boolean"
+    },
+    "registerProcessorTasks" : {
+      "type" : "boolean"
+    }
+  },
+  "required" : [ "deserializeAs", "name" ],
+  "definitions" : {
+    "ScheduleStartEvent" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ChronExpressionStartEvent" ],
+          "default" : "ChronExpressionStartEvent"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        },
+        "chronExpression" : {
+          "type" : "string"
+        }
+      },
+      "title" : "ChronExpressionStartEvent",
+      "required" : [ "deserializeAs", "name", "chronExpression" ]
+    },
+    "ConnectTo" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ConnectTo" ],
+          "default" : "ConnectTo"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        },
+        "nodeId" : {
+          "type" : "string"
+        }
+      },
+      "title" : "ConnectTo",
+      "required" : [ "deserializeAs", "name", "nodeId" ]
+    },
+    "EndEvent" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "EndEvent" ],
+          "default" : "EndEvent"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        }
+      },
+      "title" : "EndEvent",
+      "required" : [ "deserializeAs", "name" ]
+    },
+    "ExclusiveGateway" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ExclusiveGateway" ],
+          "default" : "ExclusiveGateway"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        },
+        "condition" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 128
+        }
+      },
+      "title" : "ExclusiveGateway",
+      "required" : [ "deserializeAs", "name", "condition" ]
+    },
+    "MessageCorrelationStartEvent" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "MessageCorrelationStartEvent" ],
+          "default" : "MessageCorrelationStartEvent"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        },
+        "message" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 256
+        }
+      },
+      "title" : "MessageCorrelationStartEvent",
+      "required" : [ "deserializeAs", "name", "message" ]
+    },
+    "MoveToLastGateway" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "MoveToLastGateway" ],
+          "default" : "MoveToLastGateway"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        }
+      },
+      "title" : "MoveToLastGateway",
+      "required" : [ "deserializeAs", "name" ]
+    },
+    "MoveToNode" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "MoveToNode" ],
+          "default" : "MoveToNode"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        },
+        "nodeId" : {
+          "type" : "string"
+        }
+      },
+      "title" : "MoveToNode",
+      "required" : [ "deserializeAs", "name", "nodeId" ]
+    },
+    "ProcessorTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ProcessorTask" ],
+          "default" : "ProcessorTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        },
+        "script" : {
+          "type" : "string"
+        },
+        "scriptType" : {
+          "type" : "string",
+          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
+        },
+        "contextInputKeys" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "contextOutputKey" : {
+          "type" : "string"
+        }
+      },
+      "title" : "ProcessorTask",
+      "required" : [ "deserializeAs", "name", "script", "scriptType", "contextInputKeys", "contextOutputKey" ]
+    },
+    "RequestTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "RequestTask" ],
+          "default" : "RequestTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        },
+        "url" : {
+          "type" : "string"
+        },
+        "method" : {
+          "type" : "string",
+          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "contentType" : {
+          "type" : "string"
+        },
+        "accept" : {
+          "type" : "string"
+        },
+        "bodyTemplate" : {
+          "type" : "string"
+        },
+        "contextRequestKeys" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "contextResponseKey" : {
+          "type" : "string"
+        }
+      },
+      "title" : "RequestTask",
+      "required" : [ "deserializeAs", "name", "url", "method", "contentType", "accept", "bodyTemplate", "contextResponseKey" ]
+    },
+    "Setup" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "Setup" ],
+          "default" : "Setup"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/ScheduleStartEvent"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MessageCorrelationStartEvent"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/Setup"
+            } ]
+          }
+        },
+        "loadInitialContext" : {
+          "type" : "boolean"
+        },
+        "registerProcessorTasks" : {
+          "type" : "boolean"
+        }
+      },
+      "title" : "Setup",
+      "required" : [ "deserializeAs", "name" ]
+    }
+  }
+}

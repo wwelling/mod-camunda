@@ -2,336 +2,458 @@ package org.folio.rest.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Optional;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
+import org.camunda.bpm.model.bpmn.builder.MultiInstanceLoopCharacteristicsBuilder;
+import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
+import org.camunda.bpm.model.bpmn.builder.ScriptTaskBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
-import org.camunda.bpm.model.bpmn.instance.BoundaryEvent;
-import org.camunda.bpm.model.bpmn.instance.BpmnModelElementInstance;
-import org.camunda.bpm.model.bpmn.instance.Definitions;
-import org.camunda.bpm.model.bpmn.instance.EndEvent;
+import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
-import org.camunda.bpm.model.bpmn.instance.FlowNode;
-import org.camunda.bpm.model.bpmn.instance.Message;
-import org.camunda.bpm.model.bpmn.instance.MessageEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.Process;
-import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
-import org.camunda.bpm.model.bpmn.instance.ServiceTask;
-import org.camunda.bpm.model.bpmn.instance.StartEvent;
-import org.camunda.bpm.model.bpmn.instance.SubProcess;
-import org.camunda.bpm.model.bpmn.instance.TerminateEventDefinition;
-import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
-import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnPlane;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaString;
-import org.folio.rest.model.LoginTask;
-import org.folio.rest.workflow.components.AccumulatorTask;
-import org.folio.rest.workflow.components.EventTrigger;
-import org.folio.rest.workflow.components.ProcessorTask;
-import org.folio.rest.workflow.components.RestRequestTask;
-import org.folio.rest.workflow.components.ScheduleTrigger;
-import org.folio.rest.workflow.components.StreamCreateForEachTask;
-import org.folio.rest.workflow.components.StreamingExtractorTask;
-import org.folio.rest.workflow.components.StreamingFileReadTask;
-import org.folio.rest.workflow.components.StreamingFileWriteTask;
-import org.folio.rest.workflow.components.StreamingReportingTask;
-import org.folio.rest.workflow.components.StreamingRequestTask;
-import org.folio.rest.workflow.components.Task;
-import org.folio.rest.workflow.components.Trigger;
-import org.folio.rest.workflow.components.Workflow;
+import org.camunda.bpm.model.xml.instance.ModelElementInstance;
+import org.folio.rest.delegate.AbstractWorkflowDelegate;
+import org.folio.rest.workflow.model.ConditionalGateway;
+import org.folio.rest.workflow.model.ConnectTo;
+import org.folio.rest.workflow.model.EmbeddedLoopReference;
+import org.folio.rest.workflow.model.EmbeddedProcessor;
+import org.folio.rest.workflow.model.EndEvent;
+import org.folio.rest.workflow.model.EventSubprocess;
+import org.folio.rest.workflow.model.Node;
+import org.folio.rest.workflow.model.ProcessorTask;
+import org.folio.rest.workflow.model.ReceiveTask;
+import org.folio.rest.workflow.model.ScriptTask;
+import org.folio.rest.workflow.model.StartEvent;
+import org.folio.rest.workflow.model.StartEventType;
+import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
+import org.folio.rest.workflow.model.Subprocess;
+import org.folio.rest.workflow.model.Workflow;
+import org.folio.rest.workflow.model.components.Branch;
+import org.folio.rest.workflow.model.components.Conditional;
+import org.folio.rest.workflow.model.components.DelegateTask;
+import org.folio.rest.workflow.model.components.Event;
+import org.folio.rest.workflow.model.components.Navigation;
+import org.folio.rest.workflow.model.components.Task;
+import org.folio.rest.workflow.model.components.Wait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class BpmnModelFactory {
 
-  private static final String END_EVENT_ID = "ee_0";
-  private static final String START_EVENT_ID = "se_0";
-  private static final String TARGET_NAMESPACE = "http://bpmn.io/schema/bpmn";
-  private static final String NO_VALUE = "NO_VALUE";
+  private final static Logger logger = LoggerFactory.getLogger(BpmnModelFactory.class);
 
-  @Autowired
-  private ObjectMapper mapper;
-
-  public BpmnModelInstance makeBPMNFromWorkflow(Workflow workflow) {
-
-    BpmnModelInstance modelInstance = Bpmn.createEmptyModel();
-
-    // Setup Definitions
-    Definitions definitions = modelInstance.newInstance(Definitions.class);
-    definitions.setTargetNamespace(TARGET_NAMESPACE);
-    modelInstance.setDefinitions(definitions);
-
-    // Setup Process
-    Process process = createElement(modelInstance, definitions, workflow.getName().replaceAll(" ", "_").toLowerCase(),
-        Process.class);
-    process.setExecutable(true);
-    process.setName(workflow.getName());
-
-    // Setup Nodes
-
-    StartEvent processStartEvent = createElement(modelInstance, process, START_EVENT_ID, StartEvent.class);
-    processStartEvent.setName("StartProcess");
-    Trigger trigger = workflow.getStartTrigger();
-    if (trigger instanceof ScheduleTrigger) {
-      ScheduleTrigger scheduleTrigger = (ScheduleTrigger) trigger;
-      new StartEventBuilder(modelInstance, processStartEvent).timerWithCycle(scheduleTrigger.getChronExpression())
-          .done();
-    }
-
-    List<ServiceTask> serviceTasks = new ArrayList<ServiceTask>();
-    AtomicInteger taskIndex = new AtomicInteger();
-    
-    if (workflow.getRequiresAuthentication()) {
-      int loginIndex = taskIndex.getAndIncrement();
-      ServiceTask loginServiceTask = createElement(modelInstance, process, String.format("t_%s", loginIndex),
-          ServiceTask.class);
-      LoginTask loginTask = new LoginTask("LoginProcess");
-      serviceTasks.add(enhanceServiceTask(loginServiceTask, loginTask));
-    }
-
-    boolean useStreamConsumer = false;
-
-    if (workflow.getTasks().stream().anyMatch(t -> t.isStreaming())) {
-      int index = taskIndex.getAndIncrement();
-      ServiceTask createPrimaryStream = createElement(modelInstance, process, String.format("t_%s", index),
-          ServiceTask.class);
-      createPrimaryStream.setName("Create Primary Stream");
-      createPrimaryStream.setCamundaDelegateExpression("${streamCreationDelegate}");
-
-      ExtensionElements extensionElements = createElement(modelInstance, createPrimaryStream, null, ExtensionElements.class);
-      CamundaField isReportingField = createElement(modelInstance, extensionElements, String.format("t_%s-is-reporting", index), CamundaField.class);
-      isReportingField.setCamundaName("isReporting");
-
-      if (workflow.getTasks().stream().anyMatch(t -> t instanceof StreamingReportingTask)) {
-        isReportingField.setCamundaStringValue(Boolean.TRUE.toString());
-      } else {
-        isReportingField.setCamundaStringValue(Boolean.FALSE.toString());
-      }
-
-      serviceTasks.add(createPrimaryStream);
-
-      useStreamConsumer = true;
-    }
-
-    serviceTasks.addAll(workflow.getTasks().stream().map(task -> {
-      int index = taskIndex.getAndIncrement();
-      ServiceTask serviceTask = createElement(modelInstance, process, String.format("t_%s", index), ServiceTask.class);
-
-      if (task instanceof StreamingExtractorTask) {
-        StreamingExtractorTask eTask = (StreamingExtractorTask) task;
-        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField streamSource = createElement(modelInstance, extensionElements,
-            String.format("t_%s-stream-source", index), CamundaField.class);
-        streamSource.setCamundaName("streamSource");
-        streamSource.setCamundaStringValue(eTask.getStreamSource());
-
-        if (!eTask.getEnhancementComparisons().isEmpty()) {
-          CamundaField comparisonProperties = createElement(modelInstance, extensionElements,
-              String.format("t_%s-comparisons", index), CamundaField.class);
-          comparisonProperties.setCamundaName("comparisons");
-          try {
-            comparisonProperties.setCamundaStringValue(mapper.writeValueAsString(eTask.getEnhancementComparisons()));
-          } catch (JsonProcessingException e) {
-            e.printStackTrace();
-          }
-        }
-        if (!eTask.getEnhancementMappings().isEmpty()) {
-          CamundaField enhancementProperty = createElement(modelInstance, extensionElements, String.format("t_%s-mappings", index), CamundaField.class);
-          enhancementProperty.setCamundaName("mappings");
-          try {
-            enhancementProperty.setCamundaStringValue(mapper.writeValueAsString(eTask.getEnhancementMappings()));
-          } catch (JsonProcessingException e) {
-            e.printStackTrace();
-          }
-        }
-      } else if(task instanceof ProcessorTask) {
-        ProcessorTask pTask = (ProcessorTask) task;
-        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField scriptField = createElement(modelInstance, extensionElements, String.format("t_%s-script", index), CamundaField.class);
-        scriptField.setCamundaName("script");
-        CamundaString script = createElement(modelInstance, scriptField, null, CamundaString.class);
-        script.setTextContent(pTask.getScript());
-        CamundaField scriptTypeField = createElement(modelInstance, extensionElements, String.format("t_%s-script-type", index), CamundaField.class);
-        scriptTypeField.setCamundaName("scriptType");
-        scriptTypeField.setCamundaStringValue(pTask.getScriptType().engineName);
-        CamundaField contextProperties = createElement(modelInstance, extensionElements, String.format("t_%s-context-properties", index), CamundaField.class);
-        contextProperties.setCamundaName("contextProperties");
-        try {
-          contextProperties.setCamundaStringValue(mapper.writeValueAsString(pTask.getContextProperties()));
-        } catch (JsonProcessingException e) {
-          e.printStackTrace();
-        }
-      } else if (task instanceof StreamCreateForEachTask) {
-        StreamCreateForEachTask cTask = (StreamCreateForEachTask) task;
-        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField endpoint = createElement(modelInstance, extensionElements, String.format("t_%s-endpoint", index), CamundaField.class);
-        endpoint.setCamundaName("endpoint");
-        endpoint.setCamundaStringValue(cTask.getEndpoint());
-        CamundaField target = createElement(modelInstance, extensionElements, String.format("t_%s-target", index), CamundaField.class);
-        target.setCamundaName("target");
-        target.setCamundaStringValue(cTask.getTarget());
-        CamundaField source = createElement(modelInstance, extensionElements, String.format("t_%s-source", index), CamundaField.class);
-        source.setCamundaName("source");
-        source.setCamundaStringValue(cTask.getSource());
-        CamundaField uniqueBy = createElement(modelInstance, extensionElements, String.format("t_%s-uniqueBy", index), CamundaField.class);
-        uniqueBy.setCamundaName("uniqueBy");
-        uniqueBy.setCamundaStringValue(StringUtils.isEmpty(cTask.getUniqueBy()) ? NO_VALUE : cTask.getUniqueBy());
-      } else if(task instanceof AccumulatorTask) {
-        AccumulatorTask aTask = (AccumulatorTask) task;
-        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField accumulateToField = createElement(modelInstance, extensionElements, String.format("t_%s-accumulate-to", index), CamundaField.class);
-        accumulateToField.setCamundaName("accumulateTo");
-        accumulateToField.setCamundaStringValue(Long.toString(aTask.getAccumulateTo()));
-        CamundaField delayDuration = createElement(modelInstance, extensionElements, String.format("t_%s-delay-duration", index), CamundaField.class);
-        delayDuration.setCamundaName("delayDuration");
-        delayDuration.setCamundaStringValue(Long.toString(aTask.getDelayDuration()));
-      } else if (task instanceof StreamingRequestTask) {
-        StreamingRequestTask srTask = (StreamingRequestTask) task;
-        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField storageDestination = createElement(modelInstance, extensionElements, String.format("t_%s-storage-destination", index), CamundaField.class);
-        storageDestination.setCamundaName("storageDestination");
-        storageDestination.setCamundaStringValue(srTask.getStorageDestination());
-        CamundaField contentType = createElement(modelInstance, extensionElements, String.format("t_%s-content-type", index), CamundaField.class);
-        contentType.setCamundaName("contentType");
-        contentType.setCamundaStringValue(srTask.getContentType());
-        CamundaField accept = createElement(modelInstance, extensionElements, String.format("t_%s-accept", index), CamundaField.class);
-        accept.setCamundaName("accept");
-        accept.setCamundaStringValue(srTask.getAccept());
-      } else if (task instanceof StreamingFileReadTask) {
-        StreamingFileReadTask sfrTask = (StreamingFileReadTask) task;
-        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField path = createElement(modelInstance, extensionElements, String.format("t_%s-path", index), CamundaField.class);
-        path.setCamundaName("path");
-        path.setCamundaStringValue(sfrTask.getPath());
-        CamundaField workflowName = createElement(modelInstance, extensionElements, String.format("t_%s-workflow", index), CamundaField.class);
-        workflowName.setCamundaName("workflow");
-        workflowName.setCamundaStringValue(sfrTask.getWorkflow());
-        CamundaField delay = createElement(modelInstance, extensionElements, String.format("t_%s-delay", index), CamundaField.class);
-        delay.setCamundaName("delay");
-        delay.setCamundaStringValue(Long.toString(sfrTask.getDelay()));
-      } else if (task instanceof StreamingFileWriteTask) {
-        StreamingFileWriteTask sfwTask = (StreamingFileWriteTask) task;
-        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField path = createElement(modelInstance, extensionElements, String.format("t_%s-path", index), CamundaField.class);
-        path.setCamundaName("path");
-        path.setCamundaStringValue(sfwTask.getPath());
-        CamundaField workflowName = createElement(modelInstance, extensionElements, String.format("t_%s-workflow", index), CamundaField.class);
-        workflowName.setCamundaName("workflow");
-        workflowName.setCamundaStringValue(sfwTask.getWorkflow());
-        CamundaField filenameTemplate = createElement(modelInstance, extensionElements, String.format("t_%s-filename-template", index), CamundaField.class);
-        filenameTemplate.setCamundaName("filenameTemplate");
-        filenameTemplate.setCamundaStringValue(sfwTask.getFilenameTemplate());
-      } else if(task instanceof RestRequestTask) {
-        RestRequestTask sRRTask = (RestRequestTask) task;
-        ExtensionElements extensionElements = createElement(modelInstance, serviceTask, null, ExtensionElements.class);
-        CamundaField urlField = createElement(modelInstance, extensionElements, String.format("t_%s-url", index), CamundaField.class);
-        urlField.setCamundaName("url");
-        urlField.setCamundaStringValue(sRRTask.getUrl());
-        CamundaField httpMethodField = createElement(modelInstance, extensionElements, String.format("t_%s-http-method", index), CamundaField.class);
-        httpMethodField.setCamundaName("httpMethod");
-        httpMethodField.setCamundaStringValue(sRRTask.getHttpMethod());
-        CamundaField requestBodyField = createElement(modelInstance, extensionElements, String.format("t_%s-request-body", index), CamundaField.class);
-        requestBodyField.setCamundaName("requestBody");
-        requestBodyField.setCamundaStringValue(StringUtils.isEmpty(sRRTask.getRequestBody()) ?  NO_VALUE : sRRTask.getRequestBody());
-      }
-      return enhanceServiceTask(serviceTask, task);
-    }).collect(Collectors.toList()));
-
-    if (useStreamConsumer) {
-      ServiceTask streamConsumer = createElement(modelInstance, process, String.format("t_%s", taskIndex.getAndIncrement()), ServiceTask.class);
-      streamConsumer.setName("Create Stream Consumer");
-      streamConsumer.setCamundaDelegateExpression("${streamConsumerDelegate}");
-      serviceTasks.add(streamConsumer);
-    }
-
-    EndEvent processEndEvent = createElement(modelInstance, process, END_EVENT_ID, EndEvent.class);
-    processEndEvent.setName("EndProcess");
-    createElement(modelInstance, processEndEvent, null, TerminateEventDefinition.class);
-
-    SequenceFlow firstSf = createElement(modelInstance, process, String.format("%s-%s", START_EVENT_ID, "t_1"), SequenceFlow.class);
-    firstSf.setSource(processStartEvent);
-    firstSf.setTarget(serviceTasks.get(0));
-
-    // Setup Connections
-    AtomicInteger sfIndex = new AtomicInteger();
-    serviceTasks.forEach(st->{
-      int currentIndex = sfIndex.getAndIncrement();
-      if (currentIndex != serviceTasks.size() - 1) {
-        SequenceFlow currentSf = createElement(modelInstance, process, String.format("t_%s-t_%s", currentIndex, currentIndex+1), SequenceFlow.class);
-        currentSf.setTarget(serviceTasks.get(currentIndex + 1));
-        currentSf.setSource(st);
-      }
-    });
-
-    SequenceFlow lastSf = createElement(modelInstance, process, String.format("t_%s-%s", serviceTasks.size(), END_EVENT_ID), SequenceFlow.class);
-    lastSf.setSource(serviceTasks.get(serviceTasks.size() - 1));
-    lastSf.setTarget(processEndEvent);
-
-    Message processStartMessage = createElement(modelInstance, definitions, "process-start-message", Message.class);
-    if (trigger instanceof EventTrigger) {
-      EventTrigger eventTrigger = (EventTrigger) trigger;
-      processStartMessage.setName(eventTrigger.getPathPattern());
-
-      MessageEventDefinition processStartEventMessageDefinition = createElement(modelInstance, processStartEvent, "process-start-event-message-definition", MessageEventDefinition.class);
-      processStartEventMessageDefinition.setMessage(processStartMessage);
-    }
-
-    // Stub Empty Diagram
-    BpmnDiagram diagramElement = createElement(modelInstance, definitions, String.format("%s-diagram", workflow.getName().replaceAll(" ", "_").toLowerCase()), BpmnDiagram.class);
-
-    BpmnPlane plane = createElement(modelInstance, diagramElement, String.format("%s-plane", workflow.getName().replaceAll(" ", "_").toLowerCase()), BpmnPlane.class);
-    plane.setBpmnElement(process);
-
-    return modelInstance;
-  }
+  private final static String SETUP_TASK_ID = "setup_task_98832611_3d33_476b_adcc_fcb6c4e8718b";
 
   // @formatter:off
-  protected <T extends BpmnModelElementInstance> T createElement(
-    BpmnModelInstance modelInstance,
-    BpmnModelElementInstance parentElement,
-    String id,
-    Class<T> elementClass
-  ) {
+  private final static Class<?>[] SERIALIZABLE_TYPES = new Class<?>[] {
+    String.class,
+    Number.class,
+    Boolean.class,
+    Enum.class
+  };
   // @formatter:on
-    T element = modelInstance.newInstance(elementClass);
-    if(id != null) element.setAttributeValue("id", id, true);
-    parentElement.addChildElement(element);
-    return element;
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  private List<AbstractWorkflowDelegate> workflowDelegates;
+
+  public BpmnModelInstance fromWorkflow(Workflow workflow) {
+
+    // @formatter:off
+    ProcessBuilder processBuilder = Bpmn.createExecutableProcess().name(workflow.getName())
+        .camundaHistoryTimeToLive(workflow.getHistoryTimeToLive())
+        .camundaVersionTag(workflow.getVersionTag());
+    // @formatter:on
+
+    BpmnModelInstance model = build(processBuilder, workflow);
+
+    // @formatter:off
+    workflow.getNodes().stream()
+      .filter(node -> node instanceof EventSubprocess)
+      .forEach(subprocess -> eventSubprocess(processBuilder, subprocess));
+    // @formatter:on
+
+    setup(model, workflow);
+    expressions(model, workflow.getNodes());
+    return model;
   }
 
-  public Message createMessage(BpmnModelInstance modelInstance, Process process, String id, String textContent) {
-    Message message = createElement(modelInstance, process, id, Message.class);
-    message.setTextContent(textContent);
-    return message;
+  private BpmnModelInstance build(ProcessBuilder processBuilder, Workflow workflow) {
+    List<Node> nodes = workflow.getNodes();
+
+    if (nodes.isEmpty()) {
+      return processBuilder.done();
+    }
+
+    AbstractFlowNodeBuilder<?, ?> builder = processBuilder.startEvent();
+
+    if (!(nodes.get(0) instanceof StartEvent)) {
+      // TODO: create custom exception and controller advice to handle better
+      throw new RuntimeException("Workflow must start with a start event!");
+    }
+
+    builder = build(builder, nodes, Setup.from(workflow.getSetup()));
+
+    return builder.done();
   }
 
-  public BoundaryEvent createBoundaryEvent(BpmnModelInstance modelInstance, Process process, String id, String textContent) {
-    BoundaryEvent boundaryEvent = createElement(modelInstance, process, id, BoundaryEvent.class);
-    return boundaryEvent;
+  private void eventSubprocess(ProcessBuilder processBuilder, Node node) {
+    AbstractFlowNodeBuilder<?, ?> builder = null;
+    String identifier = node.getIdentifier();
+    String name = node.getName();
+    builder = processBuilder.eventSubProcess(identifier).name(name).startEvent();
+    builder = build(builder, ((EventSubprocess) node).getNodes(), Setup.NONE);
   }
 
-  public SequenceFlow createSequenceFlow(BpmnModelInstance modelInstance, SubProcess subProcess, FlowNode from, FlowNode to) {
-    String id = from.getId() + "-" + to.getId();
-    SequenceFlow sequenceFlow = createElement(modelInstance, subProcess, id, SequenceFlow.class);
-    subProcess.addChildElement(sequenceFlow);
-    sequenceFlow.setSource(from);
-    from.getOutgoing().add(sequenceFlow);
-    sequenceFlow.setTarget(to);
-    to.getIncoming().add(sequenceFlow);
-    return sequenceFlow;
+  private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes, Setup setup) {
+
+    for (Node node : nodes) {
+
+      if (node instanceof Event) {
+
+        if (node instanceof StartEvent) {
+
+          if (((StartEvent) node).isAsyncBefore()) {
+            builder = builder.camundaAsyncBefore();
+          }
+
+          boolean interrupting = ((StartEvent) node).isInterrupting();
+
+          StartEventType type = ((StartEvent) node).getType();
+          String expression = ((StartEvent) node).getExpression();
+
+          if (type != StartEventType.NONE && expression == null) {
+            // TODO: implement and ensure validation
+            throw new RuntimeException(String.format("%s start event requests an expression", type));
+          }
+
+          builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName());
+
+          switch (type) {
+          case MESSAGE_CORRELATION:
+            builder = ((StartEventBuilder) builder).message(expression).interrupting(interrupting);
+            break;
+          case SCHEDULED:
+            builder = ((StartEventBuilder) builder).timerWithCycle(expression).interrupting(interrupting);
+            break;
+          case SIGNAL:
+            builder = ((StartEventBuilder) builder).signal(expression).interrupting(interrupting);
+            break;
+          case NONE:
+            builder = ((StartEventBuilder) builder).interrupting(interrupting);
+            break;
+          default:
+            // unknown start event
+            break;
+          }
+
+          if (!setup.equals(Setup.NONE)) {
+            builder = builder.serviceTask(SETUP_TASK_ID).name("Setup").camundaDelegateExpression("${setupDelegate}");
+
+            switch (setup) {
+            case ASYNC_AFTER:
+              builder = builder.camundaAsyncAfter();
+              break;
+            case ASYNC_BEFORE:
+              builder = builder.camundaAsyncBefore();
+              break;
+            case ASYNC_BEFORE_AFTER:
+              builder = builder.camundaAsyncBefore().camundaAsyncAfter();
+              break;
+            case NONE:
+            case SIMPLE:
+            default:
+              break;
+            }
+          }
+
+        } else if (node instanceof EndEvent) {
+          builder = builder.endEvent(node.getIdentifier()).name(node.getName());
+        } else {
+          // unknown event
+        }
+
+      } else if (node instanceof DelegateTask) {
+
+        Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
+            .filter(d -> d.fromTask().equals(node.getClass())).findAny();
+
+        if (delegate.isPresent()) {
+          builder = builder.serviceTask(node.getIdentifier()).name(node.getName())
+              .camundaDelegateExpression(delegate.get().getExpression());
+        } else {
+          // TODO: create custom exception and controller advice to handle better
+          throw new RuntimeException("Task must have delegate representation!");
+        }
+
+        if (((DelegateTask) node).isAsyncBefore()) {
+          builder = builder.camundaAsyncBefore();
+        }
+
+        if (((DelegateTask) node).isAsyncAfter()) {
+          builder = builder.camundaAsyncAfter();
+        }
+
+      } else if (node instanceof Branch) {
+
+        if (node instanceof ConditionalGateway) {
+
+          switch (((ConditionalGateway) node).getType()) {
+
+          case EXCLUSIVE:
+            builder = builder.exclusiveGateway().name(node.getName());
+            break;
+          case INCLUSIVE:
+            // TODO: implement and ensure validation
+            throw new RuntimeException("Inclusive gateway not yet supported!");
+          case MOVE_TO_LAST:
+            builder = builder.moveToLastGateway();
+            break;
+          default:
+            break;
+
+          }
+        } else if ((node instanceof Subprocess)) {
+
+          SubProcessBuilder subProcessBuilder = builder.subProcess(node.getIdentifier()).name(node.getName());
+
+          if (((Subprocess) node).isAsyncBefore()) {
+            subProcessBuilder = subProcessBuilder.camundaAsyncBefore();
+          }
+
+          if (((Subprocess) node).isAsyncAfter()) {
+            subProcessBuilder = subProcessBuilder.camundaAsyncAfter();
+          }
+
+          if (((Subprocess) node).isMultiInstance()) {
+            MultiInstanceLoopCharacteristicsBuilder multiInstanceBuilder = subProcessBuilder.multiInstance();
+
+            EmbeddedLoopReference loopRef = ((Subprocess) node).getLoopRef();
+
+            if (loopRef.hasCardinalityExpression()) {
+              multiInstanceBuilder = multiInstanceBuilder.cardinality(loopRef.getCardinalityExpression());
+            } else if (loopRef.hasDataInput()) {
+              multiInstanceBuilder = multiInstanceBuilder.camundaCollection(loopRef.getDataInputRefExpression())
+                  .camundaElementVariable(loopRef.getInputDataName());
+            }
+
+            if (loopRef.isParallel()) {
+              multiInstanceBuilder = multiInstanceBuilder.parallel();
+            } else {
+              multiInstanceBuilder = multiInstanceBuilder.sequential();
+            }
+
+            if (loopRef.hasCompleteConditionExpression()) {
+              multiInstanceBuilder = multiInstanceBuilder.completionCondition(loopRef.getCompleteConditionExpression());
+            }
+
+            subProcessBuilder = multiInstanceBuilder.multiInstanceDone();
+          }
+
+          switch (((Subprocess) node).getType()) {
+          case EMBEDDED:
+            builder = subProcessBuilder.embeddedSubProcess().startEvent();
+            builder = build(builder, ((Branch) node).getNodes(), Setup.NONE);
+            builder = builder.subProcessDone();
+            break;
+          case TRANSACTION:
+            // TODO: create custom exception and controller advice to handle better
+            throw new RuntimeException("Transaction subprocess not yet supported!");
+          default:
+            break;
+          }
+
+        }
+
+        if (node instanceof Conditional) {
+          builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
+        }
+
+        if (!(node instanceof Subprocess)) {
+          builder = build(builder, ((Branch) node).getNodes(), Setup.NONE);
+        }
+
+      } else if (node instanceof Navigation) {
+
+        if (node instanceof ConnectTo) {
+
+          // TODO: figure out way to get identifier from id
+          builder = builder.connectTo(((ConnectTo) node).getNodeId());
+
+        } else {
+          // unknown navigation
+        }
+
+      } else if (node instanceof Task) {
+        if (node instanceof Wait) {
+          if (node instanceof ReceiveTask) {
+            builder = builder.receiveTask(node.getIdentifier()).name(node.getName())
+                .message(((ReceiveTask) node).getMessage());
+          } else {
+            // unknown wait
+          }
+        } else if (node instanceof ScriptTask) {
+          builder = builder.scriptTask(node.getIdentifier()).name(node.getName())
+              .scriptFormat(((ScriptTask) node).getScriptFormat()).scriptText(((ScriptTask) node).getCode());
+
+          if (((ScriptTask) node).hasResultVariable()) {
+            builder = ((ScriptTaskBuilder) builder).camundaResultVariable(((ScriptTask) node).getResultVariable());
+          }
+
+        } else {
+          // unknown task
+        }
+
+        if (((Task) node).isAsyncBefore()) {
+          builder = builder.camundaAsyncBefore();
+        }
+
+        if (((Task) node).isAsyncAfter()) {
+          builder = builder.camundaAsyncAfter();
+        }
+      }
+    }
+
+    // must end in end event or connect to
+
+    return builder;
   }
 
-  private ServiceTask enhanceServiceTask(ServiceTask serviceTask, Task task) {
-    serviceTask.setName(task.getName());
-    serviceTask.setCamundaDelegateExpression(String.format("${%s}",task.getDelegate()));
-    return serviceTask;
+  private void setup(BpmnModelInstance model, Workflow workflow) {
+    ExtensionElements extensions = model.newInstance(ExtensionElements.class);
+
+    Map<String, JsonNode> initialContext = workflow.getInitialContext();
+    CamundaField icField = model.newInstance(CamundaField.class);
+    icField.setCamundaName("initialContext");
+    try {
+      icField.setCamundaStringValue(objectMapper.writeValueAsString(initialContext));
+    } catch (JsonProcessingException e) {
+      logger.warn("Failed to serialize initial context");
+    }
+    extensions.addChildElement(icField);
+
+    List<EmbeddedProcessor> processors = getProcessorScripts(workflow.getNodes());
+    CamundaField psField = model.newInstance(CamundaField.class);
+    psField.setCamundaName("processors");
+    try {
+      psField.setCamundaStringValue(objectMapper.writeValueAsString(processors));
+    } catch (JsonProcessingException e) {
+      logger.warn("Failed to serialize processor scripts");
+    }
+    extensions.addChildElement(psField);
+
+    ModelElementInstance element = model.getModelElementById(SETUP_TASK_ID);
+    element.addChildElement(extensions);
+  }
+
+  private void expressions(BpmnModelInstance model, List<Node> nodes) {
+    nodes.stream().forEach(node -> {
+
+      Optional<AbstractWorkflowDelegate> delegate = workflowDelegates.stream()
+          .filter(d -> d.fromTask().equals(node.getClass())).findAny();
+
+      if (delegate.isPresent()) {
+
+        ExtensionElements extensions = model.newInstance(ExtensionElements.class);
+
+        FieldUtils.getAllFieldsList(delegate.get().getClass()).stream()
+            .filter(df -> Expression.class.isAssignableFrom(df.getType()))
+            .map(df -> FieldUtils.getDeclaredField(node.getClass(), df.getName(), true)).forEach(f -> {
+              try {
+                CamundaField field = model.newInstance(CamundaField.class);
+                field.setCamundaName(f.getName());
+                field.setCamundaStringValue(serialize(f.get(node)));
+                extensions.addChildElement(field);
+              } catch (JsonProcessingException | IllegalArgumentException | IllegalAccessException e) {
+                // TODO: create custom exception and controller advice to handle better
+                throw new RuntimeException(e);
+              }
+            });
+
+        ModelElementInstance element = model.getModelElementById(node.getIdentifier());
+        element.addChildElement(extensions);
+
+      } else {
+
+        if (node instanceof Branch) {
+          expressions(model, ((Branch) node).getNodes());
+        } else if (node instanceof Subprocess) {
+          expressions(model, ((Subprocess) node).getNodes());
+        } else if (node instanceof DelegateTask) {
+          // TODO: create custom exception and controller advice to handle better
+          throw new RuntimeException("Task must have delegate representation!");
+        }
+
+      }
+    });
+  }
+
+  private List<EmbeddedProcessor> getProcessorScripts(List<Node> nodes) {
+    List<EmbeddedProcessor> scripts = new ArrayList<EmbeddedProcessor>();
+    nodes.stream().forEach(node -> {
+      if (node instanceof ProcessorTask) {
+        scripts.add(((ProcessorTask) node).getProcessor());
+      } else if (node instanceof StreamingExtractTransformLoadTask) {
+        scripts.addAll(((StreamingExtractTransformLoadTask) node).getProcessors());
+      } else if (node instanceof Branch) {
+        scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
+      } else if (node instanceof Subprocess) {
+        scripts.addAll(getProcessorScripts(((Subprocess) node).getNodes()));
+      }
+    });
+    return scripts;
+  }
+
+  private String serialize(Object value) throws JsonProcessingException {
+    if (isSerializableType(value.getClass())) {
+      return value.toString();
+    } else {
+      return objectMapper.writeValueAsString(value);
+    }
+  }
+
+  private boolean isSerializableType(Class<?> type) {
+    for (Class<?> c : SERIALIZABLE_TYPES) {
+      if (c.isAssignableFrom(type)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private enum Setup {
+    NONE, SIMPLE, ASYNC_BEFORE, ASYNC_AFTER, ASYNC_BEFORE_AFTER;
+
+    public static Setup from(org.folio.rest.workflow.model.Setup setup) {
+      if (setup.isAsyncAfter()) {
+        if (setup.isAsyncBefore()) {
+          return ASYNC_BEFORE_AFTER;
+        } else {
+          return ASYNC_AFTER;
+        }
+      } else {
+        if (setup.isAsyncBefore()) {
+          return ASYNC_BEFORE;
+        } else {
+          return SIMPLE;
+        }
+      }
+    }
   }
 
 }

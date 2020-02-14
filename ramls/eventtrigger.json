@@ -26,13 +26,15 @@
       "type" : "string",
       "enum" : [ "PROCESS_START", "TASK_COMPLETE", "MESSAGE_CORRELATE" ]
     },
+    "pathPattern" : {
+      "type" : "string",
+      "minLength" : 2,
+      "maxLength" : 256
+    },
     "method" : {
       "type" : "string",
       "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
-    },
-    "pathPattern" : {
-      "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "description", "type", "method", "pathPattern" ]
+  "required" : [ "deserializeAs", "name", "description", "type", "pathPattern", "method" ]
 }

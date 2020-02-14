@@ -4,22 +4,22 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import org.folio.rest.workflow.dto.Comparison;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
-import org.folio.rest.workflow.components.EnhancementComparison;
-
 public class SortingComparator implements Comparator<JsonNode> {
-  private final List<EnhancementComparison> enhancementComparisons;
+  private final List<Comparison> enhancementComparisons;
 
-  public SortingComparator(List<EnhancementComparison> enhancementComparisons) {
+  public SortingComparator(List<Comparison> enhancementComparisons) {
     this.enhancementComparisons = enhancementComparisons;
   }
 
   @Override
   public int compare(JsonNode o1, JsonNode o2) {
     int result = 0;
-    
-    for (EnhancementComparison ec : enhancementComparisons) {
+
+    for (Comparison ec : enhancementComparisons) {
 
       Optional<JsonNode> oo1 = Optional.ofNullable(o1.at(ec.getSourceProperty()));
       Optional<JsonNode> oo2 = Optional.ofNullable(o2.at(ec.getTargetProperty()));
@@ -42,7 +42,7 @@ public class SortingComparator implements Comparator<JsonNode> {
     return result;
   }
 
-  public static SortingComparator of(List<EnhancementComparison> enhancementComparisons) {
+  public static SortingComparator of(List<Comparison> enhancementComparisons) {
     return new SortingComparator(enhancementComparisons);
   }
 

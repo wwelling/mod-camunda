@@ -1,0 +1,42 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "EmailTask",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "EmailTask" ],
+      "default" : "EmailTask"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "description" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 512
+    },
+    "bodyContextKey" : {
+      "type" : "string"
+    },
+    "subject" : {
+      "type" : "string"
+    },
+    "to" : {
+      "type" : "string"
+    },
+    "cc" : {
+      "type" : "string"
+    },
+    "bcc" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "deserializeAs", "name", "description", "bodyContextKey", "subject", "to" ]
+}

@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.folio.rest.delegate.comparator.SortingComparator;
-import org.folio.rest.workflow.components.EnhancementComparison;
+import org.folio.rest.workflow.dto.Comparison;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -20,7 +20,7 @@ public class OrderingMergeStreamIterable implements Iterable<JsonNode> {
   private final SortingComparator sortingComparator;
 
   public OrderingMergeStreamIterable(Stream<JsonNode> primaryStream, Stream<JsonNode> inStream,
-      List<EnhancementComparison> enhancementComparisons) {
+      List<Comparison> enhancementComparisons) {
     this.primary = primaryStream.iterator();
     this.input = inStream.iterator();
     this.sortingComparator = SortingComparator.of(enhancementComparisons);
@@ -96,7 +96,7 @@ public class OrderingMergeStreamIterable implements Iterable<JsonNode> {
   }
 
   public static OrderingMergeStreamIterable of(Stream<JsonNode> primaryStream, Stream<JsonNode> inStream,
-      List<EnhancementComparison> enhancementComparisons) {
+      List<Comparison> enhancementComparisons) {
     return new OrderingMergeStreamIterable(primaryStream, inStream, enhancementComparisons);
   }
 
