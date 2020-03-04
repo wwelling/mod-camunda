@@ -50,8 +50,8 @@ import reactor.core.publisher.Mono;
 @Scope("prototype")
 public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelegate {
 
-  @Value("${okapi.location}")
-  private String OKAPI_LOCATION;
+  @Value("${okapi.url}")
+  private String OKAPI_URL;
 
   @Autowired
   private WebClient webClient;
@@ -179,7 +179,7 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
       .headers(headers -> {
         headers.add(HttpHeaders.ACCEPT, accept);
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);        
-        headers.add("X-Okapi-Url", OKAPI_LOCATION);
+        headers.add("X-Okapi-Url", OKAPI_URL);
         headers.add("X-Okapi-Tenant", tenant);
         if (token.isPresent()) {
           headers.add("X-Okapi-Token", token.get().toString());
@@ -269,7 +269,7 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
           .headers(headers -> {
             headers.add(HttpHeaders.ACCEPT, accept);
             headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-            headers.add("X-Okapi-Url", OKAPI_LOCATION);
+            headers.add("X-Okapi-Url", OKAPI_URL);
             headers.add("X-Okapi-Tenant", tenant);
             if (token.isPresent()) {
               headers.add("X-Okapi-Token", token.get().toString());
@@ -296,7 +296,7 @@ public class StreamExtractTransformLoadDelegate extends AbstractWorkflowIODelega
         .headers(headers -> {
           headers.add(HttpHeaders.ACCEPT, accept);
           headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-          headers.add("X-Okapi-Url", OKAPI_LOCATION);
+          headers.add("X-Okapi-Url", OKAPI_URL);
           headers.add("X-Okapi-Tenant", tenant);
           if (token.isPresent()) {
             headers.add("X-Okapi-Token", token.get().toString());

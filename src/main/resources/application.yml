@@ -85,7 +85,4 @@ tenant:
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
 
-okapi:
-   location: http://localhost:9130
-   username: diku_admin
-   password: admin
+okapi.url: http://localhost:9130

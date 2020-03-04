@@ -30,8 +30,8 @@ import freemarker.template.Configuration;
 @Scope("prototype")
 public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDelegate {
 
-  @Value("${okapi.location}")
-  private String OKAPI_LOCATION;
+  @Value("${okapi.url}")
+  private String OKAPI_URL;
 
   @Autowired
   private WebClient webClient;
@@ -123,8 +123,8 @@ public class StreamRequestToDirectoryDelegate extends AbstractWorkflowInputDeleg
       .bodyValue(body.getBytes())
       .headers(headers -> {
         headers.add(HttpHeaders.ACCEPT, accept);
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType);        
-        headers.add("X-Okapi-Url", OKAPI_LOCATION);
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        headers.add("X-Okapi-Url", OKAPI_URL);
         headers.add("X-Okapi-Tenant", tenant);
         if (token.isPresent()) {
           headers.add("X-Okapi-Token", token.get().toString());

@@ -54,9 +54,7 @@ ENV CAMUNDA_BPM_ADMIN_USER_EMAIL='cadmin@mailinator.com'
 ENV EVENT_QUEUE_NAME='event.queue'
 ENV TENANT_DEFAULT_TENANT='tern'
 ENV TENANT_INITIALIZE_DEFAULT_TENANT='false'
-ENV OKAPI_LOCATION='http://localhost:9130'
-ENV OKAPI_USERNAME='tern_admin'
-ENV OKAPI_PASSWORD='admin'
+ENV OKAPI_URL='http://localhost:9130'
 
 #expose port
 EXPOSE ${SERVER_PORT}
@@ -66,10 +64,10 @@ CMD java -jar -Xmx4096m ./mod-camunda.jar \
   --logging.level.org.folio=${LOGGING_LEVEL_FOLIO} --server.port=${SERVER_PORT} --spring.activemq.broker-url=${SPRING_ACTIVEMQ_BROKER_URL} \
   --spring.datasource.platform=${SPRING_DATASOURCE_PLATFORM} --spring.datasource.url=${SPRING_DATASOURCE_URL} \
   --spring.datasource.driverClassName=${SPRING_DATASOURCE_DRIVERCLASSNAME} --spring.datasource.username=${SPRING_DATASOURCE_USERNAME} \
-  --spring.datasource.password=${SPRING_DATASOURCE_PASSWORD} --spring.h2.console.enabled=${SPRING_H2_CONSOLE_ENABLED} \
-  --spring.jpa.database-platform=${SPRING_JPA_DATABASE_PLATFORM} --camunda.bpm.admin-user.id=${CAMUNDA_BPM_ADMIN_USER_ID} \
-  --camunda.bpm.admin-user.password=${CAMUNDA_BPM_ADMIN_USER_PASSWORD} --camunda.bpm.admin-user.first-name=${CAMUNDA_BPM_ADMIN_USER_FIRST_NAME} \
-  --camunda.bpm.admin-user.last-name=${CAMUNDA_BPM_ADMIN_USER_LAST_NAME} --camunda.bpm.admin-user.email=${CAMUNDA_BPM_ADMIN_USER_EMAIL} \
-  --event.queue.name=${EVENT_QUEUE_NAME} --tenant.default-tenant=${TENANT_DEFAULT_TENANT} --tenant.initialize-default-tenant=${TENANT_INITIALIZE_DEFAULT_TENANT} \
-  --okapi.location=${OKAPI_LOCATION} --spring.h2.console.settings.web-allow-others=${SPRING_H2_WEBALLOW} \
-  --okapi.username=${OKAPI_USERNAME} --okapi.password=${OKAPI_PASSWORD}
+  --spring.datasource.password=${SPRING_DATASOURCE_PASSWORD} --spring.jpa.database-platform=${SPRING_JPA_DATABASE_PLATFORM} \
+  --spring.h2.console.enabled=${SPRING_H2_CONSOLE_ENABLED} --spring.h2.console.settings.web-allow-others=${SPRING_H2_WEBALLOW} \
+  --camunda.bpm.admin-user.id=${CAMUNDA_BPM_ADMIN_USER_ID} --camunda.bpm.admin-user.password=${CAMUNDA_BPM_ADMIN_USER_PASSWORD} \
+  --camunda.bpm.admin-user.first-name=${CAMUNDA_BPM_ADMIN_USER_FIRST_NAME} --camunda.bpm.admin-user.last-name=${CAMUNDA_BPM_ADMIN_USER_LAST_NAME} \
+  --camunda.bpm.admin-user.email=${CAMUNDA_BPM_ADMIN_USER_EMAIL} --event.queue.name=${EVENT_QUEUE_NAME} \
+  --tenant.default-tenant=${TENANT_DEFAULT_TENANT} --tenant.initialize-default-tenant=${TENANT_INITIALIZE_DEFAULT_TENANT} \
+  --okapi.url=${OKAPI_URL}

@@ -71,3 +71,5 @@ tenant:
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.history.sql
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
+
+okapi.url: http://localhost:9130
