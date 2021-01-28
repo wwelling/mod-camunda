@@ -1,0 +1,77 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "StreamingExtractorTask",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "StreamingExtractorTask" ],
+      "default" : "StreamingExtractorTask"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "delegate" : {
+      "type" : "string"
+    },
+    "streaming" : {
+      "type" : "boolean"
+    },
+    "enhancementComparisons" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/EnhancementComparison"
+      }
+    },
+    "enhancementMappings" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/EnhancementMapping"
+      }
+    },
+    "mergeStrategy" : {
+      "type" : "string",
+      "enum" : [ "MERGE", "CONCAT", "ENHANCE" ]
+    },
+    "streamSource" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "deserializeAs", "name" ],
+  "definitions" : {
+    "EnhancementComparison" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "sourceProperty" : {
+          "type" : "string"
+        },
+        "targetProperty" : {
+          "type" : "string"
+        }
+      }
+    },
+    "EnhancementMapping" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "toProperty" : {
+          "type" : "string"
+        },
+        "fromProperty" : {
+          "type" : "string"
+        },
+        "multiple" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "multiple" ]
+    }
+  }
+}

@@ -5,7 +5,6 @@ logging:
       folio: INFO
       hibernate: INFO
       springframework: INFO
-  path:
 
 server:
   port: 9000
@@ -13,6 +12,7 @@ server:
 spring:
   activemq.broker-url: tcp://localhost:61616
   application.name: mod-camunda
+  codec.max-in-memory-size: 16777216
   data.rest:
     returnBodyOnCreate: true
     returnBodyOnUpdate: true
@@ -26,6 +26,11 @@ spring:
 
     username: folio
     password: folio
+  devtools:
+    add-properties: false
+    restart:
+      enabled: false
+      exclude: target
   h2:
     console:
       enabled: true
@@ -40,7 +45,7 @@ spring:
     open-in-view: true
     show-sql: false
   profiles:
-    active: default
+    active: default, messaging
   thymeleaf:
     mode: TEXT
     suffix: .sql
@@ -79,3 +84,5 @@ tenant:
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.history.sql
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
+
+okapi.url: http://localhost:9130

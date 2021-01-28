@@ -1,0 +1,84 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Stream",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "id" : {
+      "type" : "string"
+    },
+    "request" : {
+      "$ref" : "#/definitions/Request"
+    },
+    "mergeStrategy" : {
+      "type" : "string",
+      "enum" : [ "CONCAT", "MERGE", "ENHANCE" ]
+    },
+    "comparisons" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/Comparison"
+      }
+    },
+    "enhancementMappings" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/EnhancementMapping"
+      }
+    }
+  },
+  "required" : [ "request", "mergeStrategy" ],
+  "definitions" : {
+    "Request" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "url" : {
+          "type" : "string"
+        },
+        "method" : {
+          "type" : "string",
+          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
+        },
+        "contentType" : {
+          "type" : "string"
+        },
+        "accept" : {
+          "type" : "string"
+        },
+        "bodyTemplate" : {
+          "type" : "string"
+        }
+      },
+      "required" : [ "url", "method", "contentType", "accept", "bodyTemplate" ]
+    },
+    "Comparison" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "sourceProperty" : {
+          "type" : "string"
+        },
+        "targetProperty" : {
+          "type" : "string"
+        }
+      }
+    },
+    "EnhancementMapping" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "toProperty" : {
+          "type" : "string"
+        },
+        "fromProperty" : {
+          "type" : "string"
+        },
+        "multiple" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "multiple" ]
+    }
+  }
+}

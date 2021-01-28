@@ -2,12 +2,12 @@
 
 cd /sync
 
-curl -X POST -H "X-Okapi-Tenant: diku" -H "Content-Type: application/json" http://localhost:9130/authn/login -d '{"username": "diku_admin", "password": "admin"}' -D login-headers.tmp
+curl -X POST -H "X-Okapi-Tenant: tern" -H "Content-Type: application/json" https://folio-okapiq22.library.tamu.edu/authn/login -d '{"username": "tern_admin", "password": "admin"}' -D login-headers.tmp
 token_header=$(cat login-headers.tmp | grep x-okapi-token)
 
-user_json=$(curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/users?query=username=diku_admin")
+user_json=$(curl -v -H "X-Okapi-Tenant: tern" -H "$token_header" -H "Content-Type: application/json" "https://folio-okapiq22.library.tamu.edu/users?query=username=tern_admin")
 
-id_regex='"id":"([^"]+)'
+id_regex='([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})'
 
 echo "user: $user_json"
 if [[ $user_json =~ $id_regex ]]
@@ -15,10 +15,10 @@ then
   user_id="${BASH_REMATCH[1]}"
   echo "user id: $user_id"
 else
-  echo "Could not get diku_admin id!"
+  echo "Could not get tern_admin id!"
 fi
 
-user_perms_json=$(curl -v -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users?query=userId=$user_id")
+user_perms_json=$(curl -v -H "X-Okapi-Tenant: tern" -H "$token_header" -H "Content-Type: application/json" "https://folio-okapiq22.library.tamu.edu/perms/users?query=userId=$user_id")
 
 echo "user permissions: $user_perms_json"
 if [[ $user_perms_json =~ $id_regex ]]
@@ -26,10 +26,10 @@ then
   perm_id="${BASH_REMATCH[1]}"
   echo "perm id: $perm_id"
 else
-  echo "Could not get diku_admin permission id!"
+  echo "Could not get tern_admin permission id!"
 fi
 
-# update diku_admin permissions, add all permissions for mod-workflow and mod-camunda
+# update tern_admin permissions, add all permissions for mod-workflow and mod-camunda
 echo '{
   "id": "'"$perm_id"'",
   "userId": "'"$user_id"'",
@@ -58,25 +58,20 @@ echo '{
     "user-import.all",
     "codex.all",
     "circulation-storage.all",
-    "vendor.module.all",
     "circulation.all",
     "calendar.collection.all",
     "notes.all",
     "finance.module.all",
-    "fund.all",
-    "feesfines.all",
     "orders.all",
     "templates.all",
     "rtac.all",
     "orders-storage.module.all",
-    "audit.all",
     "module.myprofile.enabled",
     "ui-myprofile.view",
     "settings.tags.enabled",
     "settings.transfers.all",
     "module.orders.enabled",
     "module.organization.enabled",
-    "ui-organization.settings.location",
     "settings.data-import.enabled",
     "module.eholdings.enabled",
     "ui-inventory.settings.instance-formats",
@@ -85,28 +80,19 @@ echo '{
     "ui-inventory.settings.instance-types",
     "ui-checkout.all",
     "ui-circulation.settings.cancellation-reasons",
-    "settings.checkout.enabled",
     "settings.loan-rules.all",
     "module.developer.enabled",
     "module.finance.enabled",
     "ui-inventory.all-permissions.TEMPORARY",
-    "ui-organization.settings.key-bindings",
-    "ui-organization.settings.locale",
     "settings.loan-policies.all",
     "module.data-import.enabled",
     "settings.developer.enabled",
     "settings.orders.enabled",
-    "orders.module.all",
     "settings.eholdings.enabled",
     "ui-inventory.settings.materialtypes",
-    "ui-organization.settings.plugins",
     "ui-inventory.settings.contributor-types",
     "ui-inventory.settings.loantypes",
-    "ui-organization.settings.sso",
-    "ui-organization.settings.servicepoints",
     "ui-users.editperms",
-    "settings.accounts.all",
-    "settings.feefineactions.all",
     "ui-users.loans.renew",
     "module.search.enabled",
     "ui-users.create",
@@ -126,14 +112,26 @@ echo '{
     "settings.payments.all",
     "settings.transfertypes.all",
     "settings.usergroups.all",
-    "module.vendors.enabled",
     "settings.owners.all",
-    "ui-users.editpermsets",
-    "settings.addresstypes.all"
+    "settings.addresstypes.all",
+    "trigger.all",
+    "extractor.all",
+    "organizations-storage.organizations.all",
+    "organizations-storage.addresses.collection.get",
+    "organizations-storage.addresses.item.post",
+    "organizations-storage.addresses.item.delete",
+    "organizations-storage.categories.collection.get",
+    "organizations-storage.categories.item.post",
+    "organizations-storage.categories.item.delete",
+    "organizations-storage.contacts.collection.get",
+    "organizations-storage.contacts.item.post",
+     "organizations-storage.contacts.item.delete",
+     "organizations-storage.contacts.item.get",
+     "task.item.post"
   ]
-}' > diku_admin_perms.json
+}' > tern_admin_perms.json
 
-curl -v -X PUT -H "X-Okapi-Tenant: diku" -H "$token_header" -H "Content-Type: application/json" "http://localhost:9130/perms/users/$perm_id" -d "@diku_admin_perms.json"
+curl -v -X PUT -H "X-Okapi-Tenant:tern" -H "$token_header" -H "Content-Type: application/json" "https://folio-okapiq22.library.tamu.edu/perms/users/$perm_id" -d "@tern_admin_perms.json"
 
 # cleanup
 rm -rf login-headers.tmp

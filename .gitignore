@@ -27,6 +27,8 @@ dist/
 nbdist/
 .nb-gradle/
 
+### VS Code ###
+.vscode
 
 # Compiled class file
 *.class

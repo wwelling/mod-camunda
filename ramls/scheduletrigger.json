@@ -1,0 +1,34 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "ScheduleTrigger",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "ScheduleTrigger" ],
+      "default" : "ScheduleTrigger"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "description" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 256
+    },
+    "type" : {
+      "type" : "string",
+      "enum" : [ "PROCESS_START", "TASK_COMPLETE", "MESSAGE_CORRELATE" ]
+    },
+    "chronExpression" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "deserializeAs", "name", "description", "type", "chronExpression" ]
+}

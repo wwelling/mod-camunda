@@ -1,0 +1,40 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "StreamCreateForEachTask",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "StreamCreateForEachTask" ],
+      "default" : "StreamCreateForEachTask"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "delegate" : {
+      "type" : "string"
+    },
+    "streaming" : {
+      "type" : "boolean"
+    },
+    "endpoint" : {
+      "type" : "string"
+    },
+    "target" : {
+      "type" : "string"
+    },
+    "source" : {
+      "type" : "string"
+    },
+    "uniqueBy" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "deserializeAs", "name" ]
+}

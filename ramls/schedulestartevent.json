@@ -1,0 +1,38 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "ScheduleStartEvent",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "ScheduleStartEvent" ],
+      "default" : "ScheduleStartEvent"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 3,
+      "maxLength" : 64
+    },
+    "description" : {
+      "type" : "string",
+      "maxLength" : 512
+    },
+    "chronExpression" : {
+      "type" : "string"
+    },
+    "interrupting" : {
+      "type" : "boolean"
+    },
+    "asyncBefore" : {
+      "type" : "boolean"
+    },
+    "identifier" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "deserializeAs", "name", "chronExpression", "interrupting", "asyncBefore" ]
+}

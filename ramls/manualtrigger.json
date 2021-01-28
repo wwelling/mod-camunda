@@ -1,0 +1,31 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "ManualTrigger",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "ManualTrigger" ],
+      "default" : "ManualTrigger"
+    },
+    "id" : {
+      "type" : "string"
+    },
+    "name" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 64
+    },
+    "description" : {
+      "type" : "string",
+      "minLength" : 4,
+      "maxLength" : 256
+    },
+    "type" : {
+      "type" : "string",
+      "enum" : [ "PROCESS_START", "TASK_COMPLETE", "MESSAGE_CORRELATE" ]
+    }
+  },
+  "required" : [ "deserializeAs", "name", "description", "type" ]
+}

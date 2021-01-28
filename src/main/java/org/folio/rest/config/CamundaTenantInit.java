@@ -5,8 +5,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
 
-import org.folio.rest.tenant.hibernate.HibernateTenantInit;
-import org.folio.rest.tenant.service.SqlTemplateService;
+import org.folio.spring.tenant.hibernate.HibernateTenantInit;
+import org.folio.spring.tenant.service.SqlTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
