@@ -86,3 +86,10 @@ tenant:
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
 
 okapi.url: http://localhost:9130
+
+info:
+  build:
+    artifact: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@"
