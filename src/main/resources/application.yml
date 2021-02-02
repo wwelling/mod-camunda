@@ -44,6 +44,19 @@ spring:
     hibernate.ddl-auto: none
     open-in-view: true
     show-sql: false
+
+  mail:
+    default-encoding: UTF-8
+    host: relay.tamu.edu
+    username:
+    password:
+    port: 587
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+    protocol: smtp
+    test-connection: false
+
   profiles:
     active: default, messaging
   thymeleaf:
