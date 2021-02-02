@@ -17,7 +17,7 @@ import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
-public class EmailDelegate extends AbstractWorkflowIODelegate {
+public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
   @Autowired
   private JavaMailSender emailSender;
