@@ -102,8 +102,16 @@
         <filtering>false</filtering>
         <directory>src/main/resources</directory>
         <excludes>
+          <exclude>application.yml</exclude>
           <exclude>descriptors/**</exclude>
         </excludes>
+      </resource>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>application.yml</include>
+        </includes>
       </resource>
       <resource>
         <filtering>true</filtering>
