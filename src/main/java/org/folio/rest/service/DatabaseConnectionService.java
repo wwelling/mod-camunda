@@ -1,6 +1,7 @@
 package org.folio.rest.service;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +22,12 @@ public class DatabaseConnectionService {
 
   public Connection getConnection(String identifier) {
     return this.connections.get(identifier);
+  }
+
+  public void destroyConnection(String identifier) throws SQLException {
+    Connection conn = this.connections.get(identifier);
+    this.connections.remove(identifier);
+    conn.close();
   }
 
 }
