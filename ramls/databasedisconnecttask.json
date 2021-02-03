@@ -36,6 +36,9 @@
     "asyncAfter" : {
       "type" : "boolean"
     },
+    "designation" : {
+      "type" : "string"
+    },
     "identifier" : {
       "type" : "string"
     }

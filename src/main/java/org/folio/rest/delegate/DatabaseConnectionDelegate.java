@@ -6,7 +6,11 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.DatabaseConnectionTask;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
+@Service
+@Scope("prototype")
 public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
 
   private Expression url;
@@ -22,13 +26,13 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
     logger.info("{} started", delegateName);
 
     String url = this.url.getValue(execution).toString();
-    String identifier = this.identifier.getValue(execution).toString();
+    String key = this.designation.getValue(execution).toString();
 
     Properties info = new Properties();
     info.setProperty("user", user.getValue(execution).toString());
     info.setProperty("password", password.getValue(execution).toString());
 
-    connectionService.createConnection(identifier, url, info);
+    connectionService.createConnection(key, url, info);
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);

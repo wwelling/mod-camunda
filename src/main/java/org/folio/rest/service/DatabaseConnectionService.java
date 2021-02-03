@@ -19,18 +19,18 @@ public class DatabaseConnectionService {
     this.connections = new HashMap<>();
   }
 
-  public synchronized Connection createConnection(String identifier, String url, Properties info) throws SQLException {
+  public synchronized Connection createConnection(String key, String url, Properties info) throws SQLException {
     Connection conn = DriverManager.getConnection(url, info);
-    this.connections.put(identifier, conn);
+    this.connections.put(key, conn);
     return conn;
   }
 
-  public synchronized Connection getConnection(String identifier) {
-    return this.connections.get(identifier);
+  public synchronized Connection getConnection(String key) {
+    return this.connections.get(key);
   }
 
-  public synchronized void destroyConnection(String identifier) throws SQLException {
-    Connection conn = this.connections.remove(identifier);
+  public synchronized void destroyConnection(String key) throws SQLException {
+    Connection conn = this.connections.remove(key);
     if (Objects.nonNull(conn)) {
       conn.close();
     }

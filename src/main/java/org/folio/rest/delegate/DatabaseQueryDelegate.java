@@ -14,7 +14,11 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.DatabaseQueryTask;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
+@Service
+@Scope("prototype")
 public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
   private Expression query;
@@ -27,10 +31,10 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     logger.info("{} started", delegateName);
 
-    String identifier = this.identifier.getValue(execution).toString();
+    String key = this.designation.getValue(execution).toString();
     String query = this.query.getValue(execution).toString();
 
-    Connection conn = connectionService.getConnection(identifier);
+    Connection conn = connectionService.getConnection(key);
 
     List<JsonNode> output = new ArrayList<>();
 

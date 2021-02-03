@@ -36,10 +36,13 @@
     "asyncAfter" : {
       "type" : "boolean"
     },
-    "identifier" : {
+    "designation" : {
       "type" : "string"
     },
     "query" : {
+      "type" : "string"
+    },
+    "identifier" : {
       "type" : "string"
     }
   },

@@ -470,7 +470,7 @@
         "asyncAfter" : {
           "type" : "boolean"
         },
-        "identifier" : {
+        "designation" : {
           "type" : "string"
         },
         "url" : {
@@ -480,6 +480,9 @@
           "type" : "string"
         },
         "password" : {
+          "type" : "string"
+        },
+        "identifier" : {
           "type" : "string"
         }
       },
@@ -544,6 +547,9 @@
         "asyncAfter" : {
           "type" : "boolean"
         },
+        "designation" : {
+          "type" : "string"
+        },
         "identifier" : {
           "type" : "string"
         }
@@ -587,10 +593,13 @@
         "asyncAfter" : {
           "type" : "boolean"
         },
-        "identifier" : {
+        "designation" : {
           "type" : "string"
         },
         "query" : {
+          "type" : "string"
+        },
+        "identifier" : {
           "type" : "string"
         }
       },
