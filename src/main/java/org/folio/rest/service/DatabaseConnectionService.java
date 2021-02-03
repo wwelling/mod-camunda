@@ -1,33 +1,39 @@
 package org.folio.rest.service;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 import org.springframework.stereotype.Service;
 
 @Service
 public class DatabaseConnectionService {
 
-  private Map<String, Connection> connections;
+  private final Map<String, Connection> connections;
 
   public DatabaseConnectionService() {
     this.connections = new HashMap<>();
   }
 
-  public void addConnection(String identifier, Connection connection) {
-    this.connections.put(identifier, connection);
+  public synchronized Connection createConnection(String identifier, String url, Properties info) throws SQLException {
+    Connection conn = DriverManager.getConnection(url, info);
+    this.connections.put(identifier, conn);
+    return conn;
   }
 
-  public Connection getConnection(String identifier) {
+  public synchronized Connection getConnection(String identifier) {
     return this.connections.get(identifier);
   }
 
-  public void destroyConnection(String identifier) throws SQLException {
-    Connection conn = this.connections.get(identifier);
-    this.connections.remove(identifier);
-    conn.close();
+  public synchronized void destroyConnection(String identifier) throws SQLException {
+    Connection conn = this.connections.remove(identifier);
+    if (Objects.nonNull(conn)) {
+      conn.close();
+    }
   }
 
 }
