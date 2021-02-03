@@ -254,6 +254,11 @@
       <version>2.9.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.oracle.ojdbc</groupId>
+      <artifactId>ojdbc8</artifactId>
+    </dependency>
+
   </dependencies>
 
   <distributionManagement>
