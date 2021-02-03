@@ -3,7 +3,6 @@ package org.folio.rest.delegate;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -45,10 +44,6 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
     logger.info("{} started", delegateName);
 
-    String to = this.mailTo.getValue(execution).toString();
-    String cc = Objects.nonNull(this.mailCc) ? this.mailCc.getValue(execution).toString() : StringUtils.EMPTY;
-    String bcc = Objects.nonNull(this.mailBcc) ? this.mailBcc.getValue(execution).toString() : StringUtils.EMPTY;
-    String from = this.mailFrom.getValue(execution).toString();
     String subjectTemplate = this.mailSubject.getValue(execution).toString();
     String textTemplate = this.mailText.getValue(execution).toString();
 
@@ -64,13 +59,23 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     String subject = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("subject"), inputs);
     String text = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("text"), inputs);
 
+    String to = this.mailTo.getValue(execution).toString();
+    String from = this.mailFrom.getValue(execution).toString();
+
     SimpleMailMessage message = new SimpleMailMessage();
+
     message.setTo(to);
-    message.setCc(cc);
-    message.setBcc(bcc);
     message.setFrom(from);
     message.setSubject(subject);
     message.setText(text);
+
+    if (Objects.nonNull(this.mailCc)) {
+      message.setCc(this.mailCc.getValue(execution).toString());
+    }
+
+    if (Objects.nonNull(this.mailBcc)) {
+      message.setCc(this.mailBcc.getValue(execution).toString());
+    }
 
     emailSender.send(message);
 
