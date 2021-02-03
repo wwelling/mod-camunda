@@ -47,7 +47,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
         while (results.next()) {
           ObjectNode row = objectMapper.createObjectNode();
           ResultSetMetaData metadata = results.getMetaData();
-          for (int count = 0; count < metadata.getColumnCount(); ++count) {
+          for (int count = 1; count <= metadata.getColumnCount(); ++count) {
             String columnName = metadata.getColumnName(count);
             // TODO: consider types; int, date, boolean, string, etc.
             row.put(columnName, results.getString(columnName));
@@ -60,6 +60,10 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+  }
+
+  public void setQuery(Expression query) {
+    this.query = query;
   }
 
   @Override
