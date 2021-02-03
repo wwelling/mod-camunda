@@ -49,6 +49,8 @@
         }, {
           "$ref" : "#/definitions/ReceiveTask"
         }, {
+          "$ref" : "#/definitions/ProcessorTask"
+        }, {
           "$ref" : "#/definitions/ScriptTask"
         }, {
           "$ref" : "#/definitions/StreamRequestToDirectoryTask"
@@ -209,6 +211,8 @@
             }, {
               "$ref" : "#/definitions/ReceiveTask"
             }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
               "$ref" : "#/definitions/StreamRequestToDirectoryTask"
@@ -272,6 +276,8 @@
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
@@ -370,6 +376,8 @@
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
@@ -649,6 +657,77 @@
       "title" : "ReceiveTask",
       "required" : [ "deserializeAs", "name", "message", "asyncBefore", "asyncAfter" ]
     },
+    "ProcessorTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ProcessorTask" ],
+          "default" : "ProcessorTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "processor" : {
+          "$ref" : "#/definitions/EmbeddedProcessor"
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "ProcessorTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedProcessor" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "scriptType" : {
+          "type" : "string",
+          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
+        },
+        "functionName" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 128
+        },
+        "code" : {
+          "type" : "string"
+        },
+        "buffer" : {
+          "type" : "integer"
+        },
+        "delay" : {
+          "type" : "integer"
+        }
+      },
+      "required" : [ "scriptType", "functionName", "code", "buffer", "delay" ]
+    },
     "ScriptTask" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -908,31 +987,6 @@
       },
       "required" : [ "toProperty", "fromProperty", "multiple" ]
     },
-    "EmbeddedProcessor" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "scriptType" : {
-          "type" : "string",
-          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
-        },
-        "functionName" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 128
-        },
-        "code" : {
-          "type" : "string"
-        },
-        "buffer" : {
-          "type" : "integer"
-        },
-        "delay" : {
-          "type" : "integer"
-        }
-      },
-      "required" : [ "scriptType", "functionName", "code", "buffer", "delay" ]
-    },
     "Subprocess" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -981,6 +1035,8 @@
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
@@ -1057,6 +1113,8 @@
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {

@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : null,
+  "title" : "ProcessorTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ null ],
-      "default" : null
+      "enum" : [ "ProcessorTask" ],
+      "default" : "ProcessorTask"
     },
     "id" : {
       "type" : "string"
