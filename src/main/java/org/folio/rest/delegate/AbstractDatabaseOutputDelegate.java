@@ -8,7 +8,7 @@ import org.folio.rest.service.DatabaseConnectionService;
 import org.folio.rest.workflow.model.EmbeddedVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractDatabaseOutputDelegate extends AbstractDelegate implements Output {
+public abstract class AbstractDatabaseOutputDelegate extends AbstractWorkflowDelegate implements Output {
 
   Expression identifier;
 
