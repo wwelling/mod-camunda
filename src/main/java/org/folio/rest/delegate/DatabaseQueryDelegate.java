@@ -52,6 +52,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
             // TODO: consider types; int, date, boolean, string, etc.
             row.put(columnName, results.getString(columnName));
           }
+          output.add(row);
         }
       }
     }
