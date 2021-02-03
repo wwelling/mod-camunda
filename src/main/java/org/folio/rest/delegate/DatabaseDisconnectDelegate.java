@@ -11,6 +11,8 @@ public class DatabaseDisconnectDelegate extends AbstractDatabaseDelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
+    logger.info("{} started", delegateName);
+
     String identifier = this.identifier.getValue(execution).toString();
 
     connectionService.destroyConnection(identifier);

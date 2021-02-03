@@ -24,6 +24,8 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
+    logger.info("{} started", delegateName);
+
     String identifier = this.identifier.getValue(execution).toString();
     String query = this.query.getValue(execution).toString();
 

@@ -18,6 +18,8 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
+    logger.info("{} started", delegateName);
+
     String url = this.url.getValue(execution).toString();
     String identifier = this.identifier.getValue(execution).toString();
 
