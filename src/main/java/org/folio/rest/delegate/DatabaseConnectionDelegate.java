@@ -19,7 +19,7 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
     String delegateName = bpmnModelElement.getName();
 
     String url = this.url.getValue(execution).toString();
-    String identifier = this.name.getValue(execution).toString();
+    String identifier = this.identifier.getValue(execution).toString();
 
     Properties info = new Properties();
     info.setProperty("user", user.getValue(execution).toString());

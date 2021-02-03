@@ -10,15 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractDatabaseOutputDelegate extends AbstractDelegate implements Output {
 
-  Expression name;
+  Expression identifier;
 
   private Expression outputVariable;
 
   @Autowired
   DatabaseConnectionService connectionService;
 
-  public void setName(Expression name) {
-    this.name = name;
+  public void setIdentifier(Expression identifier) {
+    this.identifier = identifier;
   }
 
   public EmbeddedVariable getOutputVariable(DelegateExecution execution) throws JsonProcessingException {

@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractDatabaseDelegate extends AbstractDelegate {
 
-  Expression name;
+  Expression identifier;
 
   @Autowired
   DatabaseConnectionService connectionService;
 
-  public void setName(Expression name) {
-    this.name = name;
+  public void setIdentifier(Expression identifier) {
+    this.identifier = identifier;
   }
 
 }
