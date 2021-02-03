@@ -21,7 +21,9 @@ public class WebClientConfig {
 
   @Bean
   public ConnectionProvider connectionProvider() {
-    return ConnectionProvider.fixed("camunda-web-client-thread-pool", 100, 3600000, null);
+    return ConnectionProvider.builder("camunda-web-client-thread-pool")
+      .maxConnections(100)
+      .build();
   }
 
   @Bean

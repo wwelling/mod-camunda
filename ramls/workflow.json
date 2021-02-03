@@ -51,11 +51,15 @@
         }, {
           "$ref" : "#/definitions/MoveToNode"
         }, {
+          "$ref" : "#/definitions/EmailTask"
+        }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
           "$ref" : "#/definitions/DirectoryTask"
         }, {
           "$ref" : "#/definitions/ReceiveTask"
+        }, {
+          "$ref" : "#/definitions/ProcessorTask"
         }, {
           "$ref" : "#/definitions/ScriptTask"
         }, {
@@ -211,11 +215,15 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
@@ -273,11 +281,15 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
@@ -369,11 +381,15 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
@@ -393,6 +409,89 @@
       },
       "title" : "MoveToNode",
       "required" : [ "deserializeAs", "name", "gatewayId" ]
+    },
+    "EmailTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "EmailTask" ],
+          "default" : "EmailTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "mailTo" : {
+          "type" : "string"
+        },
+        "mailCc" : {
+          "type" : "string"
+        },
+        "mailBcc" : {
+          "type" : "string"
+        },
+        "mailFrom" : {
+          "type" : "string"
+        },
+        "mailSubject" : {
+          "type" : "string"
+        },
+        "mailText" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "EmailTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedVariable" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "PROCESS", "LOCAL" ]
+        },
+        "spin" : {
+          "type" : "boolean"
+        },
+        "asJson" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "key", "spin" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -477,28 +576,6 @@
         }
       },
       "required" : [ "url", "method", "contentType", "accept", "iterable" ]
-    },
-    "EmbeddedVariable" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "key" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "type" : {
-          "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL" ]
-        },
-        "spin" : {
-          "type" : "boolean"
-        },
-        "asJson" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "key", "spin" ]
     },
     "DirectoryTask" : {
       "type" : "object",
@@ -591,6 +668,77 @@
       },
       "title" : "ReceiveTask",
       "required" : [ "deserializeAs", "name", "message", "asyncBefore", "asyncAfter" ]
+    },
+    "ProcessorTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "ProcessorTask" ],
+          "default" : "ProcessorTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "processor" : {
+          "$ref" : "#/definitions/EmbeddedProcessor"
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "ProcessorTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedProcessor" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "scriptType" : {
+          "type" : "string",
+          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
+        },
+        "functionName" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 128
+        },
+        "code" : {
+          "type" : "string"
+        },
+        "buffer" : {
+          "type" : "integer"
+        },
+        "delay" : {
+          "type" : "integer"
+        }
+      },
+      "required" : [ "scriptType", "functionName", "code", "buffer", "delay" ]
     },
     "ScriptTask" : {
       "type" : "object",
@@ -851,31 +999,6 @@
       },
       "required" : [ "toProperty", "fromProperty", "multiple" ]
     },
-    "EmbeddedProcessor" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "scriptType" : {
-          "type" : "string",
-          "enum" : [ "GROOVY", "JAVA", "JS", "PYTHON", "RUBY" ]
-        },
-        "functionName" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 128
-        },
-        "code" : {
-          "type" : "string"
-        },
-        "buffer" : {
-          "type" : "integer"
-        },
-        "delay" : {
-          "type" : "integer"
-        }
-      },
-      "required" : [ "scriptType", "functionName", "code", "buffer", "delay" ]
-    },
     "Subprocess" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -917,11 +1040,15 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
@@ -991,11 +1118,15 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
             }, {
               "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
             }, {
