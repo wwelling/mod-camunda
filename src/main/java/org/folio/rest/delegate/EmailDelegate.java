@@ -1,7 +1,9 @@
 package org.folio.rest.delegate;
 
 import java.util.Map;
+import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -44,8 +46,8 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     logger.info("{} started", delegateName);
 
     String to = this.mailTo.getValue(execution).toString();
-    String cc = this.mailCc.getValue(execution).toString();
-    String bcc = this.mailBcc.getValue(execution).toString();
+    String cc = Objects.nonNull(this.mailCc) ? this.mailCc.getValue(execution).toString() : StringUtils.EMPTY;
+    String bcc = Objects.nonNull(this.mailBcc) ? this.mailBcc.getValue(execution).toString() : StringUtils.EMPTY;
     String from = this.mailFrom.getValue(execution).toString();
     String subjectTemplate = this.mailSubject.getValue(execution).toString();
     String textTemplate = this.mailText.getValue(execution).toString();
