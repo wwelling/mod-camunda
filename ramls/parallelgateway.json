@@ -37,6 +37,8 @@
         }, {
           "$ref" : "#/definitions/MoveToNode"
         }, {
+          "$ref" : "#/definitions/EmailTask"
+        }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
           "$ref" : "#/definitions/DirectoryTask"
@@ -183,6 +185,8 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -244,6 +248,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -341,6 +347,8 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -365,6 +373,89 @@
       },
       "title" : "MoveToNode",
       "required" : [ "deserializeAs", "name", "gatewayId" ]
+    },
+    "EmailTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "EmailTask" ],
+          "default" : "EmailTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "mailTo" : {
+          "type" : "string"
+        },
+        "mailCc" : {
+          "type" : "string"
+        },
+        "mailBcc" : {
+          "type" : "string"
+        },
+        "mailFrom" : {
+          "type" : "string"
+        },
+        "mailSubject" : {
+          "type" : "string"
+        },
+        "mailText" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "EmailTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedVariable" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "PROCESS", "LOCAL" ]
+        },
+        "spin" : {
+          "type" : "boolean"
+        },
+        "asJson" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "key", "spin" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -449,28 +540,6 @@
         }
       },
       "required" : [ "url", "method", "contentType", "accept", "iterable" ]
-    },
-    "EmbeddedVariable" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "key" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "type" : {
-          "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL" ]
-        },
-        "spin" : {
-          "type" : "boolean"
-        },
-        "asJson" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "key", "spin" ]
     },
     "DirectoryTask" : {
       "type" : "object",
@@ -889,6 +958,8 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -962,6 +1033,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {

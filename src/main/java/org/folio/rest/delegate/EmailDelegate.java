@@ -5,6 +5,7 @@ import java.util.Map;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
+import org.folio.rest.workflow.model.EmailTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,17 +23,17 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
   @Autowired
   private JavaMailSender emailSender;
 
-  private Expression to;
+  private Expression mailTo;
 
-  private Expression cc;
+  private Expression mailCc;
 
-  private Expression bcc;
+  private Expression mailBcc;
 
-  private Expression from;
+  private Expression mailFrom;
 
-  private Expression subject;
+  private Expression mailSubject;
 
-  private Expression text;
+  private Expression mailText;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -42,12 +43,12 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
     logger.info("{} started", delegateName);
 
-    String to = this.to.getValue(execution).toString();
-    String cc = this.cc.getValue(execution).toString();
-    String bcc = this.bcc.getValue(execution).toString();
-    String from = this.from.getValue(execution).toString();
-    String subjectTemplate = this.subject.getValue(execution).toString();
-    String textTemplate = this.text.getValue(execution).toString();
+    String to = this.mailTo.getValue(execution).toString();
+    String cc = this.mailCc.getValue(execution).toString();
+    String bcc = this.mailBcc.getValue(execution).toString();
+    String from = this.mailFrom.getValue(execution).toString();
+    String subjectTemplate = this.mailSubject.getValue(execution).toString();
+    String textTemplate = this.mailText.getValue(execution).toString();
 
     Map<String, Object> inputs = getInputs(execution);
 
@@ -75,33 +76,33 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
-  public void setTo(Expression to) {
-    this.to = to;
+  public void setMailTo(Expression mailTo) {
+    this.mailTo = mailTo;
   }
 
-  public void setCc(Expression cc) {
-    this.cc = cc;
+  public void setMailCc(Expression mailCc) {
+    this.mailCc = mailCc;
   }
 
-  public void setBcc(Expression bcc) {
-    this.bcc = bcc;
+  public void setMailBcc(Expression mailBcc) {
+    this.mailBcc = mailBcc;
   }
 
-  public void setFrom(Expression from) {
-    this.from = from;
+  public void setMailFrom(Expression mailFrom) {
+    this.mailFrom = mailFrom;
   }
 
-  public void setSubject(Expression subject) {
-    this.subject = subject;
+  public void setMailSubject(Expression mailSubject) {
+    this.mailSubject = mailSubject;
   }
 
-  public void setText(Expression text) {
-    this.text = text;
+  public void setMailText(Expression mailText) {
+    this.mailText = mailText;
   }
 
   @Override
   public Class<?> fromTask() {
-    return EmailDelegate.class;
+    return EmailTask.class;
   }
 
 }
