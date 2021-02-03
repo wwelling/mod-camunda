@@ -40,6 +40,12 @@
         }, {
           "$ref" : "#/definitions/MoveToNode"
         }, {
+          "$ref" : "#/definitions/DatabaseConnectionTask"
+        }, {
+          "$ref" : "#/definitions/DatabaseDisconnectTask"
+        }, {
+          "$ref" : "#/definitions/DatabaseQueryTask"
+        }, {
           "$ref" : "#/definitions/EmailTask"
         }, {
           "$ref" : "#/definitions/RequestTask"
@@ -190,6 +196,12 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
+            }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
@@ -255,6 +267,12 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
             }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
@@ -356,6 +374,12 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
+            }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
@@ -384,6 +408,178 @@
       },
       "title" : "MoveToNode",
       "required" : [ "deserializeAs", "name", "gatewayId" ]
+    },
+    "DatabaseConnectionTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "DatabaseConnectionTask" ],
+          "default" : "DatabaseConnectionTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "designation" : {
+          "type" : "string"
+        },
+        "url" : {
+          "type" : "string"
+        },
+        "user" : {
+          "type" : "string"
+        },
+        "password" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "DatabaseConnectionTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedVariable" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "PROCESS", "LOCAL" ]
+        },
+        "spin" : {
+          "type" : "boolean"
+        },
+        "asJson" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "key", "spin" ]
+    },
+    "DatabaseDisconnectTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "DatabaseDisconnectTask" ],
+          "default" : "DatabaseDisconnectTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "designation" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "DatabaseDisconnectTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "DatabaseQueryTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "DatabaseQueryTask" ],
+          "default" : "DatabaseQueryTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "designation" : {
+          "type" : "string"
+        },
+        "query" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "DatabaseQueryTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
     "EmailTask" : {
       "type" : "object",
@@ -445,28 +641,6 @@
       },
       "title" : "EmailTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
-    },
-    "EmbeddedVariable" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "key" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "type" : {
-          "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL" ]
-        },
-        "spin" : {
-          "type" : "boolean"
-        },
-        "asJson" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "key", "spin" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -1015,6 +1189,12 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
+            }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
@@ -1092,6 +1272,12 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
             }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
