@@ -3,6 +3,7 @@ package org.folio.rest.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -375,10 +376,13 @@ public class BpmnModelFactory {
             .filter(df -> Expression.class.isAssignableFrom(df.getType()))
             .map(df -> FieldUtils.getDeclaredField(node.getClass(), df.getName(), true)).forEach(f -> {
               try {
-                CamundaField field = model.newInstance(CamundaField.class);
-                field.setCamundaName(f.getName());
-                field.setCamundaStringValue(serialize(f.get(node)));
-                extensions.addChildElement(field);
+                Object value = f.get(node);
+                if (Objects.nonNull(value)) {
+                  CamundaField field = model.newInstance(CamundaField.class);
+                  field.setCamundaName(f.getName());
+                  field.setCamundaStringValue(serialize(value));
+                  extensions.addChildElement(field);
+                }
               } catch (JsonProcessingException | IllegalArgumentException | IllegalAccessException e) {
                 // TODO: create custom exception and controller advice to handle better
                 throw new RuntimeException(e);

@@ -26,15 +26,14 @@ spring:
 
     username: folio
     password: folio
-  devtools:
-    add-properties: false
-    restart:
-      enabled: false
-      exclude: target
+
   h2:
     console:
       enabled: true
       path: /h2console
+      settings:
+        web-allow-others: true
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     # database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -44,6 +43,19 @@ spring:
     hibernate.ddl-auto: none
     open-in-view: true
     show-sql: false
+
+  mail:
+    default-encoding: UTF-8
+    host: smtp-relay.tamu.edu
+    username:
+    password:
+    port: 25
+    properties.mail.smtp:
+      auth: false
+      starttls.enable: true
+    protocol: smtp
+    test-connection: false
+
   profiles:
     active: default, messaging
   thymeleaf:
