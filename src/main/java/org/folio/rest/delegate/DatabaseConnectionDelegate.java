@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
+import org.folio.rest.workflow.model.DatabaseConnectionTask;
 
 public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
 
@@ -43,6 +44,11 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
 
   public void setPassword(Expression password) {
     this.password = password;
+  }
+
+  @Override
+  public Class<?> fromTask() {
+    return DatabaseConnectionTask.class;
   }
 
 }

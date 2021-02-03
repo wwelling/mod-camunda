@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
+import org.folio.rest.workflow.model.DatabaseQueryTask;
 
 public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
@@ -55,6 +56,11 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+  }
+
+  @Override
+  public Class<?> fromTask() {
+    return DatabaseQueryTask.class;
   }
 
 }
