@@ -26,15 +26,14 @@ spring:
 
     username: folio
     password: folio
-  devtools:
-    add-properties: false
-    restart:
-      enabled: false
-      exclude: target
+
   h2:
     console:
       enabled: true
       path: /h2console
+      settings:
+        web-allow-others: true
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     # database-platform: org.hibernate.dialect.PostgreSQLDialect
