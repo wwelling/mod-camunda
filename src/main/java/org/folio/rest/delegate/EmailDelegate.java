@@ -79,16 +79,22 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
             message.setFrom(from);
-            message.setTo(to);
+            for (String ct : to.split(",")) {
+              message.addTo(ct);
+            }
             message.setSubject(subject);
             message.setText(text, true);
 
             if (cc.isPresent()) {
-              message.setCc(cc.get());
+              for (String ccc : cc.get().split(",")) {
+                message.addCc(ccc);
+              }
             }
 
             if (bcc.isPresent()) {
-              message.setBcc(bcc.get());
+              for (String cbcc : bcc.get().split(",")) {
+                message.addCc(cbcc);
+              }
             }
 
             if (attachmentPath.isPresent()) {
