@@ -6,12 +6,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.MultiInstanceLoopCharacteristicsBuilder;
+import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.ScriptTaskBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
@@ -26,7 +31,9 @@ import org.folio.rest.workflow.model.EmbeddedLoopReference;
 import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
+import org.folio.rest.workflow.model.MoveToNode;
 import org.folio.rest.workflow.model.Node;
+import org.folio.rest.workflow.model.ParallelGateway;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ReceiveTask;
 import org.folio.rest.workflow.model.ScriptTask;
@@ -46,10 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class BpmnModelFactory {
@@ -229,6 +232,14 @@ public class BpmnModelFactory {
             break;
 
           }
+        } else if (node instanceof ParallelGateway) {
+
+          builder = builder.parallelGateway(node.getIdentifier()).name(node.getName());
+
+        } else if (node instanceof MoveToNode) {
+
+          builder = builder.moveToNode(((MoveToNode) node).getGatewayId());
+
         } else if ((node instanceof Subprocess)) {
 
           SubProcessBuilder subProcessBuilder = builder.subProcess(node.getIdentifier()).name(node.getName());
