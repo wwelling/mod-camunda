@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.mail.Message;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -15,7 +13,6 @@ import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.EmailTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -67,7 +64,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     cfg.setTemplateLoader(stringLoader);
 
     String subject = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("subject"), inputs);
-    String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("text"), inputs);
+    String text = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("text"), inputs);
 
     String to = this.mailTo.getValue(execution).toString();
     String from = this.mailFrom.getValue(execution).toString();
@@ -79,25 +76,25 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
         public void prepare(MimeMessage mimeMessage) throws Exception 
         {
-            mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
-            mimeMessage.setFrom(new InternetAddress(from));
-            mimeMessage.setSubject(subject);
-            mimeMessage.setText(body);
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            message.setFrom(from);
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text, true);
 
             if (cc.isPresent()) {
-              mimeMessage.setRecipient(Message.RecipientType.CC, new InternetAddress(cc.get()));
+              message.setCc(cc.get());
             }
 
             if (bcc.isPresent()) {
-              mimeMessage.setRecipient(Message.RecipientType.BCC, new InternetAddress(bcc.get()));
+              message.setBcc(bcc.get());
             }
 
             if (attachmentPath.isPresent()) {
               File attachment = new File(attachmentPath.get());
               if (attachment.exists() && attachment.isFile()) {
-                FileSystemResource file = new FileSystemResource(attachment);
-                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-                helper.addAttachment(attachment.getName(), file);
+                message.addAttachment(attachment.getName(), attachment);
               } else {
                 logger.info("{} does not exist", attachmentPath.get());
               }
