@@ -652,6 +652,9 @@
         "mailText" : {
           "type" : "string"
         },
+        "attachmentPath" : {
+          "type" : "string"
+        },
         "identifier" : {
           "type" : "string"
         }

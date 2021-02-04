@@ -1,7 +1,13 @@
 package org.folio.rest.delegate;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+
+import javax.mail.Message;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -9,8 +15,10 @@ import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.EmailTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
@@ -36,6 +44,8 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
   private Expression mailText;
 
+  private Expression attachmentPath;
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
@@ -57,27 +67,45 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     cfg.setTemplateLoader(stringLoader);
 
     String subject = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("subject"), inputs);
-    String text = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("text"), inputs);
+    String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("text"), inputs);
 
     String to = this.mailTo.getValue(execution).toString();
     String from = this.mailFrom.getValue(execution).toString();
 
-    SimpleMailMessage message = new SimpleMailMessage();
+    Optional<String> cc = Objects.nonNull(this.mailCc) ? Optional.of(this.mailCc.getValue(execution).toString()) : Optional.empty();
+    Optional<String> bcc = Objects.nonNull(this.mailBcc) ? Optional.of(this.mailBcc.getValue(execution).toString()) : Optional.empty();
+    Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.of(this.attachmentPath.getValue(execution).toString()) : Optional.empty();
 
-    message.setTo(to);
-    message.setFrom(from);
-    message.setSubject(subject);
-    message.setText(text);
+    MimeMessagePreparator preparator = new MimeMessagePreparator() {
+        public void prepare(MimeMessage mimeMessage) throws Exception 
+        {
+            mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            mimeMessage.setFrom(new InternetAddress(from));
+            mimeMessage.setSubject(subject);
+            mimeMessage.setText(body);
 
-    if (Objects.nonNull(this.mailCc)) {
-      message.setCc(this.mailCc.getValue(execution).toString());
-    }
+            if (cc.isPresent()) {
+              mimeMessage.setRecipient(Message.RecipientType.CC, new InternetAddress(cc.get()));
+            }
 
-    if (Objects.nonNull(this.mailBcc)) {
-      message.setCc(this.mailBcc.getValue(execution).toString());
-    }
+            if (bcc.isPresent()) {
+              mimeMessage.setRecipient(Message.RecipientType.BCC, new InternetAddress(bcc.get()));
+            }
 
-    emailSender.send(message);
+            if (attachmentPath.isPresent()) {
+              File attachment = new File(attachmentPath.get());
+              if (attachment.exists() && attachment.isFile()) {
+                FileSystemResource file = new FileSystemResource(attachment);
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+                helper.addAttachment(attachment.getName(), file);
+              } else {
+                logger.info("{} does not exist", attachmentPath.get());
+              }
+            }
+        }
+    };
+
+    emailSender.send(preparator);
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
@@ -105,6 +133,10 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
   public void setMailText(Expression mailText) {
     this.mailText = mailText;
+  }
+
+  public void setAttachmentPath(Expression attachmentPath) {
+    this.attachmentPath = attachmentPath;
   }
 
   @Override

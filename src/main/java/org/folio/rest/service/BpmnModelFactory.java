@@ -16,7 +16,6 @@ import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.MultiInstanceLoopCharacteristicsBuilder;
-import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.ScriptTaskBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
