@@ -563,6 +563,13 @@
         "query" : {
           "type" : "string"
         },
+        "outputPath" : {
+          "type" : "string"
+        },
+        "resultType" : {
+          "type" : "string",
+          "enum" : [ "CSV", "TSV", "JSON" ]
+        },
         "identifier" : {
           "type" : "string"
         }
