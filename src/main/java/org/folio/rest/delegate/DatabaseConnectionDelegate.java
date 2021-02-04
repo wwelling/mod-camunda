@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
 
   private Expression url;
-  private Expression user;
+  private Expression username;
   private Expression password;
 
   @Override
@@ -29,8 +29,8 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
     String key = this.designation.getValue(execution).toString();
 
     Properties info = new Properties();
-    info.setProperty("user", user.getValue(execution).toString());
-    info.setProperty("password", password.getValue(execution).toString());
+    info.setProperty("user", this.username.getValue(execution).toString());
+    info.setProperty("password", this.password.getValue(execution).toString());
 
     connectionService.createConnection(key, url, info);
 
@@ -42,8 +42,8 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
     this.url = url;
   }
 
-  public void setUser(Expression user) {
-    this.user = user;
+  public void setUsername(Expression username) {
+    this.username = username;
   }
 
   public void setPassword(Expression password) {

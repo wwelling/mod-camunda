@@ -42,7 +42,7 @@
     "url" : {
       "type" : "string"
     },
-    "user" : {
+    "username" : {
       "type" : "string"
     },
     "password" : {
