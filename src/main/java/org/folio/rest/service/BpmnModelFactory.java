@@ -39,7 +39,6 @@ import org.folio.rest.workflow.model.ReceiveTask;
 import org.folio.rest.workflow.model.ScriptTask;
 import org.folio.rest.workflow.model.StartEvent;
 import org.folio.rest.workflow.model.StartEventType;
-import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
 import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
 import org.folio.rest.workflow.model.components.Branch;
@@ -423,8 +422,6 @@ public class BpmnModelFactory {
     nodes.stream().forEach(node -> {
       if (node instanceof ProcessorTask) {
         scripts.add(((ProcessorTask) node).getProcessor());
-      } else if (node instanceof StreamingExtractTransformLoadTask) {
-        scripts.addAll(((StreamingExtractTransformLoadTask) node).getProcessors());
       } else if (node instanceof Branch) {
         scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
       } else if (node instanceof Subprocess) {
