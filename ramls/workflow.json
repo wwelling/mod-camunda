@@ -23,7 +23,6 @@
     },
     "description" : {
       "type" : "string",
-      "minLength" : 4,
       "maxLength" : 512
     },
     "active" : {
@@ -59,6 +58,8 @@
         }, {
           "$ref" : "#/definitions/EmailTask"
         }, {
+          "$ref" : "#/definitions/FileTask"
+        }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
           "$ref" : "#/definitions/DirectoryTask"
@@ -68,10 +69,6 @@
           "$ref" : "#/definitions/ProcessorTask"
         }, {
           "$ref" : "#/definitions/ScriptTask"
-        }, {
-          "$ref" : "#/definitions/StreamRequestToDirectoryTask"
-        }, {
-          "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
         }, {
           "$ref" : "#/definitions/Subprocess"
         }, {
@@ -84,7 +81,7 @@
       "additionalProperties" : { }
     }
   },
-  "required" : [ "name", "versionTag", "description", "active" ],
+  "required" : [ "name", "versionTag", "active" ],
   "definitions" : {
     "Setup" : {
       "type" : "object",
@@ -229,6 +226,8 @@
             }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -238,10 +237,6 @@
               "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
-            }, {
-              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
@@ -301,6 +296,8 @@
             }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -310,10 +307,6 @@
               "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
-            }, {
-              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
@@ -407,6 +400,8 @@
             }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -416,10 +411,6 @@
               "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
-            }, {
-              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
@@ -476,7 +467,7 @@
         "url" : {
           "type" : "string"
         },
-        "user" : {
+        "username" : {
           "type" : "string"
         },
         "password" : {
@@ -599,6 +590,13 @@
         "query" : {
           "type" : "string"
         },
+        "outputPath" : {
+          "type" : "string"
+        },
+        "resultType" : {
+          "type" : "string",
+          "enum" : [ "CSV", "TSV", "JSON" ]
+        },
         "identifier" : {
           "type" : "string"
         }
@@ -643,7 +641,9 @@
           "type" : "boolean"
         },
         "mailTo" : {
-          "type" : "string"
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 256
         },
         "mailCc" : {
           "type" : "string"
@@ -652,12 +652,20 @@
           "type" : "string"
         },
         "mailFrom" : {
-          "type" : "string"
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 256
         },
         "mailSubject" : {
-          "type" : "string"
+          "type" : "string",
+          "minLength" : 2,
+          "maxLength" : 256
         },
         "mailText" : {
+          "type" : "string",
+          "minLength" : 2
+        },
+        "attachmentPath" : {
           "type" : "string"
         },
         "identifier" : {
@@ -665,6 +673,56 @@
         }
       },
       "title" : "EmailTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "FileTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "FileTask" ],
+          "default" : "FileTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "path" : {
+          "type" : "string"
+        },
+        "op" : {
+          "type" : "string",
+          "enum" : [ "READ", "WRITE", "DELETE" ]
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "FileTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
     "RequestTask" : {
@@ -957,222 +1015,6 @@
       "title" : "ScriptTask",
       "required" : [ "deserializeAs", "name", "code", "asyncBefore", "asyncAfter" ]
     },
-    "StreamRequestToDirectoryTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamRequestToDirectoryTask" ],
-          "default" : "StreamRequestToDirectoryTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "request" : {
-          "$ref" : "#/definitions/EmbeddedRequest"
-        },
-        "inputVariables" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/EmbeddedVariable"
-          }
-        },
-        "outputVariable" : {
-          "$ref" : "#/definitions/EmbeddedVariable"
-        },
-        "path" : {
-          "type" : "string"
-        },
-        "workflow" : {
-          "type" : "string"
-        },
-        "batchSize" : {
-          "type" : "integer"
-        },
-        "completeMessage" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 256
-        },
-        "writeSignalMessage" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 256
-        },
-        "emitWriteSignal" : {
-          "type" : "boolean"
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "asyncAfter" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "StreamRequestToDirectoryTask",
-      "required" : [ "deserializeAs", "name", "path", "workflow", "batchSize", "completeMessage", "writeSignalMessage", "emitWriteSignal", "asyncBefore", "asyncAfter" ]
-    },
-    "StreamingExtractTransformLoadTask" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "StreamingExtractTransformLoadTask" ],
-          "default" : "StreamingExtractTransformLoadTask"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "extractors" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/EmbeddedExtractor"
-          }
-        },
-        "processors" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/EmbeddedProcessor"
-          }
-        },
-        "requests" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/EmbeddedRequest"
-          }
-        },
-        "inputVariables" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/EmbeddedVariable"
-          }
-        },
-        "outputVariable" : {
-          "$ref" : "#/definitions/EmbeddedVariable"
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "asyncAfter" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "StreamingExtractTransformLoadTask",
-      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
-    },
-    "EmbeddedExtractor" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "request" : {
-          "$ref" : "#/definitions/Request"
-        },
-        "mergeStrategy" : {
-          "type" : "string",
-          "enum" : [ "CONCAT", "MERGE", "ENHANCE" ]
-        },
-        "comparisons" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/Comparison"
-          }
-        },
-        "mappings" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/Mapping"
-          }
-        }
-      },
-      "required" : [ "mergeStrategy" ]
-    },
-    "Request" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "url" : {
-          "type" : "string"
-        },
-        "method" : {
-          "type" : "string",
-          "enum" : [ "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE" ]
-        },
-        "contentType" : {
-          "type" : "string"
-        },
-        "accept" : {
-          "type" : "string"
-        },
-        "bodyTemplate" : {
-          "type" : "string"
-        },
-        "iterable" : {
-          "type" : "boolean"
-        },
-        "iterableKey" : {
-          "type" : "string"
-        },
-        "responseKey" : {
-          "type" : "string"
-        }
-      },
-      "required" : [ "url", "method", "contentType", "accept", "iterable" ]
-    },
-    "Comparison" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "sourceProperty" : {
-          "type" : "string"
-        },
-        "targetProperty" : {
-          "type" : "string"
-        }
-      },
-      "required" : [ "sourceProperty", "targetProperty" ]
-    },
-    "Mapping" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "toProperty" : {
-          "type" : "string"
-        },
-        "fromProperty" : {
-          "type" : "string"
-        },
-        "multiple" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "toProperty", "fromProperty", "multiple" ]
-    },
     "Subprocess" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -1222,6 +1064,8 @@
             }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -1231,10 +1075,6 @@
               "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
-            }, {
-              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {
@@ -1306,6 +1146,8 @@
             }, {
               "$ref" : "#/definitions/EmailTask"
             }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -1315,10 +1157,6 @@
               "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/StreamRequestToDirectoryTask"
-            }, {
-              "$ref" : "#/definitions/StreamingExtractTransformLoadTask"
             }, {
               "$ref" : "#/definitions/Subprocess"
             }, {

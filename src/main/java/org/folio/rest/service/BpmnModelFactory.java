@@ -16,7 +16,6 @@ import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.MultiInstanceLoopCharacteristicsBuilder;
-import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.ScriptTaskBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
@@ -39,7 +38,6 @@ import org.folio.rest.workflow.model.ReceiveTask;
 import org.folio.rest.workflow.model.ScriptTask;
 import org.folio.rest.workflow.model.StartEvent;
 import org.folio.rest.workflow.model.StartEventType;
-import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
 import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
 import org.folio.rest.workflow.model.components.Branch;
@@ -423,8 +421,6 @@ public class BpmnModelFactory {
     nodes.stream().forEach(node -> {
       if (node instanceof ProcessorTask) {
         scripts.add(((ProcessorTask) node).getProcessor());
-      } else if (node instanceof StreamingExtractTransformLoadTask) {
-        scripts.addAll(((StreamingExtractTransformLoadTask) node).getProcessors());
       } else if (node instanceof Branch) {
         scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
       } else if (node instanceof Subprocess) {

@@ -1,7 +1,11 @@
 package org.folio.rest.delegate;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+
+import javax.mail.internet.MimeMessage;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -9,8 +13,9 @@ import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.EmailTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
@@ -35,6 +40,8 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
   private Expression mailSubject;
 
   private Expression mailText;
+
+  private Expression attachmentPath;
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -62,22 +69,46 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     String to = this.mailTo.getValue(execution).toString();
     String from = this.mailFrom.getValue(execution).toString();
 
-    SimpleMailMessage message = new SimpleMailMessage();
+    Optional<String> cc = Objects.nonNull(this.mailCc) ? Optional.of(this.mailCc.getValue(execution).toString()) : Optional.empty();
+    Optional<String> bcc = Objects.nonNull(this.mailBcc) ? Optional.of(this.mailBcc.getValue(execution).toString()) : Optional.empty();
+    Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.of(this.attachmentPath.getValue(execution).toString()) : Optional.empty();
 
-    message.setTo(to);
-    message.setFrom(from);
-    message.setSubject(subject);
-    message.setText(text);
+    MimeMessagePreparator preparator = new MimeMessagePreparator() {
+        public void prepare(MimeMessage mimeMessage) throws Exception 
+        {
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-    if (Objects.nonNull(this.mailCc)) {
-      message.setCc(this.mailCc.getValue(execution).toString());
-    }
+            message.setFrom(from);
+            for (String ct : to.split(",")) {
+              message.addTo(ct);
+            }
+            message.setSubject(subject);
+            message.setText(text, true);
 
-    if (Objects.nonNull(this.mailBcc)) {
-      message.setCc(this.mailBcc.getValue(execution).toString());
-    }
+            if (cc.isPresent()) {
+              for (String ccc : cc.get().split(",")) {
+                message.addCc(ccc);
+              }
+            }
 
-    emailSender.send(message);
+            if (bcc.isPresent()) {
+              for (String cbcc : bcc.get().split(",")) {
+                message.addCc(cbcc);
+              }
+            }
+
+            if (attachmentPath.isPresent()) {
+              File attachment = new File(attachmentPath.get());
+              if (attachment.exists() && attachment.isFile()) {
+                message.addAttachment(attachment.getName(), attachment);
+              } else {
+                logger.info("{} does not exist", attachmentPath.get());
+              }
+            }
+        }
+    };
+
+    emailSender.send(preparator);
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
@@ -105,6 +136,10 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
   public void setMailText(Expression mailText) {
     this.mailText = mailText;
+  }
+
+  public void setAttachmentPath(Expression attachmentPath) {
+    this.attachmentPath = attachmentPath;
   }
 
   @Override

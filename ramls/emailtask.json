@@ -37,7 +37,9 @@
       "type" : "boolean"
     },
     "mailTo" : {
-      "type" : "string"
+      "type" : "string",
+      "minLength" : 3,
+      "maxLength" : 256
     },
     "mailCc" : {
       "type" : "string"
@@ -46,12 +48,20 @@
       "type" : "string"
     },
     "mailFrom" : {
-      "type" : "string"
+      "type" : "string",
+      "minLength" : 3,
+      "maxLength" : 256
     },
     "mailSubject" : {
-      "type" : "string"
+      "type" : "string",
+      "minLength" : 2,
+      "maxLength" : 256
     },
     "mailText" : {
+      "type" : "string",
+      "minLength" : 2
+    },
+    "attachmentPath" : {
       "type" : "string"
     },
     "identifier" : {

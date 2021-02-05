@@ -22,10 +22,10 @@ spring:
     driverClassName: org.h2.Driver
     # platform: postgres
     # driverClassName: org.postgresql.Driver
-    # url: jdbc:postgresql://localhost:5432/mod-camunda
+    # url: jdbc:postgresql://localhost:5432/mod_camunda
 
-    username: folio
-    password: folio
+    username: folio_admin
+    password: folio_admin
 
   h2:
     console:

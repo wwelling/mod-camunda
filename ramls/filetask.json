@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "DatabaseQueryTask",
+  "title" : "FileTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "DatabaseQueryTask" ],
-      "default" : "DatabaseQueryTask"
+      "enum" : [ "FileTask" ],
+      "default" : "FileTask"
     },
     "id" : {
       "type" : "string"
@@ -36,18 +36,12 @@
     "asyncAfter" : {
       "type" : "boolean"
     },
-    "designation" : {
+    "path" : {
       "type" : "string"
     },
-    "query" : {
-      "type" : "string"
-    },
-    "outputPath" : {
-      "type" : "string"
-    },
-    "resultType" : {
+    "op" : {
       "type" : "string",
-      "enum" : [ "CSV", "TSV", "JSON" ]
+      "enum" : [ "READ", "WRITE", "DELETE" ]
     },
     "identifier" : {
       "type" : "string"
