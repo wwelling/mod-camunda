@@ -55,7 +55,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
         ResultOp resultOp;
 
-        if (Objects.nonNull(this.outputPath) && StringUtils.isNotEmpty(this.outputPath.getValue(execution).toString())) {
+        if (Objects.nonNull(this.outputPath)) {
           String outputPath = this.outputPath.getValue(execution).toString();
           String resultType = this.resultType.getValue(execution).toString();
           resultOp = new FileResultOp(results, outputPath, resultType);
@@ -98,81 +98,6 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     void finish() throws Exception;
   }
 
-  private class FileResultOp implements ResultOp {
-
-    private final ResultSet results;
-
-    private final FileWriter fw;
-
-    private final DatabaseResultTypeOp rowOp;
-
-    public FileResultOp(ResultSet results, String path, String resultType) throws SQLException, IOException {
-      this.results = results;
-      this.fw = new FileWriter(path);
-      this.rowOp = DatabaseResultTypeOp.valueOf(resultType);
-    }
-
-    @Override
-    public void next() throws Exception {
-      rowOp.process(fw, results);
-    }
-
-    @Override
-    public void finish() throws IOException {
-      this.fw.close();
-    }
-
-  }
-
-  private interface RowOp {
-    void process(FileWriter fw, ResultSet results) throws Exception;
-  }
-
-  public enum DatabaseResultTypeOp implements RowOp {
-    CSV() {
-      public void process(FileWriter fw, ResultSet results) throws SQLException, IOException {
-        StringBuilder builder = new StringBuilder("");
-        ResultSetMetaData metadata = results.getMetaData();
-        for (int count = 1; count <= metadata.getColumnCount(); ++count) {
-          String columnName = metadata.getColumnName(count);
-          builder.append(results.getString(columnName));
-          if (count < metadata.getColumnCount()) {
-            builder.append(",");
-          }
-        }
-        builder.append("\n");
-        fw.write(builder.toString());
-      }
-    },
-    TSV() {
-      public void process(FileWriter fw, ResultSet results) throws SQLException, IOException {
-        StringBuilder builder = new StringBuilder("");
-        ResultSetMetaData metadata = results.getMetaData();
-        for (int count = 1; count <= metadata.getColumnCount(); ++count) {
-          String columnName = metadata.getColumnName(count);
-          builder.append(results.getString(columnName));
-          if (count < metadata.getColumnCount()) {
-            builder.append("\t");
-          }
-        }
-        builder.append("\n");
-        fw.write(builder.toString());
-      }
-    },
-    JSON() {
-      public void process(FileWriter fw, ResultSet results) throws SQLException, IOException {
-        StringBuilder builder = new StringBuilder("{");
-        ResultSetMetaData metadata = results.getMetaData();
-        for (int count = 1; count <= metadata.getColumnCount(); ++count) {
-          String columnName = metadata.getColumnName(count);
-          builder.append("\"").append(columnName).append("\":\"").append(results.getString(columnName)).append("\"");
-        }
-        builder.append("}").append("\n");
-        fw.write(builder.toString());
-      }
-    }
-  }
-
   private class VariableResultOp implements ResultOp {
 
     private final DelegateExecution execution;
@@ -205,6 +130,79 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       setOutput(execution, output);
     }
 
+  }
+
+  private class FileResultOp implements ResultOp {
+
+    private final ResultSet results;
+
+    private final FileWriter fw;
+
+    private final DatabaseResultTypeOp rowOp;
+
+    public FileResultOp(ResultSet results, String path, String resultType) throws SQLException, IOException {
+      this.results = results;
+      this.fw = new FileWriter(path);
+      this.rowOp = DatabaseResultTypeOp.valueOf(resultType);
+    }
+
+    @Override
+    public void next() throws Exception {
+      rowOp.process(fw, results);
+    }
+
+    @Override
+    public void finish() throws IOException {
+      this.fw.close();
+    }
+
+  }
+
+  private interface RowOp {
+    void process(FileWriter fw, ResultSet results) throws Exception;
+  }
+
+  private enum DatabaseResultTypeOp implements RowOp {
+    CSV() {
+      public void process(FileWriter fw, ResultSet results) throws SQLException, IOException {
+        fw.write(processDelimited(results, ","));
+      }
+    },
+    TSV() {
+      public void process(FileWriter fw, ResultSet results) throws SQLException, IOException {
+        fw.write(processDelimited(results, "\t"));
+      }
+    },
+    JSON() {
+      public void process(FileWriter fw, ResultSet results) throws SQLException, IOException {
+        StringBuilder builder = new StringBuilder("{");
+        ResultSetMetaData metadata = results.getMetaData();
+        for (int count = 1; count <= metadata.getColumnCount(); ++count) {
+          String columnName = metadata.getColumnName(count);
+          builder.append("\"")
+            .append(columnName)
+            .append("\":\"")
+            .append(results.getString(columnName))
+            .append("\"");
+        }
+        builder.append("}").append("\n");
+        fw.write(builder.toString());
+      }
+    };
+
+    private static String processDelimited(ResultSet results, String delimiter) throws SQLException, IOException {
+      StringBuilder builder = new StringBuilder();
+      ResultSetMetaData metadata = results.getMetaData();
+      for (int count = 1; count <= metadata.getColumnCount(); ++count) {
+        String columnName = metadata.getColumnName(count);
+        builder.append(results.getString(columnName));
+        if (count < metadata.getColumnCount()) {
+          builder.append(delimiter);
+        }
+      }
+      builder.append("\n");
+      return builder.toString();
+    }
   }
 
 }
