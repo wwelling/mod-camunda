@@ -3,7 +3,12 @@ package org.folio.rest.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -25,13 +30,14 @@ import org.folio.rest.workflow.model.EmbeddedLoopReference;
 import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
+import org.folio.rest.workflow.model.MoveToNode;
 import org.folio.rest.workflow.model.Node;
+import org.folio.rest.workflow.model.ParallelGateway;
 import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ReceiveTask;
 import org.folio.rest.workflow.model.ScriptTask;
 import org.folio.rest.workflow.model.StartEvent;
 import org.folio.rest.workflow.model.StartEventType;
-import org.folio.rest.workflow.model.StreamingExtractTransformLoadTask;
 import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
 import org.folio.rest.workflow.model.components.Branch;
@@ -45,10 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class BpmnModelFactory {
@@ -228,6 +230,14 @@ public class BpmnModelFactory {
             break;
 
           }
+        } else if (node instanceof ParallelGateway) {
+
+          builder = builder.parallelGateway(node.getIdentifier()).name(node.getName());
+
+        } else if (node instanceof MoveToNode) {
+
+          builder = builder.moveToNode(((MoveToNode) node).getGatewayId());
+
         } else if ((node instanceof Subprocess)) {
 
           SubProcessBuilder subProcessBuilder = builder.subProcess(node.getIdentifier()).name(node.getName());
@@ -375,10 +385,13 @@ public class BpmnModelFactory {
             .filter(df -> Expression.class.isAssignableFrom(df.getType()))
             .map(df -> FieldUtils.getDeclaredField(node.getClass(), df.getName(), true)).forEach(f -> {
               try {
-                CamundaField field = model.newInstance(CamundaField.class);
-                field.setCamundaName(f.getName());
-                field.setCamundaStringValue(serialize(f.get(node)));
-                extensions.addChildElement(field);
+                Object value = f.get(node);
+                if (Objects.nonNull(value)) {
+                  CamundaField field = model.newInstance(CamundaField.class);
+                  field.setCamundaName(f.getName());
+                  field.setCamundaStringValue(serialize(value));
+                  extensions.addChildElement(field);
+                }
               } catch (JsonProcessingException | IllegalArgumentException | IllegalAccessException e) {
                 // TODO: create custom exception and controller advice to handle better
                 throw new RuntimeException(e);
@@ -408,8 +421,6 @@ public class BpmnModelFactory {
     nodes.stream().forEach(node -> {
       if (node instanceof ProcessorTask) {
         scripts.add(((ProcessorTask) node).getProcessor());
-      } else if (node instanceof StreamingExtractTransformLoadTask) {
-        scripts.addAll(((StreamingExtractTransformLoadTask) node).getProcessors());
       } else if (node instanceof Branch) {
         scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
       } else if (node instanceof Subprocess) {
