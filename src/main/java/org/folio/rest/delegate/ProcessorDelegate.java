@@ -31,8 +31,7 @@ public class ProcessorDelegate extends AbstractWorkflowIODelegate {
 
     logger.info("{} started", delegateName);
 
-    EmbeddedProcessor processor = objectMapper.readValue(this.processor.getValue(execution).toString(),
-        EmbeddedProcessor.class);
+    EmbeddedProcessor processor = objectMapper.readValue(this.processor.getValue(execution).toString(), EmbeddedProcessor.class);
 
     String scriptName = processor.getFunctionName();
 

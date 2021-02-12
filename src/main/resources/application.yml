@@ -22,19 +22,18 @@ spring:
     driverClassName: org.h2.Driver
     # platform: postgres
     # driverClassName: org.postgresql.Driver
-    # url: jdbc:postgresql://localhost:5432/mod-camunda
+    # url: jdbc:postgresql://localhost:5432/mod_camunda
 
-    username: folio
-    password: folio
-  devtools:
-    add-properties: false
-    restart:
-      enabled: false
-      exclude: target
+    username: folio_admin
+    password: folio_admin
+
   h2:
     console:
       enabled: true
       path: /h2console
+      settings:
+        web-allow-others: true
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     # database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -44,6 +43,19 @@ spring:
     hibernate.ddl-auto: none
     open-in-view: true
     show-sql: false
+
+  mail:
+    default-encoding: UTF-8
+    host: smtp-relay.tamu.edu
+    username:
+    password:
+    port: 25
+    properties.mail.smtp:
+      auth: false
+      starttls.enable: true
+    protocol: smtp
+    test-connection: false
+
   profiles:
     active: default, messaging
   thymeleaf:

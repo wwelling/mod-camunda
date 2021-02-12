@@ -60,7 +60,12 @@ public interface Input {
                       new TypeReference<List<Object>>() {
                       }));
                 } else if (node.isValue()) {
-                  inputs.put(key.get(), node.value());
+                  try {
+                    // try read tree if value is JSON string
+                    inputs.put(key.get(), getObjectMapper().readTree((String) node.value()));
+                  } catch (Exception e) {
+                    inputs.put(key.get(), node.value());
+                  }
                 }
               }
             } else {
