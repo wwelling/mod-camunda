@@ -8,6 +8,8 @@ logging:
       springframework: INFO
 
 server:
+  servlet:
+    context-path: /mod-camunda
   port: 9000
 
 spring:
