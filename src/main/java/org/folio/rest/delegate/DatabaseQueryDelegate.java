@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -178,11 +179,14 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
         ResultSetMetaData metadata = results.getMetaData();
         for (int count = 1; count <= metadata.getColumnCount(); ++count) {
           String columnName = metadata.getColumnName(count);
-          builder.append("\"")
-            .append(columnName)
-            .append("\":\"")
-            .append(results.getString(columnName))
-            .append("\"");
+          String value = results.getString(columnName);
+          if (Objects.nonNull(value)) {
+            builder.append("\"")
+              .append(columnName)
+              .append("\":\"")
+              .append(results.getString(columnName))
+              .append("\"");
+          }
         }
         builder.append("}").append("\n");
         fw.write(builder.toString());
@@ -194,7 +198,10 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       ResultSetMetaData metadata = results.getMetaData();
       for (int count = 1; count <= metadata.getColumnCount(); ++count) {
         String columnName = metadata.getColumnName(count);
-        builder.append(results.getString(columnName));
+        String value = results.getString(columnName);
+        if (Objects.nonNull(value)) {
+          builder.append(value);
+        }
         if (count < metadata.getColumnCount()) {
           builder.append(delimiter);
         }
