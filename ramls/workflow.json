@@ -60,6 +60,8 @@
         }, {
           "$ref" : "#/definitions/FileTask"
         }, {
+          "$ref" : "#/definitions/FtpTask"
+        }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
           "$ref" : "#/definitions/DirectoryTask"
@@ -228,6 +230,8 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -297,6 +301,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -401,6 +407,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -723,6 +731,55 @@
         }
       },
       "title" : "FileTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "FtpTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "FtpTask" ],
+          "default" : "FtpTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "originPath" : {
+          "type" : "string"
+        },
+        "destinationUri" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "FtpTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
     "RequestTask" : {
@@ -1066,6 +1123,8 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -1147,6 +1206,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
