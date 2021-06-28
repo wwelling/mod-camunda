@@ -61,7 +61,7 @@
         }, {
           "$ref" : "#/definitions/FileTask"
         }, {
-          "$ref" : "#/definitions/FtpTask"
+          "$ref" : "#/definitions/SftpTask"
         }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
@@ -217,7 +217,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/FtpTask"
+              "$ref" : "#/definitions/SftpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -289,7 +289,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/FtpTask"
+              "$ref" : "#/definitions/SftpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -395,7 +395,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/FtpTask"
+              "$ref" : "#/definitions/SftpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -720,14 +720,14 @@
       "title" : "FileTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
-    "FtpTask" : {
+    "SftpTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "FtpTask" ],
-          "default" : "FtpTask"
+          "enum" : [ "SftpTask" ],
+          "default" : "SftpTask"
         },
         "id" : {
           "type" : "string"
@@ -759,15 +759,31 @@
         "originPath" : {
           "type" : "string"
         },
-        "destinationUri" : {
+        "destinationPath" : {
+          "type" : "string"
+        },
+        "op" : {
+          "type" : "string",
+          "enum" : [ "GET", "PUT" ]
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "port" : {
+          "type" : "integer"
+        },
+        "username" : {
+          "type" : "string"
+        },
+        "password" : {
           "type" : "string"
         },
         "identifier" : {
           "type" : "string"
         }
       },
-      "title" : "FtpTask",
-      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+      "title" : "SftpTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "port" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -1110,7 +1126,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/FtpTask"
+              "$ref" : "#/definitions/SftpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -1194,7 +1210,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/FtpTask"
+              "$ref" : "#/definitions/SftpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
