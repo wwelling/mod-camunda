@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "FtpTask",
+  "title" : "SftpTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "FtpTask" ],
-      "default" : "FtpTask"
+      "enum" : [ "SftpTask" ],
+      "default" : "SftpTask"
     },
     "id" : {
       "type" : "string"
@@ -39,14 +39,33 @@
     "originPath" : {
       "type" : "string"
     },
-    "destinationUri" : {
+    "destinationPath" : {
+      "type" : "string"
+    },
+    "op" : {
+      "type" : "string",
+      "enum" : [ "GET", "PUT" ]
+    },
+    "scheme" : {
+      "type" : "string"
+    },
+    "host" : {
+      "type" : "string"
+    },
+    "port" : {
+      "type" : "integer"
+    },
+    "username" : {
+      "type" : "string"
+    },
+    "password" : {
       "type" : "string"
     },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "port" ],
   "definitions" : {
     "EmbeddedVariable" : {
       "type" : "object",

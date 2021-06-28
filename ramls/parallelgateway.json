@@ -47,7 +47,7 @@
         }, {
           "$ref" : "#/definitions/FileTask"
         }, {
-          "$ref" : "#/definitions/SftpTask"
+          "$ref" : "#/definitions/FtpTask"
         }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
@@ -203,7 +203,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/SftpTask"
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -275,7 +275,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/SftpTask"
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -381,7 +381,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/SftpTask"
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -706,7 +706,7 @@
       "title" : "FileTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
-    "SftpTask" : {
+    "FtpTask" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
@@ -751,6 +751,9 @@
         "op" : {
           "type" : "string",
           "enum" : [ "GET", "PUT" ]
+        },
+        "scheme" : {
+          "type" : "string"
         },
         "host" : {
           "type" : "string"
@@ -1112,7 +1115,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/SftpTask"
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -1196,7 +1199,7 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
-              "$ref" : "#/definitions/SftpTask"
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
