@@ -739,8 +739,8 @@
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "SftpTask" ],
-          "default" : "SftpTask"
+          "enum" : [ "FtpTask" ],
+          "default" : "FtpTask"
         },
         "id" : {
           "type" : "string"
@@ -798,7 +798,7 @@
           "type" : "string"
         }
       },
-      "title" : "SftpTask",
+      "title" : "FtpTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "port" ]
     },
     "RequestTask" : {

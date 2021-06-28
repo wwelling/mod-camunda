@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "SftpTask",
+  "title" : "FtpTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "SftpTask" ],
-      "default" : "SftpTask"
+      "enum" : [ "FtpTask" ],
+      "default" : "FtpTask"
     },
     "id" : {
       "type" : "string"
