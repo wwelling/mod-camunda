@@ -55,7 +55,7 @@ public class MarcUtility {
     List<Record> records = new ArrayList<>();
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(DEFAULT_CHARSET))) {
       final MarcStreamReader reader = new MarcStreamReader(in, DEFAULT_CHARSET.name());
-      if (reader.hasNext()) {
+      while (reader.hasNext()) {
         records.add(reader.next());
       }
     } catch (IOException e) {
