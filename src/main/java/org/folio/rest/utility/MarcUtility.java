@@ -44,7 +44,11 @@ public class MarcUtility {
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  public MarcUtility() {
+  private MarcUtility() {
+
+  }
+
+  static {
     mapper.setSerializationInclusion(Include.NON_NULL);
     SimpleModule module = new SimpleModule();
     module.addDeserializer(Subfield.class, new JsonDeserializer<Subfield>() {
@@ -59,7 +63,7 @@ public class MarcUtility {
     mapper.registerModule(module);
   }
 
-  public List<String> splitRawMarcToMarcJsonRecords(String rawMarc) {
+  public static List<String> splitRawMarcToMarcJsonRecords(String rawMarc) {
     List<Record> records = new ArrayList<>();
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(DEFAULT_CHARSET))) {
       final MarcStreamReader reader = new MarcStreamReader(in, DEFAULT_CHARSET.name());
@@ -75,11 +79,11 @@ public class MarcUtility {
     }
 
     return records.stream()
-      .map(this::recordToMarcJson)
+      .map(MarcUtility::recordToMarcJson)
       .collect(Collectors.toList());
   }
 
-  public String addFieldToMarcJson(String marcJson, String fieldJson) throws JsonMappingException, JsonProcessingException {
+  public static String addFieldToMarcJson(String marcJson, String fieldJson) throws JsonMappingException, JsonProcessingException {
     JsonNode fieldNode = mapper.readTree(fieldJson);
     MarcFactory factory = MarcFactory.newInstance();
     Optional<Record> record = marcJsonToRecord(marcJson);
@@ -119,7 +123,7 @@ public class MarcUtility {
     return marcJson;
   }
 
-  public String updateControlNumberField(String marcJson, String data) {
+  public static String updateControlNumberField(String marcJson, String data) {
     Optional<Record> record = marcJsonToRecord(marcJson);
     if (record.isPresent()) {
       if (Objects.nonNull(record.get().getControlNumberField())) {
@@ -138,7 +142,7 @@ public class MarcUtility {
     return marcJson;
   }
 
-  public String marcJsonToRawMarc(String marcJson) {
+  public static String marcJsonToRawMarc(String marcJson) {
     Optional<Record> record = marcJsonToRecord(marcJson);
     if (record.isPresent()) {
       return recordToRawMarc(record.get());
@@ -146,7 +150,7 @@ public class MarcUtility {
     return "";
   }
 
-  public String rawMarcToMarcJson(String rawMarc) {
+  public static String rawMarcToMarcJson(String rawMarc) {
     Optional<Record> record = rawMarcToRecord(rawMarc);
     if (record.isPresent()) {
       return recordToMarcJson(record.get());
@@ -154,7 +158,7 @@ public class MarcUtility {
     return "{}";
   }
 
-  public String getFieldsFromRawMarc(String rawMarc, String[] tags) {
+  public static String getFieldsFromRawMarc(String rawMarc, String[] tags) {
     Optional<Record> record = rawMarcToRecord(rawMarc);
     if (record.isPresent()) {
       return getRecordFields(record.get(), tags);
@@ -162,7 +166,7 @@ public class MarcUtility {
     return "[]";
   }
 
-  public String getFieldsFromMarcJson(String marcJson, String[] tags) {
+  public static String getFieldsFromMarcJson(String marcJson, String[] tags) {
     Optional<Record> record = marcJsonToRecord(marcJson);
     if (record.isPresent()) {
       return getRecordFields(record.get(), tags);
@@ -170,7 +174,7 @@ public class MarcUtility {
     return "[]";
   }
 
-  private Optional<Record> marcJsonToRecord(String marcJson) {
+  private static Optional<Record> marcJsonToRecord(String marcJson) {
     try (InputStream in = new ByteArrayInputStream(marcJson.getBytes())) {
       final MarcJsonReader reader = new MarcJsonReader(in);
       if (reader.hasNext()) {
@@ -186,7 +190,7 @@ public class MarcUtility {
     return Optional.empty();
   }
 
-  private Optional<Record> rawMarcToRecord(String rawMarc) {
+  private static Optional<Record> rawMarcToRecord(String rawMarc) {
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(DEFAULT_CHARSET))) {
       final MarcStreamReader reader = new MarcStreamReader(in, DEFAULT_CHARSET.name());
       if (reader.hasNext()) {
@@ -202,7 +206,7 @@ public class MarcUtility {
     return Optional.empty();
   }
 
-  private String recordToMarcJson(Record record) {
+  private static String recordToMarcJson(Record record) {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final MarcJsonWriter writer = new MarcJsonWriter(out);
       writer.write(record);
@@ -215,7 +219,7 @@ public class MarcUtility {
     return "{}";
   }
 
-  private String recordToRawMarc(Record record) {
+  private static String recordToRawMarc(Record record) {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final MarcStreamWriter writer = new MarcStreamWriter(out);
       writer.write(record);
@@ -228,7 +232,7 @@ public class MarcUtility {
     return "";
   }
 
-  private String getRecordFields(Record record, String[] tags) {
+  private static String getRecordFields(Record record, String[] tags) {
     List<VariableField> fields = record.getVariableFields(tags);
     try {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(fields);
@@ -239,7 +243,7 @@ public class MarcUtility {
     return "[]";
   }
 
-  private void recalculateLeader(Record record) {
+  private static void recalculateLeader(Record record) {
     try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       MarcWriter streamWriter = new MarcStreamWriter(os, DEFAULT_CHARSET.name());
       // use stream writer to recalculate leader

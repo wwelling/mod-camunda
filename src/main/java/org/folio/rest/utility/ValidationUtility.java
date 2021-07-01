@@ -16,7 +16,7 @@ public class ValidationUtility {
   private static final Pattern PHONE_PATTERN = compile(PHONE_REGEX, CASE_INSENSITIVE | MULTILINE);
   private static final Pattern URL_PATTERN = compile(URL_REGEX, CASE_INSENSITIVE | MULTILINE);
 
-  public ValidationUtility() {
+  private ValidationUtility() {
 
   }
 
@@ -27,7 +27,7 @@ public class ValidationUtility {
    *
    * @return TRUE if matched, FALSE otherwise.
    */
-  public boolean isEmail(String string) {
+  public static boolean isEmail(String string) {
     return EMAIL_PATTERN.matcher(string).find();
   }
 
@@ -38,7 +38,7 @@ public class ValidationUtility {
    *
    * @return TRUE if matched, FALSE otherwise.
    */
-  public boolean isEmailLike(String string) {
+  public static boolean isEmailLike(String string) {
     return isEmail(string) || (string == null ? false : string.toLowerCase().indexOf("@") != -1);
   }
 
@@ -49,7 +49,7 @@ public class ValidationUtility {
    *
    * @return TRUE if matched, FALSE otherwise.
    */
-  public boolean isPhone(String string) {
+  public static boolean isPhone(String string) {
     return PHONE_PATTERN.matcher(string).find();
   }
 
@@ -60,7 +60,7 @@ public class ValidationUtility {
    *
    * @return TRUE if matched, FALSE otherwise.
    */
-  public boolean isURLLike(String string) {
+  public static boolean isURLLike(String string) {
     if (string == null) {
       return false;
     }
@@ -84,7 +84,7 @@ public class ValidationUtility {
    *
    * @return TRUE if matched, FALSE otherwise.
    */
-  public boolean isValidUrl(String string) {
+  public static boolean isValidUrl(String string) {
     if (string == null) {
       return false;
     }
