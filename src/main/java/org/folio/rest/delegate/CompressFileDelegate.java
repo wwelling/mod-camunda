@@ -136,16 +136,16 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
-  public void setSource(Expression path) {
-    this.source = path;
+  public void setSource(Expression source) {
+    this.source = source;
   }
 
-  public void setDestination(Expression path) {
-    this.destination = path;
+  public void setDestination(Expression destination) {
+    this.destination = destination;
   }
 
-  public void setFormat(Expression op) {
-    this.format = op;
+  public void setFormat(Expression format) {
+    this.format = format;
   }
 
   @Override
