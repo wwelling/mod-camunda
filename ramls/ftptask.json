@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "DirectoryTask",
+  "title" : "FtpTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "DirectoryTask" ],
-      "default" : "DirectoryTask"
+      "enum" : [ "FtpTask" ],
+      "default" : "FtpTask"
     },
     "id" : {
       "type" : "string"
@@ -20,16 +20,6 @@
     "description" : {
       "type" : "string",
       "maxLength" : 512
-    },
-    "path" : {
-      "type" : "string"
-    },
-    "workflow" : {
-      "type" : "string"
-    },
-    "action" : {
-      "type" : "string",
-      "enum" : [ "READ_NEXT", "DELETE_NEXT", "LIST", "WRITE" ]
     },
     "inputVariables" : {
       "type" : "array",
@@ -46,11 +36,36 @@
     "asyncAfter" : {
       "type" : "boolean"
     },
+    "originPath" : {
+      "type" : "string"
+    },
+    "destinationPath" : {
+      "type" : "string"
+    },
+    "op" : {
+      "type" : "string",
+      "enum" : [ "GET", "PUT" ]
+    },
+    "scheme" : {
+      "type" : "string"
+    },
+    "host" : {
+      "type" : "string"
+    },
+    "port" : {
+      "type" : "integer"
+    },
+    "username" : {
+      "type" : "string"
+    },
+    "password" : {
+      "type" : "string"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "path", "workflow", "action", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "port" ],
   "definitions" : {
     "EmbeddedVariable" : {
       "type" : "object",
@@ -69,9 +84,6 @@
           "type" : "boolean"
         },
         "asJson" : {
-          "type" : "boolean"
-        },
-        "asTransient" : {
           "type" : "boolean"
         }
       },

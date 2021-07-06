@@ -53,6 +53,8 @@
         }, {
           "$ref" : "#/definitions/FileTask"
         }, {
+          "$ref" : "#/definitions/FtpTask"
+        }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
           "$ref" : "#/definitions/DirectoryTask"
@@ -221,6 +223,8 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -292,6 +296,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -399,6 +405,8 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -496,6 +504,9 @@
           "type" : "boolean"
         },
         "asJson" : {
+          "type" : "boolean"
+        },
+        "asTransient" : {
           "type" : "boolean"
         }
       },
@@ -778,6 +789,74 @@
       },
       "title" : "FileTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "FtpTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "FtpTask" ],
+          "default" : "FtpTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "originPath" : {
+          "type" : "string"
+        },
+        "destinationPath" : {
+          "type" : "string"
+        },
+        "op" : {
+          "type" : "string",
+          "enum" : [ "GET", "PUT" ]
+        },
+        "scheme" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "port" : {
+          "type" : "integer"
+        },
+        "username" : {
+          "type" : "string"
+        },
+        "password" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "FtpTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "port" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -1122,6 +1201,8 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -1205,6 +1286,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
