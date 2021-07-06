@@ -50,6 +50,8 @@
         }, {
           "$ref" : "#/definitions/MoveToNode"
         }, {
+          "$ref" : "#/definitions/CompressFileTask"
+        }, {
           "$ref" : "#/definitions/DatabaseConnectionTask"
         }, {
           "$ref" : "#/definitions/DatabaseDisconnectTask"
@@ -220,6 +222,8 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/CompressFileTask"
+            }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
               "$ref" : "#/definitions/DatabaseDisconnectTask"
@@ -291,6 +295,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -398,6 +404,8 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/CompressFileTask"
+            }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
               "$ref" : "#/definitions/DatabaseDisconnectTask"
@@ -432,6 +440,88 @@
       },
       "title" : "MoveToNode",
       "required" : [ "deserializeAs", "name", "gatewayId" ]
+    },
+    "CompressFileTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "CompressFileTask" ],
+          "default" : "CompressFileTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "source" : {
+          "type" : "string"
+        },
+        "destination" : {
+          "type" : "string"
+        },
+        "format" : {
+          "type" : "string",
+          "enum" : [ "BZIP2", "GZIP" ]
+        },
+        "container" : {
+          "type" : "string",
+          "enum" : [ "NONE", "TAR" ]
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "CompressFileTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedVariable" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "PROCESS", "LOCAL" ]
+        },
+        "spin" : {
+          "type" : "boolean"
+        },
+        "asJson" : {
+          "type" : "boolean"
+        },
+        "asTransient" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "key", "spin" ]
     },
     "DatabaseConnectionTask" : {
       "type" : "object",
@@ -487,31 +577,6 @@
       },
       "title" : "DatabaseConnectionTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
-    },
-    "EmbeddedVariable" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "key" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "type" : {
-          "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL" ]
-        },
-        "spin" : {
-          "type" : "boolean"
-        },
-        "asJson" : {
-          "type" : "boolean"
-        },
-        "asTransient" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "key", "spin" ]
     },
     "DatabaseDisconnectTask" : {
       "type" : "object",
@@ -1135,6 +1200,8 @@
             }, {
               "$ref" : "#/definitions/MoveToNode"
             }, {
+              "$ref" : "#/definitions/CompressFileTask"
+            }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
               "$ref" : "#/definitions/DatabaseDisconnectTask"
@@ -1218,6 +1285,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
