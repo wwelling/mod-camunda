@@ -449,7 +449,12 @@
           "type" : "string"
         },
         "format" : {
-          "type" : "string"
+          "type" : "string",
+          "enum" : [ "BZIP2", "GZIP" ]
+        },
+        "container" : {
+          "type" : "string",
+          "enum" : [ "NONE", "TAR" ]
         },
         "identifier" : {
           "type" : "string"

@@ -17,6 +17,8 @@ import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
+import org.folio.rest.workflow.model.CompressFileContainer;
+import org.folio.rest.workflow.model.CompressFileFormat;
 import org.folio.rest.workflow.model.CompressFileTask;
 import org.h2.util.IOUtils;
 import org.springframework.context.annotation.Scope;
@@ -39,6 +41,8 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
   private Expression format;
 
+  private Expression container;
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
@@ -49,30 +53,46 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
     String sourcePath = this.source.getValue(execution).toString();
     String destinationPath = this.destination.getValue(execution).toString();
-    String formatType = this.format.getValue(execution).toString().toLowerCase();
+    CompressFileFormat compressFormat = CompressFileFormat.valueOf(this.format.getValue(execution).toString());
+    CompressFileContainer useContainer = CompressFileContainer.valueOf(this.container.getValue(execution).toString());
+    String formatType = null;
     String extension = "";
     File sourceFile = new File(sourcePath);
     File destinationFile = new File(destinationPath);
 
     // see: https://commons.apache.org/proper/commons-compress/limitations.html
-    switch (formatType) {
-      case CompressorStreamFactory.BZIP2:
+    switch (compressFormat) {
+      case BZIP2:
+        formatType = CompressorStreamFactory.BZIP2;
         extension = EXT_BZIP2;
         break;
 
-      case CompressorStreamFactory.GZIP:
+      case GZIP:
+        formatType = CompressorStreamFactory.GZIP;
         extension = EXT_GZIP;
         break;
 
       default:
-        logger.info("{} is not a supported format", formatType);
-        formatType = null;
+        break;
+    }
+
+    switch (useContainer) {
+      case TAR:
+        extension = EXT_TAR + extension;
+        break;
+
+      default:
         break;
     }
 
     if (sourceFile.exists()) {
       if (!sourceFile.canRead()) {
         logger.info("{} could not be read", sourceFile);
+        formatType = null;
+      }
+
+      if (useContainer == CompressFileContainer.NONE && sourceFile.isDirectory()) {
+        logger.info("{} is a directory and cannot be compressed when container is NONE", sourceFile);
         formatType = null;
       }
     } else {
@@ -86,14 +106,21 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
           destinationPath += File.separator;
         }
 
-        if (sourceFile.isDirectory()) {
-          destinationFile = new File(destinationPath + sourceFile.getName() + EXT_TAR + extension);
-        } else {
-          destinationFile = new File(destinationPath + sourceFile.getName() + extension);
-        }
+        destinationFile = new File(destinationPath + sourceFile.getName() + extension);
       }
 
-      if (sourceFile.isDirectory()) {
+      if (useContainer == CompressFileContainer.NONE) {
+        try (
+          FileInputStream inputFile = new FileInputStream(sourceFile);
+          BufferedInputStream input = new BufferedInputStream(inputFile);
+          FileOutputStream outputFile = new FileOutputStream(destinationFile);
+          BufferedOutputStream output = new BufferedOutputStream(outputFile);
+          CompressorOutputStream compress = new CompressorStreamFactory()
+            .createCompressorOutputStream(formatType, output);
+          ) {
+            IOUtils.copy(input, compress);
+        }
+      } else if (useContainer == CompressFileContainer.TAR) {
         FileOutputStream outputFile = new FileOutputStream(destinationFile);
         BufferedOutputStream output = new BufferedOutputStream(outputFile);
 
@@ -115,19 +142,6 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
           outputFile.close();
         }
       }
-      else {
-
-        try (
-          FileInputStream inputFile = new FileInputStream(sourceFile);
-          BufferedInputStream input = new BufferedInputStream(inputFile);
-          FileOutputStream outputFile = new FileOutputStream(destinationFile);
-          BufferedOutputStream output = new BufferedOutputStream(outputFile);
-          CompressorOutputStream compress = new CompressorStreamFactory()
-            .createCompressorOutputStream(formatType, output);
-          ) {
-            IOUtils.copy(input, compress);
-        }
-      }
 
       logger.info("{} written to {} as {}", source, destination, format);
     }
@@ -146,6 +160,10 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
   public void setFormat(Expression format) {
     this.format = format;
+  }
+
+  public void setContainer(Expression container) {
+    this.container = container;
   }
 
   @Override
