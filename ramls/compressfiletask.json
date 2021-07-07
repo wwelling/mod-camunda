@@ -74,6 +74,9 @@
         },
         "asJson" : {
           "type" : "boolean"
+        },
+        "asTransient" : {
+          "type" : "boolean"
         }
       },
       "required" : [ "key", "spin" ]
