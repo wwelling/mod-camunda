@@ -717,6 +717,9 @@
           "type" : "string",
           "minLength" : 2
         },
+        "mailMarkup" : {
+          "type" : "string"
+        },
         "attachmentPath" : {
           "type" : "string"
         },
