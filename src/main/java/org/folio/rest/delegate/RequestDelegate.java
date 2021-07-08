@@ -33,7 +33,7 @@ import freemarker.template.Configuration;
 public class RequestDelegate extends AbstractWorkflowIODelegate {
 
   @Value("${okapi.url}")
-  private String OKAPI_URL;
+  private String okapiUrl;
 
   @Autowired
   private HttpService httpService;
@@ -86,7 +86,7 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     headers.add("Accept", accept);
     headers.add("Content-Type", contentType);
     headers.add("X-Okapi-Tenant", tenant);
-    headers.add("X-Okapi-Url", OKAPI_URL);
+    headers.add("X-Okapi-Url", okapiUrl);
 
     if (token.isPresent()) {
       headers.add("X-Okapi-Token", token.get().toString());
