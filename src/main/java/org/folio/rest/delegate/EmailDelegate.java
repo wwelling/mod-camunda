@@ -63,8 +63,8 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     stringLoader.putTemplate("subject", subjectTemplate);
     stringLoader.putTemplate("text", textTemplate);
     stringLoader.putTemplate("markup", markupTemplate);
-    stringLoader.putTemplate("mailFrom", mailToTemplate);
-    stringLoader.putTemplate("mailTo", mailFromTemplate);
+    stringLoader.putTemplate("mailFrom", mailFromTemplate);
+    stringLoader.putTemplate("mailTo", mailToTemplate);
 
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
     cfg.setTemplateLoader(stringLoader);
