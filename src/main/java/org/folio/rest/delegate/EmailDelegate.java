@@ -81,47 +81,46 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.of(this.attachmentPath.getValue(execution).toString()) : Optional.empty();
 
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
-        public void prepare(MimeMessage mimeMessage) throws Exception 
-        {
-            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+      public void prepare(MimeMessage mimeMessage) throws Exception {
+        MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-            message.setFrom(from);
-            for (String ct : to.split(",")) {
-              message.addTo(ct);
-            }
-            message.setSubject(subject);
-
-            if (Objects.nonNull(mailMarkup)) {
-              if (plainText.isEmpty()) {
-                message.setText(htmlMarkup, true);
-              } else {
-                message.setText(plainText, htmlMarkup);
-              }
-            } else {
-              message.setText(plainText, false);
-            }
-
-            if (cc.isPresent()) {
-              for (String ccc : cc.get().split(",")) {
-                message.addCc(ccc);
-              }
-            }
-
-            if (bcc.isPresent()) {
-              for (String cbcc : bcc.get().split(",")) {
-                message.addCc(cbcc);
-              }
-            }
-
-            if (attachmentPath.isPresent()) {
-              File attachment = new File(attachmentPath.get());
-              if (attachment.exists() && attachment.isFile()) {
-                message.addAttachment(attachment.getName(), attachment);
-              } else {
-                logger.info("{} does not exist", attachmentPath.get());
-              }
-            }
+        message.setFrom(from);
+        for (String ct : to.split(",")) {
+          message.addTo(ct);
         }
+        message.setSubject(subject);
+
+        if (Objects.nonNull(mailMarkup)) {
+          if (plainText.isEmpty()) {
+            message.setText(htmlMarkup, true);
+          } else {
+            message.setText(plainText, htmlMarkup);
+          }
+        } else {
+          message.setText(plainText, false);
+        }
+
+        if (cc.isPresent()) {
+          for (String ccc : cc.get().split(",")) {
+            message.addCc(ccc);
+          }
+        }
+
+        if (bcc.isPresent()) {
+          for (String cbcc : bcc.get().split(",")) {
+            message.addCc(cbcc);
+          }
+        }
+
+        if (attachmentPath.isPresent()) {
+          File attachment = new File(attachmentPath.get());
+          if (attachment.exists() && attachment.isFile()) {
+            message.addAttachment(attachment.getName(), attachment);
+          } else {
+            logger.info("{} does not exist", attachmentPath.get());
+          }
+        }
+      }
     };
 
     emailSender.send(preparator);
