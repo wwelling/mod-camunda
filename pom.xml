@@ -177,6 +177,10 @@
           <groupId>javax.mail</groupId>
           <artifactId>mailapi</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.folio</groupId>
+          <artifactId>mod-pubsub-client</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -236,6 +240,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.4</version>
     </dependency>
 
     <dependency>
