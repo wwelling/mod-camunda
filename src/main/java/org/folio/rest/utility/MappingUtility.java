@@ -10,16 +10,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.collections4.list.UnmodifiableList;
 import org.folio.Alternativetitletypes;
+import org.folio.Callnumbertypes;
 import org.folio.Classificationtypes;
 import org.folio.Contributornametypes;
 import org.folio.Contributortypes;
 import org.folio.Electronicaccessrelationships;
+import org.folio.Holdingsnotetypes;
+import org.folio.Holdingstypes;
 import org.folio.Identifiertypes;
+import org.folio.Illpolicies;
 import org.folio.Instance;
 import org.folio.Instanceformats;
 import org.folio.Instancenotetypes;
+import org.folio.Instancerelationshiptypes;
+import org.folio.Instancestatuses;
 import org.folio.Instancetypes;
 import org.folio.Issuancemodes;
+import org.folio.Itemdamagedstatuses;
+import org.folio.Itemnotetypes;
+import org.folio.Loantypes;
+import org.folio.Locations;
+import org.folio.Materialtypes;
+import org.folio.Natureofcontentterms;
+import org.folio.Statisticalcodes;
+import org.folio.Statisticalcodetypes;
 import org.folio.processing.mapping.defaultmapper.MarcToInstanceMapper;
 import org.folio.processing.mapping.defaultmapper.processor.parameters.MappingParameters;
 import org.slf4j.Logger;
@@ -78,7 +92,21 @@ public class MappingUtility {
       new ReferenceFetcher("/contributor-name-types?limit=" + SETTING_LIMIT, Contributornametypes.class, "contributorNameTypes"),
       new ReferenceFetcher("/instance-note-types?limit=" + SETTING_LIMIT, Instancenotetypes.class, "instanceNoteTypes"),
       new ReferenceFetcher("/alternative-title-types?limit=" + SETTING_LIMIT, Alternativetitletypes.class, "alternativeTitleTypes"),
-      new ReferenceFetcher("/modes-of-issuance?limit=" + SETTING_LIMIT, Issuancemodes.class, "issuanceModes")
+      new ReferenceFetcher("/modes-of-issuance?limit=" + SETTING_LIMIT, Issuancemodes.class, "issuanceModes"),
+      new ReferenceFetcher("/instance-statuses?limit=" + SETTING_LIMIT, Instancestatuses.class, "instanceStatuses"),
+      new ReferenceFetcher("/nature-of-content-terms?limit=" + SETTING_LIMIT, Natureofcontentterms.class, "natureOfContentTerms"),
+      new ReferenceFetcher("/instance-relationship-types?limit=" + SETTING_LIMIT, Instancerelationshiptypes.class, "instanceRelationshipTypes"),
+      new ReferenceFetcher("/holdings-types?limit=" + SETTING_LIMIT, Holdingstypes.class, "holdingsTypes"),
+      new ReferenceFetcher("/holdings-note-types?limit=" + SETTING_LIMIT, Holdingsnotetypes.class, "holdingsNoteTypes"),
+      new ReferenceFetcher("/ill-policies?limit=" + SETTING_LIMIT, Illpolicies.class, "illPolicies"),
+      new ReferenceFetcher("/call-number-types?limit=" + SETTING_LIMIT, Callnumbertypes.class, "callNumberTypes"),
+      new ReferenceFetcher("/statistical-codes?limit=" + SETTING_LIMIT, Statisticalcodes.class, "statisticalCodes"),
+      new ReferenceFetcher("/statistical-code-types?limit=" + SETTING_LIMIT, Statisticalcodetypes.class, "statisticalCodeTypes"),
+      new ReferenceFetcher("/locations?limit=" + SETTING_LIMIT, Locations.class, "locations"),
+      new ReferenceFetcher("/material-types?limit=" + SETTING_LIMIT, Materialtypes.class, "materialTypes"),
+      new ReferenceFetcher("/item-damaged-statuses?limit=" + SETTING_LIMIT, Itemdamagedstatuses.class, "itemDamageStatuses"),
+      new ReferenceFetcher("/loan-types?limit=" + SETTING_LIMIT, Loantypes.class, "loanTypes"),
+      new ReferenceFetcher("/item-note-types?limit=" + SETTING_LIMIT, Itemnotetypes.class, "itemNoteTypes")
     }).forEach(fetcher -> {
       HttpEntity<JsonNode> entity = new HttpEntity<JsonNode>(headers(tenant, token));
       String url = okapiUrl + fetcher.getUrl();
