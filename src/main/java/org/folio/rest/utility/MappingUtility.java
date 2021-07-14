@@ -10,30 +10,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.collections4.list.UnmodifiableList;
 import org.folio.Alternativetitletypes;
-import org.folio.Callnumbertypes;
 import org.folio.Classificationtypes;
 import org.folio.Contributornametypes;
 import org.folio.Contributortypes;
 import org.folio.Electronicaccessrelationships;
-import org.folio.Holdingsnotetypes;
-import org.folio.Holdingstypes;
 import org.folio.Identifiertypes;
-import org.folio.Illpolicies;
 import org.folio.Instance;
 import org.folio.Instanceformats;
 import org.folio.Instancenotetypes;
-import org.folio.Instancerelationshiptypes;
 import org.folio.Instancestatuses;
 import org.folio.Instancetypes;
 import org.folio.Issuancemodes;
-import org.folio.Itemdamagedstatuses;
-import org.folio.Itemnotetypes;
-import org.folio.Loantypes;
-import org.folio.Locations;
-import org.folio.Materialtypes;
-import org.folio.Natureofcontentterms;
-import org.folio.Statisticalcodes;
-import org.folio.Statisticalcodetypes;
 import org.folio.processing.mapping.defaultmapper.MarcToInstanceMapper;
 import org.folio.processing.mapping.defaultmapper.processor.parameters.MappingParameters;
 import org.slf4j.Logger;
@@ -93,29 +80,16 @@ public class MappingUtility {
       new ReferenceFetcher("/instance-note-types?limit=" + SETTING_LIMIT, Instancenotetypes.class, "instanceNoteTypes"),
       new ReferenceFetcher("/alternative-title-types?limit=" + SETTING_LIMIT, Alternativetitletypes.class, "alternativeTitleTypes"),
       new ReferenceFetcher("/modes-of-issuance?limit=" + SETTING_LIMIT, Issuancemodes.class, "issuanceModes"),
-      new ReferenceFetcher("/instance-statuses?limit=" + SETTING_LIMIT, Instancestatuses.class, "instanceStatuses"),
-      new ReferenceFetcher("/nature-of-content-terms?limit=" + SETTING_LIMIT, Natureofcontentterms.class, "natureOfContentTerms"),
-      new ReferenceFetcher("/instance-relationship-types?limit=" + SETTING_LIMIT, Instancerelationshiptypes.class, "instanceRelationshipTypes"),
-      new ReferenceFetcher("/holdings-types?limit=" + SETTING_LIMIT, Holdingstypes.class, "holdingsTypes"),
-      new ReferenceFetcher("/holdings-note-types?limit=" + SETTING_LIMIT, Holdingsnotetypes.class, "holdingsNoteTypes"),
-      new ReferenceFetcher("/ill-policies?limit=" + SETTING_LIMIT, Illpolicies.class, "illPolicies"),
-      new ReferenceFetcher("/call-number-types?limit=" + SETTING_LIMIT, Callnumbertypes.class, "callNumberTypes"),
-      new ReferenceFetcher("/statistical-codes?limit=" + SETTING_LIMIT, Statisticalcodes.class, "statisticalCodes"),
-      new ReferenceFetcher("/statistical-code-types?limit=" + SETTING_LIMIT, Statisticalcodetypes.class, "statisticalCodeTypes"),
-      new ReferenceFetcher("/locations?limit=" + SETTING_LIMIT, Locations.class, "locations"),
-      new ReferenceFetcher("/material-types?limit=" + SETTING_LIMIT, Materialtypes.class, "mtypes", "materialTypes"),
-      new ReferenceFetcher("/item-damaged-statuses?limit=" + SETTING_LIMIT, Itemdamagedstatuses.class, "itemDamageStatuses"),
-      new ReferenceFetcher("/loan-types?limit=" + SETTING_LIMIT, Loantypes.class, "loantypes", "loanTypes"),
-      new ReferenceFetcher("/item-note-types?limit=" + SETTING_LIMIT, Itemnotetypes.class, "itemNoteTypes")
+      new ReferenceFetcher("/instance-statuses?limit=" + SETTING_LIMIT, Instancestatuses.class, "instanceStatuses")
     }).forEach(fetcher -> {
       HttpEntity<JsonNode> entity = new HttpEntity<JsonNode>(headers(tenant, token));
       String url = okapiUrl + fetcher.getUrl();
       Class<?> collectionType = fetcher.getCollectionType();
       ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, collectionType);
       try {
-        Field source = collectionType.getDeclaredField(fetcher.getResponseProperty());
+        Field source = collectionType.getDeclaredField(fetcher.getProperty());
         source.setAccessible(true);
-        Field target = mappingParameters.getClass().getDeclaredField(fetcher.getTargetProperty());
+        Field target = mappingParameters.getClass().getDeclaredField(fetcher.getProperty());
         target.setAccessible(true);
         target.set(mappingParameters, new UnmodifiableList<>((List<?>) source.get(response.getBody())));
       } catch (RestClientException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
@@ -149,21 +123,12 @@ public class MappingUtility {
 
     private final Class<?> collectionType;
 
-    private final String responseProperty;
-
-    private final String targetProperty;
+    private final String property;
 
     public ReferenceFetcher(String url, Class<?> collectionType, String property) {
       this.url = url;
       this.collectionType = collectionType;
-      this.responseProperty = this.targetProperty = property;
-    }
-
-    public ReferenceFetcher(String url, Class<?> collectionType, String responseProperty, String targetProperty) {
-      this.url = url;
-      this.collectionType = collectionType;
-      this.responseProperty = responseProperty;
-      this.targetProperty = targetProperty;
+      this.property = property;
     }
 
     public String getUrl() {
@@ -174,12 +139,8 @@ public class MappingUtility {
       return collectionType;
     }
 
-    public String getResponseProperty() {
-      return responseProperty;
-    }
-
-    public String getTargetProperty() {
-      return targetProperty;
+    public String getProperty() {
+      return property;
     }
 
   }
