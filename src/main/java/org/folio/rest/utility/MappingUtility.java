@@ -103,7 +103,7 @@ public class MappingUtility {
       new ReferenceFetcher("/statistical-codes?limit=" + SETTING_LIMIT, Statisticalcodes.class, "statisticalCodes"),
       new ReferenceFetcher("/statistical-code-types?limit=" + SETTING_LIMIT, Statisticalcodetypes.class, "statisticalCodeTypes"),
       new ReferenceFetcher("/locations?limit=" + SETTING_LIMIT, Locations.class, "locations"),
-      new ReferenceFetcher("/material-types?limit=" + SETTING_LIMIT, Materialtypes.class, "materialTypes"),
+      new ReferenceFetcher("/material-types?limit=" + SETTING_LIMIT, Materialtypes.class, "mtypes"),
       new ReferenceFetcher("/item-damaged-statuses?limit=" + SETTING_LIMIT, Itemdamagedstatuses.class, "itemDamageStatuses"),
       new ReferenceFetcher("/loan-types?limit=" + SETTING_LIMIT, Loantypes.class, "loanTypes"),
       new ReferenceFetcher("/item-note-types?limit=" + SETTING_LIMIT, Itemnotetypes.class, "itemNoteTypes")
