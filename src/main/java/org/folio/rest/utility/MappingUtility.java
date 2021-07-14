@@ -105,7 +105,7 @@ public class MappingUtility {
       new ReferenceFetcher("/locations?limit=" + SETTING_LIMIT, Locations.class, "locations"),
       new ReferenceFetcher("/material-types?limit=" + SETTING_LIMIT, Materialtypes.class, "mtypes", "materialTypes"),
       new ReferenceFetcher("/item-damaged-statuses?limit=" + SETTING_LIMIT, Itemdamagedstatuses.class, "itemDamageStatuses"),
-      new ReferenceFetcher("/loan-types?limit=" + SETTING_LIMIT, Loantypes.class, "loanTypes"),
+      new ReferenceFetcher("/loan-types?limit=" + SETTING_LIMIT, Loantypes.class, "loantypes", "loanTypes"),
       new ReferenceFetcher("/item-note-types?limit=" + SETTING_LIMIT, Itemnotetypes.class, "itemNoteTypes")
     }).forEach(fetcher -> {
       HttpEntity<JsonNode> entity = new HttpEntity<JsonNode>(headers(tenant, token));
