@@ -2,10 +2,12 @@ package org.folio.rest.delegate;
 
 import static org.camunda.spin.Spin.JSON;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
+import org.camunda.bpm.engine.variable.Variables;
 import org.folio.rest.workflow.model.EmbeddedVariable;
 import org.folio.rest.workflow.model.VariableType;
 import org.slf4j.Logger;
@@ -27,19 +29,18 @@ public interface Output {
     EmbeddedVariable variable = getOutputVariable(execution);
     Optional<String> key = variable.getKey();
     if (key.isPresent()) {
-      Optional<Object> value = Optional.ofNullable(output);
-      if (value.isPresent()) {
+      if (Objects.nonNull(output)) {
         Optional<VariableType> type = variable.getType();
-        if (variable.isSpin()) {
-          value = Optional.ofNullable(JSON(getObjectMapper().writeValueAsString(output)));
-        }
+        Object value = variable.isSpin()
+          ? JSON(getObjectMapper().writeValueAsString(output))
+          : Variables.objectValue(output, variable.getAsTransient()).create();
         if (type.isPresent()) {
           switch (type.get()) {
           case LOCAL:
-            execution.setVariableLocal(key.get(), value.get());
+            execution.setVariableLocal(key.get(), value);
             break;
           case PROCESS:
-            execution.setVariable(key.get(), value.get());
+            execution.setVariable(key.get(), value);
             break;
           default:
             break;

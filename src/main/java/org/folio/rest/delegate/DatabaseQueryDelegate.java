@@ -178,11 +178,14 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
         ResultSetMetaData metadata = results.getMetaData();
         for (int count = 1; count <= metadata.getColumnCount(); ++count) {
           String columnName = metadata.getColumnName(count);
-          builder.append("\"")
-            .append(columnName)
-            .append("\":\"")
-            .append(results.getString(columnName))
-            .append("\"");
+          String value = results.getString(columnName);
+          if (Objects.nonNull(value)) {
+            builder.append("\"")
+              .append(columnName)
+              .append("\":\"")
+              .append(value)
+              .append("\"");
+          }
         }
         builder.append("}").append("\n");
         fw.write(builder.toString());
@@ -194,7 +197,10 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       ResultSetMetaData metadata = results.getMetaData();
       for (int count = 1; count <= metadata.getColumnCount(); ++count) {
         String columnName = metadata.getColumnName(count);
-        builder.append(results.getString(columnName));
+        String value = results.getString(columnName);
+        if (Objects.nonNull(value)) {
+          builder.append(value);
+        }
         if (count < metadata.getColumnCount()) {
           builder.append(delimiter);
         }

@@ -11,15 +11,15 @@ import org.slf4j.LoggerFactory;
 
 public class FormatUtility {
 
-  private final Logger log = LoggerFactory.getLogger(FormatUtility.class);
+  private static final Logger log = LoggerFactory.getLogger(FormatUtility.class);
 
-  private final PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+  private static final PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
 
-  public FormatUtility() {
+  private FormatUtility() {
 
   }
 
-  public String normalizePostalCode(String postalCode) {
+  public static String normalizePostalCode(String postalCode) {
     if (StringUtils.isNotEmpty(postalCode)) {
       // simple fix for trailing hyphens
       postalCode = StringUtils.removeEnd(postalCode, "-");
@@ -31,7 +31,7 @@ public class FormatUtility {
     return postalCode;
   }
 
-  public String normalizePhoneNumber(String phoneNumber) {
+  public static String normalizePhoneNumber(String phoneNumber) {
     if (StringUtils.isNotEmpty(phoneNumber)) {
       if (phoneNumber.startsWith("#") || phoneNumber.startsWith("*")) {
         return phoneNumber;

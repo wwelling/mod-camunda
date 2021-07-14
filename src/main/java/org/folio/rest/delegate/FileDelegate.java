@@ -14,6 +14,10 @@ import org.folio.rest.workflow.model.FileOp;
 import org.folio.rest.workflow.model.FileTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -31,7 +35,17 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
 
     logger.info("{} started", delegateName);
 
-    String path = this.path.getValue(execution).toString();
+    String pathTemplate = this.path.getValue(execution).toString();
+
+    StringTemplateLoader pathLoader = new StringTemplateLoader();
+    pathLoader.putTemplate("path", pathTemplate);
+
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+    cfg.setTemplateLoader(pathLoader);
+
+    Map<String, Object> inputs = getInputs(execution);
+    String path = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
+
     FileOp op = FileOp.valueOf(this.op.getValue(execution).toString());
 
     File file = new File(path);
@@ -57,7 +71,6 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         }
         break;
       case WRITE:
-        Map<String, Object> inputs = getInputs(execution);
         StringBuilder content = new StringBuilder();
         for (Object value : inputs.values()) {
           if (value instanceof String) {
