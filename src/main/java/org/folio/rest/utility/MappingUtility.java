@@ -18,7 +18,6 @@ import org.folio.Identifiertypes;
 import org.folio.Instance;
 import org.folio.Instanceformats;
 import org.folio.Instancenotetypes;
-import org.folio.Instancestatuses;
 import org.folio.Instancetypes;
 import org.folio.Issuancemodes;
 import org.folio.processing.mapping.defaultmapper.MarcToInstanceMapper;
@@ -79,8 +78,7 @@ public class MappingUtility {
       new ReferenceFetcher("/contributor-name-types?limit=" + SETTING_LIMIT, Contributornametypes.class, "contributorNameTypes"),
       new ReferenceFetcher("/instance-note-types?limit=" + SETTING_LIMIT, Instancenotetypes.class, "instanceNoteTypes"),
       new ReferenceFetcher("/alternative-title-types?limit=" + SETTING_LIMIT, Alternativetitletypes.class, "alternativeTitleTypes"),
-      new ReferenceFetcher("/modes-of-issuance?limit=" + SETTING_LIMIT, Issuancemodes.class, "issuanceModes"),
-      new ReferenceFetcher("/instance-statuses?limit=" + SETTING_LIMIT, Instancestatuses.class, "instanceStatuses")
+      new ReferenceFetcher("/modes-of-issuance?limit=" + SETTING_LIMIT, Issuancemodes.class, "issuanceModes")
     }).forEach(fetcher -> {
       HttpEntity<JsonNode> entity = new HttpEntity<JsonNode>(headers(tenant, token));
       String url = okapiUrl + fetcher.getUrl();
