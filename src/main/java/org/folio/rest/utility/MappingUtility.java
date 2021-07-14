@@ -103,7 +103,7 @@ public class MappingUtility {
       new ReferenceFetcher("/statistical-codes?limit=" + SETTING_LIMIT, Statisticalcodes.class, "statisticalCodes"),
       new ReferenceFetcher("/statistical-code-types?limit=" + SETTING_LIMIT, Statisticalcodetypes.class, "statisticalCodeTypes"),
       new ReferenceFetcher("/locations?limit=" + SETTING_LIMIT, Locations.class, "locations"),
-      new ReferenceFetcher("/material-types?limit=" + SETTING_LIMIT, Materialtypes.class, "mtypes"),
+      new ReferenceFetcher("/material-types?limit=" + SETTING_LIMIT, Materialtypes.class, "mtypes", "materialTypes"),
       new ReferenceFetcher("/item-damaged-statuses?limit=" + SETTING_LIMIT, Itemdamagedstatuses.class, "itemDamageStatuses"),
       new ReferenceFetcher("/loan-types?limit=" + SETTING_LIMIT, Loantypes.class, "loanTypes"),
       new ReferenceFetcher("/item-note-types?limit=" + SETTING_LIMIT, Itemnotetypes.class, "itemNoteTypes")
@@ -113,9 +113,9 @@ public class MappingUtility {
       Class<?> collectionType = fetcher.getCollectionType();
       ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.GET, entity, collectionType);
       try {
-        Field source = collectionType.getDeclaredField(fetcher.getProperty());
+        Field source = collectionType.getDeclaredField(fetcher.getResponseProperty());
         source.setAccessible(true);
-        Field target = mappingParameters.getClass().getDeclaredField(fetcher.getProperty());
+        Field target = mappingParameters.getClass().getDeclaredField(fetcher.getTargetProperty());
         target.setAccessible(true);
         target.set(mappingParameters, new UnmodifiableList<>((List<?>) source.get(response.getBody())));
       } catch (RestClientException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
@@ -149,12 +149,21 @@ public class MappingUtility {
 
     private final Class<?> collectionType;
 
-    private final String property;
+    private final String responseProperty;
+
+    private final String targetProperty;
 
     public ReferenceFetcher(String url, Class<?> collectionType, String property) {
       this.url = url;
       this.collectionType = collectionType;
-      this.property = property;
+      this.responseProperty = this.targetProperty = property;
+    }
+
+    public ReferenceFetcher(String url, Class<?> collectionType, String responseProperty, String targetProperty) {
+      this.url = url;
+      this.collectionType = collectionType;
+      this.responseProperty = responseProperty;
+      this.targetProperty = targetProperty;
     }
 
     public String getUrl() {
@@ -165,8 +174,12 @@ public class MappingUtility {
       return collectionType;
     }
 
-    public String getProperty() {
-      return property;
+    public String getResponseProperty() {
+      return responseProperty;
+    }
+
+    public String getTargetProperty() {
+      return targetProperty;
     }
 
   }
