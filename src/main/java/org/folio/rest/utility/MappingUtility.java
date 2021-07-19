@@ -73,8 +73,6 @@ import io.vertx.core.json.JsonObject;
 
 public class MappingUtility {
 
-  private static final Logger log = LoggerFactory.getLogger(MappingUtility.class);
-
   private static final int SETTING_LIMIT = 1000;
 
   private static final String IDENTIFIER_TYPES_URL = "/identifier-types?limit=" + SETTING_LIMIT;
