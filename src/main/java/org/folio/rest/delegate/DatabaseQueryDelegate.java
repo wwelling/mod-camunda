@@ -9,11 +9,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -21,6 +18,14 @@ import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.DatabaseQueryTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -40,8 +45,18 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     logger.info("{} started", delegateName);
 
+    String queryTemplate = this.query.getValue(execution).toString();
+
+    StringTemplateLoader stringLoader = new StringTemplateLoader();
+    stringLoader.putTemplate("query", queryTemplate);
+
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+    cfg.setTemplateLoader(stringLoader);
+
+    Map<String, Object> inputs = getInputs(execution);
+
     String key = this.designation.getValue(execution).toString();
-    String query = this.query.getValue(execution).toString();
+    String query = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("query"), inputs);
 
     Connection conn = connectionService.getConnection(key);
 
