@@ -221,8 +221,7 @@ public class BpmnModelFactory {
             builder = builder.exclusiveGateway().name(node.getName());
             break;
           case INCLUSIVE:
-            // TODO: implement and ensure validation
-            throw new RuntimeException("Inclusive gateway not yet supported!");
+            builder = builder.inclusiveGateway().name(node.getName());
           case MOVE_TO_LAST:
             builder = builder.moveToLastGateway();
             break;
