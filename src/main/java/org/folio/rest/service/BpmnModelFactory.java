@@ -303,7 +303,7 @@ public class BpmnModelFactory {
         }
 
       } else if (node instanceof Condition) {
-        builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
+        builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getExpression());
       } else if (node instanceof Navigation) {
 
         if (node instanceof ConnectTo) {

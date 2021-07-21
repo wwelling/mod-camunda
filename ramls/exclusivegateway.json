@@ -511,7 +511,7 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "condition" : {
+        "expression" : {
           "type" : "string",
           "minLength" : 4,
           "maxLength" : 128
@@ -526,7 +526,7 @@
         }
       },
       "title" : "Condition",
-      "required" : [ "deserializeAs", "name", "condition", "answer" ]
+      "required" : [ "deserializeAs", "name", "expression", "answer" ]
     },
     "ConnectTo" : {
       "type" : "object",

@@ -21,7 +21,7 @@
       "type" : "string",
       "maxLength" : 512
     },
-    "condition" : {
+    "expression" : {
       "type" : "string",
       "minLength" : 4,
       "maxLength" : 128
@@ -35,5 +35,5 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "condition", "answer" ]
+  "required" : [ "deserializeAs", "name", "expression", "answer" ]
 }
