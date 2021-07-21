@@ -1,5 +1,6 @@
 package org.folio.rest.utility;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,8 +61,6 @@ import org.folio.processing.mapping.defaultmapper.MarcToInstanceMapper;
 import org.folio.processing.mapping.defaultmapper.processor.parameters.MappingParameters;
 import org.folio.rest.jaxrs.model.MarcFieldProtectionSetting;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -162,175 +161,200 @@ public class MappingUtility {
     HttpEntity<Identifiertypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + IDENTIFIER_TYPES_URL;
     ResponseEntity<Identifiertypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Identifiertypes.class);
-    return response.getBody().getIdentifierTypes();
+    Identifiertypes body = response.getBody();
+    return body != null ? body.getIdentifierTypes() : new ArrayList<>();
   }
 
   private static List<ClassificationType> getClassificationTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Classificationtypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + CLASSIFICATION_TYPES_URL;
     ResponseEntity<Classificationtypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Classificationtypes.class);
-    return response.getBody().getClassificationTypes();
+    Classificationtypes body = response.getBody();
+    return body != null ? body.getClassificationTypes() : new ArrayList<>();
   }
 
   private static List<InstanceType> getInstanceTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Instancetypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + INSTANCE_TYPES_URL;
     ResponseEntity<Instancetypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Instancetypes.class);
-    return response.getBody().getInstanceTypes();
+    Instancetypes body = response.getBody();
+    return body != null ? body.getInstanceTypes() : new ArrayList<>();
   }
 
   private static List<ElectronicAccessRelationship> getElectronicAccessRelationships(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Electronicaccessrelationships> entity = new HttpEntity<>(headers);
     String url = okapiUrl + ELECTRONIC_ACCESS_URL;
     ResponseEntity<Electronicaccessrelationships> response = restTemplate.exchange(url, HttpMethod.GET, entity, Electronicaccessrelationships.class);
-    return response.getBody().getElectronicAccessRelationships();
+    Electronicaccessrelationships body = response.getBody();
+    return body != null ? body.getElectronicAccessRelationships() : new ArrayList<>();
   }
 
   private static List<InstanceFormat> getInstanceFormats(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Instanceformats> entity = new HttpEntity<>(headers);
     String url = okapiUrl + INSTANCE_FORMATS_URL;
     ResponseEntity<Instanceformats> response = restTemplate.exchange(url, HttpMethod.GET, entity, Instanceformats.class);
-    return response.getBody().getInstanceFormats();
+    Instanceformats body = response.getBody();
+    return body != null ? body.getInstanceFormats() : new ArrayList<>();
   }
 
   private static List<ContributorType> getContributorTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Contributortypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + CONTRIBUTOR_TYPES_URL;
     ResponseEntity<Contributortypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Contributortypes.class);
-    return response.getBody().getContributorTypes();
+    Contributortypes body = response.getBody();
+    return body != null ? body.getContributorTypes() : new ArrayList<>();
   }
 
   private static List<ContributorNameType> getContributorNameTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Contributornametypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + CONTRIBUTOR_NAME_TYPES_URL;
     ResponseEntity<Contributornametypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Contributornametypes.class);
-    return response.getBody().getContributorNameTypes();
+    Contributornametypes body = response.getBody();
+    return body != null ? body.getContributorNameTypes() : new ArrayList<>();
   }
 
   private static List<InstanceNoteType> getInstanceNoteTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Instancenotetypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + INSTANCE_NOTE_TYPES_URL;
     ResponseEntity<Instancenotetypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Instancenotetypes.class);
-    return response.getBody().getInstanceNoteTypes();
+    Instancenotetypes body = response.getBody();
+    return body != null ? body.getInstanceNoteTypes() : new ArrayList<>();
   }
 
   private static List<AlternativeTitleType> getAlternativeTitleTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Alternativetitletypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + INSTANCE_ALTERNATIVE_TITLE_TYPES_URL;
     ResponseEntity<Alternativetitletypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Alternativetitletypes.class);
-    return response.getBody().getAlternativeTitleTypes();
+    Alternativetitletypes body = response.getBody();
+    return body != null ? body.getAlternativeTitleTypes() : new ArrayList<>();
   }
 
   private static List<NatureOfContentTerm> getNatureOfContentTerms(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Natureofcontentterms> entity = new HttpEntity<>(headers);
     String url = okapiUrl + NATURE_OF_CONTENT_TERMS_URL;
     ResponseEntity<Natureofcontentterms> response = restTemplate.exchange(url, HttpMethod.GET, entity, Natureofcontentterms.class);
-    return response.getBody().getNatureOfContentTerms();
+    Natureofcontentterms body = response.getBody();
+    return body != null ? body.getNatureOfContentTerms() : new ArrayList<>();
   }
 
   private static List<InstanceStatus> getInstanceStatuses(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Instancestatuses> entity = new HttpEntity<>(headers);
     String url = okapiUrl + INSTANCE_STATUSES_URL;
     ResponseEntity<Instancestatuses> response = restTemplate.exchange(url, HttpMethod.GET, entity, Instancestatuses.class);
-    return response.getBody().getInstanceStatuses();
+    Instancestatuses body = response.getBody();
+    return body != null ? body.getInstanceStatuses() : new ArrayList<>();
   }
 
   private static List<InstanceRelationshipType> getInstanceRelationshipTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Instancerelationshiptypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + INSTANCE_RELATIONSHIP_TYPES_URL;
     ResponseEntity<Instancerelationshiptypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Instancerelationshiptypes.class);
-    return response.getBody().getInstanceRelationshipTypes();
+    Instancerelationshiptypes body = response.getBody();
+    return body != null ? body.getInstanceRelationshipTypes() : new ArrayList<>();
   }
 
   private static List<HoldingsType> getHoldingsTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Holdingstypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + HOLDINGS_TYPES_URL;
     ResponseEntity<Holdingstypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Holdingstypes.class);
-    return response.getBody().getHoldingsTypes();
+    Holdingstypes body = response.getBody();
+    return body != null ? body.getHoldingsTypes() : new ArrayList<>();
   }
 
   private static List<HoldingsNoteType> getHoldingsNoteTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Holdingsnotetypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + HOLDINGS_NOTE_TYPES_URL;
     ResponseEntity<Holdingsnotetypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Holdingsnotetypes.class);
-    return response.getBody().getHoldingsNoteTypes();
+    Holdingsnotetypes body = response.getBody();
+    return body != null ? body.getHoldingsNoteTypes() : new ArrayList<>();
   }
 
   private static List<IllPolicy> getIllPolicies(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Illpolicies> entity = new HttpEntity<>(headers);
     String url = okapiUrl + ILL_POLICIES_URL;
     ResponseEntity<Illpolicies> response = restTemplate.exchange(url, HttpMethod.GET, entity, Illpolicies.class);
-    return response.getBody().getIllPolicies();
+    Illpolicies body = response.getBody();
+    return body != null ? body.getIllPolicies() : new ArrayList<>();
   }
 
   private static List<CallNumberType> getCallNumberTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Callnumbertypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + CALL_NUMBER_TYPES_URL;
     ResponseEntity<Callnumbertypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Callnumbertypes.class);
-    return response.getBody().getCallNumberTypes();
+    Callnumbertypes body = response.getBody();
+    return body != null ? body.getCallNumberTypes() : new ArrayList<>();
   }
 
   private static List<StatisticalCode> getStatisticalCodes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Statisticalcodes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + STATISTICAL_CODES_URL;
     ResponseEntity<Statisticalcodes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Statisticalcodes.class);
-    return response.getBody().getStatisticalCodes();
+    Statisticalcodes body = response.getBody();
+    return body != null ? body.getStatisticalCodes() : new ArrayList<>();
   }
 
   private static List<StatisticalCodeType> getStatisticalCodeTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Statisticalcodetypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + STATISTICAL_CODE_TYPES_URL;
     ResponseEntity<Statisticalcodetypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Statisticalcodetypes.class);
-    return response.getBody().getStatisticalCodeTypes();
+    Statisticalcodetypes body = response.getBody();
+    return body != null ? body.getStatisticalCodeTypes() : new ArrayList<>();
   }
 
   private static List<Location> getLocations(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Locations> entity = new HttpEntity<>(headers);
     String url = okapiUrl + LOCATIONS_URL;
     ResponseEntity<Locations> response = restTemplate.exchange(url, HttpMethod.GET, entity, Locations.class);
-    return response.getBody().getLocations();
+    Locations body = response.getBody();
+    return body != null ? body.getLocations() : new ArrayList<>();
   }
 
   private static List<Mtype> getMaterialTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Materialtypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + MATERIAL_TYPES_URL;
     ResponseEntity<Materialtypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Materialtypes.class);
-    return response.getBody().getMtypes();
+    Materialtypes body = response.getBody();
+    return body != null ? body.getMtypes() : new ArrayList<>();
   }
 
   private static List<ItemDamageStatus> getItemDamagedStatuses(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Itemdamagedstatuses> entity = new HttpEntity<>(headers);
     String url = okapiUrl + ITEM_DAMAGED_STATUSES_URL;
     ResponseEntity<Itemdamagedstatuses> response = restTemplate.exchange(url, HttpMethod.GET, entity, Itemdamagedstatuses.class);
-    return response.getBody().getItemDamageStatuses();
+    Itemdamagedstatuses body = response.getBody();
+    return body != null ? body.getItemDamageStatuses() : new ArrayList<>();
   }
 
   private static List<Loantype> getLoanTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Loantypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + LOAN_TYPES_URL;
     ResponseEntity<Loantypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Loantypes.class);
-    return response.getBody().getLoantypes();
+    Loantypes body = response.getBody();
+    return body != null ? body.getLoantypes() : new ArrayList<>();
   }
 
   private static List<ItemNoteType> getItemNoteTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Itemnotetypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + ITEM_NOTE_TYPES_URL;
     ResponseEntity<Itemnotetypes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Itemnotetypes.class);
-    return response.getBody().getItemNoteTypes();
+    Itemnotetypes body = response.getBody();
+    return body != null ? body.getItemNoteTypes() : new ArrayList<>();
   }
 
   private static List<MarcFieldProtectionSetting> getMarcFieldProtectionSettings(String okapiUrl, HttpHeaders headers) {
     HttpEntity<MarcFieldProtectionSettingsCollection> entity = new HttpEntity<>(headers);
     String url = okapiUrl + FIELD_PROTECTION_SETTINGS_URL;
     ResponseEntity<MarcFieldProtectionSettingsCollection> response = restTemplate.exchange(url, HttpMethod.GET, entity, MarcFieldProtectionSettingsCollection.class);
-    return response.getBody().getMarcFieldProtectionSettings();
+    MarcFieldProtectionSettingsCollection body = response.getBody();
+    return body != null ? body.getMarcFieldProtectionSettings() : new ArrayList<>();
   }
 
   private static List<IssuanceMode> getIssuanceModes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Issuancemodes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + ISSUANCE_MODES_URL;
     ResponseEntity<Issuancemodes> response = restTemplate.exchange(url, HttpMethod.GET, entity, Issuancemodes.class);
-    return response.getBody().getIssuanceModes();
+    Issuancemodes body = response.getBody();
+    return body != null ? body.getIssuanceModes() : new ArrayList<>();
   }
 
   private static HttpHeaders headers(String tenant, String token) {
