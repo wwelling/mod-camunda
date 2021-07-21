@@ -24,12 +24,15 @@ import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.folio.rest.delegate.AbstractWorkflowDelegate;
-import org.folio.rest.workflow.model.ConditionalGateway;
+import org.folio.rest.workflow.model.Condition;
 import org.folio.rest.workflow.model.ConnectTo;
 import org.folio.rest.workflow.model.EmbeddedLoopReference;
 import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
+import org.folio.rest.workflow.model.ExclusiveGateway;
+import org.folio.rest.workflow.model.InclusiveGateway;
+import org.folio.rest.workflow.model.MoveToLastGateway;
 import org.folio.rest.workflow.model.MoveToNode;
 import org.folio.rest.workflow.model.Node;
 import org.folio.rest.workflow.model.ParallelGateway;
@@ -213,22 +216,14 @@ public class BpmnModelFactory {
 
       } else if (node instanceof Branch) {
 
-        if (node instanceof ConditionalGateway) {
-
-          switch (((ConditionalGateway) node).getType()) {
-
-          case EXCLUSIVE:
-            builder = builder.exclusiveGateway().name(node.getName());
-            break;
-          case INCLUSIVE:
-            builder = builder.inclusiveGateway().name(node.getName());
-          case MOVE_TO_LAST:
-            builder = builder.moveToLastGateway();
-            break;
-          default:
-            break;
-
-          }
+        if (node instanceof ExclusiveGateway) {
+          builder = builder.exclusiveGateway(node.getIdentifier())
+            .name(node.getName());
+        } else if (node instanceof InclusiveGateway) {
+          builder = builder.inclusiveGateway(node.getIdentifier())
+            .name(node.getName());
+        } else if (node instanceof MoveToLastGateway) {
+          builder = builder.moveToLastGateway();
         } else if (node instanceof ParallelGateway) {
 
           builder = builder.parallelGateway(node.getIdentifier()).name(node.getName());
@@ -289,14 +284,12 @@ public class BpmnModelFactory {
 
         }
 
-        if (node instanceof Conditional) {
-          builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
-        }
-
         if (!(node instanceof Subprocess)) {
           builder = build(builder, ((Branch) node).getNodes(), Setup.NONE);
         }
 
+      } else if (node instanceof Condition) {
+        builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
       } else if (node instanceof Navigation) {
 
         if (node instanceof ConnectTo) {

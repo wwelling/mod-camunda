@@ -1,38 +1,25 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "Workflow",
+  "title" : "InclusiveGateway",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
+    "deserializeAs" : {
+      "type" : "string",
+      "enum" : [ "InclusiveGateway" ],
+      "default" : "InclusiveGateway"
+    },
     "id" : {
       "type" : "string"
     },
     "name" : {
       "type" : "string",
-      "minLength" : 4,
+      "minLength" : 3,
       "maxLength" : 64
-    },
-    "versionTag" : {
-      "type" : "string",
-      "minLength" : 1,
-      "maxLength" : 64
-    },
-    "historyTimeToLive" : {
-      "type" : "integer",
-      "minimum" : 0
     },
     "description" : {
       "type" : "string",
       "maxLength" : 512
-    },
-    "active" : {
-      "type" : "boolean"
-    },
-    "deploymentId" : {
-      "type" : "string"
-    },
-    "setup" : {
-      "$ref" : "#/definitions/Setup"
     },
     "nodes" : {
       "type" : "array",
@@ -86,26 +73,12 @@
         } ]
       }
     },
-    "initialContext" : {
-      "type" : "object",
-      "additionalProperties" : { }
+    "identifier" : {
+      "type" : "string"
     }
   },
-  "required" : [ "name", "versionTag", "active" ],
+  "required" : [ "deserializeAs", "name" ],
   "definitions" : {
-    "Setup" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "asyncAfter" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "asyncBefore", "asyncAfter" ]
-    },
     "StartEvent" : {
       "type" : "object",
       "additionalProperties" : false,
