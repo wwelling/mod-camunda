@@ -6,6 +6,8 @@ import static java.util.regex.Pattern.compile;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class ValidationUtility {
 
   private static final String EMAIL_REGEX = "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$";
@@ -39,7 +41,7 @@ public class ValidationUtility {
    * @return TRUE if matched, FALSE otherwise.
    */
   public static boolean isEmailLike(String string) {
-    return isEmail(string) || (string == null ? false : string.toLowerCase().indexOf("@") != -1);
+    return isEmail(string) || (StringUtils.isNotEmpty(string) && string.toLowerCase().indexOf("@") != -1);
   }
 
   /**
