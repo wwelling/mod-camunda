@@ -198,6 +198,10 @@
           "type" : "string",
           "maxLength" : 512
         },
+        "direction" : {
+          "type" : "string",
+          "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
+        },
         "nodes" : {
           "type" : "array",
           "items" : {
@@ -277,6 +281,10 @@
         "description" : {
           "type" : "string",
           "maxLength" : 512
+        },
+        "direction" : {
+          "type" : "string",
+          "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
         },
         "nodes" : {
           "type" : "array",
@@ -358,6 +366,10 @@
           "type" : "string",
           "maxLength" : 512
         },
+        "direction" : {
+          "type" : "string",
+          "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
+        },
         "nodes" : {
           "type" : "array",
           "items" : {
@@ -437,6 +449,10 @@
         "description" : {
           "type" : "string",
           "maxLength" : 512
+        },
+        "direction" : {
+          "type" : "string",
+          "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
         },
         "nodes" : {
           "type" : "array",

@@ -14,6 +14,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.GatewayDirection;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.MultiInstanceLoopCharacteristicsBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
@@ -47,6 +48,7 @@ import org.folio.rest.workflow.model.components.Branch;
 import org.folio.rest.workflow.model.components.Conditional;
 import org.folio.rest.workflow.model.components.DelegateTask;
 import org.folio.rest.workflow.model.components.Event;
+import org.folio.rest.workflow.model.components.Gateway;
 import org.folio.rest.workflow.model.components.Navigation;
 import org.folio.rest.workflow.model.components.Task;
 import org.folio.rest.workflow.model.components.Wait;
@@ -217,20 +219,32 @@ public class BpmnModelFactory {
       } else if (node instanceof Branch) {
 
         if (node instanceof ExclusiveGateway) {
+
           builder = builder.exclusiveGateway(node.getIdentifier())
-            .name(node.getName());
+            .name(node.getName())
+            .gatewayDirection(GatewayDirection.valueOf(((Gateway) node).getDirection().getValue()));
+
         } else if (node instanceof InclusiveGateway) {
+
           builder = builder.inclusiveGateway(node.getIdentifier())
-            .name(node.getName());
+            .name(node.getName())
+            .gatewayDirection(GatewayDirection.valueOf(((Gateway) node).getDirection().getValue()));
+
         } else if (node instanceof MoveToLastGateway) {
-          builder = builder.moveToLastGateway();
+
+          builder = builder.moveToLastGateway()
+            .gatewayDirection(GatewayDirection.valueOf(((Gateway) node).getDirection().getValue()));
+
         } else if (node instanceof ParallelGateway) {
 
-          builder = builder.parallelGateway(node.getIdentifier()).name(node.getName());
+          builder = builder.parallelGateway(node.getIdentifier())
+            .name(node.getName())
+            .gatewayDirection(GatewayDirection.valueOf(((Gateway) node).getDirection().getValue()));
 
         } else if (node instanceof MoveToNode) {
 
-          builder = builder.moveToNode(((MoveToNode) node).getGatewayId());
+          builder = builder.moveToNode(((MoveToNode) node)
+            .getGatewayId());
 
         } else if ((node instanceof Subprocess)) {
 
