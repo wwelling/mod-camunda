@@ -1,0 +1,8 @@
+<job-executor>
+  <job-acquisition name="default">
+    <properties>
+      <property name="waitTimeInMillis">15000</property>
+      <property name="lockTimeInMillis">900000</property>
+    </properties>
+  </job-acquisition>
+</job-executor>

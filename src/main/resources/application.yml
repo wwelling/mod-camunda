@@ -2,11 +2,14 @@ logging:
   file: logs/mod-camunda.log
   level:
     org:
+      camunda: INFO
       folio: INFO
       hibernate: INFO
       springframework: INFO
 
 server:
+  servlet:
+    context-path: /mod-camunda
   port: 9000
 
 spring:
@@ -77,6 +80,9 @@ camunda:
       last-name: Admin
       email: cadmin@mailinator.com
     # authorization.enabled: true
+    generic-properties:
+      properties:
+        failed-job-retry-time-cycle: R3/PT30S
 
 event.queue.name: event.queue
 

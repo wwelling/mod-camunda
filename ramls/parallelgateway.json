@@ -21,6 +21,10 @@
       "type" : "string",
       "maxLength" : 512
     },
+    "direction" : {
+      "type" : "string",
+      "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
+    },
     "nodes" : {
       "type" : "array",
       "items" : {
@@ -29,13 +33,25 @@
         }, {
           "$ref" : "#/definitions/EndEvent"
         }, {
-          "$ref" : "#/definitions/ConditionalGateway"
+          "$ref" : "#/definitions/ExclusiveGateway"
+        }, {
+          "$ref" : "#/definitions/InclusiveGateway"
+        }, {
+          "$ref" : "#/definitions/MoveToLastGateway"
         }, {
           "$ref" : "#/definitions/ParallelGateway"
+        }, {
+          "$ref" : "#/definitions/Condition"
         }, {
           "$ref" : "#/definitions/ConnectTo"
         }, {
           "$ref" : "#/definitions/MoveToNode"
+        }, {
+          "$ref" : "#/definitions/Subprocess"
+        }, {
+          "$ref" : "#/definitions/EventSubprocess"
+        }, {
+          "$ref" : "#/definitions/CompressFileTask"
         }, {
           "$ref" : "#/definitions/DatabaseConnectionTask"
         }, {
@@ -47,6 +63,8 @@
         }, {
           "$ref" : "#/definitions/FileTask"
         }, {
+          "$ref" : "#/definitions/FtpTask"
+        }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
           "$ref" : "#/definitions/DirectoryTask"
@@ -56,10 +74,6 @@
           "$ref" : "#/definitions/ProcessorTask"
         }, {
           "$ref" : "#/definitions/ScriptTask"
-        }, {
-          "$ref" : "#/definitions/Subprocess"
-        }, {
-          "$ref" : "#/definitions/EventSubprocess"
         } ]
       }
     },
@@ -140,14 +154,14 @@
       "title" : "EndEvent",
       "required" : [ "deserializeAs", "name" ]
     },
-    "ConditionalGateway" : {
+    "ExclusiveGateway" : {
       "type" : "object",
       "additionalProperties" : false,
       "properties" : {
         "deserializeAs" : {
           "type" : "string",
-          "enum" : [ "ConditionalGateway" ],
-          "default" : "ConditionalGateway"
+          "enum" : [ "ExclusiveGateway" ],
+          "default" : "ExclusiveGateway"
         },
         "id" : {
           "type" : "string"
@@ -161,19 +175,9 @@
           "type" : "string",
           "maxLength" : 512
         },
-        "type" : {
+        "direction" : {
           "type" : "string",
-          "enum" : [ "EXCLUSIVE", "INCLUSIVE", "MOVE_TO_LAST" ]
-        },
-        "condition" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 128
-        },
-        "answer" : {
-          "type" : "string",
-          "minLength" : 2,
-          "maxLength" : 64
+          "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
         },
         "nodes" : {
           "type" : "array",
@@ -183,13 +187,25 @@
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
-              "$ref" : "#/definitions/ConditionalGateway"
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/InclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
             }, {
               "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/Condition"
             }, {
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -201,6 +217,8 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -210,10 +228,6 @@
               "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/Subprocess"
-            }, {
-              "$ref" : "#/definitions/EventSubprocess"
             } ]
           }
         },
@@ -221,8 +235,176 @@
           "type" : "string"
         }
       },
-      "title" : "ConditionalGateway",
-      "required" : [ "deserializeAs", "name", "type", "condition", "answer" ]
+      "title" : "ExclusiveGateway",
+      "required" : [ "deserializeAs", "name" ]
+    },
+    "InclusiveGateway" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "InclusiveGateway" ],
+          "default" : "InclusiveGateway"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "direction" : {
+          "type" : "string",
+          "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/StartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/InclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
+            }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/DirectoryTask"
+            }, {
+              "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/ScriptTask"
+            } ]
+          }
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "InclusiveGateway",
+      "required" : [ "deserializeAs", "name" ]
+    },
+    "MoveToLastGateway" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "MoveToLastGateway" ],
+          "default" : "MoveToLastGateway"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "direction" : {
+          "type" : "string",
+          "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/StartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/InclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
+            }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/DirectoryTask"
+            }, {
+              "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/ScriptTask"
+            } ]
+          }
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "MoveToLastGateway",
+      "required" : [ "deserializeAs", "name" ]
     },
     "ParallelGateway" : {
       "type" : "object",
@@ -245,6 +427,10 @@
           "type" : "string",
           "maxLength" : 512
         },
+        "direction" : {
+          "type" : "string",
+          "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
+        },
         "nodes" : {
           "type" : "array",
           "items" : {
@@ -253,13 +439,25 @@
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
-              "$ref" : "#/definitions/ConditionalGateway"
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/InclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
             }, {
               "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/Condition"
             }, {
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -271,6 +469,8 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -280,10 +480,6 @@
               "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/Subprocess"
-            }, {
-              "$ref" : "#/definitions/EventSubprocess"
             } ]
           }
         },
@@ -293,6 +489,44 @@
       },
       "title" : "ParallelGateway",
       "required" : [ "deserializeAs", "name" ]
+    },
+    "Condition" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "Condition" ],
+          "default" : "Condition"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "expression" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 128
+        },
+        "answer" : {
+          "type" : "string",
+          "minLength" : 2,
+          "maxLength" : 64
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "Condition",
+      "required" : [ "deserializeAs", "name", "expression", "answer" ]
     },
     "ConnectTo" : {
       "type" : "object",
@@ -357,13 +591,25 @@
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
-              "$ref" : "#/definitions/ConditionalGateway"
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/InclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
             }, {
               "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/Condition"
             }, {
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -375,6 +621,8 @@
             }, {
               "$ref" : "#/definitions/FileTask"
             }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
               "$ref" : "#/definitions/DirectoryTask"
@@ -384,10 +632,6 @@
               "$ref" : "#/definitions/ProcessorTask"
             }, {
               "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/Subprocess"
-            }, {
-              "$ref" : "#/definitions/EventSubprocess"
             } ]
           }
         },
@@ -397,6 +641,264 @@
       },
       "title" : "MoveToNode",
       "required" : [ "deserializeAs", "name", "gatewayId" ]
+    },
+    "Subprocess" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "Subprocess" ],
+          "default" : "Subprocess"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "EMBEDDED", "TRANSACTION" ]
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/StartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/InclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
+            }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/DirectoryTask"
+            }, {
+              "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/ScriptTask"
+            } ]
+          }
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "loopRef" : {
+          "$ref" : "#/definitions/EmbeddedLoopReference"
+        },
+        "multiInstance" : {
+          "type" : "boolean"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "Subprocess",
+      "required" : [ "deserializeAs", "name", "type", "asyncBefore", "asyncAfter", "multiInstance" ]
+    },
+    "EventSubprocess" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "EventSubprocess" ],
+          "default" : "EventSubprocess"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "nodes" : {
+          "type" : "array",
+          "items" : {
+            "oneOf" : [ {
+              "$ref" : "#/definitions/StartEvent"
+            }, {
+              "$ref" : "#/definitions/EndEvent"
+            }, {
+              "$ref" : "#/definitions/ExclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/InclusiveGateway"
+            }, {
+              "$ref" : "#/definitions/MoveToLastGateway"
+            }, {
+              "$ref" : "#/definitions/ParallelGateway"
+            }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
+              "$ref" : "#/definitions/ConnectTo"
+            }, {
+              "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/Subprocess"
+            }, {
+              "$ref" : "#/definitions/EventSubprocess"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseConnectionTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseDisconnectTask"
+            }, {
+              "$ref" : "#/definitions/DatabaseQueryTask"
+            }, {
+              "$ref" : "#/definitions/EmailTask"
+            }, {
+              "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
+            }, {
+              "$ref" : "#/definitions/RequestTask"
+            }, {
+              "$ref" : "#/definitions/DirectoryTask"
+            }, {
+              "$ref" : "#/definitions/ReceiveTask"
+            }, {
+              "$ref" : "#/definitions/ProcessorTask"
+            }, {
+              "$ref" : "#/definitions/ScriptTask"
+            } ]
+          }
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "EventSubprocess",
+      "required" : [ "deserializeAs", "name" ]
+    },
+    "CompressFileTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "CompressFileTask" ],
+          "default" : "CompressFileTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "source" : {
+          "type" : "string"
+        },
+        "destination" : {
+          "type" : "string"
+        },
+        "format" : {
+          "type" : "string",
+          "enum" : [ "BZIP2", "GZIP" ]
+        },
+        "container" : {
+          "type" : "string",
+          "enum" : [ "NONE", "TAR" ]
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "CompressFileTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedVariable" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "PROCESS", "LOCAL" ]
+        },
+        "spin" : {
+          "type" : "boolean"
+        },
+        "asJson" : {
+          "type" : "boolean"
+        },
+        "asTransient" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "key", "spin" ]
     },
     "DatabaseConnectionTask" : {
       "type" : "object",
@@ -452,28 +954,6 @@
       },
       "title" : "DatabaseConnectionTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
-    },
-    "EmbeddedVariable" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "key" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "type" : {
-          "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL" ]
-        },
-        "spin" : {
-          "type" : "boolean"
-        },
-        "asJson" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "key", "spin" ]
     },
     "DatabaseDisconnectTask" : {
       "type" : "object",
@@ -638,6 +1118,9 @@
           "type" : "string",
           "minLength" : 2
         },
+        "mailMarkup" : {
+          "type" : "string"
+        },
         "attachmentPath" : {
           "type" : "string"
         },
@@ -697,6 +1180,74 @@
       },
       "title" : "FileTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "FtpTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "FtpTask" ],
+          "default" : "FtpTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "originPath" : {
+          "type" : "string"
+        },
+        "destinationPath" : {
+          "type" : "string"
+        },
+        "op" : {
+          "type" : "string",
+          "enum" : [ "GET", "PUT" ]
+        },
+        "scheme" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "port" : {
+          "type" : "integer"
+        },
+        "username" : {
+          "type" : "string"
+        },
+        "password" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "FtpTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "port" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -987,162 +1538,6 @@
       },
       "title" : "ScriptTask",
       "required" : [ "deserializeAs", "name", "code", "asyncBefore", "asyncAfter" ]
-    },
-    "Subprocess" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "Subprocess" ],
-          "default" : "Subprocess"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "type" : {
-          "type" : "string",
-          "enum" : [ "EMBEDDED", "TRANSACTION" ]
-        },
-        "nodes" : {
-          "type" : "array",
-          "items" : {
-            "oneOf" : [ {
-              "$ref" : "#/definitions/StartEvent"
-            }, {
-              "$ref" : "#/definitions/EndEvent"
-            }, {
-              "$ref" : "#/definitions/ConditionalGateway"
-            }, {
-              "$ref" : "#/definitions/ParallelGateway"
-            }, {
-              "$ref" : "#/definitions/ConnectTo"
-            }, {
-              "$ref" : "#/definitions/MoveToNode"
-            }, {
-              "$ref" : "#/definitions/DatabaseConnectionTask"
-            }, {
-              "$ref" : "#/definitions/DatabaseDisconnectTask"
-            }, {
-              "$ref" : "#/definitions/DatabaseQueryTask"
-            }, {
-              "$ref" : "#/definitions/EmailTask"
-            }, {
-              "$ref" : "#/definitions/FileTask"
-            }, {
-              "$ref" : "#/definitions/RequestTask"
-            }, {
-              "$ref" : "#/definitions/DirectoryTask"
-            }, {
-              "$ref" : "#/definitions/ReceiveTask"
-            }, {
-              "$ref" : "#/definitions/ProcessorTask"
-            }, {
-              "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/Subprocess"
-            }, {
-              "$ref" : "#/definitions/EventSubprocess"
-            } ]
-          }
-        },
-        "asyncBefore" : {
-          "type" : "boolean"
-        },
-        "asyncAfter" : {
-          "type" : "boolean"
-        },
-        "loopRef" : {
-          "$ref" : "#/definitions/EmbeddedLoopReference"
-        },
-        "multiInstance" : {
-          "type" : "boolean"
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "Subprocess",
-      "required" : [ "deserializeAs", "name", "type", "asyncBefore", "asyncAfter", "multiInstance" ]
-    },
-    "EventSubprocess" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "deserializeAs" : {
-          "type" : "string",
-          "enum" : [ "EventSubprocess" ],
-          "default" : "EventSubprocess"
-        },
-        "id" : {
-          "type" : "string"
-        },
-        "name" : {
-          "type" : "string",
-          "minLength" : 3,
-          "maxLength" : 64
-        },
-        "description" : {
-          "type" : "string",
-          "maxLength" : 512
-        },
-        "nodes" : {
-          "type" : "array",
-          "items" : {
-            "oneOf" : [ {
-              "$ref" : "#/definitions/StartEvent"
-            }, {
-              "$ref" : "#/definitions/EndEvent"
-            }, {
-              "$ref" : "#/definitions/ConditionalGateway"
-            }, {
-              "$ref" : "#/definitions/ParallelGateway"
-            }, {
-              "$ref" : "#/definitions/ConnectTo"
-            }, {
-              "$ref" : "#/definitions/MoveToNode"
-            }, {
-              "$ref" : "#/definitions/DatabaseConnectionTask"
-            }, {
-              "$ref" : "#/definitions/DatabaseDisconnectTask"
-            }, {
-              "$ref" : "#/definitions/DatabaseQueryTask"
-            }, {
-              "$ref" : "#/definitions/EmailTask"
-            }, {
-              "$ref" : "#/definitions/FileTask"
-            }, {
-              "$ref" : "#/definitions/RequestTask"
-            }, {
-              "$ref" : "#/definitions/DirectoryTask"
-            }, {
-              "$ref" : "#/definitions/ReceiveTask"
-            }, {
-              "$ref" : "#/definitions/ProcessorTask"
-            }, {
-              "$ref" : "#/definitions/ScriptTask"
-            }, {
-              "$ref" : "#/definitions/Subprocess"
-            }, {
-              "$ref" : "#/definitions/EventSubprocess"
-            } ]
-          }
-        },
-        "identifier" : {
-          "type" : "string"
-        }
-      },
-      "title" : "EventSubprocess",
-      "required" : [ "deserializeAs", "name" ]
     },
     "EmbeddedLoopReference" : {
       "type" : "object",

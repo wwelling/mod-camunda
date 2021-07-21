@@ -9,19 +9,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.DatabaseQueryTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -41,8 +45,18 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     logger.info("{} started", delegateName);
 
+    String queryTemplate = this.query.getValue(execution).toString();
+
+    StringTemplateLoader stringLoader = new StringTemplateLoader();
+    stringLoader.putTemplate("query", queryTemplate);
+
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+    cfg.setTemplateLoader(stringLoader);
+
+    Map<String, Object> inputs = getInputs(execution);
+
     String key = this.designation.getValue(execution).toString();
-    String query = this.query.getValue(execution).toString();
+    String query = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("query"), inputs);
 
     Connection conn = connectionService.getConnection(key);
 
@@ -179,11 +193,14 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
         ResultSetMetaData metadata = results.getMetaData();
         for (int count = 1; count <= metadata.getColumnCount(); ++count) {
           String columnName = metadata.getColumnName(count);
-          builder.append("\"")
-            .append(columnName)
-            .append("\":\"")
-            .append(results.getString(columnName))
-            .append("\"");
+          String value = results.getString(columnName);
+          if (Objects.nonNull(value)) {
+            builder.append("\"")
+              .append(columnName)
+              .append("\":\"")
+              .append(value)
+              .append("\"");
+          }
         }
         builder.append("}").append("\n");
         fw.write(builder.toString());
@@ -195,7 +212,10 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       ResultSetMetaData metadata = results.getMetaData();
       for (int count = 1; count <= metadata.getColumnCount(); ++count) {
         String columnName = metadata.getColumnName(count);
-        builder.append(results.getString(columnName));
+        String value = results.getString(columnName);
+        if (Objects.nonNull(value)) {
+          builder.append(value);
+        }
         if (count < metadata.getColumnCount()) {
           builder.append(delimiter);
         }

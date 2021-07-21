@@ -14,6 +14,10 @@ import org.folio.rest.workflow.model.FileOp;
 import org.folio.rest.workflow.model.FileTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -31,33 +35,42 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
 
     logger.info("{} started", delegateName);
 
-    String path = this.path.getValue(execution).toString();
-    FileOp op = FileOp.valueOf(this.op.getValue(execution).toString());
+    String pathTemplate = this.path.getValue(execution).toString();
 
-    File file = new File(path);
+    StringTemplateLoader pathLoader = new StringTemplateLoader();
+    pathLoader.putTemplate("path", pathTemplate);
 
-    switch (op) {
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+    cfg.setTemplateLoader(pathLoader);
+
+    Map<String, Object> inputs = getInputs(execution);
+    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
+
+    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
+
+    File file = new File(filePath);
+
+    switch (fileOp) {
       case DELETE:
         if (file.exists()) {
           boolean deleted = file.delete();
           if (deleted) {
-            logger.info("{} has been deleted", path);
+            logger.info("{} has been deleted", filePath);
           }
         } else {
-          logger.info("{} does not exist", path);
+          logger.info("{} does not exist", filePath);
         }
         break;
       case READ:
         if (file.exists()) {
-          String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+          String content = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
           setOutput(execution, content);
-          logger.info("{} read", path);
+          logger.info("{} read", filePath);
         } else {
-          logger.info("{} does not exist", path);
+          logger.info("{} does not exist", filePath);
         }
         break;
       case WRITE:
-        Map<String, Object> inputs = getInputs(execution);
         StringBuilder content = new StringBuilder();
         for (Object value : inputs.values()) {
           if (value instanceof String) {
@@ -68,7 +81,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
           content.append("\n");
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
-        logger.info("{} written", path);
+        logger.info("{} written", filePath);
         break;
     }
 

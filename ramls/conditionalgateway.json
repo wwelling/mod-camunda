@@ -25,16 +25,6 @@
       "type" : "string",
       "enum" : [ "EXCLUSIVE", "INCLUSIVE", "MOVE_TO_LAST" ]
     },
-    "condition" : {
-      "type" : "string",
-      "minLength" : 4,
-      "maxLength" : 128
-    },
-    "answer" : {
-      "type" : "string",
-      "minLength" : 2,
-      "maxLength" : 64
-    },
     "nodes" : {
       "type" : "array",
       "items" : {
@@ -43,6 +33,8 @@
         }, {
           "$ref" : "#/definitions/EndEvent"
         }, {
+          "$ref" : "#/definitions/Condition"
+        }, {
           "$ref" : "#/definitions/ConditionalGateway"
         }, {
           "$ref" : "#/definitions/ParallelGateway"
@@ -50,6 +42,8 @@
           "$ref" : "#/definitions/ConnectTo"
         }, {
           "$ref" : "#/definitions/MoveToNode"
+        }, {
+          "$ref" : "#/definitions/CompressFileTask"
         }, {
           "$ref" : "#/definitions/DatabaseConnectionTask"
         }, {
@@ -60,6 +54,8 @@
           "$ref" : "#/definitions/EmailTask"
         }, {
           "$ref" : "#/definitions/FileTask"
+        }, {
+          "$ref" : "#/definitions/FtpTask"
         }, {
           "$ref" : "#/definitions/RequestTask"
         }, {
@@ -81,7 +77,7 @@
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "type", "condition", "answer" ],
+  "required" : [ "deserializeAs", "name", "type" ],
   "definitions" : {
     "StartEvent" : {
       "type" : "object",
@@ -154,6 +150,44 @@
       "title" : "EndEvent",
       "required" : [ "deserializeAs", "name" ]
     },
+    "Condition" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "Condition" ],
+          "default" : "Condition"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "condition" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 128
+        },
+        "answer" : {
+          "type" : "string",
+          "minLength" : 2,
+          "maxLength" : 64
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "Condition",
+      "required" : [ "deserializeAs", "name", "condition", "answer" ]
+    },
     "ConditionalGateway" : {
       "type" : "object",
       "additionalProperties" : false,
@@ -179,16 +213,6 @@
           "type" : "string",
           "enum" : [ "EXCLUSIVE", "INCLUSIVE", "MOVE_TO_LAST" ]
         },
-        "condition" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 128
-        },
-        "answer" : {
-          "type" : "string",
-          "minLength" : 2,
-          "maxLength" : 64
-        },
         "nodes" : {
           "type" : "array",
           "items" : {
@@ -197,6 +221,8 @@
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
               "$ref" : "#/definitions/ConditionalGateway"
             }, {
               "$ref" : "#/definitions/ParallelGateway"
@@ -204,6 +230,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -214,6 +242,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -236,7 +266,7 @@
         }
       },
       "title" : "ConditionalGateway",
-      "required" : [ "deserializeAs", "name", "type", "condition", "answer" ]
+      "required" : [ "deserializeAs", "name", "type" ]
     },
     "ParallelGateway" : {
       "type" : "object",
@@ -267,6 +297,8 @@
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
               "$ref" : "#/definitions/ConditionalGateway"
             }, {
               "$ref" : "#/definitions/ParallelGateway"
@@ -274,6 +306,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -284,6 +318,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -371,6 +407,8 @@
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
               "$ref" : "#/definitions/ConditionalGateway"
             }, {
               "$ref" : "#/definitions/ParallelGateway"
@@ -378,6 +416,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -388,6 +428,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -411,6 +453,88 @@
       },
       "title" : "MoveToNode",
       "required" : [ "deserializeAs", "name", "gatewayId" ]
+    },
+    "CompressFileTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "CompressFileTask" ],
+          "default" : "CompressFileTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "source" : {
+          "type" : "string"
+        },
+        "destination" : {
+          "type" : "string"
+        },
+        "format" : {
+          "type" : "string",
+          "enum" : [ "BZIP2", "GZIP" ]
+        },
+        "container" : {
+          "type" : "string",
+          "enum" : [ "NONE", "TAR" ]
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "CompressFileTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "EmbeddedVariable" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "minLength" : 4,
+          "maxLength" : 64
+        },
+        "type" : {
+          "type" : "string",
+          "enum" : [ "PROCESS", "LOCAL" ]
+        },
+        "spin" : {
+          "type" : "boolean"
+        },
+        "asJson" : {
+          "type" : "boolean"
+        },
+        "asTransient" : {
+          "type" : "boolean"
+        }
+      },
+      "required" : [ "key", "spin" ]
     },
     "DatabaseConnectionTask" : {
       "type" : "object",
@@ -466,28 +590,6 @@
       },
       "title" : "DatabaseConnectionTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
-    },
-    "EmbeddedVariable" : {
-      "type" : "object",
-      "additionalProperties" : false,
-      "properties" : {
-        "key" : {
-          "type" : "string",
-          "minLength" : 4,
-          "maxLength" : 64
-        },
-        "type" : {
-          "type" : "string",
-          "enum" : [ "PROCESS", "LOCAL" ]
-        },
-        "spin" : {
-          "type" : "boolean"
-        },
-        "asJson" : {
-          "type" : "boolean"
-        }
-      },
-      "required" : [ "key", "spin" ]
     },
     "DatabaseDisconnectTask" : {
       "type" : "object",
@@ -652,6 +754,9 @@
           "type" : "string",
           "minLength" : 2
         },
+        "mailMarkup" : {
+          "type" : "string"
+        },
         "attachmentPath" : {
           "type" : "string"
         },
@@ -711,6 +816,74 @@
       },
       "title" : "FileTask",
       "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+    },
+    "FtpTask" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "deserializeAs" : {
+          "type" : "string",
+          "enum" : [ "FtpTask" ],
+          "default" : "FtpTask"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string",
+          "minLength" : 3,
+          "maxLength" : 64
+        },
+        "description" : {
+          "type" : "string",
+          "maxLength" : 512
+        },
+        "inputVariables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/EmbeddedVariable"
+          }
+        },
+        "outputVariable" : {
+          "$ref" : "#/definitions/EmbeddedVariable"
+        },
+        "asyncBefore" : {
+          "type" : "boolean"
+        },
+        "asyncAfter" : {
+          "type" : "boolean"
+        },
+        "originPath" : {
+          "type" : "string"
+        },
+        "destinationPath" : {
+          "type" : "string"
+        },
+        "op" : {
+          "type" : "string",
+          "enum" : [ "GET", "PUT" ]
+        },
+        "scheme" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "port" : {
+          "type" : "integer"
+        },
+        "username" : {
+          "type" : "string"
+        },
+        "password" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        }
+      },
+      "title" : "FtpTask",
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "port" ]
     },
     "RequestTask" : {
       "type" : "object",
@@ -1035,6 +1208,8 @@
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
               "$ref" : "#/definitions/ConditionalGateway"
             }, {
               "$ref" : "#/definitions/ParallelGateway"
@@ -1042,6 +1217,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -1052,6 +1229,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {
@@ -1117,6 +1296,8 @@
             }, {
               "$ref" : "#/definitions/EndEvent"
             }, {
+              "$ref" : "#/definitions/Condition"
+            }, {
               "$ref" : "#/definitions/ConditionalGateway"
             }, {
               "$ref" : "#/definitions/ParallelGateway"
@@ -1124,6 +1305,8 @@
               "$ref" : "#/definitions/ConnectTo"
             }, {
               "$ref" : "#/definitions/MoveToNode"
+            }, {
+              "$ref" : "#/definitions/CompressFileTask"
             }, {
               "$ref" : "#/definitions/DatabaseConnectionTask"
             }, {
@@ -1134,6 +1317,8 @@
               "$ref" : "#/definitions/EmailTask"
             }, {
               "$ref" : "#/definitions/FileTask"
+            }, {
+              "$ref" : "#/definitions/FtpTask"
             }, {
               "$ref" : "#/definitions/RequestTask"
             }, {

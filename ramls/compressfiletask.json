@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "DirectoryTask",
+  "title" : "CompressFileTask",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "DirectoryTask" ],
-      "default" : "DirectoryTask"
+      "enum" : [ "CompressFileTask" ],
+      "default" : "CompressFileTask"
     },
     "id" : {
       "type" : "string"
@@ -20,16 +20,6 @@
     "description" : {
       "type" : "string",
       "maxLength" : 512
-    },
-    "path" : {
-      "type" : "string"
-    },
-    "workflow" : {
-      "type" : "string"
-    },
-    "action" : {
-      "type" : "string",
-      "enum" : [ "READ_NEXT", "DELETE_NEXT", "LIST", "WRITE" ]
     },
     "inputVariables" : {
       "type" : "array",
@@ -46,11 +36,25 @@
     "asyncAfter" : {
       "type" : "boolean"
     },
+    "source" : {
+      "type" : "string"
+    },
+    "destination" : {
+      "type" : "string"
+    },
+    "format" : {
+      "type" : "string",
+      "enum" : [ "BZIP2", "GZIP" ]
+    },
+    "container" : {
+      "type" : "string",
+      "enum" : [ "NONE", "TAR" ]
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "path", "workflow", "action", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ],
   "definitions" : {
     "EmbeddedVariable" : {
       "type" : "object",

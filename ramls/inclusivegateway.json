@@ -1,13 +1,13 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
-  "title" : "EventSubprocess",
+  "title" : "InclusiveGateway",
   "type" : "object",
   "additionalProperties" : false,
   "properties" : {
     "deserializeAs" : {
       "type" : "string",
-      "enum" : [ "EventSubprocess" ],
-      "default" : "EventSubprocess"
+      "enum" : [ "InclusiveGateway" ],
+      "default" : "InclusiveGateway"
     },
     "id" : {
       "type" : "string"
@@ -20,6 +20,10 @@
     "description" : {
       "type" : "string",
       "maxLength" : 512
+    },
+    "direction" : {
+      "type" : "string",
+      "enum" : [ "UNSPECIFIED", "CONVERGING", "DIVERGING", "MIXED" ]
     },
     "nodes" : {
       "type" : "array",
