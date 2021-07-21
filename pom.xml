@@ -35,7 +35,7 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>spring-module-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0-SNAPSHOT</version>
     <relativePath></relativePath>
   </parent>
 
@@ -159,7 +159,7 @@
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>spring-tenant</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -251,7 +251,7 @@
     <dependency>
        <groupId>org.apache.commons</groupId>
        <artifactId>commons-compress</artifactId>
-       <version>1.20</version>
+       <version>1.21</version>
     </dependency>
 
     <dependency>

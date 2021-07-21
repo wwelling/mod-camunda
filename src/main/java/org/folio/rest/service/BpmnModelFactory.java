@@ -14,6 +14,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.GatewayDirection;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.MultiInstanceLoopCharacteristicsBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
@@ -24,12 +25,15 @@ import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.folio.rest.delegate.AbstractWorkflowDelegate;
-import org.folio.rest.workflow.model.ConditionalGateway;
+import org.folio.rest.workflow.model.Condition;
 import org.folio.rest.workflow.model.ConnectTo;
 import org.folio.rest.workflow.model.EmbeddedLoopReference;
 import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
+import org.folio.rest.workflow.model.ExclusiveGateway;
+import org.folio.rest.workflow.model.InclusiveGateway;
+import org.folio.rest.workflow.model.MoveToLastGateway;
 import org.folio.rest.workflow.model.MoveToNode;
 import org.folio.rest.workflow.model.Node;
 import org.folio.rest.workflow.model.ParallelGateway;
@@ -44,6 +48,7 @@ import org.folio.rest.workflow.model.components.Branch;
 import org.folio.rest.workflow.model.components.Conditional;
 import org.folio.rest.workflow.model.components.DelegateTask;
 import org.folio.rest.workflow.model.components.Event;
+import org.folio.rest.workflow.model.components.Gateway;
 import org.folio.rest.workflow.model.components.Navigation;
 import org.folio.rest.workflow.model.components.Task;
 import org.folio.rest.workflow.model.components.Wait;
@@ -213,30 +218,33 @@ public class BpmnModelFactory {
 
       } else if (node instanceof Branch) {
 
-        if (node instanceof ConditionalGateway) {
+        if (node instanceof ExclusiveGateway) {
 
-          switch (((ConditionalGateway) node).getType()) {
+          builder = builder.exclusiveGateway(node.getIdentifier())
+            .name(node.getName())
+            .gatewayDirection(GatewayDirection.valueOf(((Gateway) node).getDirection().getValue()));
 
-          case EXCLUSIVE:
-            builder = builder.exclusiveGateway().name(node.getName());
-            break;
-          case INCLUSIVE:
-            // TODO: implement and ensure validation
-            throw new RuntimeException("Inclusive gateway not yet supported!");
-          case MOVE_TO_LAST:
-            builder = builder.moveToLastGateway();
-            break;
-          default:
-            break;
+        } else if (node instanceof InclusiveGateway) {
 
-          }
+          builder = builder.inclusiveGateway(node.getIdentifier())
+            .name(node.getName())
+            .gatewayDirection(GatewayDirection.valueOf(((Gateway) node).getDirection().getValue()));
+
+        } else if (node instanceof MoveToLastGateway) {
+
+          builder = builder.moveToLastGateway()
+            .gatewayDirection(GatewayDirection.valueOf(((Gateway) node).getDirection().getValue()));
+
         } else if (node instanceof ParallelGateway) {
 
-          builder = builder.parallelGateway(node.getIdentifier()).name(node.getName());
+          builder = builder.parallelGateway(node.getIdentifier())
+            .name(node.getName())
+            .gatewayDirection(GatewayDirection.valueOf(((Gateway) node).getDirection().getValue()));
 
         } else if (node instanceof MoveToNode) {
 
-          builder = builder.moveToNode(((MoveToNode) node).getGatewayId());
+          builder = builder.moveToNode(((MoveToNode) node)
+            .getGatewayId());
 
         } else if ((node instanceof Subprocess)) {
 
@@ -290,14 +298,12 @@ public class BpmnModelFactory {
 
         }
 
-        if (node instanceof Conditional) {
-          builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
-        }
-
         if (!(node instanceof Subprocess)) {
           builder = build(builder, ((Branch) node).getNodes(), Setup.NONE);
         }
 
+      } else if (node instanceof Condition) {
+        builder = builder.condition(((Conditional) node).getAnswer(), ((Conditional) node).getCondition());
       } else if (node instanceof Navigation) {
 
         if (node instanceof ConnectTo) {
