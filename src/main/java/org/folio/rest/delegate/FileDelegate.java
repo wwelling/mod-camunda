@@ -44,30 +44,30 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     cfg.setTemplateLoader(pathLoader);
 
     Map<String, Object> inputs = getInputs(execution);
-    String path = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
+    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
 
-    FileOp op = FileOp.valueOf(this.op.getValue(execution).toString());
+    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
 
-    File file = new File(path);
+    File file = new File(filePath);
 
-    switch (op) {
+    switch (fileOp) {
       case DELETE:
         if (file.exists()) {
           boolean deleted = file.delete();
           if (deleted) {
-            logger.info("{} has been deleted", path);
+            logger.info("{} has been deleted", filePath);
           }
         } else {
-          logger.info("{} does not exist", path);
+          logger.info("{} does not exist", filePath);
         }
         break;
       case READ:
         if (file.exists()) {
-          String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+          String content = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
           setOutput(execution, content);
-          logger.info("{} read", path);
+          logger.info("{} read", filePath);
         } else {
-          logger.info("{} does not exist", path);
+          logger.info("{} does not exist", filePath);
         }
         break;
       case WRITE:
@@ -81,7 +81,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
           content.append("\n");
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
-        logger.info("{} written", path);
+        logger.info("{} written", filePath);
         break;
     }
 
