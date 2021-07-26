@@ -22,12 +22,21 @@ public class FormatUtility {
   /**
    * Escape the text to ensure it can be safely used in CQL.
    *
+   * This will escape the CQL and further escape CQL as a URL argument.
+   *
+   * Perform the most minimalistic URL escaping possible for a single URL Argument.
+   *
+   * This only escapes what is necessary when passing a URL to an endpoint.
+   * So far this only appears to be the ampersand character.
+   *
+   * Use this instead of URLEncoder.encode(url, StandardCharsets.UTF_8); for when CQL is involved.
+   *
    * @param text The text to normalize.
    * @return The normalized text for use inside the CQL as a value.
    *
    * @see https://github.com/folio-org/raml-module-builder/blob/2c39990c96c22262b02c98dd2b51cbeedc90fb9d/util/src/main/java/org/folio/util/StringUtil.java#L39
    */
-  public static String normalizeCql(String text) {
+  public static String normalizeCqlUrlArgument(String text) {
     if (text == null) {
       return "\"\"";
     }
@@ -55,26 +64,7 @@ public class FormatUtility {
     }
     builder.append('"');
 
-    return builder.toString();
-  }
-
-  /**
-   * Perform the most minimalistic URL escaping possible for a single URL Argument.
-   *
-   * This only escapes what is necessary when passing a URL to an endpoint.
-   * So far this only appears to be the ampersand character.
-   *
-   * Use this instead of URLEncoder.encode(url, StandardCharsets.UTF_8); for when CQL is involved.
-   *
-   * Do not use this to escape the entire URL.
-   *
-   * @param text The specific text within a URL to normalize.
-   * @return The normalized text for use as a single url argument.
-   *
-   * @see https://datatracker.ietf.org/doc/html/rfc3986/#section-2.2
-   */
-  public static String normalizeUrlArgument(String text) {
-    return text.replaceAll("&", "%26");
+    return builder.toString().replaceAll("&", "%26");
   }
 
   public static String normalizePostalCode(String postalCode) {
