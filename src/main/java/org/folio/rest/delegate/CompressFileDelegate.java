@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -23,6 +24,10 @@ import org.folio.rest.workflow.model.CompressFileTask;
 import org.h2.util.IOUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -51,8 +56,20 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
     logger.info("{} started", delegateName);
 
-    String sourcePath = this.source.getValue(execution).toString();
-    String destinationPath = this.destination.getValue(execution).toString();
+    String sourcePathTemplate = this.source.getValue(execution).toString();
+    String destinationPathTemplate = this.destination.getValue(execution).toString();
+
+    StringTemplateLoader pathLoader = new StringTemplateLoader();
+    pathLoader.putTemplate("sourcePath", sourcePathTemplate);
+    pathLoader.putTemplate("destinationPath", destinationPathTemplate);
+
+    Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+    cfg.setTemplateLoader(pathLoader);
+
+    Map<String, Object> inputs = getInputs(execution);
+    String sourcePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("sourcePath"), inputs);
+    String destinationPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("destinationPath"), inputs);
+
     CompressFileFormat compressFormat = CompressFileFormat.valueOf(this.format.getValue(execution).toString());
     CompressFileContainer useContainer = CompressFileContainer.valueOf(this.container.getValue(execution).toString());
     String formatType = null;
@@ -87,16 +104,16 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
     if (sourceFile.exists()) {
       if (!sourceFile.canRead()) {
-        logger.info("{} could not be read", sourceFile);
+        logger.info("{} could not be read", sourcePath);
         formatType = null;
       }
 
       if (useContainer == CompressFileContainer.NONE && sourceFile.isDirectory()) {
-        logger.info("{} is a directory and cannot be compressed when container is NONE", sourceFile);
+        logger.info("{} is a directory and cannot be compressed when container is NONE", sourcePath);
         formatType = null;
       }
     } else {
-      logger.info("{} does not exist", sourceFile);
+      logger.info("{} does not exist", sourcePath);
       formatType = null;
     }
 
@@ -143,7 +160,7 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
         }
       }
 
-      logger.info("{} written to {} as {}", source, destination, format);
+      logger.info("{} written to {} as {}", sourcePath, destinationPath, compressFormat);
     }
 
     long endTime = System.nanoTime();

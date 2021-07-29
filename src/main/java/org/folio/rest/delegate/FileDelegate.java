@@ -4,6 +4,10 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -83,6 +87,21 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
         logger.info("{} written", filePath);
         break;
+      case LIST:
+        if (file.exists()) {
+          if (file.isDirectory()) {
+            List<String> listing = new ArrayList<>();
+            traverseDirectory(file, listing);
+            setOutput(execution, listing);
+          } else {
+            logger.info("{} is not a directory to list", filePath);
+          }
+        } else {
+          logger.info("{} does not exist", filePath);
+        }
+        break;
+      default:
+        break;
     }
 
     long endTime = System.nanoTime();
@@ -100,6 +119,20 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
   @Override
   public Class<?> fromTask() {
     return FileTask.class;
+  }
+
+  private void traverseDirectory(File directory, List<String> listing) {
+    if (directory.isDirectory()) {
+      File[] files = directory.listFiles();
+      Arrays.sort(files, Comparator.comparingLong(File::lastModified));
+      for (File file : files) {
+        if (file.isFile()) {
+          listing.add(file.getAbsolutePath());
+        } else if (file.isDirectory()) {
+          traverseDirectory(file, listing);
+        }
+      }
+    }
   }
 
 }

@@ -58,12 +58,11 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
 
     StringTemplateLoader stringLoader = new StringTemplateLoader();
     stringLoader.putTemplate("url", request.getUrl());
-    stringLoader.putTemplate("request", request.getBodyTemplate());
+    stringLoader.putTemplate("body", request.getBodyTemplate());
     cfg.setTemplateLoader(stringLoader);
 
     String url = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("url"), inputs);
-
-    String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("request"), inputs);
+    String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("body"), inputs);
 
     HttpMethod method = request.getMethod();
     String accept = request.getAccept();
