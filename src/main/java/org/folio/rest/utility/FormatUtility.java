@@ -53,7 +53,8 @@ public class FormatUtility {
       case '?':
       case '^':
       case '"':
-        builder.append('\\').append(c);
+        builder.append('\\')
+          .append(c);
         break;
 
       default:
