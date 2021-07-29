@@ -45,7 +45,6 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     logger.info("{} started", delegateName);
 
-    
     String queryTemplate = this.query.getValue(execution).toString();
 
     StringTemplateLoader stringLoader = new StringTemplateLoader();
