@@ -45,11 +45,9 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     logger.info("{} started", delegateName);
 
-    String outputPathTemplate = this.outputPath.getValue(execution).toString();
     String queryTemplate = this.query.getValue(execution).toString();
 
     StringTemplateLoader stringLoader = new StringTemplateLoader();
-    stringLoader.putTemplate("outputPath", outputPathTemplate);
     stringLoader.putTemplate("query", queryTemplate);
 
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
@@ -72,6 +70,9 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
         ResultOp resultOp;
 
         if (Objects.nonNull(this.outputPath)) {
+          String outputPathTemplate = this.outputPath.getValue(execution).toString();
+          stringLoader.putTemplate("outputPath", outputPathTemplate);
+
           String outputPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("outputPath"), inputs);
           String resultType = this.resultType.getValue(execution).toString();
           resultOp = new FileResultOp(results, outputPath, resultType);
