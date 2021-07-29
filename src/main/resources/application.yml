@@ -81,6 +81,8 @@ camunda:
       email: cadmin@mailinator.com
     # authorization.enabled: true
     default-number-of-retries: 1
+    job-execution:
+      lock-time-in-millis: 600000
 
 event.queue.name: event.queue
 
