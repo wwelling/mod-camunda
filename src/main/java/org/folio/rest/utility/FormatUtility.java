@@ -44,27 +44,26 @@ public class FormatUtility {
     StringBuilder builder = new StringBuilder(text.length() + 2);
 
     builder.append('"');
-    if (text != null) {
-      for (int i = 0; i < text.length(); i++) {
-        char c = text.charAt(i);
+    for (int i = 0; i < text.length(); i++) {
+      char c = text.charAt(i);
 
-        switch (c) {
-        case '\\':
-        case '*':
-        case '?':
-        case '^':
-        case '"':
-          builder.append('\\').append(c);
-          break;
+      switch (c) {
+      case '\\':
+      case '*':
+      case '?':
+      case '^':
+      case '"':
+        builder.append('\\').append(c);
+        break;
 
-        default:
-          builder.append(c);
-        }
+      default:
+        builder.append(c);
       }
     }
     builder.append('"');
 
-    return builder.toString().replaceAll("&", "%26");
+    return builder.toString()
+      .replace("&", "%26");
   }
 
   public static String normalizePostalCode(String postalCode) {
