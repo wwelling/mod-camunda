@@ -80,9 +80,7 @@ camunda:
       last-name: Admin
       email: cadmin@mailinator.com
     # authorization.enabled: true
-    generic-properties:
-      properties:
-        failed-job-retry-time-cycle: R3/PT30S
+    default-number-of-retries: 1
 
 event.queue.name: event.queue
 
