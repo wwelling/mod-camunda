@@ -24,7 +24,7 @@ spring:
     returnBodyOnUpdate: true
   datasource:
     hikari:
-      leakDetectionThreshold: 180000
+      leakDetectionThreshold: 1800000
       connectionTimeout: 30000
       idleTimeout: 600000
       maxLifetime: 1800000
