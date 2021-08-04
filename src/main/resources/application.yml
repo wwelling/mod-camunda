@@ -91,7 +91,7 @@ camunda:
     # authorization.enabled: true
     default-number-of-retries: 1
     job-execution:
-      lock-time-in-millis: 600000
+      lock-time-in-millis: 3600000
 
 event.queue.name: event.queue
 
