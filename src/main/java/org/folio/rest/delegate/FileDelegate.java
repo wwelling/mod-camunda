@@ -4,6 +4,10 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -44,30 +48,30 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     cfg.setTemplateLoader(pathLoader);
 
     Map<String, Object> inputs = getInputs(execution);
-    String path = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
+    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
 
-    FileOp op = FileOp.valueOf(this.op.getValue(execution).toString());
+    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
 
-    File file = new File(path);
+    File file = new File(filePath);
 
-    switch (op) {
+    switch (fileOp) {
       case DELETE:
         if (file.exists()) {
           boolean deleted = file.delete();
           if (deleted) {
-            logger.info("{} has been deleted", path);
+            logger.info("{} has been deleted", filePath);
           }
         } else {
-          logger.info("{} does not exist", path);
+          logger.info("{} does not exist", filePath);
         }
         break;
       case READ:
         if (file.exists()) {
-          String content = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+          String content = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
           setOutput(execution, content);
-          logger.info("{} read", path);
+          logger.info("{} read", filePath);
         } else {
-          logger.info("{} does not exist", path);
+          logger.info("{} does not exist", filePath);
         }
         break;
       case WRITE:
@@ -81,7 +85,22 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
           content.append("\n");
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
-        logger.info("{} written", path);
+        logger.info("{} written", filePath);
+        break;
+      case LIST:
+        if (file.exists()) {
+          if (file.isDirectory()) {
+            List<String> listing = new ArrayList<>();
+            traverseDirectory(file, listing);
+            setOutput(execution, listing);
+          } else {
+            logger.info("{} is not a directory to list", filePath);
+          }
+        } else {
+          logger.info("{} does not exist", filePath);
+        }
+        break;
+      default:
         break;
     }
 
@@ -100,6 +119,20 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
   @Override
   public Class<?> fromTask() {
     return FileTask.class;
+  }
+
+  private void traverseDirectory(File directory, List<String> listing) {
+    if (directory.isDirectory()) {
+      File[] files = directory.listFiles();
+      Arrays.sort(files, Comparator.comparingLong(File::lastModified));
+      for (File file : files) {
+        if (file.isFile()) {
+          listing.add(file.getAbsolutePath());
+        } else if (file.isDirectory()) {
+          traverseDirectory(file, listing);
+        }
+      }
+    }
   }
 
 }

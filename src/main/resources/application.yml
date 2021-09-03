@@ -1,6 +1,9 @@
 logging:
   file: logs/mod-camunda.log
   level:
+    com:
+      zaxxer:
+        hikari: INFO
     org:
       camunda: INFO
       folio: INFO
@@ -20,6 +23,12 @@ spring:
     returnBodyOnCreate: true
     returnBodyOnUpdate: true
   datasource:
+    hikari:
+      leakDetectionThreshold: 1800000
+      connectionTimeout: 30000
+      idleTimeout: 600000
+      maxLifetime: 1800000
+      maximumPoolSize: 16
     platform: h2
     url: jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
@@ -64,7 +73,7 @@ spring:
   thymeleaf:
     mode: TEXT
     suffix: .sql
-  jersey.application-path: camunda
+  jersey.application-path: rest
 
 camunda:
   bpm:
@@ -80,9 +89,9 @@ camunda:
       last-name: Admin
       email: cadmin@mailinator.com
     # authorization.enabled: true
-    generic-properties:
-      properties:
-        failed-job-retry-time-cycle: R3/PT30S
+    default-number-of-retries: 1
+    job-execution:
+      lock-time-in-millis: 3600000
 
 event.queue.name: event.queue
 

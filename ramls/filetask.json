@@ -41,7 +41,7 @@
     },
     "op" : {
       "type" : "string",
-      "enum" : [ "READ", "WRITE", "DELETE" ]
+      "enum" : [ "LIST", "READ", "WRITE", "DELETE" ]
     },
     "identifier" : {
       "type" : "string"
