@@ -1,12 +1,19 @@
 package org.folio.rest.utility;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.folio.AlternativeTitleType;
 import org.folio.Alternativetitletypes;
 import org.folio.CallNumberType;
@@ -116,6 +123,18 @@ public class MappingUtility {
     MappingParameters mappingParameters = getMappingParamaters(okapiUrl, tenant, token);
     Instance instance = marcToInstanceMapper.mapRecord(parsedRecord, mappingParameters, mappingRules);
     return objectMapper.writeValueAsString(instance);
+  }
+
+  public static String mapCsvToJson(String csv) throws IOException {
+    try(Reader targetReader = new StringReader(csv)) {
+      Iterable<CSVRecord> records = CSVFormat.DEFAULT
+        .builder()
+        .build()
+        .parse(targetReader);
+      List<CSVRecord> recordsList = StreamSupport.stream(records.spliterator(), false)
+        .collect(Collectors.toList());
+      return objectMapper.writeValueAsString(recordsList);
+    }
   }
 
   private static JsonObject fetchRules(String okapiUrl, String tenant, String token) {
