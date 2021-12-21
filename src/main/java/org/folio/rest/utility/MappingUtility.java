@@ -1,19 +1,17 @@
 package org.folio.rest.utility;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.folio.AlternativeTitleType;
 import org.folio.Alternativetitletypes;
 import org.folio.CallNumberType;
@@ -67,7 +65,6 @@ import org.folio.Statisticalcodetypes;
 import org.folio.processing.mapping.defaultmapper.MarcToInstanceMapper;
 import org.folio.processing.mapping.defaultmapper.processor.parameters.MappingParameters;
 import org.folio.rest.jaxrs.model.MarcFieldProtectionSetting;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -126,15 +123,14 @@ public class MappingUtility {
   }
 
   public static String mapCsvToJson(String csv) throws IOException {
-    try(Reader targetReader = new StringReader(csv)) {
-      Iterable<CSVRecord> records = CSVFormat.DEFAULT
-        .builder()
-        .build()
-        .parse(targetReader);
-      List<CSVRecord> recordsList = StreamSupport.stream(records.spliterator(), false)
-        .collect(Collectors.toList());
-      return objectMapper.writeValueAsString(recordsList);
-    }
+    CsvSchema csvSchema = CsvSchema.emptySchema().withHeader();
+    CsvMapper csvMapper = new CsvMapper();
+    MappingIterator<Map<String, String>> mappingIterator = csvMapper
+      .reader()
+      .forType(Map.class)
+      .with(csvSchema)
+      .readValues(csv);
+    return objectMapper.writeValueAsString(mappingIterator.readAll());
   }
 
   private static JsonObject fetchRules(String okapiUrl, String tenant, String token) {
