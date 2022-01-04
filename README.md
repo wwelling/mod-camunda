@@ -172,7 +172,7 @@ cd /sync
 kill $(lsof -t -i :9000)
 cd mod-camunda
 mvn clean install
-nohup java -jar target/mod-camunda-1.0.0-SNAPSHOT.jar &
+nohup java -jar target/mod-camunda-1.1.0.jar &
 ```
 
 ### Login
