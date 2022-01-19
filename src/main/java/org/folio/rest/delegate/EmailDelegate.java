@@ -58,6 +58,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     String markupTemplate = Objects.nonNull(this.mailMarkup) ? this.mailMarkup.getValue(execution).toString() : "";
     String mailToTemplate = this.mailTo.getValue(execution).toString();
     String mailFromTemplate = this.mailFrom.getValue(execution).toString();
+    String attachmentPathTemplate = Objects.nonNull(this.attachmentPath) ? this.attachmentPath.getValue(execution).toString() : "";
 
     StringTemplateLoader stringLoader = new StringTemplateLoader();
     stringLoader.putTemplate("subject", subjectTemplate);
@@ -65,6 +66,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     stringLoader.putTemplate("markup", markupTemplate);
     stringLoader.putTemplate("mailFrom", mailFromTemplate);
     stringLoader.putTemplate("mailTo", mailToTemplate);
+    stringLoader.putTemplate("attachmentPath", attachmentPathTemplate);
 
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
     cfg.setTemplateLoader(stringLoader);
@@ -78,7 +80,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
     Optional<String> cc = Objects.nonNull(this.mailCc) ? Optional.of(this.mailCc.getValue(execution).toString()) : Optional.empty();
     Optional<String> bcc = Objects.nonNull(this.mailBcc) ? Optional.of(this.mailBcc.getValue(execution).toString()) : Optional.empty();
-    Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.of(this.attachmentPath.getValue(execution).toString()) : Optional.empty();
+    Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.of(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("attachmentPath"), inputs)) : Optional.empty();
 
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
       public void prepare(MimeMessage mimeMessage) throws Exception {
