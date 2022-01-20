@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -38,6 +40,7 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
   private static final String EXT_BZIP2 = ".bz2";
   private static final String EXT_GZIP = ".gz";
+  private static final String EXT_ZIP = ".zip";
   private static final String EXT_TAR = ".tar";
 
   private Expression source;
@@ -89,6 +92,10 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
         extension = EXT_GZIP;
         break;
 
+      case ZIP:
+        extension = EXT_ZIP;
+        break;
+
       default:
         break;
     }
@@ -127,15 +134,22 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
       }
 
       if (useContainer == CompressFileContainer.NONE) {
-        try (
-          FileInputStream inputFile = new FileInputStream(sourceFile);
-          BufferedInputStream input = new BufferedInputStream(inputFile);
-          FileOutputStream outputFile = new FileOutputStream(destinationFile);
-          BufferedOutputStream output = new BufferedOutputStream(outputFile);
-          CompressorOutputStream compress = new CompressorStreamFactory()
-            .createCompressorOutputStream(formatType, output);
-          ) {
-            IOUtils.copy(input, compress);
+        if (compressFormat == CompressFileFormat.ZIP) {
+          try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(destinationFile))) {
+            zipOut.putNextEntry(new ZipEntry(sourceFile.getName()));
+            Files.copy(sourceFile.toPath(), zipOut);
+          }
+        } else {
+          try (
+            FileInputStream inputFile = new FileInputStream(sourceFile);
+            BufferedInputStream input = new BufferedInputStream(inputFile);
+            FileOutputStream outputFile = new FileOutputStream(destinationFile);
+            BufferedOutputStream output = new BufferedOutputStream(outputFile);
+            CompressorOutputStream compress = new CompressorStreamFactory()
+              .createCompressorOutputStream(formatType, output);
+            ) {
+              IOUtils.copy(input, compress);
+          }
         }
       } else if (useContainer == CompressFileContainer.TAR) {
         FileOutputStream outputFile = new FileOutputStream(destinationFile);

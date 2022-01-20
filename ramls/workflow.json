@@ -885,7 +885,7 @@
         },
         "format" : {
           "type" : "string",
-          "enum" : [ "BZIP2", "GZIP" ]
+          "enum" : [ "BZIP2", "GZIP", "ZIP" ]
         },
         "container" : {
           "type" : "string",
