@@ -21,6 +21,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 @Scope("prototype")
 public class SetupDelegate extends AbstractRuntimeDelegate {
 
+  private final static String TIMESTAMP_VARIABLE_NAME = "timestamp";
+
   @Autowired
   private ScriptEngineService scriptEngineService;
 
@@ -47,6 +49,10 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
       execution.setVariable(entry.getKey(), node);
       logger.info("{}: {}", entry.getKey(), node);
     }
+
+    String timestamp = String.valueOf(System.currentTimeMillis());
+
+    execution.setVariable(TIMESTAMP_VARIABLE_NAME, timestamp);
 
     logger.info("loading scripts");
 
