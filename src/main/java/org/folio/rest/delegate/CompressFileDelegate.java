@@ -80,6 +80,14 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
     File sourceFile = new File(sourcePath);
     File destinationFile = new File(destinationPath);
 
+    if (destinationFile.isDirectory()) {
+      if (!destinationPath.endsWith(File.separator)) {
+        destinationPath += File.separator;
+      }
+
+      destinationFile = new File(destinationPath + sourceFile.getName() + extension);
+    }
+
     // see: https://commons.apache.org/proper/commons-compress/limitations.html
     switch (compressFormat) {
       case BZIP2:
@@ -124,22 +132,20 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
       formatType = null;
     }
 
-    if (formatType != null) {
-      if (destinationFile.isDirectory()) {
-        if (!destinationPath.endsWith(File.separator)) {
-          destinationPath += File.separator;
-        }
+    logger.info("Destination: {}", destinationFile.getPath());
+    logger.info("Source: {}", sourceFile.getPath());
+    logger.info("Compress format: {}", compressFormat);
 
-        destinationFile = new File(destinationPath + sourceFile.getName() + extension);
+    if (compressFormat == CompressFileFormat.ZIP) {
+      try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(destinationFile))) {
+        zipOut.putNextEntry(new ZipEntry(sourceFile.getName()));
+        Files.copy(sourceFile.toPath(), zipOut);
       }
-
-      if (useContainer == CompressFileContainer.NONE) {
-        if (compressFormat == CompressFileFormat.ZIP) {
-          try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(destinationFile))) {
-            zipOut.putNextEntry(new ZipEntry(sourceFile.getName()));
-            Files.copy(sourceFile.toPath(), zipOut);
-          }
-        } else {
+    } else {
+      logger.info("Format type: {}", formatType);
+      logger.info("Use container: {}", useContainer);
+      if (formatType != null) {
+        if (useContainer == CompressFileContainer.NONE) {
           try (
             FileInputStream inputFile = new FileInputStream(sourceFile);
             BufferedInputStream input = new BufferedInputStream(inputFile);
@@ -147,34 +153,34 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
             BufferedOutputStream output = new BufferedOutputStream(outputFile);
             CompressorOutputStream compress = new CompressorStreamFactory()
               .createCompressorOutputStream(formatType, output);
-            ) {
+          ) {
               IOUtils.copy(input, compress);
           }
+        } else if (useContainer == CompressFileContainer.TAR) {
+          FileOutputStream outputFile = new FileOutputStream(destinationFile);
+          BufferedOutputStream output = new BufferedOutputStream(outputFile);
+
+          CompressorOutputStream compress = new CompressorStreamFactory()
+            .createCompressorOutputStream(formatType, output);
+
+          TarArchiveOutputStream tar = new TarArchiveOutputStream(compress, BLOCK_SIZE, ENCODING);
+
+          tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
+          tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+
+          try {
+            addPaths(sourcePath, "", tar);
+
+            tar.finish();
+          } finally {
+            tar.close();
+            compress.close();
+            outputFile.close();
+          }
         }
-      } else if (useContainer == CompressFileContainer.TAR) {
-        FileOutputStream outputFile = new FileOutputStream(destinationFile);
-        BufferedOutputStream output = new BufferedOutputStream(outputFile);
 
-        CompressorOutputStream compress = new CompressorStreamFactory()
-          .createCompressorOutputStream(formatType, output);
-
-        TarArchiveOutputStream tar = new TarArchiveOutputStream(compress, BLOCK_SIZE, ENCODING);
-
-        tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
-        tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
-
-        try {
-          addPaths(sourcePath, "", tar);
-
-          tar.finish();
-        } finally {
-          tar.close();
-          compress.close();
-          outputFile.close();
-        }
+        logger.info("{} written to {} as {}", sourcePath, destinationPath, compressFormat);
       }
-
-      logger.info("{} written to {} as {}", sourcePath, destinationPath, compressFormat);
     }
 
     long endTime = System.nanoTime();
