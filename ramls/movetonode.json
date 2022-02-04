@@ -1049,12 +1049,15 @@
           "type" : "string",
           "enum" : [ "CSV", "TSV", "JSON" ]
         },
+        "includeHeader" : {
+          "type" : "boolean"
+        },
         "identifier" : {
           "type" : "string"
         }
       },
       "title" : "DatabaseQueryTask",
-      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "includeHeader" ]
     },
     "EmailTask" : {
       "type" : "object",
