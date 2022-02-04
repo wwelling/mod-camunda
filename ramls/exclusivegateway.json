@@ -1058,7 +1058,7 @@
         }
       },
       "title" : "DatabaseQueryTask",
-      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "includeHeader" ]
+      "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ]
     },
     "EmailTask" : {
       "type" : "object",
