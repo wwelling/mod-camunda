@@ -60,7 +60,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     String key = this.designation.getValue(execution).toString();
     String query = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("query"), inputs);
 
-    Boolean includeHeader = Boolean.parseBoolean(this.includeHeader.getValue(execution).toString());
+    Boolean includeHeader = this.includeHeader != null ? Boolean.parseBoolean(this.includeHeader.getValue(execution).toString()) : false;
 
     Connection conn = connectionService.getConnection(key);
 
@@ -170,11 +170,14 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       this.fw = new FileWriter(path);
       this.rowOp = DatabaseResultTypeOp.valueOf(resultType);
 
+      logger.info("Writing results to file as {}{}", rowOp, includeHeader ? " including headers" : "");
       if (includeHeader) {
-        if(rowOp == DatabaseResultTypeOp.CSV) {
+        if (rowOp == DatabaseResultTypeOp.CSV) {
           fw.write(buildHeader(results, ","));
         } else if(rowOp == DatabaseResultTypeOp.TSV) {
           fw.write(buildHeader(results, "\t"));
+        } else {
+          logger.warn("{} does not support building headers", rowOp);
         }
       }
     }
