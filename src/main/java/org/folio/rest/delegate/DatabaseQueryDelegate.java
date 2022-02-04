@@ -37,6 +37,8 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
   private Expression resultType;
 
+  private Expression includeHeader;
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
@@ -58,6 +60,8 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     String key = this.designation.getValue(execution).toString();
     String query = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("query"), inputs);
 
+    Boolean includeHeader = Boolean.parseBoolean(this.includeHeader.getValue(execution).toString());
+
     Connection conn = connectionService.getConnection(key);
 
     try (Statement statement = conn.createStatement()) {
@@ -75,7 +79,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
           String outputPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("outputPath"), inputs);
           String resultType = this.resultType.getValue(execution).toString();
-          resultOp = new FileResultOp(results, outputPath, resultType);
+          resultOp = new FileResultOp(results, outputPath, resultType, includeHeader);
         } else {
           resultOp = new VariableResultOp(execution, results);
         }
@@ -102,6 +106,10 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
   public void setResultType(Expression resultType) {
     this.resultType = resultType;
+  }
+
+  public void setIncludeHeader(Expression includeHeader) {
+    this.includeHeader = includeHeader;
   }
 
   @Override
@@ -157,10 +165,18 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     private final DatabaseResultTypeOp rowOp;
 
-    public FileResultOp(ResultSet results, String path, String resultType) throws SQLException, IOException {
+    public FileResultOp(ResultSet results, String path, String resultType, Boolean includeHeader) throws SQLException, IOException {
       this.results = results;
       this.fw = new FileWriter(path);
       this.rowOp = DatabaseResultTypeOp.valueOf(resultType);
+
+      if (includeHeader) {
+        if(rowOp == DatabaseResultTypeOp.CSV) {
+          fw.write(buildHeader(results, ","));
+        } else if(rowOp == DatabaseResultTypeOp.TSV) {
+          fw.write(buildHeader(results, "\t"));
+        }
+      }
     }
 
     @Override
@@ -177,6 +193,22 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
   private interface RowOp {
     void process(FileWriter fw, ResultSet results) throws Exception;
+  }
+
+  private static String buildHeader(ResultSet results, String delimiter) throws SQLException, IOException {
+    StringBuilder builder = new StringBuilder();
+    ResultSetMetaData metadata = results.getMetaData();
+    for (int count = 1; count <= metadata.getColumnCount(); ++count) {
+      String columnName = metadata.getColumnName(count);
+      if (Objects.nonNull(columnName)) {
+        builder.append(columnName);
+      }
+      if (count < metadata.getColumnCount()) {
+        builder.append(delimiter);
+      }
+    }
+    builder.append("\n");
+    return builder.toString();
   }
 
   private enum DatabaseResultTypeOp implements RowOp {

@@ -49,11 +49,14 @@
       "type" : "string",
       "enum" : [ "CSV", "TSV", "JSON" ]
     },
+    "includeHeader" : {
+      "type" : "boolean"
+    },
     "identifier" : {
       "type" : "string"
     }
   },
-  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter" ],
+  "required" : [ "deserializeAs", "name", "asyncBefore", "asyncAfter", "includeHeader" ],
   "definitions" : {
     "EmbeddedVariable" : {
       "type" : "object",
