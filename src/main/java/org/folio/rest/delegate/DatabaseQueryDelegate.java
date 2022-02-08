@@ -60,7 +60,11 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     String key = this.designation.getValue(execution).toString();
     String query = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("query"), inputs);
 
-    Boolean includeHeader = this.includeHeader != null ? Boolean.parseBoolean(this.includeHeader.getValue(execution).toString()) : false;
+    Boolean includeHeader = this.includeHeader != null ?
+      (this.includeHeader.getValue(execution) != null ?
+        Boolean.parseBoolean(this.includeHeader.getValue(execution).toString())
+          : false)
+      : false;
 
     Connection conn = connectionService.getConnection(key);
 
