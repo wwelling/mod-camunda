@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -38,6 +40,7 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
   private static final String EXT_BZIP2 = ".bz2";
   private static final String EXT_GZIP = ".gz";
+  private static final String EXT_ZIP = ".zip";
   private static final String EXT_TAR = ".tar";
 
   private Expression source;
@@ -77,6 +80,14 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
     File sourceFile = new File(sourcePath);
     File destinationFile = new File(destinationPath);
 
+    if (destinationFile.isDirectory()) {
+      if (!destinationPath.endsWith(File.separator)) {
+        destinationPath += File.separator;
+      }
+
+      destinationFile = new File(destinationPath + sourceFile.getName() + extension);
+    }
+
     // see: https://commons.apache.org/proper/commons-compress/limitations.html
     switch (compressFormat) {
       case BZIP2:
@@ -87,6 +98,10 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
       case GZIP:
         formatType = CompressorStreamFactory.GZIP;
         extension = EXT_GZIP;
+        break;
+
+      case ZIP:
+        extension = EXT_ZIP;
         break;
 
       default:
@@ -117,50 +132,55 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
       formatType = null;
     }
 
-    if (formatType != null) {
-      if (destinationFile.isDirectory()) {
-        if (!destinationPath.endsWith(File.separator)) {
-          destinationPath += File.separator;
-        }
+    logger.info("Destination: {}", destinationFile.getPath());
+    logger.info("Source: {}", sourceFile.getPath());
+    logger.info("Compress format: {}", compressFormat);
 
-        destinationFile = new File(destinationPath + sourceFile.getName() + extension);
+    if (compressFormat == CompressFileFormat.ZIP) {
+      try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(destinationFile))) {
+        zipOut.putNextEntry(new ZipEntry(sourceFile.getName()));
+        Files.copy(sourceFile.toPath(), zipOut);
       }
-
-      if (useContainer == CompressFileContainer.NONE) {
-        try (
-          FileInputStream inputFile = new FileInputStream(sourceFile);
-          BufferedInputStream input = new BufferedInputStream(inputFile);
+    } else {
+      logger.info("Format type: {}", formatType);
+      logger.info("Use container: {}", useContainer);
+      if (formatType != null) {
+        if (useContainer == CompressFileContainer.NONE) {
+          try (
+            FileInputStream inputFile = new FileInputStream(sourceFile);
+            BufferedInputStream input = new BufferedInputStream(inputFile);
+            FileOutputStream outputFile = new FileOutputStream(destinationFile);
+            BufferedOutputStream output = new BufferedOutputStream(outputFile);
+            CompressorOutputStream compress = new CompressorStreamFactory()
+              .createCompressorOutputStream(formatType, output);
+          ) {
+              IOUtils.copy(input, compress);
+          }
+        } else if (useContainer == CompressFileContainer.TAR) {
           FileOutputStream outputFile = new FileOutputStream(destinationFile);
           BufferedOutputStream output = new BufferedOutputStream(outputFile);
+
           CompressorOutputStream compress = new CompressorStreamFactory()
             .createCompressorOutputStream(formatType, output);
-          ) {
-            IOUtils.copy(input, compress);
+
+          TarArchiveOutputStream tar = new TarArchiveOutputStream(compress, BLOCK_SIZE, ENCODING);
+
+          tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
+          tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+
+          try {
+            addPaths(sourcePath, "", tar);
+
+            tar.finish();
+          } finally {
+            tar.close();
+            compress.close();
+            outputFile.close();
+          }
         }
-      } else if (useContainer == CompressFileContainer.TAR) {
-        FileOutputStream outputFile = new FileOutputStream(destinationFile);
-        BufferedOutputStream output = new BufferedOutputStream(outputFile);
 
-        CompressorOutputStream compress = new CompressorStreamFactory()
-          .createCompressorOutputStream(formatType, output);
-
-        TarArchiveOutputStream tar = new TarArchiveOutputStream(compress, BLOCK_SIZE, ENCODING);
-
-        tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
-        tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
-
-        try {
-          addPaths(sourcePath, "", tar);
-
-          tar.finish();
-        } finally {
-          tar.close();
-          compress.close();
-          outputFile.close();
-        }
+        logger.info("{} written to {} as {}", sourcePath, destinationPath, compressFormat);
       }
-
-      logger.info("{} written to {} as {}", sourcePath, destinationPath, compressFormat);
     }
 
     long endTime = System.nanoTime();
