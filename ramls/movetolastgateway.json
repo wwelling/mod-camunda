@@ -862,7 +862,7 @@
         },
         "format" : {
           "type" : "string",
-          "enum" : [ "BZIP2", "GZIP" ]
+          "enum" : [ "BZIP2", "GZIP", "ZIP" ]
         },
         "container" : {
           "type" : "string",
@@ -1049,6 +1049,9 @@
         "resultType" : {
           "type" : "string",
           "enum" : [ "CSV", "TSV", "JSON" ]
+        },
+        "includeHeader" : {
+          "type" : "boolean"
         },
         "identifier" : {
           "type" : "string"

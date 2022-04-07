@@ -31,8 +31,6 @@ public class CamundaApiService {
 
     Bpmn.validateModel(modelInstance);
 
-    log.info("BPMN:\n{}", Bpmn.convertToString(modelInstance));
-
     ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
     RepositoryService repositoryService = processEngine.getRepositoryService();
 
