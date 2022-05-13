@@ -32,7 +32,7 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
     info.setProperty("user", this.username.getValue(execution).toString());
     info.setProperty("password", this.password.getValue(execution).toString());
 
-    connectionService.createConnection(key, url, info);
+    connectionService.createPool(key, url, info);
 
     long endTime = System.nanoTime();
     logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);

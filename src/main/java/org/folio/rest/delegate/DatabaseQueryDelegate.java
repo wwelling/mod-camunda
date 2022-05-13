@@ -94,6 +94,8 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
         resultOp.finish();
       }
+    } finally {
+      conn.close();
     }
 
     long endTime = System.nanoTime();
