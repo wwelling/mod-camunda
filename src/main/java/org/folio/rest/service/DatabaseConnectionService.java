@@ -32,6 +32,10 @@ public class DatabaseConnectionService {
       config.setMaximumPoolSize(8);
       config.addDataSourceProperty("oracle.jdbc.implicitStatementCacheSize", 10);
 
+      config.setConnectionTimeout(30000); // default
+      config.setIdleTimeout(600000); // default
+      config.setMaxLifetime(7200000); // 2 hours as default is 30 minutes
+
       // would be nice to just use this but have to ensure properties match
       // config.setDataSourceProperties(info);
 
