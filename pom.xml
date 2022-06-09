@@ -7,7 +7,7 @@
 
   <artifactId>mod-camunda</artifactId>
 
-  <version>1.1.1-RC2</version>
+  <version>1.1.1</version>
 
   <name>Okapi Camunda Module</name>
 
@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.folio</groupId>
     <artifactId>spring-module-core</artifactId>
-    <version>1.1.1-RC3</version>
+    <version>1.1.1</version>
   </parent>
 
   <packaging>jar</packaging>
@@ -159,13 +159,13 @@
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>spring-tenant</artifactId>
-      <version>1.1.1-RC3</version>
+      <version>1.1.1</version>
     </dependency>
 
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>workflow-components</artifactId>
-      <version>1.1.1-RC2</version>
+      <version>1.1.1</version>
     </dependency>
 
     <dependency>
