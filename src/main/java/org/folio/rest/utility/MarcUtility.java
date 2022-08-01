@@ -9,8 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser;
@@ -18,7 +16,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -63,195 +60,147 @@ public class MarcUtility {
     mapper.registerModule(module);
   }
 
-  public static List<String> splitRawMarcToMarcJsonRecords(String rawMarc) {
-    List<Record> records = new ArrayList<>();
+  public static List<String> splitRawMarcToMarcJsonRecords(String rawMarc)
+      throws MarcException, IOException {
+    List<String> records = new ArrayList<>();
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(DEFAULT_CHARSET))) {
       final MarcStreamReader reader = new MarcStreamReader(in, DEFAULT_CHARSET.name());
       while (reader.hasNext()) {
-        records.add(reader.next());
+        records.add(recordToMarcJson(reader.next()));
       }
-    } catch (IOException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
-    } catch (final MarcException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
     }
 
-    return records.stream()
-      .map(MarcUtility::recordToMarcJson)
-      .collect(Collectors.toList());
+    return records;
   }
 
-  public static String addFieldToMarcJson(String marcJson, String fieldJson) throws JsonMappingException, JsonProcessingException {
+  public static String addFieldToMarcJson(String marcJson, String fieldJson)
+      throws MarcException, IOException {
     JsonNode fieldNode = mapper.readTree(fieldJson);
     MarcFactory factory = MarcFactory.newInstance();
-    Optional<Record> record = marcJsonToRecord(marcJson);
-    if (record.isPresent()) {
-      String tag = fieldNode.get("tag").asText();
+    Record record = marcJsonToRecord(marcJson);
 
-      DataField field = factory.newDataField();
-      field.setTag(tag);
+    String tag = fieldNode.get("tag").asText();
 
-      if (fieldNode.has("indicator1")) {
-        char indicator1 = fieldNode.get("indicator1").asText().charAt(0);
-        field.setIndicator1(indicator1);
-      }
-      if (fieldNode.has("indicator2")) {
-        char indicator2 = fieldNode.get("indicator2").asText().charAt(0);
-        field.setIndicator2(indicator2);
-      }
+    DataField field = factory.newDataField();
+    field.setTag(tag);
 
-      ArrayNode subfields = (ArrayNode) fieldNode.get("subfields");
-
-      subfields.forEach(subfieldNode -> {
-        char code = subfieldNode.get("code").asText().charAt(0);
-        String data = subfieldNode.get("data").asText();
-        Subfield subfield = factory.newSubfield();
-        subfield.setCode(code);
-        subfield.setData(data);
-        field.addSubfield(subfield);
-      });
-
-      record.get().addVariableField(field);
-
-      recalculateLeader(record.get());
-
-      return recordToMarcJson(record.get());
+    if (fieldNode.has("indicator1")) {
+      char indicator1 = fieldNode.get("indicator1").asText().charAt(0);
+      field.setIndicator1(indicator1);
+    }
+    if (fieldNode.has("indicator2")) {
+      char indicator2 = fieldNode.get("indicator2").asText().charAt(0);
+      field.setIndicator2(indicator2);
     }
 
-    return marcJson;
+    ArrayNode subfields = (ArrayNode) fieldNode.get("subfields");
+
+    subfields.forEach(subfieldNode -> {
+      char code = subfieldNode.get("code").asText().charAt(0);
+      String data = subfieldNode.get("data").asText();
+      Subfield subfield = factory.newSubfield();
+      subfield.setCode(code);
+      subfield.setData(data);
+      field.addSubfield(subfield);
+    });
+
+    record.addVariableField(field);
+
+    recalculateLeader(record);
+
+    return recordToMarcJson(record);
   }
 
-  public static String updateControlNumberField(String marcJson, String data) {
-    Optional<Record> record = marcJsonToRecord(marcJson);
-    if (record.isPresent()) {
-      if (Objects.nonNull(record.get().getControlNumberField())) {
-        record.get().getControlNumberField().setData(data);
-      }
-      else {
-        ControlField controlField = MarcFactory.newInstance().newControlField("001");
-        controlField.setData(data);
-        record.get().addVariableField(controlField);
-      }
-      recalculateLeader(record.get());
-
-      return recordToMarcJson(record.get());
+  public static String updateControlNumberField(String marcJson, String data)
+      throws MarcException, IOException {
+    Record record = marcJsonToRecord(marcJson);
+    if (Objects.nonNull(record.getControlNumberField())) {
+      record.getControlNumberField().setData(data);
     }
-
-    return marcJson;
-  }
-
-  public static String marcJsonToRawMarc(String marcJson) {
-    Optional<Record> record = marcJsonToRecord(marcJson);
-    if (record.isPresent()) {
-      return recordToRawMarc(record.get());
+    else {
+      ControlField controlField = MarcFactory.newInstance().newControlField("001");
+      controlField.setData(data);
+      record.addVariableField(controlField);
     }
-    return "";
+    recalculateLeader(record);
+
+    return recordToMarcJson(record);
   }
 
-  public static String rawMarcToMarcJson(String rawMarc) {
-    Optional<Record> record = rawMarcToRecord(rawMarc);
-    if (record.isPresent()) {
-      return recordToMarcJson(record.get());
-    }
-    return "{}";
+  public static String marcJsonToRawMarc(String marcJson)
+      throws MarcException, IOException {
+    return recordToRawMarc(marcJsonToRecord(marcJson));
   }
 
-  public static String getFieldsFromRawMarc(String rawMarc, String[] tags) {
-    Optional<Record> record = rawMarcToRecord(rawMarc);
-    if (record.isPresent()) {
-      return getRecordFields(record.get(), tags);
-    }
-    return "[]";
+  public static String rawMarcToMarcJson(String rawMarc)
+      throws MarcException, IOException {
+    return recordToMarcJson(rawMarcToRecord(rawMarc));
   }
 
-  public static String getFieldsFromMarcJson(String marcJson, String[] tags) {
-    Optional<Record> record = marcJsonToRecord(marcJson);
-    if (record.isPresent()) {
-      return getRecordFields(record.get(), tags);
-    }
-    return "[]";
+  public static String getFieldsFromRawMarc(String rawMarc, String[] tags)
+      throws JsonProcessingException, MarcException, IOException {
+    return getRecordFields(rawMarcToRecord(rawMarc), tags);
   }
 
-  private static Optional<Record> marcJsonToRecord(String marcJson) {
+  public static String getFieldsFromMarcJson(String marcJson, String[] tags)
+      throws JsonProcessingException, MarcException, IOException {
+    return getRecordFields(marcJsonToRecord(marcJson), tags);
+  }
+
+  private static Record marcJsonToRecord(String marcJson)
+      throws MarcException, IOException {
     try (InputStream in = new ByteArrayInputStream(marcJson.getBytes())) {
       final MarcJsonReader reader = new MarcJsonReader(in);
       if (reader.hasNext()) {
-        return Optional.of(reader.next());
+        return reader.next();
       }
-    } catch (IOException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
-    } catch (final MarcException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
     }
-    return Optional.empty();
+
+    throw new MarcException("No record found");
   }
 
-  private static Optional<Record> rawMarcToRecord(String rawMarc) {
+  private static Record rawMarcToRecord(String rawMarc)
+      throws MarcException, IOException {
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(DEFAULT_CHARSET))) {
       final MarcStreamReader reader = new MarcStreamReader(in, DEFAULT_CHARSET.name());
       if (reader.hasNext()) {
-        return Optional.of(reader.next());
+        return reader.next();
       }
-    } catch (IOException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
-    } catch (final MarcException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
     }
-    return Optional.empty();
+
+    throw new MarcException("No record found");
   }
 
-  private static String recordToMarcJson(Record record) {
+  private static String recordToMarcJson(Record record) throws IOException {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final MarcJsonWriter writer = new MarcJsonWriter(out);
       writer.write(record);
       writer.close();
       return out.toString();
-    } catch (IOException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
     }
-    return "{}";
   }
 
-  private static String recordToRawMarc(Record record) {
+  private static String recordToRawMarc(Record record) throws IOException {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       final MarcStreamWriter writer = new MarcStreamWriter(out);
       writer.write(record);
       writer.close();
       return out.toString();
-    } catch (IOException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
     }
-    return "";
   }
 
-  private static String getRecordFields(Record record, String[] tags) {
+  private static String getRecordFields(Record record, String[] tags) throws JsonProcessingException {
     List<VariableField> fields = record.getVariableFields(tags);
-    try {
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(fields);
-    } catch (JsonProcessingException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
-    }
-    return "[]";
+    return mapper.writerWithDefaultPrettyPrinter()
+      .writeValueAsString(fields);
   }
 
-  private static void recalculateLeader(Record record) {
-    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      MarcWriter streamWriter = new MarcStreamWriter(os, DEFAULT_CHARSET.name());
+  private static void recalculateLeader(Record record) throws IOException {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      MarcWriter streamWriter = new MarcStreamWriter(out, DEFAULT_CHARSET.name());
       // use stream writer to recalculate leader
       streamWriter.write(record);
       streamWriter.close();
-    } catch (IOException e) {
-      // TODO: do something in case of exception
-      System.out.println(e.getMessage());
     }
   }
 
