@@ -10,17 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import org.marc4j.MarcException;
 import org.marc4j.MarcJsonReader;
 import org.marc4j.MarcJsonWriter;
@@ -34,8 +23,23 @@ import org.marc4j.marc.Record;
 import org.marc4j.marc.Subfield;
 import org.marc4j.marc.VariableField;
 import org.marc4j.marc.impl.SubfieldImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 public class MarcUtility {
+
+  private static final Logger logger = LoggerFactory.getLogger(MarcUtility.class);
 
   private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
@@ -149,6 +153,7 @@ public class MarcUtility {
 
   private static Record marcJsonToRecord(String marcJson)
       throws MarcException, IOException {
+    logger.info("Attempting to read MARC JSON to Record: {}", marcJson);
     try (InputStream in = new ByteArrayInputStream(marcJson.getBytes())) {
       final MarcJsonReader reader = new MarcJsonReader(in);
       if (reader.hasNext()) {
@@ -161,6 +166,7 @@ public class MarcUtility {
 
   private static Record rawMarcToRecord(String rawMarc)
       throws MarcException, IOException {
+    logger.info("Attempting to read raw MARC to Record: {}", rawMarc);
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(DEFAULT_CHARSET))) {
       final MarcStreamReader reader = new MarcStreamReader(in, DEFAULT_CHARSET.name());
       if (reader.hasNext()) {
