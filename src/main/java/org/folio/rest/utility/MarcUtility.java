@@ -92,6 +92,7 @@ public class MarcUtility {
       char indicator1 = fieldNode.get("indicator1").asText().charAt(0);
       field.setIndicator1(indicator1);
     }
+
     if (fieldNode.has("indicator2")) {
       char indicator2 = fieldNode.get("indicator2").asText().charAt(0);
       field.setIndicator2(indicator2);
