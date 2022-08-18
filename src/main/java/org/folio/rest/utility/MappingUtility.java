@@ -135,7 +135,7 @@ public class MappingUtility {
 
   private static JsonObject fetchRules(String okapiUrl, String tenant, String token) {
     HttpEntity<?> entity = new HttpEntity<>(headers(tenant, token));
-    String url = okapiUrl + "/mapping-rules";
+    String url = okapiUrl + "/mapping-rules/marc-bib";
     ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
     return new JsonObject(response.getBody());
   }
