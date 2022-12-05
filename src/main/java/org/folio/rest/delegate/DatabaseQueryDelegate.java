@@ -88,8 +88,18 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
           resultOp = new VariableResultOp(execution, results);
         }
 
+        int count = 0; 
         while (results.next()) {
           resultOp.next();
+          count++;
+        }
+
+        if (resultOp instanceof FileResultOp) {
+          if (hasOutputVariable(execution)) {
+            setOutput(execution, count);
+          } else {
+            logger.info("{} did not specify output variable for result count", delegateName);
+          }
         }
 
         resultOp.finish();
