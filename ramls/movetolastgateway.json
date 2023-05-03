@@ -1127,6 +1127,9 @@
         "attachmentPath" : {
           "type" : "string"
         },
+        "includeAttachment" : {
+          "type" : "string"
+        },
         "identifier" : {
           "type" : "string"
         }
