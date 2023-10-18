@@ -3,7 +3,7 @@
     <properties>
       <property name="waitTimeInMillis">15000</property>
       <property name="lockTimeInMillis">900000</property>
-      <property name="javascriptScriptEngine">graal.js</property>
+      <property name="javascriptScriptEngine">Graal.js</property>
     </properties>
   </job-acquisition>
 </job-executor>
