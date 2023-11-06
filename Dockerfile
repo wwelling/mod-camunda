@@ -1,35 +1,17 @@
-# build base image
-FROM maven:3-openjdk-11-slim as maven
+FROM folioci/alpine-jre-openjdk17:latest
 
-# copy pom.xml
-COPY ./pom.xml ./pom.xml
+# Install latest patch versions of packages: https://pythonspeed.com/articles/security-updates-in-docker/
+USER root
+RUN apk upgrade --no-cache
+USER folio
 
-# copy src
-COPY ./src ./src
+ENV VERTICLE_FILE mod-camunda-fat.jar
 
-# build
-RUN mvn package
+# Set the location of the verticles
+ENV VERTICLE_HOME /usr/verticles
 
-# final base image
-FROM openjdk:11-jre-slim
+# Copy your fat jar to the container
+COPY target/${VERTICLE_FILE} ${VERTICLE_HOME}/${VERTICLE_FILE}
 
-# Upgrade to latest patch versions of packages: https://pythonspeed.com/articles/security-updates-in-docker/
-RUN apt-get update \
- && apt-get upgrade -y \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-# set deployment directory
-WORKDIR /mod-camunda
-
-# copy over the built artifact from the maven image
-COPY --from=maven /target/mod-camunda*.jar ./mod-camunda.jar
-
-# environment
-ENV SERVER_PORT='9000'
-
-# expose port
-EXPOSE ${SERVER_PORT}
-
-# run java command
-CMD java -jar -Xmx4096m ./mod-camunda.jar
+# Expose this port locally in the container.
+EXPOSE 9000

@@ -49,7 +49,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.6.0</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <phase>compile</phase>
@@ -73,6 +73,32 @@
             </goals>
             <configuration>
               <mainClass>org.folio.rest.SpringOkapiModule</mainClass>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.5.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>org.folio.inventory.Launcher</Main-Class>
+                    <Multi-Release>true</Multi-Release>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
+              <artifactSet />
+              <outputFile>${project.build.directory}/${project.artifactId}-fat.jar</outputFile>
             </configuration>
           </execution>
         </executions>
@@ -154,7 +180,7 @@
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>spring-tenant</artifactId>
-      <version>1.1.1</version>
+      <version>1.1.5</version>
     </dependency>
 
     <dependency>
@@ -183,7 +209,7 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-rest</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-freemarker</artifactId>
@@ -202,21 +228,18 @@
     <dependency>
       <groupId>org.camunda.bpm.springboot</groupId>
       <artifactId>camunda-bpm-spring-boot-starter</artifactId>
-      <version>${camunda.spring.boot.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.camunda.bpm.springboot</groupId>
       <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
-      <version>${camunda.spring.boot.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.camunda.bpm.springboot</groupId>
       <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
-      <version>${camunda.spring.boot.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.camunda.template-engines</groupId>
       <artifactId>camunda-template-engines-freemarker</artifactId>
@@ -236,7 +259,7 @@
       <groupId>org.camunda.bpm</groupId>
       <artifactId>camunda-engine-plugin-spin</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
@@ -287,7 +310,7 @@
       <artifactId>jython-standalone</artifactId>
       <version>2.7.3</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jms</artifactId>
