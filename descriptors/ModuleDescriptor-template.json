@@ -399,7 +399,7 @@
     },
     "env": [
       {
-      	"name": "JAVA_OPTIONS",
+        "name": "JAVA_OPTIONS",
         "value": "-XX:MaxRAMPercentage=66.0"
       },
       { "name": "DB_HOST", "value": "postgres" },

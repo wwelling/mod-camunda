@@ -11,7 +11,7 @@ public class AdminController {
 
     @GetMapping("/health")
     public ResponseEntity<Object> health(){
-        return ResponseEntity.ok().build(); 
+        return ResponseEntity.ok().build();
     }
 
 }
