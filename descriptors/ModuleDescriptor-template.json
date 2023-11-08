@@ -1,5 +1,5 @@
 {
-  "id": "@project.artifactId@-@project.version@",
+ "id": "${project.artifactId}-${project.version}",
   "name": "Camnuda BPM Module",
   "provides": [
     {
@@ -382,12 +382,22 @@
       "visible": false
     }
   ],
-  "requires": [ ],
+  "requires": [
+    {
+      "id": "mod-workflow",
+      "version": "1.1"
+    }
+  ],
   "launchDescriptor": {
-    "dockerImage": "@project.artifactId@:@project.version@",
+    "dockerImage": "${project.artifactId}:${project.version}",
+    "dockerPull" : false,
     "dockerArgs": {
       "HostConfig": { "PortBindings": { "8081/tcp":  [{ "HostPort": "%p" }] } }
     },
-    "dockerPull" : false
+    "env": [
+      { "name": "JAVA_OPTIONS",
+        "value": "-XX:MaxRAMPercentage=66.0"
+      }
+    ]
   }
 }
