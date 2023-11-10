@@ -127,6 +127,18 @@ error:
     # comma seperated email addresses
     emailTo: support@mailinator.com
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+      base-path: /admin
+  health:
+    defaults:
+      enabled: true
+    readinessstate:
+      enabled: true
+
 info:
   build:
     artifact: "@project.artifactId@"
