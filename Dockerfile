@@ -14,4 +14,4 @@ ENV VERTICLE_HOME /usr/verticles
 COPY target/mod-camunda*.jar ${VERTICLE_HOME}/${VERTICLE_FILE}
 
 # Expose this port locally in the container.
-EXPOSE 9000
+EXPOSE 8081
