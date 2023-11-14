@@ -7,9 +7,13 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+RUN mkdir /mod-camunda
+WORKDIR /mod-camunda
+
 # copy required files
 COPY ./pom.xml ./pom.xml
 COPY ./src ./src
+COPY ./descriptors ./descriptors
 
 # build
 RUN mvn package
@@ -27,7 +31,7 @@ RUN apt-get update && \
 WORKDIR /mod-camunda
 
 # copy over the built artifact from the maven image
-COPY --from=maven /target/mod-camunda*.jar ./mod-camunda.jar
+COPY --from=maven /mod-camunda/target/mod-camunda*.jar ./mod-camunda.jar
 
 # environment
 ENV SERVER_PORT='9000'
