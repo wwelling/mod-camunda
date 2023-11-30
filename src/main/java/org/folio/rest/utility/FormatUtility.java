@@ -20,6 +20,25 @@ public class FormatUtility {
   }
 
   /**
+   * Perform basic SQL sanitization.
+   *
+   * Only the most basic forms of sanitization is performed.
+   *
+   * Single quotes are escaped using the standard method.
+   * The Backslash Escape Sequence SQL feature is currently not supported.
+   *
+   * @param text The text to sanitize.
+   * @return The sanitized text for use in SQL queries.
+   */
+  public static String sanitizeSqlCode(String text) {
+    if (text == null) {
+      return text;
+    }
+
+    return text.replace("'", "''");
+  }
+
+  /**
    * Escape the text to ensure it can be safely used in CQL.
    *
    * This will escape the CQL and further escape CQL as a URL argument.
@@ -34,7 +53,7 @@ public class FormatUtility {
    * @param text The text to normalize.
    * @return The normalized text for use inside the CQL as a value.
    *
-   * @see https://github.com/folio-org/raml-module-builder/blob/2c39990c96c22262b02c98dd2b51cbeedc90fb9d/util/src/main/java/org/folio/util/StringUtil.java#L39
+   * @see "https://github.com/folio-org/raml-module-builder/blob/2c39990c96c22262b02c98dd2b51cbeedc90fb9d/util/src/main/java/org/folio/util/StringUtil.java#L39"
    */
   public static String normalizeCqlUrlArgument(String text) {
     if (text == null) {

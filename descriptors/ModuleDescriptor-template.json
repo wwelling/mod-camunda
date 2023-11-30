@@ -1,5 +1,5 @@
 {
-  "id": "@project.artifactId@-@project.version@",
+ "id": "${project.artifactId}-${project.version}",
   "name": "Camnuda BPM Module",
   "provides": [
     {
@@ -382,12 +382,35 @@
       "visible": false
     }
   ],
-  "requires": [ ],
+  "requires": [
+    {
+      "id": "mod-workflow",
+      "version": "1.1"
+    }
+  ],
   "launchDescriptor": {
-    "dockerImage": "@project.artifactId@:@project.version@",
+    "dockerImage": "${project.artifactId}:${project.version}",
+    "dockerPull" : false,
     "dockerArgs": {
-      "HostConfig": { "PortBindings": { "8081/tcp":  [{ "HostPort": "%p" }] } }
+      "HostConfig": {
+        "Memory": 402653184,
+        "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
+      }
     },
-    "dockerPull" : false
+    "env": [
+      {
+        "name": "JAVA_OPTIONS",
+        "value": "-XX:MaxRAMPercentage=66.0"
+      },
+      { "name": "DB_HOST", "value": "postgres" },
+      { "name": "DB_PORT", "value": "5432" },
+      { "name": "DB_USERNAME", "value": "folio_admin" },
+      { "name": "DB_PASSWORD", "value": "folio_admin" },
+      { "name": "DB_DATABASE", "value": "okapi_modules" },
+      { "name": "DB_QUERYTIMEOUT", "value": "60000" },
+      { "name": "DB_CHARSET", "value": "UTF-8" },
+      { "name": "DB_MAXPOOLSIZE", "value": "16" },
+      { "name": "OKAPI_URL", "value": "http://10.0.2.15:9130", "description": "The URL to the OKAPI service." }
+    ]
   }
 }
