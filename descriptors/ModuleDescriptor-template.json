@@ -1,9 +1,9 @@
 {
- "id": "${project.artifactId}-${project.version}",
+  "id": "${project.artifactId}-${project.version}",
   "name": "Camnuda BPM Module",
   "provides": [
     {
-      "id": "process",
+      "id": "camunda-process",
       "version": "1.0",
       "handlers": [
         {
@@ -33,7 +33,7 @@
       ]
     },
     {
-      "id": "process-definition",
+      "id": "camunda-process-definition",
       "version": "1.0",
       "handlers": [
         {
@@ -63,7 +63,7 @@
       ]
     },
     {
-      "id": "decision-definition",
+      "id": "camunda-decision-definition",
       "version": "1.0",
       "handlers": [
         {
@@ -81,7 +81,7 @@
       ]
     },
     {
-      "id": "task",
+      "id": "camunda-task",
       "version": "1.0",
       "handlers": [
         {
@@ -117,7 +117,7 @@
       ]
     },
     {
-      "id": "message",
+      "id": "camunda-message",
       "version": "1.0",
       "handlers": [
         {
@@ -129,7 +129,7 @@
       ]
     },
     {
-      "id": "workflow-engine",
+      "id": "camunda-workflow-engine",
       "version": "1.0",
       "handlers": [
         {
@@ -384,8 +384,24 @@
   ],
   "requires": [
     {
-      "id": "mod-workflow",
-      "version": "1.1"
+      "id": "workflow-actions",
+      "version": "1.0"
+    },
+    {
+      "id": "workflow-events",
+      "version": "1.0"
+    },
+    {
+      "id": "workflow-triggers",
+      "version": "1.0"
+    },
+    {
+      "id": "workflow-tasks",
+      "version": "1.0"
+    },
+    {
+      "id": "workflow-workflows",
+      "version": "1.0"
     }
   ],
   "launchDescriptor": {
