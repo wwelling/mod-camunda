@@ -14,7 +14,7 @@ logging:
 
 server:
   servlet:
-    context-path: /mod-camunda
+    context-path: /
   port: 9000
 
 spring:
