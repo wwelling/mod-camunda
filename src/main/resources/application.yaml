@@ -1,5 +1,7 @@
 logging:
-  file: logs/mod-camunda.log
+  file:
+    path: logs
+    name: ${logging.file.path}/mod-camunda.log
   level:
     com:
       zaxxer:
@@ -10,10 +12,35 @@ logging:
       hibernate: INFO
       springframework: INFO
 
+# https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: /actuator
+      exposure:
+        include: flyway,health,info
+  endpoint:
+    flyway:
+      enabled: true
+    health:
+      enabled: true
+      show-details: always
+      show-components: always
+    info:
+      enabled: true
+  info:
+    env.enabled: true
+    java.enabled: true
+    os.enabled: true
+
 server:
+  port: 9010
   servlet:
     context-path: /mod-camunda
-  port: 9000
+    encoding:
+      charset: UTF-8
+      enabled: true
 
 spring:
   activemq.broker-url: tcp://localhost:61616
@@ -22,6 +49,18 @@ spring:
   data.rest:
     returnBodyOnCreate: true
     returnBodyOnUpdate: true
+
+  main:
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
+    banner-mode: console
+    log-startup-info: true
+
+  sql:
+    init:
+      platform: h2
+      # platform: postgres
+
   datasource:
     hikari:
       leakDetectionThreshold: 1800000
@@ -29,15 +68,17 @@ spring:
       idleTimeout: 600000
       maxLifetime: 1800000
       maximumPoolSize: 16
-    platform: h2
-    url: jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
-    # platform: postgres
+    url: jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     # driverClassName: org.postgresql.Driver
     # url: jdbc:postgresql://localhost:5432/mod_camunda
 
     username: folio_admin
     password: folio_admin
+
+  flyway:
+    enabled: true
+    encoding: UTF-8
 
   h2:
     console:
@@ -70,9 +111,11 @@ spring:
 
   profiles:
     active: default, messaging
+
   thymeleaf:
     mode: TEXT
     suffix: .sql
+
   jersey.application-path: rest
 
 camunda:
@@ -92,6 +135,16 @@ camunda:
     default-number-of-retries: 1
     job-execution:
       lock-time-in-millis: 3600000
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  show-actuator: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+  writer-with-default-pretty-printer: true
 
 event.queue.name: event.queue
 

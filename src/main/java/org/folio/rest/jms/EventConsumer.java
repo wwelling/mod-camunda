@@ -3,7 +3,7 @@ package org.folio.rest.jms;
 import java.util.Map;
 
 import org.camunda.bpm.engine.RuntimeService;
-import org.folio.rest.workflow.jms.model.Event;
+import org.folio.spring.model.Event;
 import org.folio.spring.tenant.storage.ThreadLocalStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

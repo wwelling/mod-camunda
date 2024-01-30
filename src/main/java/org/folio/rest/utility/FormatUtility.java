@@ -33,8 +33,6 @@ public class FormatUtility {
    *
    * @param text The text to normalize.
    * @return The normalized text for use inside the CQL as a value.
-   *
-   * @see https://github.com/folio-org/raml-module-builder/blob/2c39990c96c22262b02c98dd2b51cbeedc90fb9d/util/src/main/java/org/folio/util/StringUtil.java#L39
    */
   public static String normalizeCqlUrlArgument(String text) {
     if (text == null) {
