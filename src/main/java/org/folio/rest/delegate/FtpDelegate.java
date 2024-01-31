@@ -4,16 +4,14 @@ import java.io.File;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.VFS;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
-import org.folio.rest.workflow.model.SftpOp;
+import org.folio.rest.workflow.enums.SftpOp;
 import org.folio.rest.workflow.model.FtpTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -44,7 +42,7 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
     String originPath = this.originPath.getValue(execution).toString();
 
@@ -130,7 +128,7 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
     
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setOriginPath(Expression originPath) {

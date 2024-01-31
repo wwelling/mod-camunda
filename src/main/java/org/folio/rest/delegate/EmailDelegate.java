@@ -1,12 +1,12 @@
 package org.folio.rest.delegate;
 
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
+import jakarta.mail.internet.MimeMessage;
 import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
-import javax.mail.internet.MimeMessage;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -18,9 +18,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -53,7 +50,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
     String subjectTemplate = this.mailSubject.getValue(execution).toString();
     String textTemplate = this.mailText.getValue(execution).toString();
@@ -85,7 +82,6 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     Optional<String> cc = Objects.nonNull(this.mailCc) ? Optional.of(this.mailCc.getValue(execution).toString()) : Optional.empty();
     Optional<String> bcc = Objects.nonNull(this.mailBcc) ? Optional.of(this.mailBcc.getValue(execution).toString()) : Optional.empty();
     Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.of(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("attachmentPath"), inputs)) : Optional.empty();
-    Optional<String> includeAttachment = Objects.nonNull(this.includeAttachment) ? Optional.of(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("includeAttachment"), inputs)) : Optional.empty();
 
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
       public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -123,17 +119,17 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
         // if (includeAttachment.isPresent() && Boolean.parseBoolean(includeAttachment.get()) && attachmentPath.isPresent()) {
         if (attachmentPath.isPresent()) {
-          // logger.info("includeAttachment.isPresent() = {}", includeAttachment.isPresent());
-          // logger.info("Boolean.parseBoolean(includeAttachment.get()) = {}", Boolean.parseBoolean(includeAttachment.get()));
+          // getLogger().info("includeAttachment.isPresent() = {}", includeAttachment.isPresent());
+          // getLogger().info("Boolean.parseBoolean(includeAttachment.get()) = {}", Boolean.parseBoolean(includeAttachment.get()));
 
           File attachment = new File(attachmentPath.get());
           if (attachment.exists() && attachment.isFile()) {
             message.addAttachment(attachment.getName(), attachment);
           } else {
-            logger.info("{} does not exist", attachmentPath.get());
+            getLogger().info("{} does not exist", attachmentPath.get());
           }
         } else {
-          logger.info("No attachment required");
+          getLogger().info("No attachment required");
         }
       }
     };
@@ -141,7 +137,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     emailSender.send(preparator);
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setMailTo(Expression mailTo) {

@@ -1,15 +1,13 @@
 package org.folio.rest.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -25,6 +23,7 @@ import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.folio.rest.delegate.AbstractWorkflowDelegate;
+import org.folio.rest.workflow.enums.StartEventType;
 import org.folio.rest.workflow.model.Condition;
 import org.folio.rest.workflow.model.ConnectTo;
 import org.folio.rest.workflow.model.EmbeddedLoopReference;
@@ -41,7 +40,6 @@ import org.folio.rest.workflow.model.ProcessorTask;
 import org.folio.rest.workflow.model.ReceiveTask;
 import org.folio.rest.workflow.model.ScriptTask;
 import org.folio.rest.workflow.model.StartEvent;
-import org.folio.rest.workflow.model.StartEventType;
 import org.folio.rest.workflow.model.Subprocess;
 import org.folio.rest.workflow.model.Workflow;
 import org.folio.rest.workflow.model.components.Branch;

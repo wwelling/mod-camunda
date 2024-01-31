@@ -23,7 +23,7 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
     String url = this.url.getValue(execution).toString();
     String key = this.designation.getValue(execution).toString();
@@ -35,7 +35,7 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
     connectionService.createPool(key, url, info);
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setUrl(Expression url) {

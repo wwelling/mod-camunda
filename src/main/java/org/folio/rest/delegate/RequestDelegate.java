@@ -1,16 +1,19 @@
 package org.folio.rest.delegate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.dto.Request;
+import org.folio.rest.workflow.enums.VariableType;
 import org.folio.rest.workflow.model.EmbeddedVariable;
 import org.folio.rest.workflow.model.RequestTask;
-import org.folio.rest.workflow.model.VariableType;
 import org.folio.spring.service.HttpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,12 +24,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -48,7 +45,7 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
     Request request = objectMapper.readValue(this.request.getValue(execution).toString(), Request.class);
 
@@ -64,7 +61,7 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     String url = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("url"), inputs);
     String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("body"), inputs);
 
-    HttpMethod method = request.getMethod();
+    HttpMethod method = HttpMethod.valueOf(request.getMethod().toString());
     String accept = request.getAccept();
     String contentType = request.getContentType();
 
@@ -72,14 +69,14 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
 
     Optional<Object> token = Optional.ofNullable(execution.getVariable("X-Okapi-Token"));
 
-    logger.info("url: {}", url);
-    logger.debug("method: {}", method);
+    getLogger().info("url: {}", url);
+    getLogger().debug("method: {}", method);
 
-    logger.debug("accept: {}", accept);
-    logger.debug("content-type: {}", contentType);
-    logger.debug("tenant: {}", tenant);
+    getLogger().debug("accept: {}", accept);
+    getLogger().debug("content-type: {}", contentType);
+    getLogger().debug("tenant: {}", tenant);
 
-    logger.debug("body: {}", body);
+    getLogger().debug("body: {}", body);
 
     HttpHeaders headers = new HttpHeaders();
     headers.add("Accept", accept);
@@ -97,11 +94,11 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     setOutput(execution, response.getBody());
 
     getHeaderOutputVariables(execution).forEach(headerOutputVariable -> {
-      Optional<String> key = headerOutputVariable.getKey();
+      Optional<String> key = Optional.of(headerOutputVariable.getKey());
       if (key.isPresent()) {
         Optional<String> headerOutput = Optional.ofNullable(response.getHeaders().getFirst(key.get()));
         if (headerOutput.isPresent()) {
-          Optional<VariableType> type = headerOutputVariable.getType();
+          Optional<VariableType> type = Optional.of(headerOutputVariable.getType());
           if (type.isPresent()) {
             switch (type.get()) {
             case LOCAL:
@@ -114,18 +111,18 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
               break;
             }
           } else {
-            logger.warn("Variable type not present for {}", key.get());
+            getLogger().warn("Variable type not present for {}", key.get());
           }
         } else {
-          logger.warn("Header output not present for {}", key.get());
+          getLogger().warn("Header output not present for {}", key.get());
         }
       } else {
-        logger.warn("Header output key is null");
+        getLogger().warn("Header output key is null");
       }
     });
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setRequest(Expression request) {

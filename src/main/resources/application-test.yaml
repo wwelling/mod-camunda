@@ -1,7 +1,7 @@
 logging:
   file:
     path: logs
-    name: mod-camunda.log
+    name: ${logging.file.path}/mod-camunda-test.log
   level:
     com:
       zaxxer:
@@ -13,9 +13,12 @@ logging:
       springframework: INFO
 
 server:
+  port: 9100
   servlet:
     context-path: /
-  port: 9000
+    encoding:
+      charset: UTF-8
+      enabled: true
 
 spring:
   activemq.broker-url: tcp://localhost:61616
@@ -24,37 +27,43 @@ spring:
   data.rest:
     returnBodyOnCreate: true
     returnBodyOnUpdate: true
+
+  main:
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
+    banner-mode: console
+    log-startup-info: true
+
   sql:
     init:
-      #platform: h2
-      platform: postgres
+      platform: h2
+
   datasource:
     hikari:
       leakDetectionThreshold: 1800000
       connectionTimeout: 30000
       idleTimeout: 600000
       maxLifetime: 1800000
-      maximumPoolSize: ${DB_MAXPOOLSIZE:16}
-    #url: jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    #driverClassName: org.h2.Driver
-    #platform: h2
-    driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_DATABASE:mod_camunda}
-    platform: postgres
+      maximumPoolSize: 16
+    url: jdbc:h2:mem:mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
 
-    username: ${DB_USERNAME:folio_admin}
-    password: ${DB_PASSWORD:folio_admin}
+    username: folio_admin
+    password: folio_admin
+
+  flyway:
+    enabled: false
+    encoding: UTF-8
 
   h2:
     console:
       enabled: false
       path: /h2console
       settings:
-        web-allow-others: true
+        web-allow-others: false
 
   jpa:
-    #database-platform: org.hibernate.dialect.H2Dialect
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.H2Dialect
 
     properties.hibernate.jdbc.lob.non_contextual_creation: true
     generate-ddl: false
@@ -74,11 +83,10 @@ spring:
     protocol: smtp
     test-connection: false
 
-  profiles:
-    active: default, messaging
   thymeleaf:
     mode: TEXT
     suffix: .sql
+
   jersey.application-path: rest
 
 camunda:
@@ -99,6 +107,15 @@ camunda:
     job-execution:
       lock-time-in-millis: 3600000
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  show-actuator: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+
 event.queue.name: event.queue
 
 tenant:
@@ -118,26 +135,34 @@ tenant:
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
     - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
 
-okapi.url: ${OKAPI_URL:http://localhost:9130}
+okapi.url: http://localhost:9130
 
-error:
-  handling:
-    environment: DEV
-    emailFrom: noReply@mailinator.com
-    # comma seperated email addresses
-    emailTo: support@mailinator.com
-
+# https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html
 management:
   endpoints:
+    enabled-by-default: false
     web:
-      exposure:
-        include: health
       base-path: /admin
+      exposure:
+        include: flyway,health,info
+  endpoint:
+    flyway:
+      enabled: false
+    health:
+      enabled: false
+      show-details: always
+      show-components: always
+    info:
+      enabled: false
   health:
     defaults:
       enabled: true
     readinessstate:
       enabled: true
+  info:
+    env.enabled: false
+    java.enabled: false
+    os.enabled: false
 
 info:
   build:

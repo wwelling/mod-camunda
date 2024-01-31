@@ -1,5 +1,7 @@
 package org.folio.rest.delegate;
 
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -11,19 +13,15 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
-import org.folio.rest.workflow.model.FileOp;
+import org.folio.rest.workflow.enums.FileOp;
 import org.folio.rest.workflow.model.FileTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -41,7 +39,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
     String pathTemplate = this.path.getValue(execution).toString();
     String lineTemplate = this.line != null ? this.line.getValue(execution).toString() : "0";
@@ -67,10 +65,10 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         if (file.exists()) {
           boolean deleted = file.delete();
           if (deleted) {
-            logger.info("{} has been deleted", filePath);
+            getLogger().info("{} has been deleted", filePath);
           }
         } else {
-          logger.info("{} does not exist", filePath);
+          getLogger().info("{} does not exist", filePath);
         }
         break;
       case LINE_COUNT:
@@ -79,9 +77,9 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
           long lineCount = reader.lines().count();
           reader.close();
           setOutput(execution, lineCount);
-          logger.info("{} read", filePath);
+          getLogger().info("{} read", filePath);
         } else {
-          logger.info("{} does not exist", filePath);
+          getLogger().info("{} does not exist", filePath);
         }
         break;
       case READ_LINE:
@@ -92,18 +90,18 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
           while ((currerntLine = reader.readLine()) != null && (++lineCount) < line) {}
           reader.close();
           setOutput(execution, currerntLine);
-          logger.info("{} read", filePath);
+          getLogger().info("{} read", filePath);
         } else {
-          logger.info("{} does not exist", filePath);
+          getLogger().info("{} does not exist", filePath);
         }
         break;
       case READ:
         if (file.exists()) {
           String content = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
           setOutput(execution, content);
-          logger.info("{} read", filePath);
+          getLogger().info("{} read", filePath);
         } else {
-          logger.info("{} does not exist", filePath);
+          getLogger().info("{} does not exist", filePath);
         }
         break;
       case WRITE:
@@ -117,7 +115,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
           content.append("\n");
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
-        logger.info("{} written", filePath);
+        getLogger().info("{} written", filePath);
         break;
       case LIST:
         if (file.exists()) {
@@ -126,10 +124,10 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
             traverseDirectory(file, listing);
             setOutput(execution, listing);
           } else {
-            logger.info("{} is not a directory to list", filePath);
+            getLogger().info("{} is not a directory to list", filePath);
           }
         } else {
-          logger.info("{} does not exist", filePath);
+          getLogger().info("{} does not exist", filePath);
         }
         break;
       default:
@@ -137,7 +135,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     }
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setPath(Expression path) {

@@ -1,21 +1,19 @@
 package org.folio.rest.delegate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.spin.impl.json.jackson.JacksonJsonNode;
+import org.folio.rest.workflow.enums.VariableType;
 import org.folio.rest.workflow.model.EmbeddedVariable;
-import org.folio.rest.workflow.model.VariableType;
 import org.slf4j.Logger;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public interface Input {
 
@@ -30,9 +28,9 @@ public interface Input {
   public default Map<String, Object> getInputs(DelegateExecution execution) throws JsonProcessingException {
     Map<String, Object> inputs = new HashMap<String, Object>();
     for (EmbeddedVariable variable : getInputVariables(execution)) {
-      Optional<String> key = variable.getKey();
+      Optional<String> key = Optional.of(variable.getKey());
       if (key.isPresent()) {
-        Optional<VariableType> type = variable.getType();
+        Optional<VariableType> type = Optional.of(variable.getType());
         if (type.isPresent()) {
           Optional<Object> value = Optional.empty();
           switch (type.get()) {

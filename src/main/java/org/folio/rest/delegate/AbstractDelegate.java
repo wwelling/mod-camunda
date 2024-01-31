@@ -1,15 +1,13 @@
 package org.folio.rest.delegate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+@Slf4j
 public abstract class AbstractDelegate implements JavaDelegate {
-
-  protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   protected ObjectMapper objectMapper;
@@ -21,7 +19,7 @@ public abstract class AbstractDelegate implements JavaDelegate {
   }
 
   public Logger getLogger() {
-    return logger;
+    return log;
   }
 
   public ObjectMapper getObjectMapper() {

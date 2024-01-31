@@ -29,7 +29,7 @@ public class ProcessorDelegate extends AbstractWorkflowIODelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
     EmbeddedProcessor processor = objectMapper.readValue(this.processor.getValue(execution).toString(), EmbeddedProcessor.class);
 
@@ -46,7 +46,7 @@ public class ProcessorDelegate extends AbstractWorkflowIODelegate {
     setOutput(execution, output);
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setProcessor(Expression processor) {

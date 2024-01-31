@@ -45,7 +45,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
     String queryTemplate = this.query.getValue(execution).toString();
 
@@ -98,7 +98,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
           if (hasOutputVariable(execution)) {
             setOutput(execution, count);
           } else {
-            logger.info("{} did not specify output variable for result count", delegateName);
+            getLogger().info("{} did not specify output variable for result count", delegateName);
           }
         }
 
@@ -109,7 +109,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     }
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setQuery(Expression query) {
@@ -186,14 +186,14 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       this.fw = new FileWriter(path);
       this.rowOp = DatabaseResultTypeOp.valueOf(resultType);
 
-      logger.info("Writing results to file as {}{}", rowOp, includeHeader ? " including headers" : "");
+      getLogger().info("Writing results to file as {}{}", rowOp, includeHeader ? " including headers" : "");
       if (includeHeader) {
         if (rowOp == DatabaseResultTypeOp.CSV) {
           fw.write(buildHeader(results, ","));
         } else if(rowOp == DatabaseResultTypeOp.TSV) {
           fw.write(buildHeader(results, "\t"));
         } else {
-          logger.warn("{} does not support building headers", rowOp);
+          getLogger().warn("{} does not support building headers", rowOp);
         }
       }
     }

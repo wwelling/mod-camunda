@@ -37,9 +37,9 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
-    logger.info("loading initial context");
+    getLogger().info("loading initial context");
 
     Map<String, Object> context = objectMapper.readValue(initialContext.getValue(execution).toString(),
         new TypeReference<Map<String, Object>>() {
@@ -48,7 +48,7 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
     for (Map.Entry<String, Object> entry : context.entrySet()) {
       SpinJsonNode node = JSON(objectMapper.writeValueAsString(entry.getValue()));
       execution.setVariable(entry.getKey(), node);
-      logger.info("{}: {}", entry.getKey(), node);
+      getLogger().info("{}: {}", entry.getKey(), node);
     }
 
     String timestamp = String.valueOf(System.currentTimeMillis());
@@ -56,7 +56,7 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
     execution.setVariable(TIMESTAMP_VARIABLE_NAME, timestamp);
     execution.setVariable(TENANT_VARIABLE_NAME, execution.getTenantId());    
 
-    logger.info("loading scripts");
+    getLogger().info("loading scripts");
 
     List<EmbeddedProcessor> processors = objectMapper.readValue(this.processors.getValue(execution).toString(),
         new TypeReference<List<EmbeddedProcessor>>() {
@@ -67,11 +67,11 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
       String functionName = processor.getFunctionName();
       String code = processor.getCode();
       scriptEngineService.registerScript(extension, functionName, code);
-      logger.info("{}: {}", processor.getFunctionName(), processor.getCode());
+      getLogger().info("{}: {}", processor.getFunctionName(), processor.getCode());
     }
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setInitialContext(Expression initialContext) {

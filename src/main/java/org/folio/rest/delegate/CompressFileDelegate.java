@@ -1,5 +1,7 @@
 package org.folio.rest.delegate;
 
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -12,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
@@ -20,16 +21,13 @@ import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
-import org.folio.rest.workflow.model.CompressFileContainer;
-import org.folio.rest.workflow.model.CompressFileFormat;
+import org.folio.rest.workflow.enums.CompressFileContainer;
+import org.folio.rest.workflow.enums.CompressFileFormat;
 import org.folio.rest.workflow.model.CompressFileTask;
 import org.h2.util.IOUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -57,7 +55,7 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    logger.info("{} started", delegateName);
+    getLogger().info("{} started", delegateName);
 
     String sourcePathTemplate = this.source.getValue(execution).toString();
     String destinationPathTemplate = this.destination.getValue(execution).toString();
@@ -119,22 +117,22 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
     if (sourceFile.exists()) {
       if (!sourceFile.canRead()) {
-        logger.info("{} could not be read", sourcePath);
+        getLogger().info("{} could not be read", sourcePath);
         formatType = null;
       }
 
       if (useContainer == CompressFileContainer.NONE && sourceFile.isDirectory()) {
-        logger.info("{} is a directory and cannot be compressed when container is NONE", sourcePath);
+        getLogger().info("{} is a directory and cannot be compressed when container is NONE", sourcePath);
         formatType = null;
       }
     } else {
-      logger.info("{} does not exist", sourcePath);
+      getLogger().info("{} does not exist", sourcePath);
       formatType = null;
     }
 
-    logger.info("Destination: {}", destinationFile.getPath());
-    logger.info("Source: {}", sourceFile.getPath());
-    logger.info("Compress format: {}", compressFormat);
+    getLogger().info("Destination: {}", destinationFile.getPath());
+    getLogger().info("Source: {}", sourceFile.getPath());
+    getLogger().info("Compress format: {}", compressFormat);
 
     if (compressFormat == CompressFileFormat.ZIP) {
       try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(destinationFile))) {
@@ -142,8 +140,8 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
         Files.copy(sourceFile.toPath(), zipOut);
       }
     } else {
-      logger.info("Format type: {}", formatType);
-      logger.info("Use container: {}", useContainer);
+      getLogger().info("Format type: {}", formatType);
+      getLogger().info("Use container: {}", useContainer);
       if (formatType != null) {
         if (useContainer == CompressFileContainer.NONE) {
           try (
@@ -179,12 +177,12 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
           }
         }
 
-        logger.info("{} written to {} as {}", sourcePath, destinationPath, compressFormat);
+        getLogger().info("{} written to {} as {}", sourcePath, destinationPath, compressFormat);
       }
     }
 
     long endTime = System.nanoTime();
-    logger.info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
   }
 
   public void setSource(Expression source) {

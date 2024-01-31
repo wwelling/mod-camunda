@@ -7,15 +7,13 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
 import org.folio.rest.exception.ScriptEngineLoadFailed;
 import org.folio.rest.exception.ScriptEngineUnsupported;
-import org.folio.rest.workflow.model.ScriptType;
+import org.folio.rest.workflow.enums.ScriptType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
