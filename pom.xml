@@ -28,7 +28,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spring-module-core.version>2.1.0-SNAPSHOT</spring-module-core.version>
-    <workflow-components.version>1.1.8-SNAPSHOT</workflow-components.version>
+    <workflow-components.version>1.2.0-SNAPSHOT</workflow-components.version>
     <camunda.version>7.21.0-alpha2</camunda.version>
     <camunda.spring.boot.version>7.21.0-alpha2</camunda.spring.boot.version>
   </properties>
