@@ -36,14 +36,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -89,14 +89,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -142,14 +142,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -188,14 +188,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -226,14 +226,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -286,14 +286,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -334,14 +334,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -382,14 +382,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -430,14 +430,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -489,14 +489,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
@@ -542,14 +542,14 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "204":
-          description: No Content
+        "400":
+          description: Bad Request
           content:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/ResponseErrors'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           content:
             application/hal+json:
               schema:
