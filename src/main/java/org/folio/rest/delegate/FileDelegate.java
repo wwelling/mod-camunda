@@ -73,24 +73,26 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         break;
       case LINE_COUNT:
         if (file.exists()) {
-          BufferedReader reader = Files.newBufferedReader(Path.of(filePath), StandardCharsets.UTF_8);
-          long lineCount = reader.lines().count();
-          reader.close();
-          setOutput(execution, lineCount);
-          getLogger().info("{} read", filePath);
+          try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath), StandardCharsets.UTF_8)) {
+            long lineCount = reader.lines().count();
+            reader.close();
+            setOutput(execution, lineCount);
+            getLogger().info("{} read", filePath);
+          }
         } else {
           getLogger().info("{} does not exist", filePath);
         }
         break;
       case READ_LINE:
         if (file.exists() && line > 0) {
-          BufferedReader reader = Files.newBufferedReader(Path.of(filePath), StandardCharsets.UTF_8);
-          int lineCount = 0;
-          String currerntLine = "";
-          while ((currerntLine = reader.readLine()) != null && (++lineCount) < line) {}
-          reader.close();
-          setOutput(execution, currerntLine);
-          getLogger().info("{} read", filePath);
+          try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath), StandardCharsets.UTF_8)) {
+            int lineCount = 0;
+            String currerntLine = "";
+            while ((currerntLine = reader.readLine()) != null && (++lineCount) < line) {}
+            reader.close();
+            setOutput(execution, currerntLine);
+            getLogger().info("{} read", filePath);
+          }
         } else {
           getLogger().info("{} does not exist", filePath);
         }
