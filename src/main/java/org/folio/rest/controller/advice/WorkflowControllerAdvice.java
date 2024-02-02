@@ -2,8 +2,8 @@ package org.folio.rest.controller.advice;
 
 import org.folio.rest.exception.WorkflowAlreadyActiveException;
 import org.folio.rest.exception.WorkflowAlreadyDeactivatedException;
-import org.folio.spring.model.response.ResponseErrors;
-import org.folio.spring.utility.ErrorUtility;
+import org.folio.spring.web.model.response.ResponseErrors;
+import org.folio.spring.web.utility.ErrorUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
