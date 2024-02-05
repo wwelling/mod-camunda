@@ -412,7 +412,6 @@
                 <spring.datasource.url>jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</spring.datasource.url>
                 <spring.jpa.database-platform>org.hibernate.dialect.H2Dialect</spring.jpa.database-platform>
                 <spring.jpa.hibernate.ddl-auto>create-drop</spring.jpa.hibernate.ddl-auto>
-                TENANT_INITIALIZEDEFAULTTENANT
               </systemPropertyVariables>
             </configuration>
             <executions>
