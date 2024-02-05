@@ -384,7 +384,7 @@
                   <goal>repackage</goal>
                 </goals>
                 <configuration>
-                  <mainClass>org.folio.rest.workflow.SpringOkapiModule</mainClass>
+                  <mainClass>org.folio.rest.camunda.SpringOkapiModule</mainClass>
                 </configuration>
               </execution>
             </executions>
@@ -421,7 +421,7 @@
                   <goal>repackage</goal>
                 </goals>
                 <configuration>
-                  <mainClass>org.folio.rest.workflow.SpringOkapiModule</mainClass>
+                  <mainClass>org.folio.rest.camunda.SpringOkapiModule</mainClass>
                 </configuration>
               </execution>
               <execution>
