@@ -31,6 +31,7 @@
     <workflow-components.version>1.2.0-SNAPSHOT</workflow-components.version>
     <camunda.version>7.21.0-alpha2</camunda.version>
     <camunda.spring.boot.version>7.21.0-alpha2</camunda.spring.boot.version>
+    <openapi.server.port>9000</openapi.server.port>
   </properties>
 
   <packaging>jar</packaging>
@@ -303,51 +304,6 @@
         <groupId>org.graalvm.buildtools</groupId>
         <artifactId>native-maven-plugin</artifactId>
       </plugin>
-
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-            <configuration>
-              <mainClass>org.folio.rest.workflow.SpringOkapiModule</mainClass>
-            </configuration>
-          </execution>
-          <execution>
-            <id>pre-integration-test</id>
-            <goals>
-              <goal>start</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>post-integration-test</id>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.springdoc</groupId>
-        <artifactId>springdoc-openapi-maven-plugin</artifactId>
-        <configuration>
-          <apiDocsUrl>http://localhost:9000/api-docs.yaml</apiDocsUrl>
-          <outputFileName>openapi.yaml</outputFileName>
-          <outputDir>src/main/resources/</outputDir>
-        </configuration>
-        <executions>
-          <execution>
-          <id>integration-test</id>
-          <goals>
-            <goal>generate</goal>
-          </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
 
     <resources>
@@ -407,6 +363,105 @@
     </resources>
   </build>
 
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <skip>false</skip>
+            </configuration>
+            <executions>
+              <execution>
+                <id>repackage</id>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+                <configuration>
+                  <mainClass>org.folio.rest.workflow.SpringOkapiModule</mainClass>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>openapi</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <skip>false</skip>
+              <arguments>
+                  <argument>--server.port=${openapi.server.port}</argument>
+              </arguments>
+              <systemPropertyVariables>
+                <server.port>${openapi.server.port}</server.port>
+                <spring.sql.init.platform>h2</spring.sql.init.platform>
+                <spring.datasource.driverClassName>org.h2.Driver</spring.datasource.driverClassName>
+                <spring.datasource.url>jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</spring.datasource.url>
+                <spring.jpa.database-platform>org.hibernate.dialect.H2Dialect</spring.jpa.database-platform>
+                <spring.jpa.hibernate.ddl-auto>create-drop</spring.jpa.hibernate.ddl-auto>
+                TENANT_INITIALIZEDEFAULTTENANT
+              </systemPropertyVariables>
+            </configuration>
+            <executions>
+              <execution>
+                <id>repackage</id>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+                <configuration>
+                  <mainClass>org.folio.rest.workflow.SpringOkapiModule</mainClass>
+                </configuration>
+              </execution>
+              <execution>
+                <id>pre-integration-test</id>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>post-integration-test</id>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-maven-plugin</artifactId>
+            <configuration>
+              <apiDocsUrl>http://localhost:${openapi.server.port}/api-docs.yaml</apiDocsUrl>
+              <outputFileName>openapi.yaml</outputFileName>
+              <outputDir>src/main/resources/</outputDir>
+            </configuration>
+            <executions>
+              <execution>
+              <id>integration-test</id>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <distributionManagement>
     <repository>
       <id>folio-nexus</id>
@@ -430,5 +485,4 @@
     <developerConnection>scm:git:git@github.com:folio-org/mod-camunda.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
-
 </project>
