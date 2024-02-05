@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("workflow-engine/workflows")
+@RequestMapping({"workflow-engine/workflows", "workflow-engine/workflows/"})
 public class WorkflowController {
 
   @Autowired
   private CamundaApiService camundaApiService;
 
-  @PostMapping("/activate")
+  @PostMapping({"/activate", "/activate/"})
   public Workflow activateWorkflow(@RequestBody Workflow workflow, @TenantHeader String tenant)
       throws WorkflowAlreadyActiveException {
     return camundaApiService.deployWorkflow(workflow, tenant);
   }
 
-  @PostMapping("/deactivate")
+  @PostMapping({"/deactivate", "/deactivate/"})
   public Workflow deactivateWorkflow(@RequestBody Workflow workflow) throws WorkflowAlreadyDeactivatedException {
     return camundaApiService.undeployWorkflow(workflow);
   }
