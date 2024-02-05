@@ -335,7 +335,7 @@
         <groupId>org.springdoc</groupId>
         <artifactId>springdoc-openapi-maven-plugin</artifactId>
         <configuration>
-          <apiDocsUrl>http://localhost:9000/mod-camunda/api-docs.yaml</apiDocsUrl>
+          <apiDocsUrl>http://localhost:9000/api-docs.yaml</apiDocsUrl>
           <outputFileName>openapi.yaml</outputFileName>
           <outputDir>src/main/resources/</outputDir>
         </configuration>
