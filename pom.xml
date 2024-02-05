@@ -403,7 +403,7 @@
             <configuration>
               <skip>false</skip>
               <arguments>
-                  <argument>--server.port=${openapi.server.port}</argument>
+                <argument>--server.port=${openapi.server.port}</argument>
               </arguments>
               <systemPropertyVariables>
                 <server.port>${openapi.server.port}</server.port>
