@@ -84,6 +84,7 @@ spring:
     properties.mail.smtp:
       auth: false
       starttls.enable: true
+      ssl.checkserveridentity: true
     protocol: smtp
     test-connection: false
 
