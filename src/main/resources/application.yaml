@@ -1,0 +1,187 @@
+logging:
+  file:
+    path: logs
+    name: ${logging.file.path}/mod-camunda.log
+  level:
+    com:
+      zaxxer:
+        hikari: INFO
+    org:
+      camunda: INFO
+      folio: INFO
+      hibernate: INFO
+      springframework: INFO
+
+server:
+  port: 9000
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+
+spring:
+  activemq.broker-url: tcp://localhost:61616
+  application.name: mod-camunda
+  codec.max-in-memory-size: 16777216
+  data.rest:
+    returnBodyOnCreate: true
+    returnBodyOnUpdate: true
+
+  main:
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
+    banner-mode: console
+    log-startup-info: true
+
+  sql:
+    init:
+      #platform: h2
+      platform: postgres
+
+  datasource:
+    hikari:
+      leakDetectionThreshold: 1800000
+      connectionTimeout: 30000
+      idleTimeout: 600000
+      maxLifetime: 1800000
+      maximumPoolSize: ${DB_MAXPOOLSIZE:16}
+    #url: jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    #driverClassName: org.h2.Driver
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_DATABASE:mod_camunda}
+
+    username: ${DB_USERNAME:folio_admin}
+    password: ${DB_PASSWORD:folio_admin}
+
+  flyway:
+    enabled: true
+    encoding: UTF-8
+
+  h2:
+    console:
+      enabled: false
+      path: /h2console
+      settings:
+        web-allow-others: true
+
+  jpa:
+    #database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+    properties.hibernate.jdbc.lob.non_contextual_creation: true
+    generate-ddl: false
+    hibernate.ddl-auto: none
+    open-in-view: true
+    show-sql: false
+
+  mail:
+    default-encoding: UTF-8
+    host: smtp-relay.tamu.edu
+    username:
+    password:
+    port: 25
+    properties.mail.smtp:
+      auth: false
+      starttls.enable: true
+    protocol: smtp
+    test-connection: false
+
+  profiles:
+    active: default, messaging
+
+  thymeleaf:
+    mode: TEXT
+    suffix: .sql
+
+  jersey.application-path: rest
+
+camunda:
+  bpm:
+    auto-deployment-enabled: false
+    database:
+      schema-update: false
+    filter:
+      create: All Tasks
+    admin-user:
+      id: admin
+      password: admin
+      first-name: Camunda
+      last-name: Admin
+      email: cadmin@mailinator.com
+    # authorization.enabled: true
+    default-number-of-retries: 1
+    job-execution:
+      lock-time-in-millis: 3600000
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  show-actuator: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+  writer-with-default-pretty-printer: true
+
+event.queue.name: event.queue
+
+tenant:
+  header-name: X-Okapi-Tenant
+  force-tenant: false
+  default-tenant: diku
+  initialize-default-tenant: true
+  domain-packages:
+  # https://github.com/camunda/camunda-bpm-platform/tree/master/engine/src/main/resources/org/camunda/bpm/engine/db/create
+  # be sure to match datasource platform
+  schema-scripts:
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.identity.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
+
+okapi.url: ${OKAPI_URL:http://localhost:9130}
+
+# https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: /admin
+      exposure:
+        include: flyway,health,info
+  endpoint:
+    flyway:
+      enabled: true
+    health:
+      enabled: true
+      show-details: always
+      show-components: always
+    info:
+      enabled: true
+  health:
+    defaults:
+      enabled: true
+    readinessstate:
+      enabled: true
+  info:
+    env.enabled: true
+    java.enabled: true
+    os.enabled: true
+
+error:
+  handling:
+    environment: DEV
+    emailFrom: noReply@mailinator.com
+    # comma seperated email addresses
+    emailTo: support@mailinator.com
+
+info:
+  build:
+    artifact: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@"

@@ -5,9 +5,14 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>mod-camunda</artifactId>
+  <parent>
+    <groupId>org.folio</groupId>
+    <artifactId>spring-module-core</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
+  </parent>
 
-  <version>1.1.12-SNAPSHOT</version>
+  <artifactId>mod-camunda</artifactId>
+  <version>1.2.0-SNAPSHOT</version>
 
   <name>Okapi Camunda Module</name>
 
@@ -20,154 +25,16 @@
     </license>
   </licenses>
 
-  <parent>
-    <groupId>org.folio</groupId>
-    <artifactId>spring-module-core</artifactId>
-    <version>1.1.5</version>
-  </parent>
-
-  <packaging>jar</packaging>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <camunda.version>7.17.0</camunda.version>
-    <camunda.spring.boot.version>7.18.0</camunda.spring.boot.version>
+    <spring-module-core.version>2.1.0-SNAPSHOT</spring-module-core.version>
+    <workflow-components.version>1.2.0-SNAPSHOT</workflow-components.version>
+    <camunda.version>7.21.0-alpha2</camunda.version>
+    <camunda.spring.boot.version>7.21.0-alpha2</camunda.spring.boot.version>
+    <openapi.server.port>9000</openapi.server.port>
   </properties>
 
-  <repositories>
-    <repository>
-      <id>folio-nexus</id>
-      <name>FOLIO Maven repository</name>
-      <url>https://repository.folio.org/repository/maven-folio</url>
-    </repository>
-  </repositories>
-
-  <build>
-
-    <plugins>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <mainClass>org.folio.spring.domain.generator.EntityJsonSchemaGenerator</mainClass>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-            <configuration>
-              <mainClass>org.folio.rest.SpringOkapiModule</mainClass>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>filter-descriptor-inputs</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${basedir}/descriptors</directory>
-                  <include>*Descriptor*-template.json</include>
-                  <filtering>true</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>com.coderplus.maven.plugins</groupId>
-        <artifactId>copy-rename-maven-plugin</artifactId>
-        <version>1.0.1</version>
-        <executions>
-          <execution>
-            <id>rename-descriptor-outputs</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>rename</goal>
-            </goals>
-            <configuration>
-              <fileSets>
-                <fileSet>
-                  <sourceFile>${project.build.directory}/ModuleDescriptor-template.json</sourceFile>
-                  <destinationFile>${project.build.directory}/ModuleDescriptor.json</destinationFile>
-                </fileSet>
-                <fileSet>
-                  <sourceFile>${project.build.directory}/DeploymentDescriptor-template.json</sourceFile>
-                  <destinationFile>${project.build.directory}/DeploymentDescriptor.json</destinationFile>
-                </fileSet>
-              </fileSets>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-
-    <resources>
-      <resource>
-        <filtering>false</filtering>
-        <directory>ramls</directory>
-        <targetPath>ramls</targetPath>
-        <includes>
-          <include>*.json</include>
-          <include>*.raml</include>
-        </includes>
-      </resource>
-      <resource>
-        <filtering>false</filtering>
-        <directory>ramls</directory>
-        <targetPath>../ramls</targetPath>
-        <includes>
-          <include>*.json</include>
-          <include>*.raml</include>
-        </includes>
-      </resource>
-      <resource>
-        <filtering>false</filtering>
-        <directory>src/main/resources</directory>
-        <excludes>
-          <exclude>application.yml</exclude>
-          <exclude>descriptors/**</exclude>
-        </excludes>
-      </resource>
-      <resource>
-        <filtering>true</filtering>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>application.yml</include>
-        </includes>
-      </resource>
-    </resources>
-
-  </build>
+  <packaging>jar</packaging>
 
   <dependencyManagement>
     <dependencies>
@@ -183,17 +50,28 @@
   </dependencyManagement>
 
   <dependencies>
-
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>spring-tenant</artifactId>
-      <version>1.1.5</version>
+      <version>${spring-module-core.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>spring-messaging</artifactId>
+      <version>${spring-module-core.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring-module-core.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>workflow-components</artifactId>
-      <version>1.1.7</version>
+      <version>${workflow-components.version}</version>
     </dependency>
 
     <dependency>
@@ -324,7 +202,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.codehaus.groovy</groupId>
+      <groupId>org.apache.groovy</groupId>
       <artifactId>groovy-jsr223</artifactId>
     </dependency>
 
@@ -374,7 +252,214 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>folio-nexus</id>
+      <name>FOLIO Maven repository</name>
+      <url>https://repository.folio.org/repository/maven-folio</url>
+    </repository>
+    <repository>
+      <id>indexdata</id>
+      <name>Index Data</name>
+      <url>https://maven.indexdata.com/</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.hibernate.orm.tooling</groupId>
+        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enhance</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>enhance</goal>
+            </goals>
+            <configuration>
+              <failOnError>true</failOnError>
+              <enableLazyInitialization>true</enableLazyInitialization>
+              <enableDirtyTracking>true</enableDirtyTracking>
+              <enableAssociationManagement>true</enableAssociationManagement>
+              <enableExtendedEnhancement>false</enableExtendedEnhancement>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.graalvm.buildtools</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <filtering>false</filtering>
+        <directory>ramls</directory>
+        <targetPath>ramls</targetPath>
+        <includes>
+          <include>*.json</include>
+          <include>*.raml</include>
+        </includes>
+      </resource>
+      <resource>
+        <filtering>false</filtering>
+        <directory>ramls</directory>
+        <targetPath>../ramls</targetPath>
+        <includes>
+          <include>*.json</include>
+          <include>*.raml</include>
+        </includes>
+      </resource>
+      <resource>
+        <filtering>false</filtering>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>application.yaml</exclude>
+          <exclude>application-test.yaml</exclude>
+          <exclude>descriptors/**</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>application.yaml</include>
+          <include>application-test.yaml</include>
+        </includes>
+      </resource>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources/descriptors</directory>
+        <targetPath>descriptors</targetPath>
+        <includes>
+          <include>DeploymentDescriptor.json</include>
+          <include>ModuleDescriptor.json</include>
+        </includes>
+      </resource>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources/descriptors</directory>
+        <targetPath>../descriptors</targetPath>
+        <includes>
+          <include>DeploymentDescriptor.json</include>
+          <include>ModuleDescriptor.json</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <skip>false</skip>
+            </configuration>
+            <executions>
+              <execution>
+                <id>repackage</id>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+                <configuration>
+                  <mainClass>org.folio.rest.camunda.SpringOkapiModule</mainClass>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>openapi</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <skip>false</skip>
+              <arguments>
+                <argument>--server.port=${openapi.server.port}</argument>
+              </arguments>
+              <systemPropertyVariables>
+                <server.port>${openapi.server.port}</server.port>
+                <spring.sql.init.platform>h2</spring.sql.init.platform>
+                <spring.datasource.driverClassName>org.h2.Driver</spring.datasource.driverClassName>
+                <spring.datasource.url>jdbc:h2:./target/mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</spring.datasource.url>
+                <spring.jpa.database-platform>org.hibernate.dialect.H2Dialect</spring.jpa.database-platform>
+                <spring.jpa.hibernate.ddl-auto>create-drop</spring.jpa.hibernate.ddl-auto>
+              </systemPropertyVariables>
+            </configuration>
+            <executions>
+              <execution>
+                <id>repackage</id>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+                <configuration>
+                  <mainClass>org.folio.rest.camunda.SpringOkapiModule</mainClass>
+                </configuration>
+              </execution>
+              <execution>
+                <id>pre-integration-test</id>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>post-integration-test</id>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-maven-plugin</artifactId>
+            <configuration>
+              <apiDocsUrl>http://localhost:${openapi.server.port}/api-docs.yaml</apiDocsUrl>
+              <outputFileName>openapi.yaml</outputFileName>
+              <outputDir>src/main/resources/</outputDir>
+            </configuration>
+            <executions>
+              <execution>
+              <id>integration-test</id>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <distributionManagement>
     <repository>
@@ -399,5 +484,4 @@
     <developerConnection>scm:git:git@github.com:folio-org/mod-camunda.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
-
 </project>
