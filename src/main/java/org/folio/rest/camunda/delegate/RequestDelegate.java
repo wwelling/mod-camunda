@@ -94,11 +94,11 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
     setOutput(execution, response.getBody());
 
     getHeaderOutputVariables(execution).forEach(headerOutputVariable -> {
-      Optional<String> key = Optional.of(headerOutputVariable.getKey());
+      Optional<String> key = Optional.ofNullable(headerOutputVariable.getKey());
       if (key.isPresent()) {
         Optional<String> headerOutput = Optional.ofNullable(response.getHeaders().getFirst(key.get()));
         if (headerOutput.isPresent()) {
-          Optional<VariableType> type = Optional.of(headerOutputVariable.getType());
+          Optional<VariableType> type = Optional.ofNullable(headerOutputVariable.getType());
           if (type.isPresent()) {
             switch (type.get()) {
             case LOCAL:

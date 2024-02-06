@@ -25,10 +25,10 @@ public interface Output {
 
   public default void setOutput(DelegateExecution execution, Object output) throws JsonProcessingException {
     EmbeddedVariable variable = getOutputVariable(execution);
-    Optional<String> key = Optional.of(variable.getKey());
+    Optional<String> key = Optional.ofNullable(variable.getKey());
     if (key.isPresent()) {
       if (Objects.nonNull(output)) {
-        Optional<VariableType> type = Optional.of(variable.getType());
+        Optional<VariableType> type = Optional.ofNullable(variable.getType());
         Object value = variable.isSpin()
           ? JSON(getObjectMapper().writeValueAsString(output))
           : Variables.objectValue(output, variable.getAsTransient()).create();
