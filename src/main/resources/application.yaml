@@ -98,6 +98,7 @@ spring:
   jersey.application-path: rest
 
 camunda:
+  # see: https://docs.camunda.org/manual/7.20/user-guide/spring-boot-integration/configuration/
   bpm:
     auto-deployment-enabled: false
     database:
@@ -113,7 +114,27 @@ camunda:
     # authorization.enabled: true
     default-number-of-retries: 1
     job-execution:
+      enabled: true
+      backoff-decrease-threshold: 100
+      backoff-time-in-millis: 0
+      core-pool-size: 3
+      deployment-aware: false
+      keep-alive-seconds: 0
       lock-time-in-millis: 3600000
+      max-backoff: 0
+      max-jobs-per-acquisition: 3
+      max-pool-size: 10
+      max-wait: 60000
+      queue-capacity: 3
+      wait-increase-factor: 2
+      wait-time-in-millis: 15000
+    # see: https://docs.camunda.org/manual/7.20/user-guide/spring-boot-integration/configuration/#generic-properties 
+    generic-properties:
+      properties:
+        telemetry-reporter-activate: false
+        enable-script-compilation: true
+        enable-script-engine-nashorn-compatibility: true
+        enable-fetch-script-engine-from-process-application: false
 
 springdoc:
   api-docs:
