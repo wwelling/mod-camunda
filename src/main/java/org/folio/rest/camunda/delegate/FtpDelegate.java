@@ -57,11 +57,11 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
     int port = Integer.parseInt(this.port.getValue(execution).toString());
 
     Optional<String> username = Objects.nonNull(this.username)
-      ? Optional.of(this.username.getValue(execution).toString())
+      ? Optional.ofNullable(this.username.getValue(execution).toString())
       : Optional.empty();
 
     Optional<String> password = Objects.nonNull(this.password)
-      ? Optional.of(this.password.getValue(execution).toString())
+      ? Optional.ofNullable(this.password.getValue(execution).toString())
       : Optional.empty();
 
     FileSystemManager manager = VFS.getManager();
@@ -125,7 +125,7 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
         break;
     }
 
-    
+
 
     long endTime = System.nanoTime();
     getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);

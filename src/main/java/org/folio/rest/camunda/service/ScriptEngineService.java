@@ -89,7 +89,7 @@ public class ScriptEngineService {
         newEngine.eval(loadScript(UTILS_PREFIX + extension));
       }
 
-      maybeScriptEngine = Optional.of(newEngine);
+      maybeScriptEngine = Optional.ofNullable(newEngine);
     }
 
     ScriptEngine scriptEngine = maybeScriptEngine.get();

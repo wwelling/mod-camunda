@@ -79,9 +79,9 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
     String to = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("mailTo"), inputs);
     String from = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("mailFrom"), inputs);
 
-    Optional<String> cc = Objects.nonNull(this.mailCc) ? Optional.of(this.mailCc.getValue(execution).toString()) : Optional.empty();
-    Optional<String> bcc = Objects.nonNull(this.mailBcc) ? Optional.of(this.mailBcc.getValue(execution).toString()) : Optional.empty();
-    Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.of(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("attachmentPath"), inputs)) : Optional.empty();
+    Optional<String> cc = Objects.nonNull(this.mailCc) ? Optional.ofNullable(this.mailCc.getValue(execution).toString()) : Optional.empty();
+    Optional<String> bcc = Objects.nonNull(this.mailBcc) ? Optional.ofNullable(this.mailBcc.getValue(execution).toString()) : Optional.empty();
+    Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.ofNullable(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("attachmentPath"), inputs)) : Optional.empty();
 
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
       public void prepare(MimeMessage mimeMessage) throws Exception {

@@ -28,9 +28,9 @@ public interface Input {
   public default Map<String, Object> getInputs(DelegateExecution execution) throws JsonProcessingException {
     Map<String, Object> inputs = new HashMap<String, Object>();
     for (EmbeddedVariable variable : getInputVariables(execution)) {
-      Optional<String> key = Optional.of(variable.getKey());
+      Optional<String> key = Optional.ofNullable(variable.getKey());
       if (key.isPresent()) {
-        Optional<VariableType> type = Optional.of(variable.getType());
+        Optional<VariableType> type = Optional.ofNullable(variable.getType());
         if (type.isPresent()) {
           Optional<Object> value = Optional.empty();
           switch (type.get()) {
