@@ -163,7 +163,7 @@ public class BpmnModelFactory {
             builder = ((StartEventBuilder) builder).interrupting(interrupting);
             break;
           default:
-            logger.warn("Start Event named {} is has an unknown event type of {}.", node.getName(), type);
+            logger.warn("Start Event named {} has an unknown event type of {}.", node.getName(), type);
             break;
           }
 
@@ -183,7 +183,7 @@ public class BpmnModelFactory {
             case NONE:
             case SIMPLE:
             default:
-              logger.warn("Start Event named {} is has an unknown setup type of {}.", node.getName(), setup);
+              logger.warn("Start Event named {} has an unknown setup type of {}.", node.getName(), setup);
               break;
             }
           }
