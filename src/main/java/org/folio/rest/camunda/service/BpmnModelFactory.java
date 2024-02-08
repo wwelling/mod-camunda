@@ -163,7 +163,7 @@ public class BpmnModelFactory {
             builder = ((StartEventBuilder) builder).interrupting(interrupting);
             break;
           default:
-            // unknown start event
+            logger.warn("Start Event named {} is has an unknown event type of {}.", node.getName(), type);
             break;
           }
 
@@ -183,6 +183,7 @@ public class BpmnModelFactory {
             case NONE:
             case SIMPLE:
             default:
+              logger.warn("Start Event named {} is has an unknown setup type of {}.", node.getName(), setup);
               break;
             }
           }
@@ -190,7 +191,7 @@ public class BpmnModelFactory {
         } else if (node instanceof EndEvent) {
           builder = builder.endEvent(node.getIdentifier()).name(node.getName());
         } else {
-          // unknown event
+          logger.warn("Event named {} is of an unknown type.", node.getName());
         }
 
       } else if (node instanceof DelegateTask) {
@@ -291,6 +292,7 @@ public class BpmnModelFactory {
             // TODO: create custom exception and controller advice to handle better
             throw new RuntimeException("Transaction subprocess not yet supported!");
           default:
+            logger.warn("Subprocess named {} is of an unknown type.", node.getName());
             break;
           }
 
@@ -310,7 +312,7 @@ public class BpmnModelFactory {
           builder = builder.connectTo(((ConnectTo) node).getNodeId());
 
         } else {
-          // unknown navigation
+          logger.warn("Navigation named {} is of an unknown type.", node.getName());
         }
 
       } else if (node instanceof Task) {
@@ -319,7 +321,7 @@ public class BpmnModelFactory {
             builder = builder.receiveTask(node.getIdentifier()).name(node.getName())
                 .message(((ReceiveTask) node).getMessage());
           } else {
-            // unknown wait
+            logger.warn("Wait Task named {} is of an unknown type.", node.getName());
           }
         } else if (node instanceof ScriptTask) {
           builder = builder.scriptTask(node.getIdentifier()).name(node.getName())
@@ -330,7 +332,7 @@ public class BpmnModelFactory {
           }
 
         } else {
-          // unknown task
+          logger.warn("Script Task named {} is of an unknown type.", node.getName());
         }
 
         if (((Task) node).isAsyncBefore()) {
@@ -429,6 +431,9 @@ public class BpmnModelFactory {
         scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
       } else if (node instanceof Subprocess) {
         scripts.addAll(getProcessorScripts(((Subprocess) node).getNodes()));
+      }
+      else {
+        logger.warn("Processor Script named {} is of an unknown type.", node.getName());
       }
     });
     return scripts;
