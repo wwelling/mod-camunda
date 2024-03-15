@@ -69,6 +69,13 @@
 
     <dependency>
       <groupId>org.folio</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring-module-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.folio</groupId>
       <artifactId>workflow-components</artifactId>
       <version>${workflow-components.version}</version>
     </dependency>
@@ -329,7 +336,6 @@
         <directory>src/main/resources</directory>
         <excludes>
           <exclude>application.yaml</exclude>
-          <exclude>application-test.yaml</exclude>
           <exclude>descriptors/**</exclude>
         </excludes>
       </resource>
@@ -338,7 +344,6 @@
         <directory>src/main/resources</directory>
         <includes>
           <include>application.yaml</include>
-          <include>application-test.yaml</include>
         </includes>
       </resource>
       <resource>
@@ -360,6 +365,23 @@
         </includes>
       </resource>
     </resources>
+
+   <testResources>
+      <testResource>
+        <filtering>false</filtering>
+        <directory>src/test/resources</directory>
+        <excludes>
+          <exclude>application.yaml</exclude>
+        </excludes>
+      </testResource>
+      <testResource>
+        <filtering>true</filtering>
+        <directory>src/test/resources</directory>
+        <includes>
+          <include>application.yaml</include>
+        </includes>
+      </testResource>
+    </testResources>
   </build>
 
   <profiles>
