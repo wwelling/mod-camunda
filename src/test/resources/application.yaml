@@ -1,0 +1,203 @@
+logging:
+  file:
+    path: logs
+    name: ${logging.file.path}/mod-camunda-test.log
+  level:
+    com:
+      zaxxer:
+        hikari: INFO
+    org:
+      camunda: INFO
+      folio: INFO
+      hibernate: INFO
+      springframework: INFO
+
+      # Uncomment to enable MockMvc unit test logging.
+      #springframework.test.web.servlet.result: DEBUG
+
+server:
+  port: 9100
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+
+spring:
+  activemq.broker-url: tcp://localhost:61616
+  application.name: mod-camunda
+  codec.max-in-memory-size: 16777216
+  data.rest:
+    returnBodyOnCreate: true
+    returnBodyOnUpdate: true
+
+  main:
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
+    banner-mode: console
+    log-startup-info: true
+
+  sql:
+    init:
+      platform: h2
+
+  datasource:
+    hikari:
+      leakDetectionThreshold: 1800000
+      connectionTimeout: 30000
+      idleTimeout: 600000
+      maxLifetime: 1800000
+      maximumPoolSize: 16
+    url: jdbc:h2:mem:mod-camunda;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+
+    username: folio_admin
+    password: folio_admin
+
+  flyway:
+    enabled: false
+    encoding: UTF-8
+
+  h2:
+    console:
+      enabled: false
+      path: /h2console
+      settings:
+        web-allow-others: false
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+    properties.hibernate.jdbc.lob.non_contextual_creation: true
+    generate-ddl: false
+    hibernate.ddl-auto: none
+    open-in-view: true
+    show-sql: false
+
+  mail:
+    default-encoding: UTF-8
+    host: smtp-relay.tamu.edu
+    username:
+    password:
+    port: 25
+    properties.mail.smtp:
+      auth: false
+      starttls.enable: true
+    protocol: smtp
+    test-connection: false
+
+  thymeleaf:
+    mode: TEXT
+    suffix: .sql
+
+  jersey.application-path: rest
+
+camunda:
+  # see: https://docs.camunda.org/manual/7.20/user-guide/spring-boot-integration/configuration/
+  bpm:
+    auto-deployment-enabled: false
+    database:
+      schema-update: false
+    filter:
+      create: All Tasks
+    admin-user:
+      id: admin
+      password: admin
+      first-name: Camunda
+      last-name: Admin
+      email: cadmin@mailinator.com
+    # authorization.enabled: true
+    default-number-of-retries: 1
+    job-execution:
+      enabled: true
+      backoff-decrease-threshold: 100
+      backoff-time-in-millis: 0
+      core-pool-size: 3
+      deployment-aware: false
+      keep-alive-seconds: 0
+      lock-time-in-millis: 3600000
+      max-backoff: 0
+      max-jobs-per-acquisition: 3
+      max-pool-size: 10
+      max-wait: 60000
+      queue-capacity: 3
+      wait-increase-factor: 2
+      wait-time-in-millis: 15000
+    # see: https://docs.camunda.org/manual/7.20/user-guide/spring-boot-integration/configuration/#generic-properties 
+    generic-properties:
+      properties:
+        telemetry-reporter-activate: false
+        enable-script-compilation: true
+        enable-script-engine-nashorn-compatibility: true
+        enable-fetch-script-engine-from-process-application: false
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  show-actuator: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+
+event.queue.name: event.queue
+
+tenant:
+  header-name: X-Okapi-Tenant
+  force-tenant: false
+  default-tenant: diku
+  initialize-default-tenant: true
+  domain-packages:
+  # https://github.com/camunda/camunda-bpm-platform/tree/master/engine/src/main/resources/org/camunda/bpm/engine/db/create
+  # be sure to match datasource platform
+  schema-scripts:
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.identity.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
+
+okapi.url: http://localhost:9130
+
+error:
+  handling:
+    environment: DEV
+    emailFrom: noReply@mailinator.com
+    # comma seperated email addresses
+    emailTo: support@mailinator.com
+
+# https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: /admin
+      exposure:
+        include: flyway,health,info
+  endpoint:
+    flyway:
+      enabled: false
+    health:
+      enabled: false
+      show-details: always
+      show-components: always
+    info:
+      enabled: false
+  health:
+    defaults:
+      enabled: true
+    readinessstate:
+      enabled: true
+  info:
+    env.enabled: false
+    java.enabled: false
+    os.enabled: false
+
+info:
+  build:
+    artifact: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@"

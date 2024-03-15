@@ -1,7 +1,0 @@
-{
-  "srvcId": "@project.artifactId@-@project.version@",
-  "nodeId": "localhost",
-  "descriptor": {
-    "exec": "java -jar ../mod-camunda/target/mod-camunda-@project.version@.jar -Dspring.config.location=classpath:/ --server.port=%p"
-  }
-}

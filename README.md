@@ -158,7 +158,7 @@ vagrant up
 
 When finished Okapi will be running with mod-workflow and mod-camunda deployed under the diku tenant. mod-camunda will have its port forwarded for access to the Camunda webapps. FOLIO UI will be accessible at `http://localhost:3000`; username: `diku_admin`, password: `admin`.
 
-> Okapi is being built and redeployed from within this vagrant. Eventually this will not need to happen. If a specific branch of either mod-camunda or mod-workflow is desired to be deployed, modify the Vagrantfile `git checkout master` to the desired branch and restart vagrant. `vagrant destroy`, `vagrant up`
+> Okapi is being built and redeployed from within this vagrant. Eventually this will not need to happen. If a specific branch of either mod-camunda or mod-workflow is desired to be deployed, modify the Vagrantfile `git checkout main` to the desired branch and restart vagrant. `vagrant destroy`, `vagrant up`
 
 ### Development
 

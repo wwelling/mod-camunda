@@ -1126,6 +1126,9 @@
         "attachmentPath" : {
           "type" : "string"
         },
+        "includeAttachment" : {
+          "type" : "string"
+        },
         "identifier" : {
           "type" : "string"
         }
@@ -1169,12 +1172,18 @@
         "asyncAfter" : {
           "type" : "boolean"
         },
+        "op" : {
+          "type" : "string",
+          "enum" : [ "LIST", "READ", "WRITE", "COPY", "MOVE", "DELETE", "LINE_COUNT", "READ_LINE", "PUSH", "POP" ]
+        },
         "path" : {
           "type" : "string"
         },
-        "op" : {
-          "type" : "string",
-          "enum" : [ "LIST", "READ", "WRITE", "DELETE" ]
+        "target" : {
+          "type" : "string"
+        },
+        "line" : {
+          "type" : "string"
         },
         "identifier" : {
           "type" : "string"

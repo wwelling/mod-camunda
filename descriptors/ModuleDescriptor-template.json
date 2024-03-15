@@ -1,0 +1,432 @@
+{
+  "id": "${project.artifactId}-${project.version}",
+  "name": "Camnuda BPM Module",
+  "provides": [
+    {
+      "id": "camunda-process",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/deployment",
+          "permissionsRequired": ["camunda.process.collection.get"],
+          "permissionsDesired": ["camunda.process.domain.*", "camunda.process.domain.all"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/deployment/{id}",
+          "permissionsRequired": ["camunda.process.item.get"],
+          "permissionsDesired": ["camunda.process.domain.*", "camunda.process.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/deployment/create",
+          "permissionsRequired": ["camunda.process.item.post"],
+          "permissionsDesired": ["camunda.process.domain.*", "camunda.process.domain.all"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/camunda/deployment/{id}",
+          "permissionsRequired": ["camunda.process.item.delete"],
+          "permissionsDesired": ["camunda.process.domain.*", "camunda.process.domain.all"]
+        }
+      ]
+    },
+    {
+      "id": "camunda-process-definition",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/process-definition",
+          "permissionsRequired": ["camunda.process-definition.collection.get"],
+          "permissionsDesired": ["camunda.process-definition.domain.*", "camunda.process-definition.domain.all"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/process-definition/{id}",
+          "permissionsRequired": ["camunda.process-definition.item.get"],
+          "permissionsDesired": ["camunda.process-definition.domain.*", "camunda.process-definition.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/process-definition/{id}/start",
+          "permissionsRequired": ["camunda.process-definition.start.post"],
+          "permissionsDesired": ["camunda.process-definition.domain.*", "camunda.process-definition.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/process-definition/key/{key}/tenant-id/{tenant-id}/start",
+          "permissionsRequired": ["camunda.process-definition.start.post"],
+          "permissionsDesired": ["camunda.process-definition.domain.*", "camunda.process-definition.domain.all"]
+        }
+      ]
+    },
+    {
+      "id": "camunda-decision-definition",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/decision-definition",
+          "permissionsRequired": ["camunda.decision-definition.collection.get"],
+          "permissionsDesired": ["camunda.decision-definition.domain.*", "camunda.decision-definition.domain.all"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/decision-definition/{id}",
+          "permissionsRequired": ["camunda.decision-definition.item.get"],
+          "permissionsDesired": ["camunda.decision-definition.domain.*", "camunda.decision-definition.domain.all"]
+        }
+      ]
+    },
+    {
+      "id": "camunda-task",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/task",
+          "permissionsRequired": ["camunda.task.collection.get"],
+          "permissionsDesired": ["camunda.task.domain.*", "camunda.task.domain.all"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/task/{id}",
+          "permissionsRequired": ["camunda.task.item.get"],
+          "permissionsDesired": ["camunda.task.domain.*", "camunda.task.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/task/{id}/claim",
+          "permissionsRequired": ["camunda.task.claim.post"],
+          "permissionsDesired": ["camunda.task.domain.*", "camunda.task.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/task/{id}/unclaim",
+          "permissionsRequired": ["camunda.task.unclaim.post"],
+          "permissionsDesired": ["camunda.task.domain.*", "camunda.task.domain.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/task/{id}/complete",
+          "permissionsRequired": ["camunda.task.complete.post"],
+          "permissionsDesired": ["camunda.task.domain.*", "camunda.task.domain.all"]
+        }
+      ]
+    },
+    {
+      "id": "camunda-message",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/camunda/message",
+          "permissionsRequired": ["camunda.message.item.post"],
+          "permissionsDesired": ["camunda.message.domain.*", "camunda.message.domain.all"]
+        }
+      ]
+    },
+    {
+      "id": "camunda-workflow-engine",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["POST"],
+          "pathPattern": "/workflow-engine/workflows/activate",
+          "permissionsRequired": ["camunda.workflow-engine.workflows.activate"],
+          "permissionsDesired": ["camunda.workflow-engine.workflows.*", "camunda.workflow-engine.workflows.all"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/workflow-engine/workflows/deactivate",
+          "permissionsRequired": ["camunda.workflow-engine.workflows.deactivate"],
+          "permissionsDesired": ["camunda.workflow-engine.workflows.*", "camunda.workflow-engine.workflows.all"]
+        }
+      ]
+    },
+    {
+      "id": "_jsonSchemas",
+      "version": "1.0",
+      "interfaceType" : "multiple",
+      "handlers" : [
+        {
+          "methods" : [ "GET" ],
+          "pathPattern" : "/_/jsonSchemas"
+        }
+      ]
+    },
+    {
+      "id": "_ramls",
+      "version": "1.0",
+      "interfaceType" : "multiple",
+      "handlers" : [
+        {
+          "methods" : [ "GET" ],
+          "pathPattern" : "/_/ramls"
+        }
+      ]
+    },
+    {
+      "id": "_tenant",
+      "version": "1.0",
+      "interfaceType" : "system",
+      "handlers" : [
+        {
+          "methods" : [ "POST", "DELETE" ],
+          "pathPattern" : "/_/tenant"
+        }
+      ]
+    }
+  ],
+  "permissionSets" : [
+    {
+      "permissionName": "camunda.process.collection.get",
+      "displayName": "Process - get process collection",
+      "description": "Get process collection"
+    },
+    {
+      "permissionName": "camunda.process.item.get",
+      "displayName": "Process - get individual process from storage",
+      "description": "Get individual process"
+    },
+    {
+      "permissionName": "camunda.process.item.post",
+      "displayName": "Process - create process",
+      "description": "Create process"
+    },
+    {
+      "permissionName": "camunda.process.item.delete",
+      "displayName": "Process - delete process",
+      "description": "Delete process"
+    },
+    {
+      "permissionName": "camunda.process.allops",
+      "displayName": "Process module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the process modules, but no domain permissions",
+      "subPermissions": [
+        "camunda.process.collection.get",
+        "camunda.process.item.get",
+        "camunda.process.item.post",
+        "camunda.process.item.delete"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.process.all",
+      "displayName": "Process module - all permissions and all process domains",
+      "description": "Entire set of permissions needed to use the process modules on any process domain",
+      "subPermissions": [
+        "camunda.process.allops",
+        "camunda.process.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.process-definition.collection.get",
+      "displayName": "Process definition - get process-definition collection",
+      "description": "Get process-definition collection"
+    },
+    {
+      "permissionName": "camunda.process-definition.item.get",
+      "displayName": "Process definition - get individual process-definition from storage",
+      "description": "Get individual process-definition"
+    },
+    {
+      "permissionName": "camunda.process-definition.start.post",
+      "displayName": "Process definition - start process-definition by id or key and tenant-id",
+      "description": "Start process-definition"
+    },
+    {
+      "permissionName": "camunda.process-definition.allops",
+      "displayName": "Process definition module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the process definition modules, but no domain permissions",
+      "subPermissions": [
+        "camunda.process-definition.collection.get",
+        "camunda.process-definition.item.get",
+        "camunda.process-definition.start.post"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.process-definition.all",
+      "displayName": "Process definition module - all permissions and all process definition domains",
+      "description": "Entire set of permissions needed to use the process definition modules on any process definition domain",
+      "subPermissions": [
+        "camunda.process-definition.allops",
+        "camunda.process-definition.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.decision-definition.collection.get",
+      "displayName": "Decision definition - get decision-definition collection",
+      "description": "Get decision-definition collection"
+    },
+    {
+      "permissionName": "camunda.decision-definition.item.get",
+      "displayName": "Decision definition - get individual decision-definition from storage",
+      "description": "Get individual decision-definition"
+    },
+    {
+      "permissionName": "camunda.decision-definition.allops",
+      "displayName": "Decision definition module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the decision definition modules, but no domain permissions",
+      "subPermissions": [
+        "camunda.decision-definition.collection.get",
+        "camunda.decision-definition.item.get"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.decision-definition.all",
+      "displayName": "Decision definition module - all permissions and all decision definition domains",
+      "description": "Entire set of permissions needed to use the decision definition modules on any decision definition domain",
+      "subPermissions": [
+        "camunda.decision-definition.allops",
+        "camunda.decision-definition.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.task.collection.get",
+      "displayName": "Task - get task collection",
+      "description": "Get task collection"
+    },
+    {
+      "permissionName": "camunda.task.item.get",
+      "displayName": "Task - get individual task from storage",
+      "description": "Get individual task"
+    },
+    {
+      "permissionName": "camunda.task.claim.post",
+      "displayName": "Task - claim task",
+      "description": "Claim task"
+    },
+    {
+      "permissionName": "camunda.task.unclaim.post",
+      "displayName": "Task - unclaim task",
+      "description": "Unclaim task"
+    },
+    {
+      "permissionName": "camunda.task.complete.post",
+      "displayName": "Task - complete task",
+      "description": "Complete task"
+    },
+    {
+      "permissionName": "camunda.task.allops",
+      "displayName": "Task module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the task modules, but no domain permissions",
+      "subPermissions": [
+        "camunda.task.collection.get",
+        "camunda.task.item.get",
+        "camunda.task.claim.post",
+        "camunda.task.unclaim.post",
+        "camunda.task.complete.post"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.task.all",
+      "displayName": "Task module - all permissions and all task domains",
+      "description": "Entire set of permissions needed to use the task modules on any task domain",
+      "subPermissions": [
+        "camunda.task.allops",
+        "camunda.task.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.message.item.post",
+      "displayName": "Message - create message",
+      "description": "Create message"
+    },
+    {
+      "permissionName": "camunda.message.allops",
+      "displayName": "Message module - all CRUD permissions",
+      "description": "Entire set of permissions needed to use the message modules, but no domain permissions",
+      "subPermissions": [
+        "camunda.message.item.post"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.message.all",
+      "displayName": "Message module - all permissions and all message domains",
+      "description": "Entire set of permissions needed to use the message modules on any message domain",
+      "subPermissions": [
+        "camunda.message.allops",
+        "camunda.message.domain.all"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.workflow-engine.workflows.activate",
+      "displayName": "Workflows - activate workflow",
+      "description": "Activate workflow"
+    },
+    {
+      "permissionName": "camunda.workflow-engine.workflows.deactivate",
+      "displayName": "Workflows - deactivate workflow",
+      "description": "Deactivate workflow"
+    },
+    {
+      "permissionName": "camunda.workflow-engine.workflows.all",
+      "displayName": "Workflows - all permissions",
+      "description": "Entire set of permissions needed to manipulate workflows",
+      "subPermissions": [
+        "camunda.workflow-engine.workflows.activate",
+        "camunda.workflow-engine.workflows.deactivate"
+      ],
+      "visible": false
+    }
+  ],
+  "requires": [
+    {
+      "id": "workflow-actions",
+      "version": "1.0"
+    },
+    {
+      "id": "workflow-events",
+      "version": "1.0"
+    },
+    {
+      "id": "workflow-triggers",
+      "version": "1.0"
+    },
+    {
+      "id": "workflow-tasks",
+      "version": "1.0"
+    },
+    {
+      "id": "workflow-workflows",
+      "version": "1.0"
+    }
+  ],
+  "launchDescriptor": {
+    "dockerImage": "${project.artifactId}:${project.version}",
+    "dockerPull" : false,
+    "dockerArgs": {
+      "HostConfig": {
+        "Memory": 402653184,
+        "PortBindings": { "8081/tcp": [ { "HostPort": "%p" } ] }
+      }
+    },
+    "env": [
+      {
+        "name": "JAVA_OPTIONS",
+        "value": "-XX:MaxRAMPercentage=66.0"
+      },
+      { "name": "DB_HOST", "value": "postgres" },
+      { "name": "DB_PORT", "value": "5432" },
+      { "name": "DB_USERNAME", "value": "folio_admin" },
+      { "name": "DB_PASSWORD", "value": "folio_admin" },
+      { "name": "DB_DATABASE", "value": "okapi_modules" },
+      { "name": "DB_QUERYTIMEOUT", "value": "60000" },
+      { "name": "DB_CHARSET", "value": "UTF-8" },
+      { "name": "DB_MAXPOOLSIZE", "value": "16" },
+      { "name": "OKAPI_URL", "value": "http://10.0.2.15:9130", "description": "The URL to the OKAPI service." }
+    ]
+  }
+}
