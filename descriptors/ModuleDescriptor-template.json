@@ -1,5 +1,5 @@
 {
-  "id": "${project.artifactId}-${project.version}",
+  "id": "@project.artifactId@-@project.version@",
   "name": "Camnuda BPM Module",
   "provides": [
     {
@@ -405,7 +405,7 @@
     }
   ],
   "launchDescriptor": {
-    "dockerImage": "${project.artifactId}:${project.version}",
+    "dockerImage": "@project.artifactId@:@project.version@",
     "dockerPull" : false,
     "dockerArgs": {
       "HostConfig": {

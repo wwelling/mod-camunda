@@ -336,7 +336,6 @@
         <directory>src/main/resources</directory>
         <excludes>
           <exclude>application.yaml</exclude>
-          <exclude>descriptors/**</exclude>
         </excludes>
       </resource>
       <resource>
@@ -348,17 +347,8 @@
       </resource>
       <resource>
         <filtering>true</filtering>
-        <directory>src/main/resources/descriptors</directory>
+        <directory>descriptors</directory>
         <targetPath>descriptors</targetPath>
-        <includes>
-          <include>DeploymentDescriptor.json</include>
-          <include>ModuleDescriptor.json</include>
-        </includes>
-      </resource>
-      <resource>
-        <filtering>true</filtering>
-        <directory>src/main/resources/descriptors</directory>
-        <targetPath>../descriptors</targetPath>
         <includes>
           <include>DeploymentDescriptor.json</include>
           <include>ModuleDescriptor.json</include>
