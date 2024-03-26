@@ -33,6 +33,8 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
 
   private Expression op;
 
+  private Expression target;
+
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     long startTime = System.nanoTime();
@@ -106,14 +108,26 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         }
         break;
       case WRITE:
+        // iterate over `target` input varaible
+        // writing entry per line
+        String targetInputVariable = this.target.getValue(execution).toString();
         StringBuilder content = new StringBuilder();
-        for (Object value : inputs.values()) {
-          if (value instanceof String) {
-            content.append(value);
-          } else {
-            content.append(objectMapper.writeValueAsString(value));
-          }
-          content.append("\n");
+        Object obj = inputs.get(targetInputVariable);
+        if (obj instanceof List) {
+          List<Object> objects = (List<Object>) obj;
+          logger.info("{} {} has {} entries to write",
+            obj.getClass().getSimpleName(), targetInputVariable, objects.size());
+          for (Object value : (List<Object>) objects) {
+              if (value instanceof String) {
+                content.append(value);
+              } else {
+                content.append(objectMapper.writeValueAsString(value));
+              }
+              content.append("\n");
+            }
+        } else {
+          logger.warn("{} {} unsupported input type for target parameter of WRITE operation",
+            obj.getClass().getSimpleName(), targetInputVariable);
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
         getLogger().info("{} written", filePath);
@@ -145,6 +159,10 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
 
   public void setOp(Expression op) {
     this.op = op;
+  }
+
+  public void setTarget(Expression target) {
+    this.target = target;
   }
 
   @Override
