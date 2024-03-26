@@ -31,6 +31,7 @@
     <workflow-components.version>1.2.0-SNAPSHOT</workflow-components.version>
     <camunda.version>7.21.0-alpha2</camunda.version>
     <openapi.server.port>9000</openapi.server.port>
+    <maven.javadoc.skip>true</maven.javadoc.skip>
   </properties>
 
   <packaging>jar</packaging>
