@@ -5,12 +5,13 @@ logging:
   level:
     com:
       zaxxer:
-        hikari: INFO
+        hikari: ERROR
     org:
-      camunda: INFO
-      folio: INFO
-      hibernate: INFO
-      springframework: INFO
+      camunda: WARN
+      folio: WARN
+      hibernate: WARN
+      springframework: WARN
+      springframework.test: INFO
 
       # Uncomment to enable MockMvc unit test logging.
       #springframework.test.web.servlet.result: DEBUG

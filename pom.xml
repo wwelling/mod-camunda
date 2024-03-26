@@ -31,6 +31,7 @@
     <workflow-components.version>1.2.0-SNAPSHOT</workflow-components.version>
     <camunda.version>7.21.0-alpha2</camunda.version>
     <openapi.server.port>9000</openapi.server.port>
+    <maven.javadoc.skip>true</maven.javadoc.skip>
   </properties>
 
   <packaging>jar</packaging>
@@ -170,7 +171,7 @@
     <dependency>
        <groupId>org.apache.commons</groupId>
        <artifactId>commons-compress</artifactId>
-       <version>1.21</version>
+       <version>1.26.1</version>
     </dependency>
 
     <dependency>
@@ -336,7 +337,6 @@
         <directory>src/main/resources</directory>
         <excludes>
           <exclude>application.yaml</exclude>
-          <exclude>descriptors/**</exclude>
         </excludes>
       </resource>
       <resource>
@@ -348,17 +348,8 @@
       </resource>
       <resource>
         <filtering>true</filtering>
-        <directory>src/main/resources/descriptors</directory>
+        <directory>descriptors</directory>
         <targetPath>descriptors</targetPath>
-        <includes>
-          <include>DeploymentDescriptor.json</include>
-          <include>ModuleDescriptor.json</include>
-        </includes>
-      </resource>
-      <resource>
-        <filtering>true</filtering>
-        <directory>src/main/resources/descriptors</directory>
-        <targetPath>../descriptors</targetPath>
         <includes>
           <include>DeploymentDescriptor.json</include>
           <include>ModuleDescriptor.json</include>
@@ -488,7 +479,7 @@
             </configuration>
             <executions>
               <execution>
-                <id>repackage</id>
+                <id>openapi-repackage</id>
                 <goals>
                   <goal>repackage</goal>
                 </goals>
@@ -497,13 +488,13 @@
                 </configuration>
               </execution>
               <execution>
-                <id>pre-integration-test</id>
+                <id>openapi-repackage-start</id>
                 <goals>
                   <goal>start</goal>
                 </goals>
               </execution>
               <execution>
-                <id>post-integration-test</id>
+                <id>openapi-repackage-stop</id>
                 <goals>
                   <goal>stop</goal>
                 </goals>
@@ -521,7 +512,7 @@
             </configuration>
             <executions>
               <execution>
-              <id>integration-test</id>
+              <id>openapi-generate-api</id>
               <goals>
                 <goal>generate</goal>
               </goals>
