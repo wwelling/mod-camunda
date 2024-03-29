@@ -44,23 +44,23 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
 
     getLogger().info("{} started", delegateName);
 
-    String originPath = this.originPath.getValue(execution).toString();
+    String originPathValue = this.originPath.getValue(execution).toString();
 
-    String destinationPath = this.destinationPath.getValue(execution).toString();
+    String destinationPathValue = this.destinationPath.getValue(execution).toString();
 
-    SftpOp op = SftpOp.valueOf(this.op.getValue(execution).toString());
+    SftpOp opValue = SftpOp.valueOf(this.op.getValue(execution).toString());
 
-    String scheme = this.scheme.getValue(execution).toString();
+    String schemeValue = this.scheme.getValue(execution).toString();
 
-    String host = this.host.getValue(execution).toString();
+    String hostValue = this.host.getValue(execution).toString();
 
-    int port = Integer.parseInt(this.port.getValue(execution).toString());
+    int portValue = Integer.parseInt(this.port.getValue(execution).toString());
 
-    Optional<String> username = Objects.nonNull(this.username)
+    Optional<String> usernameValue = Objects.nonNull(this.username)
       ? Optional.ofNullable(this.username.getValue(execution).toString())
       : Optional.empty();
 
-    Optional<String> password = Objects.nonNull(this.password)
+    Optional<String> passwordValue = Objects.nonNull(this.password)
       ? Optional.ofNullable(this.password.getValue(execution).toString())
       : Optional.empty();
 
@@ -68,25 +68,25 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
 
     String userInfo = null;
 
-    if (username.isPresent()) {
-      userInfo = username.get();
+    if (usernameValue.isPresent()) {
+      userInfo = usernameValue.get();
     }
 
-    if (password.isPresent()) {
-      userInfo += ":" + password.get();
+    if (passwordValue.isPresent()) {
+      userInfo += ":" + passwordValue.get();
     }
 
-    switch (op) {
+    switch (opValue) {
       case GET: {
 
-        File file = new File(destinationPath);
+        File file = new File(destinationPathValue);
 
         URI uri = new URI(
-          scheme,
+          schemeValue,
           userInfo,
-          host,
-          port,
-          originPath,
+          hostValue,
+          portValue,
+          originPathValue,
           null,
           null
         );
@@ -101,14 +101,14 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
       } break;
       case PUT: {
 
-        File file = new File(originPath);
+        File file = new File(originPathValue);
 
         URI uri = new URI(
-          scheme,
+          schemeValue,
           userInfo,
-          host,
-          port,
-          destinationPath,
+          hostValue,
+          portValue,
+          destinationPathValue,
           null,
           null
         );

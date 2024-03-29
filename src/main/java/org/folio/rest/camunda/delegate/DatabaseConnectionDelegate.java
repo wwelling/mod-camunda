@@ -25,14 +25,14 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
 
     getLogger().info("{} started", delegateName);
 
-    String url = this.url.getValue(execution).toString();
+    String urlValue = this.url.getValue(execution).toString();
     String key = this.designation.getValue(execution).toString();
 
     Properties info = new Properties();
     info.setProperty("user", this.username.getValue(execution).toString());
     info.setProperty("password", this.password.getValue(execution).toString());
 
-    connectionService.createPool(key, url, info);
+    connectionService.createPool(key, urlValue, info);
 
     long endTime = System.nanoTime();
     getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
