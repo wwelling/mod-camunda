@@ -19,7 +19,6 @@ public class DelegateExecutionExceptionAspect {
 
   private static final Logger logger = LoggerFactory.getLogger(DelegateExecutionExceptionAspect.class);
 
-  @Autowired
   private JavaMailSender emailSender;
 
   @Value("${error.handling.environment:DEV}")
@@ -30,6 +29,11 @@ public class DelegateExecutionExceptionAspect {
 
   @Value("${error.handling.emailTo}")
   private String errorHandlingEmailTo;
+
+  @Autowired
+  public DelegateExecutionExceptionAspect(JavaMailSender emailSender) {
+      this.emailSender = emailSender;
+  }
 
   @AfterThrowing(pointcut = "execution(* org.camunda.bpm.engine.delegate.JavaDelegate.execute (org.camunda.bpm.engine.delegate.DelegateExecution)) && args(execution))", throwing = "exception")
   public void afterDelegateExecutionThrowsException(DelegateExecution execution, Throwable exception) {

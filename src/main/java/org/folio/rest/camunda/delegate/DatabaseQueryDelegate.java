@@ -58,18 +58,15 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     Map<String, Object> inputs = getInputs(execution);
 
     String key = this.designation.getValue(execution).toString();
-    String query = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("query"), inputs);
+    String queryValue = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("query"), inputs);
 
-    Boolean includeHeader = this.includeHeader != null ?
-      (this.includeHeader.getValue(execution) != null ?
-        Boolean.parseBoolean(this.includeHeader.getValue(execution).toString())
-          : false)
-      : false;
+    Boolean includeHeaderValue = this.includeHeader != null && this.includeHeader.getValue(execution) != null &&
+      Boolean.parseBoolean(this.includeHeader.getValue(execution).toString());
 
     Connection conn = connectionService.getConnection(key);
 
     try (Statement statement = conn.createStatement()) {
-      statement.execute(query);
+      statement.execute(queryValue);
 
       ResultSet results = null;
       if (statement.getUpdateCount() == -1) {
@@ -81,9 +78,9 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
           String outputPathTemplate = this.outputPath.getValue(execution).toString();
           stringLoader.putTemplate("outputPath", outputPathTemplate);
 
-          String outputPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("outputPath"), inputs);
-          String resultType = this.resultType.getValue(execution).toString();
-          resultOp = new FileResultOp(results, outputPath, resultType, includeHeader);
+          String outputPathValue = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("outputPath"), inputs);
+          String resultTypeValue = this.resultType.getValue(execution).toString();
+          resultOp = new FileResultOp(results, outputPathValue, resultTypeValue, includeHeaderValue);
         } else {
           resultOp = new VariableResultOp(execution, results);
         }
@@ -134,9 +131,9 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
   }
 
   private interface ResultOp {
-    void next() throws Exception;
+    void next() throws SQLException, IOException;
 
-    void finish() throws Exception;
+    void finish() throws IOException;
   }
 
   private class VariableResultOp implements ResultOp {
@@ -160,7 +157,6 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       ObjectNode row = objectMapper.createObjectNode();
       for (int count = 1; count <= metadata.getColumnCount(); ++count) {
         String columnName = metadata.getColumnName(count);
-        // TODO: consider types; int, date, boolean, string, etc.
         row.put(columnName, results.getString(columnName));
       }
       output.add(row);
@@ -181,7 +177,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
     private final DatabaseResultTypeOp rowOp;
 
-    public FileResultOp(ResultSet results, String path, String resultType, Boolean includeHeader) throws SQLException, IOException {
+    public FileResultOp(ResultSet results, String path, String resultType, boolean includeHeader) throws SQLException, IOException {
       this.results = results;
       this.fw = new FileWriter(path);
       this.rowOp = DatabaseResultTypeOp.valueOf(resultType);
@@ -199,7 +195,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
     }
 
     @Override
-    public void next() throws Exception {
+    public void next() throws SQLException, IOException {
       rowOp.process(fw, results);
     }
 
@@ -211,10 +207,10 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
   }
 
   private interface RowOp {
-    void process(FileWriter fw, ResultSet results) throws Exception;
+    void process(FileWriter fw, ResultSet results) throws SQLException, IOException;
   }
 
-  private static String buildHeader(ResultSet results, String delimiter) throws SQLException, IOException {
+  private static String buildHeader(ResultSet results, String delimiter) throws SQLException {
     StringBuilder builder = new StringBuilder();
     ResultSetMetaData metadata = results.getMetaData();
     for (int count = 1; count <= metadata.getColumnCount(); ++count) {
@@ -261,7 +257,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       }
     };
 
-    private static String processDelimited(ResultSet results, String delimiter) throws SQLException, IOException {
+    private static String processDelimited(ResultSet results, String delimiter) throws SQLException {
       StringBuilder builder = new StringBuilder();
       ResultSetMetaData metadata = results.getMetaData();
       for (int count = 1; count <= metadata.getColumnCount(); ++count) {

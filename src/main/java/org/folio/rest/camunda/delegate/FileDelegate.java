@@ -54,7 +54,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     Map<String, Object> inputs = getInputs(execution);
 
     String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
-    Integer line = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("line"), inputs));
+    Integer lineValue = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("line"), inputs));
 
     FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
 
@@ -75,7 +75,6 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         if (file.exists()) {
           try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath), StandardCharsets.UTF_8)) {
             long lineCount = reader.lines().count();
-            reader.close();
             setOutput(execution, lineCount);
             getLogger().info("{} read", filePath);
           }
@@ -84,11 +83,11 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         }
         break;
       case READ_LINE:
-        if (file.exists() && line > 0) {
+        if (file.exists() && lineValue > 0) {
           try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath), StandardCharsets.UTF_8)) {
             int lineCount = 0;
             String currerntLine = "";
-            while ((currerntLine = reader.readLine()) != null && (++lineCount) < line) {}
+            while ((currerntLine = reader.readLine()) != null && (++lineCount) < lineValue) {}
             reader.close();
             setOutput(execution, currerntLine);
             getLogger().info("{} read", filePath);

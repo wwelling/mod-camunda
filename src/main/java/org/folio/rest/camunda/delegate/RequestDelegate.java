@@ -32,12 +32,16 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
   @Value("${okapi.url}")
   private String okapiUrl;
 
-  @Autowired
   private HttpService httpService;
 
   private Expression request;
 
   private Expression headerOutputVariables;
+
+  @Autowired
+  public RequestDelegate(HttpService httpService) {
+    this.httpService = httpService;
+  }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -47,23 +51,23 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
 
     getLogger().info("{} started", delegateName);
 
-    Request request = objectMapper.readValue(this.request.getValue(execution).toString(), Request.class);
+    Request requestValue = objectMapper.readValue(this.request.getValue(execution).toString(), Request.class);
 
     Map<String, Object> inputs = getInputs(execution);
 
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
 
     StringTemplateLoader stringLoader = new StringTemplateLoader();
-    stringLoader.putTemplate("url", request.getUrl());
-    stringLoader.putTemplate("body", request.getBodyTemplate());
+    stringLoader.putTemplate("url", requestValue.getUrl());
+    stringLoader.putTemplate("body", requestValue.getBodyTemplate());
     cfg.setTemplateLoader(stringLoader);
 
     String url = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("url"), inputs);
     String body = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("body"), inputs);
 
-    HttpMethod method = HttpMethod.valueOf(request.getMethod().toString());
-    String accept = request.getAccept();
-    String contentType = request.getContentType();
+    HttpMethod method = HttpMethod.valueOf(requestValue.getMethod().toString());
+    String accept = requestValue.getAccept();
+    String contentType = requestValue.getContentType();
 
     String tenant = execution.getTenantId();
 
@@ -88,7 +92,7 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
       headers.add("X-Okapi-Token", token.get().toString());
     }
 
-    HttpEntity<Object> entity = new HttpEntity<Object>(body, headers);
+    HttpEntity<Object> entity = new HttpEntity<>(body, headers);
     ResponseEntity<Object> response = httpService.exchange(url, method, entity, Object.class);
 
     setOutput(execution, response.getBody());
