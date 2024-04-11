@@ -2,7 +2,6 @@ package org.folio.rest.camunda.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.folio.rest.camunda.exception.WorkflowAlreadyActiveException;
-import org.folio.rest.camunda.exception.WorkflowAlreadyDeactivatedException;
 import org.folio.rest.camunda.service.CamundaApiService;
 import org.folio.rest.workflow.model.Workflow;
 import org.folio.spring.tenant.annotation.TenantHeader;
@@ -29,8 +28,8 @@ public class WorkflowController {
   }
 
   @PostMapping(value = {"/deactivate", "/deactivate/"}, produces = { MediaType.APPLICATION_JSON_VALUE })
-  public Workflow deactivateWorkflow(@RequestBody Workflow workflow) throws WorkflowAlreadyDeactivatedException {
-    log.debug("Deactivating Workflow: {}", workflow == null ? null : workflow.getId());
+  public Workflow deactivateWorkflow(@RequestBody Workflow workflow) {
+    log.info("Deactivating Workflow: {}", workflow == null ? null : workflow.getId());
     return camundaApiService.undeployWorkflow(workflow);
   }
 }

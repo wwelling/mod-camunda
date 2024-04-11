@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.folio.rest.camunda.controller.WorkflowController;
 import org.folio.rest.camunda.exception.WorkflowAlreadyActiveException;
-import org.folio.rest.camunda.exception.WorkflowAlreadyDeactivatedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,8 +40,6 @@ class WorkflowControllerAdviceTest {
   private static final String PATH = "/workflow-engine/workflows";
 
   private static final String PATH_ACTIVATE = PATH + "/activate";
-
-  private static final String PATH_DEACTIVATE = PATH + "/deactivate";
 
   @Autowired
   private WorkflowControllerAdvice workflowControllerAdvice;
@@ -75,21 +72,6 @@ class WorkflowControllerAdviceTest {
     assertTrue(matcher.find());
   }
 
-  @ParameterizedTest
-  @MethodSource("provideExceptionsToMatchForDeactivateWorkflow")
-  void exceptionsThrownForDectivateWorkflowTest(Exception exception, String simpleName, int status) throws Exception {
-    when(workflowController.deactivateWorkflow(any())).thenThrow(exception);
-
-    MockHttpServletRequestBuilder request = appendHeaders(post(PATH_DEACTIVATE), OKAPI_HEAD, APP_JSON, APP_JSON);
-
-    MvcResult result = mvc.perform(appendBody(request, JSON_OBJECT))
-      .andDo(log()).andExpect(status().is(status)).andReturn();
-
-    Pattern pattern = Pattern.compile("\"type\":\"" + simpleName + "\"");
-    Matcher matcher = pattern.matcher(result.getResponse().getContentAsString());
-    assertTrue(matcher.find());
-  }
-
   /**
    * Helper function for parameterized test providing the exceptions to be matched for activate workflow.
    *
@@ -102,21 +84,6 @@ class WorkflowControllerAdviceTest {
   private static Stream<Arguments> provideExceptionsToMatchForActivateWorkflow() {
     return Stream.of(
       Arguments.of(new WorkflowAlreadyActiveException(null), WorkflowAlreadyActiveException.class.getSimpleName(), 400)
-    );
-  }
-
-  /**
-   * Helper function for parameterized test providing the exceptions to be matched for deactivate workflow.
-   *
-   * @return
-   *   The arguments array stream with the stream columns as:
-   *     - Exception exception.
-   *     - String simpleName (exception name to match).
-   *     - int status (response HTTP status code for the exception).
-   */
-  private static Stream<Arguments> provideExceptionsToMatchForDeactivateWorkflow() {
-    return Stream.of(
-      Arguments.of(new WorkflowAlreadyDeactivatedException(null), WorkflowAlreadyDeactivatedException.class.getSimpleName(), 400)
     );
   }
 }
