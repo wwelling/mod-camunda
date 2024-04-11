@@ -21,8 +21,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 @Scope("prototype")
 public class SetupDelegate extends AbstractRuntimeDelegate {
 
-  private final static String TIMESTAMP_VARIABLE_NAME = "timestamp";
-  private final static String TENANT_VARIABLE_NAME = "tenantId";
+  private static final String TIMESTAMP_VARIABLE_NAME = "timestamp";
+  private static final String TENANT_VARIABLE_NAME = "tenantId";
 
   @Autowired
   private ScriptEngineService scriptEngineService;
@@ -58,11 +58,11 @@ public class SetupDelegate extends AbstractRuntimeDelegate {
 
     getLogger().info("loading scripts");
 
-    List<EmbeddedProcessor> processors = objectMapper.readValue(this.processors.getValue(execution).toString(),
+    List<EmbeddedProcessor> processorsValue = objectMapper.readValue(this.processors.getValue(execution).toString(),
         new TypeReference<List<EmbeddedProcessor>>() {
         });
 
-    for (EmbeddedProcessor processor : processors) {
+    for (EmbeddedProcessor processor : processorsValue) {
       String extension = processor.getScriptType().getExtension();
       String functionName = processor.getFunctionName();
       String code = processor.getCode();

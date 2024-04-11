@@ -14,8 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TenantInjectionDelegateAspect {
 
-  @Autowired
   private TenantProperties tenantProperties;
+
+  @Autowired
+  public TenantInjectionDelegateAspect(TenantProperties tenantProperties) {
+      this.tenantProperties = tenantProperties;
+  }
 
   @Before("execution(* org.camunda.bpm.engine.delegate.JavaDelegate.execute (org.camunda.bpm.engine.delegate.DelegateExecution)) && args(execution)")
   public void beforeDelegateExecution(DelegateExecution execution) {

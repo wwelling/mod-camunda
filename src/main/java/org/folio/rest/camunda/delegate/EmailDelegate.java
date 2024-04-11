@@ -23,7 +23,6 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 @Scope("prototype")
 public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
-  @Autowired
   private JavaMailSender emailSender;
 
   private Expression mailTo;
@@ -43,6 +42,11 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
   private Expression attachmentPath;
 
   private Expression includeAttachment;
+
+  @Autowired
+  public EmailDelegate(JavaMailSender emailSender) {
+    this.emailSender = emailSender;
+  }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
@@ -81,7 +85,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
     Optional<String> cc = Objects.nonNull(this.mailCc) ? Optional.ofNullable(this.mailCc.getValue(execution).toString()) : Optional.empty();
     Optional<String> bcc = Objects.nonNull(this.mailBcc) ? Optional.ofNullable(this.mailBcc.getValue(execution).toString()) : Optional.empty();
-    Optional<String> attachmentPath = Objects.nonNull(this.attachmentPath) ? Optional.ofNullable(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("attachmentPath"), inputs)) : Optional.empty();
+    Optional<String> attachmentPathValue = Objects.nonNull(this.attachmentPath) ? Optional.ofNullable(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("attachmentPath"), inputs)) : Optional.empty();
 
     MimeMessagePreparator preparator = new MimeMessagePreparator() {
       public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -115,18 +119,13 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
           }
         }
 
-        // TODO: This is a hot fix to address an issue with the workflows no attaching emails
-
-        // if (includeAttachment.isPresent() && Boolean.parseBoolean(includeAttachment.get()) && attachmentPath.isPresent()) {
-        if (attachmentPath.isPresent()) {
-          // getLogger().info("includeAttachment.isPresent() = {}", includeAttachment.isPresent());
-          // getLogger().info("Boolean.parseBoolean(includeAttachment.get()) = {}", Boolean.parseBoolean(includeAttachment.get()));
-
-          File attachment = new File(attachmentPath.get());
+        // This is a hot fix to address an issue with the workflow not attaching e-mails.
+        if (attachmentPathValue.isPresent()) {
+          File attachment = new File(attachmentPathValue.get());
           if (attachment.exists() && attachment.isFile()) {
             message.addAttachment(attachment.getName(), attachment);
           } else {
-            getLogger().info("{} does not exist", attachmentPath.get());
+            getLogger().info("{} does not exist", attachmentPathValue.get());
           }
         } else {
           getLogger().info("No attachment required");
@@ -170,6 +169,10 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
   public void setAttachmentPath(Expression attachmentPath) {
     this.attachmentPath = attachmentPath;
+  }
+
+  public void setIncludeAttachment(Expression includeAttachment) {
+    this.includeAttachment = includeAttachment;
   }
 
   @Override

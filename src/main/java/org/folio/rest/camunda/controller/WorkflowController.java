@@ -17,8 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping({"/workflow-engine/workflows", "/workflow-engine/workflows/"})
 public class WorkflowController {
 
-  @Autowired
   private CamundaApiService camundaApiService;
+
+  @Autowired
+  public WorkflowController(CamundaApiService camundaApiService) {
+    this.camundaApiService = camundaApiService;
+  }
 
   @PostMapping(value = {"/activate", "/activate/"}, produces = { MediaType.APPLICATION_JSON_VALUE })
   public Workflow activateWorkflow(@RequestBody Workflow workflow, @TenantHeader String tenant)

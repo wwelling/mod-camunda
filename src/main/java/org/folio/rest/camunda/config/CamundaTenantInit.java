@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
-
 import org.folio.spring.tenant.hibernate.HibernateTenantInit;
 import org.folio.spring.tenant.service.SqlTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,21 +12,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class CamundaTenantInit implements HibernateTenantInit {
 
-  private final static String SCHEMA_IMPORT_TENANT = "import/tenant";
+  private static final String SCHEMA_IMPORT_TENANT = "import/tenant";
 
-  private final static String TENANT_TEMPLATE_KEY = "tenant";
+  private static final String TENANT_TEMPLATE_KEY = "tenant";
+
+  private SqlTemplateService sqlTemplateService;
 
   @Autowired
-  private SqlTemplateService sqlTemplateService;
+  public CamundaTenantInit(SqlTemplateService sqlTemplateService) {
+      this.sqlTemplateService = sqlTemplateService;
+  }
 
   @Override
   public void initialize(Connection connection, String tenant) throws SQLException {
     UUID uuid = UUID.randomUUID();
     String id = uuid.toString();
     CamundaTenant camundaTenant = new CamundaTenant(id, 1, tenant);
-    Statement statement = connection.createStatement();
-    statement.execute(sqlTemplateService.templateInitSql(SCHEMA_IMPORT_TENANT, TENANT_TEMPLATE_KEY, camundaTenant));
-    statement.close();
+
+    try (Statement statement = connection.createStatement()) {
+      statement.execute(sqlTemplateService.templateInitSql(SCHEMA_IMPORT_TENANT, TENANT_TEMPLATE_KEY, camundaTenant));
+    }
   }
 
   public class CamundaTenant {
