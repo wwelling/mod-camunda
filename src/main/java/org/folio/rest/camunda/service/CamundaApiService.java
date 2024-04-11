@@ -51,7 +51,7 @@ public class CamundaApiService {
 
     ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
     RepositoryService repositoryService = processEngine.getRepositoryService();
-    repositoryService.deleteDeployment(workflow.getDeploymentId());
+    repositoryService.deleteDeployment(workflow.getDeploymentId(), true);
 
     workflow.setActive(false);
     workflow.setDeploymentId(null);
