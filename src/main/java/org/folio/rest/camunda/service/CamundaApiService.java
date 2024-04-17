@@ -7,7 +7,6 @@ import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.folio.rest.camunda.exception.WorkflowAlreadyActiveException;
-import org.folio.rest.camunda.exception.WorkflowAlreadyDeactivatedException;
 import org.folio.rest.workflow.model.Workflow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,14 +43,14 @@ public class CamundaApiService {
     return workflow;
   }
 
-  public Workflow undeployWorkflow(Workflow workflow) throws WorkflowAlreadyDeactivatedException {
+  public Workflow undeployWorkflow(Workflow workflow) {
     if (!workflow.isActive()) {
-      throw new WorkflowAlreadyDeactivatedException(workflow.getId());
+      return workflow;
     }
 
     ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
     RepositoryService repositoryService = processEngine.getRepositoryService();
-    repositoryService.deleteDeployment(workflow.getDeploymentId());
+    repositoryService.deleteDeployment(workflow.getDeploymentId(), true);
 
     workflow.setActive(false);
     workflow.setDeploymentId(null);

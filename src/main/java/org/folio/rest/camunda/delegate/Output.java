@@ -4,8 +4,6 @@ import static org.camunda.spin.Spin.JSON;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Objects;
-import java.util.Optional;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.engine.variable.Variables;
@@ -23,34 +21,38 @@ public interface Output {
 
   public abstract void setOutputVariable(Expression outputVariable);
 
+  public abstract boolean hasOutputVariable(DelegateExecution execution);
+
   public default void setOutput(DelegateExecution execution, Object output) throws JsonProcessingException {
+    if (!hasOutputVariable(execution)) {
+      getLogger().warn("Output variable for execution {} is null", execution.getId());
+      return;
+    }
+
     EmbeddedVariable variable = getOutputVariable(execution);
-    Optional<String> key = Optional.ofNullable(variable.getKey());
-    if (key.isPresent()) {
-      if (Objects.nonNull(output)) {
-        Optional<VariableType> type = Optional.ofNullable(variable.getType());
-        Object value = variable.isSpin()
-          ? JSON(getObjectMapper().writeValueAsString(output))
-          : Variables.objectValue(output, variable.getAsTransient()).create();
-        if (type.isPresent()) {
-          switch (type.get()) {
-          case LOCAL:
-            execution.setVariableLocal(key.get(), value);
-            break;
-          case PROCESS:
-            execution.setVariable(key.get(), value);
-            break;
-          default:
-            break;
-          }
-        } else {
-          getLogger().warn("Variable type not present for {}", key.get());
-        }
-      } else {
-        getLogger().warn("Output not present for {}", key.get());
-      }
-    } else {
+    String key = variable.getKey();
+
+    if (key == null) {
       getLogger().warn("Output key is null");
+      return;
+    }
+
+    if (output == null) {
+       getLogger().warn("Output not present for {}", key);
+      return;
+    }
+
+    VariableType type = variable.getType();
+    Object value = variable.isSpin()
+      ? JSON(getObjectMapper().writeValueAsString(output))
+      : Variables.objectValue(output, variable.getAsTransient()).create();
+
+    if (type == VariableType.LOCAL) {
+      execution.setVariableLocal(key, value);
+    } else if (type == VariableType.PROCESS) {
+      execution.setVariable(key, value);
+    } else {
+      getLogger().warn("Variable type not present for {}", key);
     }
   }
 

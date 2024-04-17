@@ -106,27 +106,11 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
         break;
     }
 
-    switch (useContainer) {
-      case TAR:
-        extension = EXT_TAR + extension;
-        break;
-
-      default:
-        break;
+    if (useContainer == CompressFileContainer.TAR) {
+      extension = EXT_TAR + extension;
     }
 
-    if (sourceFile.exists()) {
-      if (!sourceFile.canRead()) {
-        getLogger().info("{} could not be read", sourcePath);
-        formatType = null;
-      }
-
-      if (useContainer == CompressFileContainer.NONE && sourceFile.isDirectory()) {
-        getLogger().info("{} is a directory and cannot be compressed when container is NONE", sourcePath);
-        formatType = null;
-      }
-    } else {
-      getLogger().info("{} does not exist", sourcePath);
+    if (soureFileHasProblems(sourceFile, sourcePath,  useContainer)) {
       formatType = null;
     }
 
@@ -237,6 +221,36 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
     entry.setModTime(Files.getLastModifiedTime(filePath).toMillis());
 
     tar.putArchiveEntry(entry);
+  }
+
+  /**
+   * Helper function for execute() to help solve "S3776" coding practice.
+   *
+   * @param sourceFile The source file.
+   * @param sourcePath The source path.
+   * @param useContainer The container.
+   *
+   * @return True if the source file has problems and false otherwise.
+   */
+  private boolean soureFileHasProblems(File sourceFile, String sourcePath, CompressFileContainer useContainer) {
+    boolean hasProblems = false;
+
+    if (sourceFile.exists()) {
+      if (!sourceFile.canRead()) {
+        getLogger().info("{} could not be read", sourcePath);
+        hasProblems = true;
+      }
+
+      if (useContainer == CompressFileContainer.NONE && sourceFile.isDirectory()) {
+        getLogger().info("{} is a directory and cannot be compressed when container is NONE", sourcePath);
+        hasProblems = true;
+      }
+    } else {
+      getLogger().info("{} does not exist", sourcePath);
+      hasProblems = true;
+    }
+
+    return hasProblems;
   }
 
 }

@@ -41,9 +41,7 @@ public class WebClientConfig {
 
   @Bean
   public ReactorClientHttpConnector reactorClientHttpConnector(ReactorResourceFactory factory) {
-    return new ReactorClientHttpConnector(factory, connection -> {
-      return connection;
-    });
+    return new ReactorClientHttpConnector(factory, connection -> connection);
   }
 
   @Bean
