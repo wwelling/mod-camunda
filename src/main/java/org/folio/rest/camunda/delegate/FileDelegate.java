@@ -115,7 +115,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         Object obj = inputs.get(targetInputVariable);
         if (obj instanceof List) {
           List<Object> objects = (List<Object>) obj;
-          logger.info("{} {} has {} entries to write",
+          getLogger().info("{} {} has {} entries to write",
             obj.getClass().getSimpleName(), targetInputVariable, objects.size());
           for (Object value : (List<Object>) objects) {
               if (value instanceof String) {
@@ -126,7 +126,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
               content.append("\n");
             }
         } else {
-          logger.warn("{} {} unsupported input type for target parameter of WRITE operation",
+          getLogger().warn("{} {} unsupported input type for target parameter of WRITE operation",
             obj.getClass().getSimpleName(), targetInputVariable);
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
