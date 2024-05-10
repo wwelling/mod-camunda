@@ -1,7 +1,7 @@
 {
-  "srvcId": "${project.artifactId}-${project.version}",
+  "srvcId": "@project.artifactId@-@project.version@",
   "nodeId": "localhost",
   "descriptor": {
-    "exec": "java -Dport=%p -jar ../${artifactId}/target/${project.artifactId}-${project.version}.jar -Dspring.config.location=classpath:/ -Dhttp.port=%p --server.port=%p"
+    "exec": "java -Dport=%p -jar ../@artifactId@/target/@project.artifactId@-@project.version@.jar -Dspring.config.location=classpath:/ -Dhttp.port=%p --server.port=%p"
   }
 }
