@@ -1,5 +1,5 @@
 require 'json'
-require 'use org.folio.rest.utility.ScriptEngineUtility'
+require 'use org.folio.rest.camunda.utility.ScriptEngineUtility'
 
 def %s(inArgs)
   scriptEngineUtility = ScriptEngineUtility();
