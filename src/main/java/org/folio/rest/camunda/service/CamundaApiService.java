@@ -6,6 +6,7 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.folio.rest.camunda.exception.ScriptTaskDeserializeCodeFailure;
 import org.folio.rest.camunda.exception.WorkflowAlreadyActiveException;
 import org.folio.rest.workflow.model.Workflow;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class CamundaApiService {
   @Autowired
   private BpmnModelFactory bpmnModelFactory;
 
-  public Workflow deployWorkflow(Workflow workflow, String tenant) throws WorkflowAlreadyActiveException {
+  public Workflow deployWorkflow(Workflow workflow, String tenant) throws WorkflowAlreadyActiveException, ScriptTaskDeserializeCodeFailure {
     if (workflow.isActive()) {
       throw new WorkflowAlreadyActiveException(workflow.getId());
     }
