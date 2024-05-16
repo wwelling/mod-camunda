@@ -23,6 +23,7 @@ import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaField;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.folio.rest.camunda.delegate.AbstractWorkflowDelegate;
+import org.folio.rest.camunda.exception.ScriptTaskDeserializeCodeFailure;
 import org.folio.rest.workflow.enums.StartEventType;
 import org.folio.rest.workflow.model.Condition;
 import org.folio.rest.workflow.model.ConnectTo;
@@ -77,7 +78,7 @@ public class BpmnModelFactory {
   @Autowired
   private List<AbstractWorkflowDelegate> workflowDelegates;
 
-  public BpmnModelInstance fromWorkflow(Workflow workflow) {
+  public BpmnModelInstance fromWorkflow(Workflow workflow) throws ScriptTaskDeserializeCodeFailure {
 
     // @formatter:off
     ProcessBuilder processBuilder = Bpmn.createExecutableProcess().name(workflow.getName())
@@ -90,7 +91,13 @@ public class BpmnModelFactory {
     // @formatter:off
     workflow.getNodes().stream()
       .filter(node -> node instanceof EventSubprocess)
-      .forEach(subprocess -> eventSubprocess(processBuilder, subprocess));
+      .forEach(subprocess -> {
+        try {
+            eventSubprocess(processBuilder, subprocess);
+        } catch (ScriptTaskDeserializeCodeFailure e) {
+            throw new RuntimeException(e);
+        }
+    });
     // @formatter:on
 
     setup(model, workflow);
@@ -98,7 +105,7 @@ public class BpmnModelFactory {
     return model;
   }
 
-  private BpmnModelInstance build(ProcessBuilder processBuilder, Workflow workflow) {
+  private BpmnModelInstance build(ProcessBuilder processBuilder, Workflow workflow) throws ScriptTaskDeserializeCodeFailure {
     List<Node> nodes = workflow.getNodes();
 
     if (nodes.isEmpty()) {
@@ -117,7 +124,7 @@ public class BpmnModelFactory {
     return builder.done();
   }
 
-  private void eventSubprocess(ProcessBuilder processBuilder, Node node) {
+  private void eventSubprocess(ProcessBuilder processBuilder, Node node) throws ScriptTaskDeserializeCodeFailure {
     AbstractFlowNodeBuilder<?, ?> builder = null;
     String identifier = node.getIdentifier();
     String name = node.getName();
@@ -125,7 +132,7 @@ public class BpmnModelFactory {
     builder = build(builder, ((EventSubprocess) node).getNodes(), Setup.NONE);
   }
 
-  private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes, Setup setup) {
+  private AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder, List<Node> nodes, Setup setup) throws ScriptTaskDeserializeCodeFailure {
 
     for (Node node : nodes) {
 
@@ -314,7 +321,6 @@ public class BpmnModelFactory {
         } else {
           logger.warn("Navigation named {} is of an unknown type.", node.getName());
         }
-
       } else if (node instanceof Task) {
         if (node instanceof Wait) {
           if (node instanceof ReceiveTask) {
@@ -324,13 +330,19 @@ public class BpmnModelFactory {
             logger.warn("Wait Task named {} is of an unknown type.", node.getName());
           }
         } else if (node instanceof ScriptTask) {
+          String code;
+          try {
+            code = objectMapper.readValue(((ScriptTask) node).getCode(), String.class);
+          } catch (JsonProcessingException e) {
+            throw new ScriptTaskDeserializeCodeFailure(node.getId(), e);
+          }
+
           builder = builder.scriptTask(node.getIdentifier()).name(node.getName())
-              .scriptFormat(((ScriptTask) node).getScriptFormat()).scriptText(((ScriptTask) node).getCode());
+              .scriptFormat(((ScriptTask) node).getScriptFormat()).scriptText(code);
 
           if (((ScriptTask) node).hasResultVariable()) {
             builder = ((ScriptTaskBuilder) builder).camundaResultVariable(((ScriptTask) node).getResultVariable());
           }
-
         } else {
           logger.warn("Script Task named {} is of an unknown type.", node.getName());
         }
