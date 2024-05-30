@@ -1,8 +1,8 @@
 import json
-import org.folio.rest.utility.ScriptEngineUtility;
+import org.folio.rest.camunda.utility.ScriptEngineUtility;
 
 def %s(inArgs):
-  scriptEngineUtility = org.folio.rest.utility.ScriptEngineUtility();
+  scriptEngineUtility = org.folio.rest.camunda.utility.ScriptEngineUtility();
   args = scriptEngineUtility.decodeJson(inArgs);
   returnObj = scriptEngineUtility.createJson();
   %s

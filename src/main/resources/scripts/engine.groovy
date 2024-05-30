@@ -1,4 +1,4 @@
-import org.folio.rest.utility.ScriptEngineUtility
+import org.folio.rest.camunda.utility.ScriptEngineUtility
 
 def %s(String inArgs) {
   def scriptEngineUtility = new ScriptEngineUtility();

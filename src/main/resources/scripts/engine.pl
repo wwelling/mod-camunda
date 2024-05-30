@@ -1,5 +1,5 @@
 use JSON;
-use org.folio.rest.utility.ScriptEngineUtility;
+use org.folio.rest.camunda.utility.ScriptEngineUtility;
 
 sub %s($) {
   my ($inArgs) = @_;
