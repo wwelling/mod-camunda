@@ -418,6 +418,11 @@
         "name": "JAVA_OPTIONS",
         "value": "-XX:MaxRAMPercentage=66.0"
       },
+      { "name": "CAMUNDA_BPM_ADMINUSER_EMAIL", "value": "admin@localhost", "description": "The e-mail address of the Camunda administration user." },
+      { "name": "CAMUNDA_BPM_ADMINUSER_ID", "value": "admin", "description": "The account name of the Camunda administration user." },
+      { "name": "CAMUNDA_BPM_ADMINUSER_PASSWORD", "value": "admin", "description": "The password of the Camunda administration user." },
+      { "name": "CAMUNDA_BPM_DATABASE_SCHEMAUPDATE", "value": "false", "description": "If Camunda should auto-update the BPM database schema." },
+      { "name": "CAMUNDA_BPM_METRICS", "value": "false", "description": "Enable or disable Camunda metrics by default." },
       { "name": "DB_HOST", "value": "postgres" },
       { "name": "DB_PORT", "value": "5432" },
       { "name": "DB_USERNAME", "value": "folio_admin" },
@@ -426,7 +431,16 @@
       { "name": "DB_QUERYTIMEOUT", "value": "60000" },
       { "name": "DB_CHARSET", "value": "UTF-8" },
       { "name": "DB_MAXPOOLSIZE", "value": "16" },
-      { "name": "OKAPI_URL", "value": "http://10.0.2.15:9130", "description": "The URL to the OKAPI service." }
+      { "name": "EVENT_QUEUE_NAME", "value": "event.queue", "description": "The ActiveMQ event queue name." },
+      { "name": "OKAPI_URL", "value": "http://10.0.2.15:9130", "description": "The URL to the OKAPI service." },
+      { "name": "SERVER_PORT", "value": "8081", "description": "The port to listen on that must match the PortBindings." },
+      { "name": "SERVER_SERVLET_CONTEXTPATH", "value": "/", "description": "The context path, or base path, to host at." },
+      { "name": "SPRING_ACTIVEMQ_BROKERURL", "value": "tcp://localhost:61616", "description": "The URL to the ActiveMQ server." },
+      { "name": "SPRING_FLYWAY_ENABLED", "value": "false", "description": "Database migration support via Spring Flyway." },
+      { "name": "SPRING_JPA_HIBERNATE_DDLAUTO", "value": "update", "description": "Auto-configure database on startup." },
+      { "name": "TENANT_DEFAULTTENANT", "value": "diku", "description": "The name of the default tenant to use." },
+      { "name": "TENANT_FORCETENANT", "value": "false", "description": "Forcibly add or overwrite the tenant name using the default tenant." },
+      { "name": "TENANT_INITIALIZEDEFAULTTENANT", "value": "true", "description": "Perform initial auto-creation of tenant in the DB (schema, tables, etc..)." }
     ]
   }
 }
