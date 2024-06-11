@@ -421,7 +421,7 @@
       { "name": "CAMUNDA_BPM_ADMINUSER_EMAIL", "value": "admin@localhost", "description": "The e-mail address of the Camunda administration user." },
       { "name": "CAMUNDA_BPM_ADMINUSER_ID", "value": "admin", "description": "The account name of the Camunda administration user." },
       { "name": "CAMUNDA_BPM_ADMINUSER_PASSWORD", "value": "admin", "description": "The password of the Camunda administration user." },
-      { "name": "CAMUNDA_BPM_DATABASE_SCHEMAUPDATE", "value": "false", "description": "If Camunda should auto-update the BPM database schema." },
+      { "name": "CAMUNDA_BPM_DATABASE_SCHEMAUPDATE", "value": "true", "description": "If Camunda should auto-update the BPM database schema." },
       { "name": "CAMUNDA_BPM_METRICS", "value": "false", "description": "Enable or disable Camunda metrics by default." },
       { "name": "DB_HOST", "value": "postgres" },
       { "name": "DB_PORT", "value": "5432" },
