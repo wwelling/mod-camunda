@@ -43,7 +43,7 @@ public class MarcUtility {
 
   private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+  protected static final ObjectMapper mapper = new ObjectMapper();
 
   private MarcUtility() {
 

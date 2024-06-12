@@ -22,8 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class MarcUtilityTest {
 
-  static ObjectMapper om = new ObjectMapper();
-
   static class Test<I, O> {
     I input;
     O expected;
@@ -59,7 +57,7 @@ class MarcUtilityTest {
     String json = i(path);
     List<String> marcjson = new ArrayList<>();
 
-    for (JsonNode n : om.readTree(json)) {
+    for (JsonNode n : MarcUtility.mapper.readTree(json)) {
       marcjson.add(n.toString());
     }
 
@@ -69,7 +67,7 @@ class MarcUtilityTest {
   /** object map */
   static JsonNode om(String json) {
     try {
-      return om.readTree(json);
+      return MarcUtility.mapper.readTree(json);
     } catch (JsonProcessingException e) {
       e.printStackTrace();
       throw new RuntimeException();
@@ -262,11 +260,11 @@ class MarcUtilityTest {
       tagsJson = ((String[]) data.input)[1];
 
       List<String> list = new ArrayList<>();
-      for (JsonNode n : om.readTree(tagsJson)) {
+      for (JsonNode n : MarcUtility.mapper.readTree(tagsJson)) {
         list.add(n.toString());
       }
 
-      tags = om.readValue(tagsJson, String[].class);
+      tags = MarcUtility.mapper.readValue(tagsJson, String[].class);
     }
 
     if (Objects.nonNull(data.exception)) {
@@ -307,11 +305,11 @@ class MarcUtilityTest {
       tagsJson = ((String[]) data.input)[1];
 
       List<String> list = new ArrayList<>();
-      for (JsonNode n : om.readTree(tagsJson)) {
+      for (JsonNode n : MarcUtility.mapper.readTree(tagsJson)) {
         list.add(n.toString());
       }
 
-      tags = om.readValue(tagsJson, String[].class);
+      tags = MarcUtility.mapper.readValue(tagsJson, String[].class);
     }
 
     if (Objects.nonNull(data.exception)) {
