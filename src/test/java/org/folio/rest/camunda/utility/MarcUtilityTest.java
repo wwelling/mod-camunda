@@ -47,9 +47,9 @@ class MarcUtilityTest {
   }
 
   /** input */
-  static String[] i(String inputPath, String additionalPath) throws IOException {
+  static String[] i(String path, String additionalPath) throws IOException {
     return new String[] {
-      IOUtils.resourceToString(inputPath, StandardCharsets.UTF_8),
+      IOUtils.resourceToString(path, StandardCharsets.UTF_8),
       IOUtils.resourceToString(additionalPath, StandardCharsets.UTF_8)
     };
   }
