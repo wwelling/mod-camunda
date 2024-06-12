@@ -55,8 +55,8 @@ class MarcUtilityTest {
     };
   }
 
-  /** output */
-  static List<String> o(String path) throws IOException {
+  /** input list */
+  static List<String> il(String path) throws IOException {
     String json = i(path);
     List<String> marcjson = new ArrayList<>();
 
@@ -91,7 +91,7 @@ class MarcUtilityTest {
     return Stream.of(
         new Test<>(null, null, new NullPointerException()),
         new Test<>("", List.of()),
-        new Test<>(i("/marc4j/54-56-008008027.mrc"), o("/marc4j/54-56-008008027.list-mrc.json"))
+        new Test<>(i("/marc4j/54-56-008008027.mrc"), il("/marc4j/54-56-008008027.list-mrc.json"))
       );
   }
 
