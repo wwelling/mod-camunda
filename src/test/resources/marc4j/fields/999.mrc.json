@@ -1,15 +1,1 @@
-{
-  "tag": "999",
-  "indicator1": "f",
-  "indicator2": "f",
-  "subfields": [
-    {
-      "code": "i",
-      "data": "f0b8b730-bd6d-46ed-bc53-007801fa5406"
-    },
-    {
-      "code": "s",
-      "data": "0b11546e-ffed-4cd3-b65b-ac800ac1f36a"
-    }
-  ]
-}
+{"tag":"999","indicator1":"f","indicator2":"f","subfields":[{"code":"i","data":"f0b8b730-bd6d-46ed-bc53-007801fa5406"},{"code":"s","data":"0b11546e-ffed-4cd3-b65b-ac800ac1f36a"}]}
