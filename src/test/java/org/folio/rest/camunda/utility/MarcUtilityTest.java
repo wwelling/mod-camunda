@@ -42,12 +42,22 @@ class MarcUtilityTest {
     }
   }
 
-  static String l(String path) throws IOException {
+  /** input */
+  static String i(String path) throws IOException {
     return IOUtils.resourceToString(path, StandardCharsets.UTF_8);
   }
 
+  /** input */
+  static String[] i(String inputPath, String additionalPath) throws IOException {
+    return new String[] {
+      IOUtils.resourceToString(inputPath, StandardCharsets.UTF_8),
+      IOUtils.resourceToString(additionalPath, StandardCharsets.UTF_8)
+    };
+  }
+
+  /** output */
   static List<String> o(String path) throws IOException {
-    String json = l(path);
+    String json = i(path);
     List<String> marcjson = new ArrayList<>();
 
     for (JsonNode n : om.readTree(json)) {
@@ -57,6 +67,7 @@ class MarcUtilityTest {
     return marcjson;
   }
 
+  /** object map */
   static JsonNode om(String json) {
     try {
       return om.readTree(json);
@@ -66,15 +77,21 @@ class MarcUtilityTest {
     }
   }
 
-  static List<JsonNode> ol(List<String> json) {
+  /** object map list */
+  static List<JsonNode> oml(List<String> json) {
     return json.stream().map(n -> om(n)).collect(Collectors.toList());
   }
+
+  /**************************************************************************************
+   *
+   *
+   **************************************************************************************/
 
   static Stream<Test<String, List<String>>> testSplitRawMarcToMarcJsonRecordsStream() throws IOException {
     return Stream.of(
         new Test<>(null, null, new NullPointerException()),
         new Test<>("", List.of()),
-        new Test<>(l("/marc4j/54-56-008008027.mrc"), o("/marc4j/54-56-008008027.mrc.json"))
+        new Test<>(i("/marc4j/54-56-008008027.mrc"), o("/marc4j/54-56-008008027.list-mrc.json"))
       );
   }
 
@@ -92,17 +109,46 @@ class MarcUtilityTest {
         ea[0] = new ArrayList<JsonNode>();
         ea[1] = new ArrayList<JsonNode>();
 
-        for (JsonNode n : ol(data.expected)) {
+        for (JsonNode n : oml(data.expected)) {
           ea[0].add(n);
         }
 
-        for (JsonNode n : ol(MarcUtility.splitRawMarcToMarcJsonRecords(data.input))) {
+        for (JsonNode n : oml(MarcUtility.splitRawMarcToMarcJsonRecords(data.input))) {
           ea[1].add(n);
         }
 
         for (int i = 0; i < ea[0].size(); i++) {
           assertEquals(ea[0].get(i), ea[1].get(i));
         }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  /**************************************************************************************
+   *
+   *
+   **************************************************************************************/
+
+  static Stream<Test<Object, String>> testAddFieldToMarcJsonStream() throws IOException {
+    return Stream.of(
+        new Test<>(null, null, new IllegalArgumentException()),
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/fields/999.mrc.json"), i("/marc4j/withfields/54-56-008008027+999.mrc.json"))
+      );
+  }
+
+  @ParameterizedTest
+  @MethodSource("testAddFieldToMarcJsonStream")
+  void testAddFieldToMarcJson(Test<Object, String> data) {
+    String marcJson = data.input != null ? ((String[]) data.input)[0] : null;
+    String fieldJson = data.input != null ? ((String[]) data.input)[1] : null;
+
+    if (Objects.nonNull(data.exception)) {
+      assertThrows(data.exception.getClass(), () -> MarcUtility.addFieldToMarcJson(marcJson, fieldJson));
+    } else {
+      try {
+        assertEquals(om(data.expected), om(MarcUtility.addFieldToMarcJson(marcJson, fieldJson)));
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
