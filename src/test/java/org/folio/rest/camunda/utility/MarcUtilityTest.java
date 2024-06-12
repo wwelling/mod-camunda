@@ -14,25 +14,29 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.marc4j.MarcException;
+import org.marc4j.marc.MarcFactory;
+import org.marc4j.marc.Subfield;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class MarcUtilityTest {
 
-  static class Test<I, O> {
+  static class T<I, O> {
     I input;
     O expected;
     Exception exception;
 
-    Test(I input, O expected) {
+    T(I input, O expected) {
       this.input = input;
       this.expected = expected;
     }
 
-    Test(I input, O expected, Exception exception) {
+    T(I input, O expected, Exception exception) {
       this.input = input;
       this.expected = expected;
       this.exception = exception;
@@ -83,17 +87,30 @@ class MarcUtilityTest {
    * splitRawMarcToMarcJsonRecords                                                      *
    *************************************************************************************/
 
-  static Stream<Test<String, List<String>>> testSplitRawMarcToMarcJsonRecordsStream() throws IOException {
+  static Stream<T<String, List<String>>> testSplitRawMarcToMarcJsonRecordsStream() throws IOException {
     return Stream.of(
-        new Test<>(null, null, new NullPointerException()),
-        new Test<>("", List.of()),
-        new Test<>(i("/marc4j/54-56-008008027.mrc"), il("/marc4j/54-56-008008027.mrc.json"))
+        new T<>(null, null, new NullPointerException()),
+        new T<>("", List.of()),
+        new T<>(i("/marc4j/54-56-008008027.mrc"), il("/marc4j/54-56-008008027.mrc.json"))
       );
+  }
+
+  @Test
+  void testDeserializingSubfield() throws JsonProcessingException {
+    MarcFactory factory = MarcFactory.newInstance();
+    Subfield subfield = factory.newSubfield();
+    subfield.setCode("245".charAt(0));
+    subfield.setData("data");
+    String serialized = MarcUtility.mapper.writeValueAsString(subfield);
+    Subfield deserializedSubfield = MarcUtility.mapper.readValue(serialized, Subfield.class);
+    assertEquals(subfield.getId(), deserializedSubfield.getId());
+    assertEquals(subfield.getCode(), deserializedSubfield.getCode());
+    assertEquals(subfield.getData(), deserializedSubfield.getData());
   }
 
   @ParameterizedTest
   @MethodSource("testSplitRawMarcToMarcJsonRecordsStream")
-  void testSplitRawMarcToMarcJsonRecords(Test<String, List<String>> data) {
+  void testSplitRawMarcToMarcJsonRecords(T<String, List<String>> data) {
     if (Objects.nonNull(data.exception)) {
       assertThrows(data.exception.getClass(), () -> MarcUtility.splitRawMarcToMarcJsonRecords(data.input));
     } else {
@@ -126,16 +143,16 @@ class MarcUtilityTest {
    * addFieldToMarcJson                                                                 *
    *************************************************************************************/
 
-  static Stream<Test<Object, String>> testAddFieldToMarcJsonStream() throws IOException {
+  static Stream<T<Object, String>> testAddFieldToMarcJsonStream() throws IOException {
     return Stream.of(
-        new Test<>(null, null, new IllegalArgumentException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/field/999.mrc.json"), i("/marc4j/withfields/54-56-008008027+999.mrc.json"))
+        new T<>(null, null, new IllegalArgumentException()),
+        new T<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/field/999.mrc.json"), i("/marc4j/withfields/54-56-008008027+999.mrc.json"))
       );
   }
 
   @ParameterizedTest
   @MethodSource("testAddFieldToMarcJsonStream")
-  void testAddFieldToMarcJson(Test<Object, String> data) {
+  void testAddFieldToMarcJson(T<Object, String> data) {
     String marcJson = data.input != null ? ((String[]) data.input)[0] : null;
     String fieldJson = data.input != null ? ((String[]) data.input)[1] : null;
 
@@ -154,17 +171,17 @@ class MarcUtilityTest {
    * updateControlNumberField                                                           *
    *************************************************************************************/
 
-  static Stream<Test<String, String>> testUpdateControlNumberFieldStream() throws IOException {
+  static Stream<T<String, String>> testUpdateControlNumberFieldStream() throws IOException {
     return Stream.of(
-        new Test<>(null, null, new NullPointerException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/marc4j/withcontrolnumber/54-56-008008027+001.mrc.json")),
-        new Test<>(i("/marc4j/54-56-008008027-0-001.mrc.json"), i("/marc4j/withcontrolnumber/54-56-008008027+001.mrc.json"))
+        new T<>(null, null, new NullPointerException()),
+        new T<>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/marc4j/withcontrolnumber/54-56-008008027+001.mrc.json")),
+        new T<>(i("/marc4j/54-56-008008027-0-001.mrc.json"), i("/marc4j/withcontrolnumber/54-56-008008027+001.mrc.json"))
       );
   }
 
   @ParameterizedTest
   @MethodSource("testUpdateControlNumberFieldStream")
-  void testUpdateControlNumberField(Test<String, String> data) {
+  void testUpdateControlNumberField(T<String, String> data) {
     String marcJson = data.input;
     String controlNumber = "001";
 
@@ -183,16 +200,17 @@ class MarcUtilityTest {
    * marcJsonToRawMarc                                                                  *
    *************************************************************************************/
 
-  static Stream<Test<String, String>> testMarcJsonToRawMarcStream() throws IOException {
+  static Stream<T<String, String>> testMarcJsonToRawMarcStream() throws IOException {
     return Stream.of(
-        new Test<>(null, null, new NullPointerException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/marc4j/54-56-008008027-0.mrc"))
+        new T<>(null, null, new NullPointerException()),
+        new T<>("", null, new MarcException()),
+        new T<>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/marc4j/54-56-008008027-0.mrc"))
       );
   }
 
   @ParameterizedTest
   @MethodSource("testMarcJsonToRawMarcStream")
-  void testMarcJsonToRawMarc(Test<String, String> data) {
+  void testMarcJsonToRawMarc(T<String, String> data) {
     String marcJson = data.input;
 
     if (Objects.nonNull(data.exception)) {
@@ -210,16 +228,17 @@ class MarcUtilityTest {
    * rawMarcToMarcJson                                                                  *
    *************************************************************************************/
 
-  static Stream<Test<String, String>> testRawMarcToMarcJsonStream() throws IOException {
+  static Stream<T<String, String>> testRawMarcToMarcJsonStream() throws IOException {
     return Stream.of(
-        new Test<>(null, null, new NullPointerException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc"), i("/marc4j/54-56-008008027-0.mrc.json"))
+        new T<>(null, null, new NullPointerException()),
+        new T<>("", null, new MarcException()),
+        new T<>(i("/marc4j/54-56-008008027-0.mrc"), i("/marc4j/54-56-008008027-0.mrc.json"))
       );
   }
 
   @ParameterizedTest
   @MethodSource("testRawMarcToMarcJsonStream")
-  void testRawMarcToMarcJson(Test<String, String> data) {
+  void testRawMarcToMarcJson(T<String, String> data) {
     String rawMarc = data.input;
 
     if (Objects.nonNull(data.exception)) {
@@ -238,16 +257,17 @@ class MarcUtilityTest {
    *
    **************************************************************************************/
 
-   static Stream<Test<Object, String>> testGetFieldsFromRawMarcStream() throws IOException {
+   static Stream<T<Object, String>> testGetFieldsFromRawMarcStream() throws IOException {
     return Stream.of(
-        new Test<>(null, null, new NullPointerException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 050090245947980.json"))
+        new T<>(null, null, new NullPointerException()),
+        new T<>(new String[] { "", "[]" }, null, new MarcException()),
+        new T<>(i("/marc4j/54-56-008008027-0.mrc", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 050090245947980.json"))
       );
   }
 
   @ParameterizedTest
   @MethodSource("testGetFieldsFromRawMarcStream")
-  void testGetFieldsFromRawMarc(Test<Object, String> data) throws JsonProcessingException {
+  void testGetFieldsFromRawMarc(T<Object, String> data) throws JsonProcessingException {
     String rawMarc, tagsJson;
 
     String[] tags;
@@ -283,16 +303,17 @@ class MarcUtilityTest {
    *
    **************************************************************************************/
 
-   static Stream<Test<Object, String>> testGetFieldsFromMarcJsonStream() throws IOException {
+   static Stream<T<Object, String>> testGetFieldsFromMarcJsonStream() throws IOException {
     return Stream.of(
-        new Test<>(null, null, new NullPointerException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 050090245947980.json"))
+        new T<>(null, null, new NullPointerException()),
+        new T<>(new String[] { "", "[]" }, null, new MarcException()),
+        new T<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 050090245947980.json"))
       );
   }
 
   @ParameterizedTest
   @MethodSource("testGetFieldsFromMarcJsonStream")
-  void testGetFieldsFromMarcJson(Test<Object, String> data) throws JsonProcessingException {
+  void testGetFieldsFromMarcJson(T<Object, String> data) throws JsonProcessingException {
     String marcJson, tagsJson;
 
     String[] tags;
