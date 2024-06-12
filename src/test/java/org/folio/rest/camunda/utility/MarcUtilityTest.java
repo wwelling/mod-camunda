@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
@@ -132,7 +133,7 @@ class MarcUtilityTest {
   static Stream<Test<Object, String>> testAddFieldToMarcJsonStream() throws IOException {
     return Stream.of(
         new Test<>(null, null, new IllegalArgumentException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/fields/999.mrc.json"), i("/marc4j/withfields/54-56-008008027+999.mrc.json"))
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/field/999.mrc.json"), i("/marc4j/withfields/54-56-008008027+999.mrc.json"))
       );
   }
 
@@ -230,6 +231,51 @@ class MarcUtilityTest {
     } else {
       try {
         assertEquals(om(data.expected), om(MarcUtility.rawMarcToMarcJson(rawMarc)));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  /**************************************************************************************
+   * getFieldsFromRawMarc
+   *
+   **************************************************************************************/
+
+   static Stream<Test<Object, String>> testGetFieldsFromRawMarcStream() throws IOException {
+    return Stream.of(
+        new Test<>(null, null, new NullPointerException()),
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 245.json"))
+      );
+  }
+
+  @ParameterizedTest
+  @MethodSource("testGetFieldsFromRawMarcStream")
+  void testGetFieldsFromRawMarc(Test<Object, String> data) throws JsonProcessingException {
+    String rawMarc, tagsJson;
+
+    String[] tags;
+
+    if (data.input == null) {
+      rawMarc = null;
+      tags = new String[0];
+    } else {
+      rawMarc = ((String[]) data.input)[0];
+      tagsJson = ((String[]) data.input)[1];
+
+      List<String> list = new ArrayList<>();
+      for (JsonNode n : om.readTree(tagsJson)) {
+        list.add(n.toString());
+      }
+
+      tags = om.readValue(tagsJson, String[].class);
+    }
+
+    if (Objects.nonNull(data.exception)) {
+      assertThrows(data.exception.getClass(), () -> MarcUtility.getFieldsFromRawMarc(rawMarc, tags));
+    } else {
+      try {
+        assertEquals(om(data.expected), om(MarcUtility.getFieldsFromRawMarc(rawMarc, tags).trim()));
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
