@@ -83,9 +83,8 @@ class MarcUtilityTest {
   }
 
   /**************************************************************************************
-   * splitRawMarcToMarcJsonRecords
-   *
-   **************************************************************************************/
+   * splitRawMarcToMarcJsonRecords                                                      *
+   *************************************************************************************/
 
   static Stream<Test<String, List<String>>> testSplitRawMarcToMarcJsonRecordsStream() throws IOException {
     return Stream.of(
@@ -127,9 +126,8 @@ class MarcUtilityTest {
   }
 
   /**************************************************************************************
-   * addFieldToMarcJson
-   *
-   **************************************************************************************/
+   * addFieldToMarcJson                                                                 *
+   *************************************************************************************/
 
   static Stream<Test<Object, String>> testAddFieldToMarcJsonStream() throws IOException {
     return Stream.of(
@@ -156,11 +154,10 @@ class MarcUtilityTest {
   }
 
   /**************************************************************************************
-   * updateControlNumberField
-   *
-   **************************************************************************************/
+   * updateControlNumberField                                                           *
+   *************************************************************************************/
 
-   static Stream<Test<String, String>> testUpdateControlNumberFieldStream() throws IOException {
+  static Stream<Test<String, String>> testUpdateControlNumberFieldStream() throws IOException {
     return Stream.of(
         new Test<>(null, null, new NullPointerException()),
         new Test<>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/marc4j/withcontrolnumber/54-56-008008027+001.mrc.json")),
@@ -186,11 +183,10 @@ class MarcUtilityTest {
   }
 
   /**************************************************************************************
-   * marcJsonToRawMarc
-   *
-   **************************************************************************************/
+   * marcJsonToRawMarc                                                                  *
+   *************************************************************************************/
 
-   static Stream<Test<String, String>> testMarcJsonToRawMarcStream() throws IOException {
+  static Stream<Test<String, String>> testMarcJsonToRawMarcStream() throws IOException {
     return Stream.of(
         new Test<>(null, null, new NullPointerException()),
         new Test<>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/marc4j/54-56-008008027-0.mrc"))
@@ -207,6 +203,33 @@ class MarcUtilityTest {
     } else {
       try {
         assertEquals(data.expected.trim(), MarcUtility.marcJsonToRawMarc(marcJson).trim());
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  /**************************************************************************************
+   * rawMarcToMarcJson                                                                  *
+   *************************************************************************************/
+
+  static Stream<Test<String, String>> testRawMarcToMarcJsonStream() throws IOException {
+    return Stream.of(
+        new Test<>(null, null, new NullPointerException()),
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc"), i("/marc4j/54-56-008008027-0.mrc.json"))
+      );
+  }
+
+  @ParameterizedTest
+  @MethodSource("testRawMarcToMarcJsonStream")
+  void testRawMarcToMarcJson(Test<String, String> data) {
+    String rawMarc = data.input;
+
+    if (Objects.nonNull(data.exception)) {
+      assertThrows(data.exception.getClass(), () -> MarcUtility.rawMarcToMarcJson(rawMarc));
+    } else {
+      try {
+        assertEquals(om(data.expected), om(MarcUtility.rawMarcToMarcJson(rawMarc)));
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
