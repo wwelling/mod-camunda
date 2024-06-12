@@ -282,4 +282,49 @@ class MarcUtilityTest {
     }
   }
 
+  /**************************************************************************************
+   * getFieldsFromMarcJson
+   *
+   **************************************************************************************/
+
+   static Stream<Test<Object, String>> testGetFieldsFromMarcJsonStream() throws IOException {
+    return Stream.of(
+        new Test<>(null, null, new NullPointerException()),
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 245.json"))
+      );
+  }
+
+  @ParameterizedTest
+  @MethodSource("testGetFieldsFromMarcJsonStream")
+  void testGetFieldsFromMarcJson(Test<Object, String> data) throws JsonProcessingException {
+    String marcJson, tagsJson;
+
+    String[] tags;
+
+    if (data.input == null) {
+      marcJson = null;
+      tags = new String[0];
+    } else {
+      marcJson = ((String[]) data.input)[0];
+      tagsJson = ((String[]) data.input)[1];
+
+      List<String> list = new ArrayList<>();
+      for (JsonNode n : om.readTree(tagsJson)) {
+        list.add(n.toString());
+      }
+
+      tags = om.readValue(tagsJson, String[].class);
+    }
+
+    if (Objects.nonNull(data.exception)) {
+      assertThrows(data.exception.getClass(), () -> MarcUtility.getFieldsFromMarcJson(marcJson, tags));
+    } else {
+      try {
+        assertEquals(om(data.expected), om(MarcUtility.getFieldsFromMarcJson(marcJson, tags).trim()));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
 }
