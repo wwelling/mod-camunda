@@ -83,7 +83,7 @@ class MarcUtilityTest {
   }
 
   /**************************************************************************************
-   *
+   * splitRawMarcToMarcJsonRecords
    *
    **************************************************************************************/
 
@@ -127,7 +127,7 @@ class MarcUtilityTest {
   }
 
   /**************************************************************************************
-   *
+   * addFieldToMarcJson
    *
    **************************************************************************************/
 
@@ -156,7 +156,7 @@ class MarcUtilityTest {
   }
 
   /**************************************************************************************
-   *
+   * updateControlNumberField
    *
    **************************************************************************************/
 
@@ -179,6 +179,34 @@ class MarcUtilityTest {
     } else {
       try {
         assertEquals(om(data.expected), om(MarcUtility.updateControlNumberField(marcJson, controlNumber)));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  /**************************************************************************************
+   * marcJsonToRawMarc
+   *
+   **************************************************************************************/
+
+   static Stream<Test<String, String>> testMarcJsonToRawMarcStream() throws IOException {
+    return Stream.of(
+        new Test<>(null, null, new NullPointerException()),
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/marc4j/54-56-008008027-0.mrc"))
+      );
+  }
+
+  @ParameterizedTest
+  @MethodSource("testMarcJsonToRawMarcStream")
+  void testMarcJsonToRawMarc(Test<String, String> data) {
+    String marcJson = data.input;
+
+    if (Objects.nonNull(data.exception)) {
+      assertThrows(data.exception.getClass(), () -> MarcUtility.marcJsonToRawMarc(marcJson));
+    } else {
+      try {
+        assertEquals(data.expected.trim(), MarcUtility.marcJsonToRawMarc(marcJson).trim());
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
