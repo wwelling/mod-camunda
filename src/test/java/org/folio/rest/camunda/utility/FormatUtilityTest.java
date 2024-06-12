@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class FormatUtilityTest {
+class FormatUtilityTest {
 
   static class TestData {
     String input;
@@ -29,6 +29,12 @@ public class FormatUtilityTest {
         new TestData("", ""),
         new TestData("'", "''"),
     });
+  }
+
+  @ParameterizedTest
+  @MethodSource("sqlStream")
+  void testSanitizeSqlCode(TestData data) {
+    assertEquals(data.expected, FormatUtility.sanitizeSqlCode(data.input));
   }
 
   static Stream<TestData> cqlStream() {
@@ -59,6 +65,12 @@ public class FormatUtilityTest {
     });
   }
 
+  @ParameterizedTest
+  @MethodSource("cqlStream")
+  void testNormalizeCqlUrlArgument(TestData data) {
+    assertEquals(data.expected, FormatUtility.normalizeCqlUrlArgument(data.input));
+  }
+
   static Stream<TestData> postalCodeStream() {
     return Stream.of(new TestData[] {
         new TestData("75201", "75201"),
@@ -67,6 +79,12 @@ public class FormatUtilityTest {
         new TestData("981013333", "98101-3333"),
         new TestData("", ""),
     });
+  }
+
+  @ParameterizedTest
+  @MethodSource("postalCodeStream")
+  void testNormalizePostalCode(TestData data) {
+    assertEquals(data.expected, FormatUtility.normalizePostalCode(data.input));
   }
 
   static Stream<TestData> phoneNumberStream() {
@@ -94,26 +112,8 @@ public class FormatUtilityTest {
   }
 
   @ParameterizedTest
-  @MethodSource("sqlStream")
-  public void testSanitizeSqlCode(TestData data) {
-    assertEquals(data.expected, FormatUtility.sanitizeSqlCode(data.input));
-  }
-
-  @ParameterizedTest
-  @MethodSource("cqlStream")
-  public void testNormalizeCqlUrlArgument(TestData data) {
-    assertEquals(data.expected, FormatUtility.normalizeCqlUrlArgument(data.input));
-  }
-
-  @ParameterizedTest
-  @MethodSource("postalCodeStream")
-  public void testNormalizePostalCode(TestData data) {
-    assertEquals(data.expected, FormatUtility.normalizePostalCode(data.input));
-  }
-
-  @ParameterizedTest
   @MethodSource("phoneNumberStream")
-  public void testNormalizePhoneNumber(TestData data) {
+  void testNormalizePhoneNumber(TestData data) {
     assertEquals(data.expected, FormatUtility.normalizePhoneNumber(data.input));
   }
 

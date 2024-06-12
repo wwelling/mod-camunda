@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.graalvm.shadowed.org.json.JSONException;
@@ -18,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class ScriptEngineUtilityTest {
+class ScriptEngineUtilityTest {
 
   static class TestInput {
     String json;
@@ -44,6 +43,24 @@ public class ScriptEngineUtilityTest {
     });
   }
 
+  @ParameterizedTest
+  @MethodSource("validJsonStream")
+  void testDecodeAndEncodeValidJson(TestInput input) throws JsonProcessingException {
+    ScriptEngineUtility seu = new ScriptEngineUtility();
+
+    JSONObject decoded = seu.decodeJson(input.json);
+
+    assertNotNull(decoded);
+
+    String encoded = seu.encodeJson(decoded);
+
+    ObjectMapper om = new ObjectMapper();
+    JsonNode expected = om.readValue(input.json, JsonNode.class);
+    JsonNode actual = om.readValue(encoded, JsonNode.class);
+
+    assertEquals(expected, actual);
+  }
+
   static Stream<TestInput> invalidJsonStream() {
     return Stream.of(new TestInput[] {
         new TestInput("", "A JSONObject text must begin with '{' at 0 [character 1 line 1]"),
@@ -60,26 +77,8 @@ public class ScriptEngineUtilityTest {
   }
 
   @ParameterizedTest
-  @MethodSource("validJsonStream")
-  public void testDecodeAndEncodeValidJson(TestInput input) throws JsonMappingException, JsonProcessingException {
-    ScriptEngineUtility seu = new ScriptEngineUtility();
-
-    JSONObject decoded = seu.decodeJson(input.json);
-
-    assertNotNull(decoded);
-
-    String encoded = seu.encodeJson(decoded);
-
-    ObjectMapper om = new ObjectMapper();
-    JsonNode expected = om.readValue(input.json, JsonNode.class);
-    JsonNode actual = om.readValue(encoded, JsonNode.class);
-
-    assertEquals(expected, actual);
-  }
-
-  @ParameterizedTest
   @MethodSource("invalidJsonStream")
-  public void testDecodeInvalidJson(TestInput input) {
+  void testDecodeInvalidJson(TestInput input) {
     ScriptEngineUtility seu = new ScriptEngineUtility();
 
     Exception thrown = assertThrows(
