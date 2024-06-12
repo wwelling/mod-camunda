@@ -155,4 +155,34 @@ class MarcUtilityTest {
     }
   }
 
+  /**************************************************************************************
+   *
+   *
+   **************************************************************************************/
+
+   static Stream<Test<String, String>> testUpdateControlNumberFieldStream() throws IOException {
+    return Stream.of(
+        new Test<>(null, null, new NullPointerException()),
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/marc4j/withcontrolnumber/54-56-008008027+001.mrc.json")),
+        new Test<>(i("/marc4j/54-56-008008027-0-001.mrc.json"), i("/marc4j/withcontrolnumber/54-56-008008027+001.mrc.json"))
+      );
+  }
+
+  @ParameterizedTest
+  @MethodSource("testUpdateControlNumberFieldStream")
+  void testUpdateControlNumberField(Test<String, String> data) {
+    String marcJson = data.input;
+    String controlNumber = "001";
+
+    if (Objects.nonNull(data.exception)) {
+      assertThrows(data.exception.getClass(), () -> MarcUtility.updateControlNumberField(marcJson, controlNumber));
+    } else {
+      try {
+        assertEquals(om(data.expected), om(MarcUtility.updateControlNumberField(marcJson, controlNumber)));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
 }
