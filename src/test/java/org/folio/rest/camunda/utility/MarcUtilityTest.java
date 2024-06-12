@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
@@ -80,7 +79,7 @@ class MarcUtilityTest {
 
   /** object map list */
   static List<JsonNode> oml(List<String> json) {
-    return json.stream().map(n -> om(n)).collect(Collectors.toList());
+    return json.stream().map(n -> om(n)).toList();
   }
 
   /**************************************************************************************
@@ -245,7 +244,7 @@ class MarcUtilityTest {
    static Stream<Test<Object, String>> testGetFieldsFromRawMarcStream() throws IOException {
     return Stream.of(
         new Test<>(null, null, new NullPointerException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 245.json"))
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 050090245947980.json"))
       );
   }
 
@@ -290,7 +289,7 @@ class MarcUtilityTest {
    static Stream<Test<Object, String>> testGetFieldsFromMarcJsonStream() throws IOException {
     return Stream.of(
         new Test<>(null, null, new NullPointerException()),
-        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 245.json"))
+        new Test<>(i("/marc4j/54-56-008008027-0.mrc.json", "/marc4j/tags/050090245947980.json"), i("/marc4j/fields/54-56-008008027 050090245947980.json"))
       );
   }
 
