@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class FormatUtilityTest {
 
-  // NOTE: sanitizeSqlCode method is only replaceing single quotes with double quotes
+  // NOTE: sanitizeSqlCode method is only replacing single quotes with double quotes
   static Stream<TestData> sqlStream() {
     return Stream.of(new TestData[] {
         new TestData(null, null),
