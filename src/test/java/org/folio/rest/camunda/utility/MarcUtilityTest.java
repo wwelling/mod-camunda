@@ -27,18 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class MarcUtilityTest {
 
-  /**************************************************************************************
-   * splitRawMarcToMarcJsonRecords                                                      *
-   *************************************************************************************/
-
-  static Stream<Parameters<String, List<String>>> testSplitRawMarcToMarcJsonRecordsStream() throws IOException {
-    return Stream.of(
-        Parameters.of(null, null, new NullPointerException()),
-        Parameters.of("", List.of()),
-        Parameters.of(i("/marc4j/54-56-008008027.mrc"), il("/marc4j/54-56-008008027.mrc.json"))
-      );
-  }
-
   @Test
   void testDeserializingSubfield() throws JsonProcessingException {
     MarcFactory factory = MarcFactory.newInstance();
@@ -50,6 +38,18 @@ class MarcUtilityTest {
     assertEquals(subfield.getId(), deserializedSubfield.getId());
     assertEquals(subfield.getCode(), deserializedSubfield.getCode());
     assertEquals(subfield.getData(), deserializedSubfield.getData());
+  }
+
+  /**************************************************************************************
+   * splitRawMarcToMarcJsonRecords                                                      *
+   *************************************************************************************/
+
+  static Stream<Parameters<String, List<String>>> testSplitRawMarcToMarcJsonRecordsStream() throws IOException {
+    return Stream.of(
+        Parameters.of(null, null, new NullPointerException()),
+        Parameters.of("", List.of()),
+        Parameters.of(i("/marc4j/54-56-008008027.mrc"), il("/marc4j/54-56-008008027.mrc.json"))
+      );
   }
 
   @ParameterizedTest
