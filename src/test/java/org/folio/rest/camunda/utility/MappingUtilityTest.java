@@ -1,23 +1,20 @@
 package org.folio.rest.camunda.utility;
 
+import static org.folio.rest.camunda.utility.TestUtility.i;
+import static org.folio.rest.camunda.utility.TestUtility.om;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.vertx.core.json.DecodeException;
-import org.apache.commons.io.IOUtils;
 import org.folio.Alternativetitletypes;
 import org.folio.Callnumbertypes;
 import org.folio.Classificationtypes;
@@ -50,57 +47,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @ExtendWith(MockitoExtension.class)
 class MappingUtilityTest {
 
-  static class T<I, O> {
-    I input;
-    O expected;
-    Exception exception;
-
-    T(I input, O expected) {
-      this.input = input;
-      this.expected = expected;
-    }
-
-    T(I input, O expected, Exception exception) {
-      this.input = input;
-      this.expected = expected;
-      this.exception = exception;
-    }
-  }
-
   @Spy
   private RestTemplate mockRestTemplate;
 
-  private static ObjectMapper objectMapper = new ObjectMapper();;
-
   private final static String OKAPI_URL = "http://localhost:9130";
-
-  /** input */
-  @SuppressWarnings("hiding")
-  static <T> ResponseEntity<T> i(String path, Class<T> valueType) throws IOException {
-    return ResponseEntity.ofNullable(objectMapper.readValue(new File("src/test/resources/" + path), valueType));
-  }
-
-  /** input */
-  static String i(String path) throws IOException {
-    return IOUtils.resourceToString(path, StandardCharsets.UTF_8);
-  }
-
-  /** object map */
-  static JsonNode om(String json) {
-    try {
-      return MarcUtility.mapper.readTree(json);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-      throw new RuntimeException();
-    }
-  }
 
   @BeforeEach
   void mockExchangeForRulesAndMappingParameters() throws RestClientException, IOException {
@@ -137,9 +93,21 @@ class MappingUtilityTest {
    * mapRecordToInsance                                                                 *
    *************************************************************************************/
 
+   static Stream<Parameters<String, String>> testMapRecordToInsanceStream() throws IOException {
+    return Stream.of(
+      Parameters.of(null, null, new NullPointerException()),
+      Parameters.of("", null, new DecodeException()),
+      Parameters.of(i("/marc4j/54-56-008008027-0.mrc.json"), i("/folio/instances/54-008008027.json")),
+      Parameters.of(i("/marc4j/54-56-008008027-1.mrc.json"), i("/folio/instances/55-008008027.json")),
+      Parameters.of(i("/marc4j/54-56-008008027-2.mrc.json"), i("/folio/instances/56-008008027.json")),
+      Parameters.of(i("/marc4j/54-56-008008027-3.mrc.json"), i("/folio/instances/57-008008027.json")),
+      Parameters.of(i("/marc4j/54-56-008008027-4.mrc.json"), i("/folio/instances/58-008008027.json"))
+    );
+  }
+
   @ParameterizedTest
   @MethodSource("testMapRecordToInsanceStream")
-  void testMapRecordToInsance(T<String, String> data) throws JsonProcessingException {
+  void testMapRecordToInsance(Parameters<String, String> data) throws JsonProcessingException {
 
     String marcJson = data.input;
     String okapiUrl = OKAPI_URL;
@@ -156,18 +124,6 @@ class MappingUtilityTest {
 
       assertEquals(expected, actual);
     }
-  }
-
-  private static Stream<T<String, String>> testMapRecordToInsanceStream() throws IOException {
-    return Stream.of(
-      new T<String, String>(null, null, new NullPointerException()),
-      new T<String, String>("", null, new DecodeException()),
-      new T<String, String>(i("/marc4j/54-56-008008027-0.mrc.json"), i("/folio/instances/54-008008027.json")),
-      new T<String, String>(i("/marc4j/54-56-008008027-1.mrc.json"), i("/folio/instances/55-008008027.json")),
-      new T<String, String>(i("/marc4j/54-56-008008027-2.mrc.json"), i("/folio/instances/56-008008027.json")),
-      new T<String, String>(i("/marc4j/54-56-008008027-3.mrc.json"), i("/folio/instances/57-008008027.json")),
-      new T<String, String>(i("/marc4j/54-56-008008027-4.mrc.json"), i("/folio/instances/58-008008027.json"))
-    );
   }
 
 }

@@ -12,16 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class FormatUtilityTest {
 
-  static class TestData {
-    String input;
-    String expected;
-
-    TestData(String input, String expected) {
-      this.input = input;
-      this.expected = expected;
-    }
-  }
-
   // NOTE: sanitizeSqlCode method is only replaceing single quotes with double quotes
   static Stream<TestData> sqlStream() {
     return Stream.of(new TestData[] {
@@ -115,6 +105,16 @@ class FormatUtilityTest {
   @MethodSource("phoneNumberStream")
   void testNormalizePhoneNumber(TestData data) {
     assertEquals(data.expected, FormatUtility.normalizePhoneNumber(data.input));
+  }
+
+  static class TestData {
+    String input;
+    String expected;
+
+    TestData(String input, String expected) {
+      this.input = input;
+      this.expected = expected;
+    }
   }
 
 }

@@ -19,20 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ScriptEngineUtilityTest {
 
-  static class TestInput {
-    String json;
-    String message;
-
-    TestInput(String json) {
-      this.json = json;
-    }
-
-    TestInput(String json, String message) {
-      this.json = json;
-      this.message = message;
-    }
-  }
-
   static Stream<TestInput> validJsonStream() {
     return Stream.of(new TestInput[] {
         new TestInput("{}"),
@@ -87,6 +73,20 @@ class ScriptEngineUtilityTest {
         "decodeJson(json) did not throw exception as expected");
 
     assertEquals(input.message, thrown.getMessage());
+  }
+
+  static class TestInput {
+    String json;
+    String message;
+
+    TestInput(String json) {
+      this.json = json;
+    }
+
+    TestInput(String json, String message) {
+      this.json = json;
+      this.message = message;
+    }
   }
 
 }
