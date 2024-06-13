@@ -93,7 +93,7 @@ class MappingUtilityTest {
    * mapRecordToInsance                                                                 *
    *************************************************************************************/
 
-   static Stream<Parameters<String, String>> testMapRecordToInsanceStream() throws IOException {
+  static Stream<Parameters<String, String>> testMapRecordToInsanceStream() throws IOException {
     return Stream.of(
       Parameters.of(null, null, new NullPointerException()),
       Parameters.of("", null, new DecodeException()),

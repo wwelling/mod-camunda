@@ -201,7 +201,7 @@ class MarcUtilityTest {
    *
    **************************************************************************************/
 
-   static Stream<Parameters<Object, String>> testGetFieldsFromRawMarcStream() throws IOException {
+  static Stream<Parameters<Object, String>> testGetFieldsFromRawMarcStream() throws IOException {
     return Stream.of(
         Parameters.of(null, null, new NullPointerException()),
         Parameters.of(new String[] { "", "[]" }, null, new MarcException()),
@@ -247,7 +247,7 @@ class MarcUtilityTest {
    *
    **************************************************************************************/
 
-   static Stream<Parameters<Object, String>> testGetFieldsFromMarcJsonStream() throws IOException {
+  static Stream<Parameters<Object, String>> testGetFieldsFromMarcJsonStream() throws IOException {
     return Stream.of(
         Parameters.of(null, null, new NullPointerException()),
         Parameters.of(new String[] { "", "[]" }, null, new MarcException()),
