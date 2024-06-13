@@ -79,6 +79,13 @@ public class BpmnModelFactory {
   private List<AbstractWorkflowDelegate> workflowDelegates;
 
   public BpmnModelInstance fromWorkflow(Workflow workflow) throws ScriptTaskDeserializeCodeFailure {
+    System.out.println("Inside the model instance");
+    // Print the mocked data directly
+    System.out.println("Workflow Name: " + workflow.getName());
+    System.out.println("History Time To Live: " + workflow.getHistoryTimeToLive());
+    System.out.println("Version Tag: " + workflow.getVersionTag());
+    System.out.println("Nodes: " + workflow.getNodes());
+    System.out.println("Initial Context: " + workflow.getInitialContext());
 
     // @formatter:off
     ProcessBuilder processBuilder = Bpmn.createExecutableProcess().name(workflow.getName())
@@ -95,6 +102,7 @@ public class BpmnModelFactory {
         try {
             eventSubprocess(processBuilder, subprocess);
         } catch (ScriptTaskDeserializeCodeFailure e) {
+            System.out.println("I threw an error because there are no nodes");
             throw new RuntimeException(e);
         }
     });
@@ -367,6 +375,9 @@ public class BpmnModelFactory {
 
     Map<String, JsonNode> initialContext = workflow.getInitialContext();
     CamundaField icField = model.newInstance(CamundaField.class);
+
+    System.out.println("icField : " + icField );
+
     icField.setCamundaName("initialContext");
     try {
       icField.setCamundaStringValue(objectMapper.writeValueAsString(initialContext));
