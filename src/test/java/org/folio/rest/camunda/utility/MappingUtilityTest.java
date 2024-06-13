@@ -89,10 +89,15 @@ class MappingUtilityTest {
     MappingUtility.restTemplate = mockRestTemplate;
   }
 
-  /**************************************************************************************
-   * mapRecordToInsance                                                                 *
-   *************************************************************************************/
-
+  /**
+   * Stream parameters for testing mapRecordToInsance.
+   *
+   * @return
+   *   The test method parameters:
+   *     - input of type String (MARC JSON)
+   *     - expected output of type String (JSON FOLIO instance).
+   *     - exception expected to be thrown
+   */
   static Stream<Parameters<String, String>> testMapRecordToInsanceStream() throws IOException {
     return Stream.of(
       Parameters.of(null, null, new NullPointerException()),

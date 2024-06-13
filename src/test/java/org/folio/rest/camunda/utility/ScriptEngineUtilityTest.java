@@ -19,6 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ScriptEngineUtilityTest {
 
+  /**
+   * Stream parameters for testing decodeJson and encodeJson.
+   *
+   * @return
+   *   The test method parameters:
+   *     - input of type String (JSON)
+   */
   static Stream<TestInput> validJsonStream() {
     return Stream.of(new TestInput[] {
         new TestInput("{}"),
@@ -47,6 +54,14 @@ class ScriptEngineUtilityTest {
     assertEquals(expected, actual);
   }
 
+  /**
+   * Stream parameters for testing decodeJson and encodeJson.
+   *
+   * @return
+   *   The test method parameters:
+   *     - input of type String (JSON)
+   *     - expected error message
+   */
   static Stream<TestInput> invalidJsonStream() {
     return Stream.of(new TestInput[] {
         new TestInput("", "A JSONObject text must begin with '{' at 0 [character 1 line 1]"),

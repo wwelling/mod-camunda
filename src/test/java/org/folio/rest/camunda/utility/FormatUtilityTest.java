@@ -12,7 +12,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class FormatUtilityTest {
 
-  // NOTE: sanitizeSqlCode method is only replacing single quotes with double quotes
+  /**
+   * Stream parameters for testing sanitizeSqlCode.
+   *
+   * NOTE: sanitizeSqlCode method is only replacing single quotes with double quotes
+   *
+   * @return
+   *   The test method parameters:
+   *     - input of type String (SQL)
+   *     - expected output String (escaped SQL)
+   */
   static Stream<TestData> sqlStream() {
     return Stream.of(new TestData[] {
         new TestData(null, null),
@@ -27,6 +36,14 @@ class FormatUtilityTest {
     assertEquals(data.expected, FormatUtility.sanitizeSqlCode(data.input));
   }
 
+  /**
+   * Stream parameters for testing normalizeCqlUrlArgument.
+   *
+   * @return
+   *   The test method parameters:
+   *     - input of type String (CQL)
+   *     - expected output String (normalized CQL)
+   */
   static Stream<TestData> cqlStream() {
     return Stream.of(new TestData[] {
         new TestData(null, "\"\""),
@@ -61,6 +78,14 @@ class FormatUtilityTest {
     assertEquals(data.expected, FormatUtility.normalizeCqlUrlArgument(data.input));
   }
 
+  /**
+   * Stream parameters for testing normalizePostalCode.
+   *
+   * @return
+   *   The test method parameters:
+   *     - input of type String (postal code)
+   *     - expected output String (normalized postal code)
+   */
   static Stream<TestData> postalCodeStream() {
     return Stream.of(new TestData[] {
         new TestData("75201", "75201"),
@@ -77,6 +102,14 @@ class FormatUtilityTest {
     assertEquals(data.expected, FormatUtility.normalizePostalCode(data.input));
   }
 
+  /**
+   * Stream parameters for testing normalizePhoneNumber.
+   *
+   * @return
+   *   The test method parameters:
+   *     - input of type String (phone number)
+   *     - expected output String (normalized phone number)
+   */
   static Stream<TestData> phoneNumberStream() {
     return Stream.of(new TestData[] {
         new TestData("+1 650-253-0000", "(650) 253-0000"),
