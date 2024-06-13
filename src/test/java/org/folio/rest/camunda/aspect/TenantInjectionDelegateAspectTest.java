@@ -2,7 +2,6 @@ package org.folio.rest.camunda.aspect;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
