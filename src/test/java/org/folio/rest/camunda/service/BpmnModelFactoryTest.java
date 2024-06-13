@@ -97,6 +97,21 @@ class BpmnModelFactoryTest {
     }
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  void testFromWorkflowNoNodesWorks() throws JsonProcessingException, ScriptTaskDeserializeCodeFailure {
+    try (MockedStatic<Bpmn> utility = Mockito.mockStatic(Bpmn.class)) {
+      utility.when(() -> Bpmn.createExecutableProcess()).thenReturn(processBuilder);
+
+      doNothing().when(process).setCamundaHistoryTimeToLive(anyInt());
+      when(bpmnModelInstance.newInstance(ArgumentMatchers.<Class<ModelElementInstance>>any())).thenReturn(extensionElements, camundaField);
+      doNothing().when(extensionElements).addChildElement(any());
+      when(bpmnModelInstance.getModelElementById(anyString())).thenReturn(modelElementInstance);
+
+      bpmnModelFactory.fromWorkflow(workflow);
+    }
+  }
+
   /**
    * Provide an exception that exposes the string initializer for easy usage.
    */
