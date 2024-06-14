@@ -68,73 +68,57 @@ class MarcUtilityTest {
 
   @ParameterizedTest
   @MethodSource("testAddFieldToMarcJsonStream")
-  void testAddFieldToMarcJson(Parameters<Object, String> data) {
+  void testAddFieldToMarcJson(Parameters<Object, String> data) throws MarcException, IOException {
     String marcJson = data.input != null ? ((String[]) data.input)[0] : null;
     String fieldJson = data.input != null ? ((String[]) data.input)[1] : null;
 
     if (Objects.nonNull(data.exception)) {
       assertThrows(data.exception.getClass(), () -> MarcUtility.addFieldToMarcJson(marcJson, fieldJson));
     } else {
-      try {
-        assertEquals(om(data.expected), om(MarcUtility.addFieldToMarcJson(marcJson, fieldJson)));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      assertEquals(om(data.expected), om(MarcUtility.addFieldToMarcJson(marcJson, fieldJson)));
     }
   }
 
   @ParameterizedTest
   @MethodSource("testUpdateControlNumberFieldStream")
-  void testUpdateControlNumberField(Parameters<String, String> data) {
+  void testUpdateControlNumberField(Parameters<String, String> data) throws MarcException, IOException {
     String marcJson = data.input;
     String controlNumber = "001";
 
     if (Objects.nonNull(data.exception)) {
       assertThrows(data.exception.getClass(), () -> MarcUtility.updateControlNumberField(marcJson, controlNumber));
     } else {
-      try {
-        assertEquals(om(data.expected), om(MarcUtility.updateControlNumberField(marcJson, controlNumber)));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      assertEquals(om(data.expected), om(MarcUtility.updateControlNumberField(marcJson, controlNumber)));
     }
   }
 
   @ParameterizedTest
   @MethodSource("testMarcJsonToRawMarcStream")
-  void testMarcJsonToRawMarc(Parameters<String, String> data) {
+  void testMarcJsonToRawMarc(Parameters<String, String> data) throws MarcException, IOException {
     String marcJson = data.input;
 
     if (Objects.nonNull(data.exception)) {
       assertThrows(data.exception.getClass(), () -> MarcUtility.marcJsonToRawMarc(marcJson));
     } else {
-      try {
-        assertEquals(data.expected.trim(), MarcUtility.marcJsonToRawMarc(marcJson).trim());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      assertEquals(data.expected.trim(), MarcUtility.marcJsonToRawMarc(marcJson).trim());
     }
   }
 
   @ParameterizedTest
   @MethodSource("testRawMarcToMarcJsonStream")
-  void testRawMarcToMarcJson(Parameters<String, String> data) {
+  void testRawMarcToMarcJson(Parameters<String, String> data) throws MarcException, IOException {
     String rawMarc = data.input;
 
     if (Objects.nonNull(data.exception)) {
       assertThrows(data.exception.getClass(), () -> MarcUtility.rawMarcToMarcJson(rawMarc));
     } else {
-      try {
-        assertEquals(om(data.expected), om(MarcUtility.rawMarcToMarcJson(rawMarc)));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      assertEquals(om(data.expected), om(MarcUtility.rawMarcToMarcJson(rawMarc)));
     }
   }
 
   @ParameterizedTest
   @MethodSource("testGetFieldsFromRawMarcStream")
-  void testGetFieldsFromRawMarc(Parameters<Object, String> data) throws JsonProcessingException {
+  void testGetFieldsFromRawMarc(Parameters<Object, String> data) throws MarcException, IOException {
     String rawMarc, tagsJson;
 
     String[] tags;
@@ -157,17 +141,13 @@ class MarcUtilityTest {
     if (Objects.nonNull(data.exception)) {
       assertThrows(data.exception.getClass(), () -> MarcUtility.getFieldsFromRawMarc(rawMarc, tags));
     } else {
-      try {
-        assertEquals(om(data.expected), om(MarcUtility.getFieldsFromRawMarc(rawMarc, tags).trim()));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      assertEquals(om(data.expected), om(MarcUtility.getFieldsFromRawMarc(rawMarc, tags).trim()));
     }
   }
 
   @ParameterizedTest
   @MethodSource("testGetFieldsFromMarcJsonStream")
-  void testGetFieldsFromMarcJson(Parameters<Object, String> data) throws JsonProcessingException {
+  void testGetFieldsFromMarcJson(Parameters<Object, String> data) throws MarcException, IOException {
     String marcJson, tagsJson;
 
     String[] tags;
@@ -190,11 +170,7 @@ class MarcUtilityTest {
     if (Objects.nonNull(data.exception)) {
       assertThrows(data.exception.getClass(), () -> MarcUtility.getFieldsFromMarcJson(marcJson, tags));
     } else {
-      try {
-        assertEquals(om(data.expected), om(MarcUtility.getFieldsFromMarcJson(marcJson, tags).trim()));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      assertEquals(om(data.expected), om(MarcUtility.getFieldsFromMarcJson(marcJson, tags).trim()));
     }
   }
 
