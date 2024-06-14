@@ -46,6 +46,22 @@ class EventConsumerTest {
   @InjectMocks
   private EventConsumer eventConsumer;
 
+  @ParameterizedTest
+  @MethodSource("eventStream")
+  @SuppressWarnings("unchecked")
+  void testReceive(Event event) throws JsonProcessingException {
+    doReturn(processInstance).when(messageCorrelationBuilder).correlateStartMessage();
+    doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).setVariables(anyMap());
+    doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).tenantId(anyString());
+    doReturn(messageCorrelationBuilder).when(runtimeService).createMessageCorrelation(anyString());
+
+    doReturn(new HashMap<String, Object>()).when(objectMapper).convertValue(any(JsonNode.class), any(TypeReference.class));
+
+    eventConsumer.receive(event);
+
+    Mockito.verify(messageCorrelationBuilder).correlateStartMessage();
+  }
+
   static Stream<Event> eventStream() {
     return Stream.of(new Event[] {
         new Event(
@@ -64,22 +80,6 @@ class EventConsumerTest {
           new HashMap<String, String>()
         )
     });
-  }
-
-  @ParameterizedTest
-  @MethodSource("eventStream")
-  @SuppressWarnings("unchecked")
-  void testReceive(Event event) throws JsonProcessingException {
-    doReturn(processInstance).when(messageCorrelationBuilder).correlateStartMessage();
-    doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).setVariables(anyMap());
-    doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).tenantId(anyString());
-    doReturn(messageCorrelationBuilder).when(runtimeService).createMessageCorrelation(anyString());
-
-    doReturn(new HashMap<String, Object>()).when(objectMapper).convertValue(any(JsonNode.class), any(TypeReference.class));
-
-    eventConsumer.receive(event);
-
-    Mockito.verify(messageCorrelationBuilder).correlateStartMessage();
   }
 
 }
