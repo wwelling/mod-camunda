@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -60,6 +61,10 @@ class EventConsumerTest {
       doReturn(new HashMap<String, Object>()).when(objectMapper).convertValue(any(JsonNode.class), any(TypeReference.class));
 
       eventConsumer.receive(event);
+
+      utility.verify(() -> {
+        ThreadLocalStorage.setTenant(event.getTenant());
+      });
 
       Mockito.verify(messageCorrelationBuilder).correlateStartMessage();
     }
