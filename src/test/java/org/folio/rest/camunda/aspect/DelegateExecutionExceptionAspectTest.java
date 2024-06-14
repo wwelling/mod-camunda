@@ -65,7 +65,7 @@ class DelegateExecutionExceptionAspectTest {
     when(processDefinition.getName()).thenReturn("workflowName");
     when(processDefinitionQuery.singleResult()).thenReturn(processDefinition);
 
-    when(processDefinitionQuery.processDefinitionId(eq(execution.getProcessDefinitionId()))).thenReturn(processDefinitionQuery);
+    when(processDefinitionQuery.processDefinitionId(execution.getProcessDefinitionId())).thenReturn(processDefinitionQuery);
 
     when(repositoryService.createProcessDefinitionQuery()).thenReturn(processDefinitionQuery);
     when(processEngineServices.getRepositoryService()).thenReturn(repositoryService);
