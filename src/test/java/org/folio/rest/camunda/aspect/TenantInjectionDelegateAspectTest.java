@@ -3,12 +3,10 @@ package org.folio.rest.camunda.aspect;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import org.aspectj.lang.annotation.Before;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.folio.spring.tenant.exception.NoTenantException;
 import org.folio.spring.tenant.properties.TenantProperties;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
