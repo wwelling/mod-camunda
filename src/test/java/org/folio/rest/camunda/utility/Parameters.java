@@ -37,17 +37,6 @@ class Parameters<I, O> {
   }
 
   /**
-   * Return typed Parameters when input and output are expected with no
-   * exceptions.
-   *
-   * @param <I>      generic input
-   * @param <O>      generic output
-   * @param input    provided to use when calling method to test
-   * @param expected output to make assertions against
-   * @return typed Parameter
-   */
-
-  /**
    * Return typed Parameters when input and output are expected with expected
    * exceptions. The output can be used here to assert exception message.
    *
