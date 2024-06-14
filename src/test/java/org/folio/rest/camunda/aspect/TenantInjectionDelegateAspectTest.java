@@ -1,8 +1,9 @@
 package org.folio.rest.camunda.aspect;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
+import org.aspectj.lang.annotation.Before;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.folio.spring.tenant.exception.NoTenantException;
@@ -20,6 +21,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(MockitoExtension.class)
 class TenantInjectionDelegateAspectTest {
 
+  private final static String MOCK_TENANT = "diku";
+
   @Mock
   private DelegateExecution execution;
 
@@ -32,48 +35,39 @@ class TenantInjectionDelegateAspectTest {
   @InjectMocks
   private TenantInjectionDelegateAspect tenantInjectionDelegateAspect;
 
-  @BeforeEach
-  void mockDefaultTenant() {
-    lenient().when(execution.getTenantId()).thenReturn("diku");
-    lenient().when(task.getTenantId()).thenReturn("diku");
-    lenient().when(tenantProperties.getDefaultTenant()).thenReturn("diku");
-    lenient().when(tenantProperties.isForceTenant()).thenReturn(false);
-  }
-
   @Test
   void testBeforeDelegateExecution() {
+    when(execution.getTenantId()).thenReturn(MOCK_TENANT);
     tenantInjectionDelegateAspect.beforeDelegateExecution(execution);
 
     Mockito.verify(execution).getTenantId();
 
-
-    lenient().when(execution.getTenantId()).thenReturn(null);
-    lenient().when(tenantProperties.isForceTenant()).thenReturn(true);
+    when(execution.getTenantId()).thenReturn(null);
+    when(tenantProperties.isForceTenant()).thenReturn(true);
     assertThrows(NoTenantException.class, () -> tenantInjectionDelegateAspect.beforeDelegateExecution(execution));
   }
 
   @Test
   void testBeforeExecutionListenerNotify() {
+    when(execution.getTenantId()).thenReturn(MOCK_TENANT);
     tenantInjectionDelegateAspect.beforeExecutionListenerNotify(execution);
 
     Mockito.verify(execution).getTenantId();
 
-
-    lenient().when(execution.getTenantId()).thenReturn(null);
-    lenient().when(tenantProperties.isForceTenant()).thenReturn(true);
+    when(execution.getTenantId()).thenReturn(null);
+    when(tenantProperties.isForceTenant()).thenReturn(true);
     assertThrows(NoTenantException.class, () -> tenantInjectionDelegateAspect.beforeExecutionListenerNotify(execution));
   }
 
   @Test
   void testBeforeTaskListenerNotify() {
+    when(task.getTenantId()).thenReturn(MOCK_TENANT);
     tenantInjectionDelegateAspect.beforeTaskListenerNotify(task);
 
     Mockito.verify(task).getTenantId();
 
-
-    lenient().when(execution.getTenantId()).thenReturn(null);
-    lenient().when(task.getTenantId()).thenReturn(null);
-    lenient().when(tenantProperties.isForceTenant()).thenReturn(true);
+    when(task.getTenantId()).thenReturn(null);
+    when(tenantProperties.isForceTenant()).thenReturn(true);
     assertThrows(NoTenantException.class, () -> tenantInjectionDelegateAspect.beforeTaskListenerNotify(task));
   }
 
