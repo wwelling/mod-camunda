@@ -61,7 +61,7 @@ class TenantInjectionDelegateAspectTest {
 
     lenient().when(execution.getTenantId()).thenReturn(null);
     lenient().when(tenantProperties.isForceTenant()).thenReturn(true);
-    assertThrows(NoTenantException.class, () -> tenantInjectionDelegateAspect.beforeDelegateExecution(execution));
+    assertThrows(NoTenantException.class, () -> tenantInjectionDelegateAspect.beforeExecutionListenerNotify(execution));
   }
 
   @Test
@@ -74,7 +74,7 @@ class TenantInjectionDelegateAspectTest {
     lenient().when(execution.getTenantId()).thenReturn(null);
     lenient().when(task.getTenantId()).thenReturn(null);
     lenient().when(tenantProperties.isForceTenant()).thenReturn(true);
-    assertThrows(NoTenantException.class, () -> tenantInjectionDelegateAspect.beforeDelegateExecution(execution));
+    assertThrows(NoTenantException.class, () -> tenantInjectionDelegateAspect.beforeTaskListenerNotify(task));
   }
 
 }
