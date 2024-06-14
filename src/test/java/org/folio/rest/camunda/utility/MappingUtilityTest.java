@@ -59,7 +59,7 @@ class MappingUtilityTest {
   private final static String OKAPI_URL = "http://localhost:9130";
 
   @BeforeEach
-  void mockExchangeForRulesAndMappingParameters() throws RestClientException, IOException {
+  void beforeEach() throws RestClientException, IOException {
     lenient().doReturn(i("/folio/settings/rules.json", String.class)).when(mockRestTemplate).exchange(eq(OKAPI_URL + MappingUtility.MAPPING_RULES_URL), eq(HttpMethod.GET), any(), eq(String.class));
     lenient().doReturn(i("/folio/settings/Identifiertypes.json", Identifiertypes.class)).when(mockRestTemplate).exchange(eq(OKAPI_URL + MappingUtility.IDENTIFIER_TYPES_URL), eq(HttpMethod.GET), any(), eq(Identifiertypes.class));
     lenient().doReturn(i("/folio/settings/Classificationtypes.json", Classificationtypes.class)).when(mockRestTemplate).exchange(eq(OKAPI_URL + MappingUtility.CLASSIFICATION_TYPES_URL), eq(HttpMethod.GET), any(), eq(Classificationtypes.class));
@@ -89,27 +89,6 @@ class MappingUtilityTest {
     MappingUtility.restTemplate = mockRestTemplate;
   }
 
-  /**
-   * Stream parameters for testing mapRecordToInsance.
-   *
-   * @return
-   *   The test method parameters:
-   *     - input of type String (MARC JSON)
-   *     - expected output of type String (JSON FOLIO instance).
-   *     - exception expected to be thrown
-   */
-  static Stream<Parameters<String, String>> testMapRecordToInsanceStream() throws IOException {
-    return Stream.of(
-      Parameters.of(null, null, new NullPointerException()),
-      Parameters.of("", null, new DecodeException()),
-      Parameters.of(i("/marc4j/54-56-008008027-0.mrc.json"), i("/folio/instances/54-008008027.json")),
-      Parameters.of(i("/marc4j/54-56-008008027-1.mrc.json"), i("/folio/instances/55-008008027.json")),
-      Parameters.of(i("/marc4j/54-56-008008027-2.mrc.json"), i("/folio/instances/56-008008027.json")),
-      Parameters.of(i("/marc4j/54-56-008008027-3.mrc.json"), i("/folio/instances/57-008008027.json")),
-      Parameters.of(i("/marc4j/54-56-008008027-4.mrc.json"), i("/folio/instances/58-008008027.json"))
-    );
-  }
-
   @ParameterizedTest
   @MethodSource("testMapRecordToInsanceStream")
   void testMapRecordToInsance(Parameters<String, String> data) throws JsonProcessingException {
@@ -129,6 +108,27 @@ class MappingUtilityTest {
 
       assertEquals(expected, actual);
     }
+  }
+
+  /**
+   * Stream parameters for testing mapRecordToInsance.
+   *
+   * @return
+   *   The test method parameters:
+   *     - input of type String (MARC JSON)
+   *     - expected output of type String (JSON FOLIO instance).
+   *     - exception expected to be thrown
+   */
+  static Stream<Parameters<String, String>> testMapRecordToInsanceStream() throws IOException {
+    return Stream.of(
+      Parameters.of(null, null, new NullPointerException()),
+      Parameters.of("", null, new DecodeException()),
+      Parameters.of(i("/marc4j/54-56-008008027-0.mrc.json"), i("/folio/instances/54-008008027.json")),
+      Parameters.of(i("/marc4j/54-56-008008027-1.mrc.json"), i("/folio/instances/55-008008027.json")),
+      Parameters.of(i("/marc4j/54-56-008008027-2.mrc.json"), i("/folio/instances/56-008008027.json")),
+      Parameters.of(i("/marc4j/54-56-008008027-3.mrc.json"), i("/folio/instances/57-008008027.json")),
+      Parameters.of(i("/marc4j/54-56-008008027-4.mrc.json"), i("/folio/instances/58-008008027.json"))
+    );
   }
 
 }
