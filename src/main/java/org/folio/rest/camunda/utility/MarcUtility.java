@@ -43,7 +43,7 @@ public class MarcUtility {
 
   private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+  protected static final ObjectMapper mapper = new ObjectMapper();
 
   private MarcUtility() {
 
@@ -154,7 +154,7 @@ public class MarcUtility {
 
   private static Record marcJsonToRecord(String marcJson)
       throws MarcException, IOException {
-    logger.info("Attempting to read MARC JSON to Record: {}", marcJson);
+    logger.debug("Attempting to read MARC JSON to Record: {}", marcJson);
     try (InputStream in = new ByteArrayInputStream(marcJson.getBytes())) {
       final MarcJsonReader reader = new MarcJsonReader(in);
       if (reader.hasNext()) {
@@ -167,7 +167,7 @@ public class MarcUtility {
 
   private static Record rawMarcToRecord(String rawMarc)
       throws MarcException, IOException {
-    logger.info("Attempting to read raw MARC to Record: {}", rawMarc);
+    logger.debug("Attempting to read raw MARC to Record: {}", rawMarc);
     try (InputStream in = new ByteArrayInputStream(rawMarc.getBytes(DEFAULT_CHARSET))) {
       final MarcStreamReader reader = new MarcStreamReader(in, DEFAULT_CHARSET.name());
       if (reader.hasNext()) {
