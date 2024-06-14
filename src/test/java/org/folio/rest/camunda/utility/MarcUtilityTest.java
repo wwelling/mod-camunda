@@ -42,31 +42,26 @@ class MarcUtilityTest {
 
   @ParameterizedTest
   @MethodSource("testSplitRawMarcToMarcJsonRecordsStream")
-  void testSplitRawMarcToMarcJsonRecords(Parameters<String, List<String>> data) {
+  void testSplitRawMarcToMarcJsonRecords(Parameters<String, List<String>> data) throws MarcException, IOException {
     if (Objects.nonNull(data.exception)) {
       assertThrows(data.exception.getClass(), () -> MarcUtility.splitRawMarcToMarcJsonRecords(data.input));
     } else {
-      try {
+      @SuppressWarnings("unchecked")
+      List<JsonNode>[] ea = (List<JsonNode>[]) new List[2];
 
-        @SuppressWarnings("unchecked")
-        List<JsonNode>[] ea = (List<JsonNode>[]) new List[2];
+      ea[0] = new ArrayList<JsonNode>();
+      ea[1] = new ArrayList<JsonNode>();
 
-        ea[0] = new ArrayList<JsonNode>();
-        ea[1] = new ArrayList<JsonNode>();
+      for (JsonNode n : oml(data.expected)) {
+        ea[0].add(n);
+      }
 
-        for (JsonNode n : oml(data.expected)) {
-          ea[0].add(n);
-        }
+      for (JsonNode n : oml(MarcUtility.splitRawMarcToMarcJsonRecords(data.input))) {
+        ea[1].add(n);
+      }
 
-        for (JsonNode n : oml(MarcUtility.splitRawMarcToMarcJsonRecords(data.input))) {
-          ea[1].add(n);
-        }
-
-        for (int i = 0; i < ea[0].size(); i++) {
-          assertEquals(ea[0].get(i), ea[1].get(i));
-        }
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+      for (int i = 0; i < ea[0].size(); i++) {
+        assertEquals(ea[0].get(i), ea[1].get(i));
       }
     }
   }
