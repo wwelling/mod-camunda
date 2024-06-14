@@ -12,6 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * Test utility for various input methods for parameterized testing of
+ * utilities.
+ */
 class TestUtility {
 
   private final static ObjectMapper om = new ObjectMapper();
