@@ -59,7 +59,6 @@ class DelegateExecutionExceptionAspectTest {
 
     when(execution.getCurrentActivityName()).thenReturn("taskName");
     when(execution.getTenantId()).thenReturn("tenant");
-    when(execution.getTenantId()).thenReturn("tenant");
     when(execution.getProcessDefinitionId()).thenReturn("id");
     when(processDefinition.getName()).thenReturn("workflowName");
     when(processDefinitionQuery.singleResult()).thenReturn(processDefinition);
