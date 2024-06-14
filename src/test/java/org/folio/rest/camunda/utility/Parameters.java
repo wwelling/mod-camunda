@@ -1,5 +1,10 @@
 package org.folio.rest.camunda.utility;
 
+/**
+ * Class to encapsulate parameters passed into the test method. It should
+ * describe the input, expected output to assert against, and any exceptions
+ * that are expected.
+ */
 class Parameters<I, O> {
 
   I input;
