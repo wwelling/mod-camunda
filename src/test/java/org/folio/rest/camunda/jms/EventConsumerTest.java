@@ -5,22 +5,23 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
-import java.util.HashMap;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.stream.Stream;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.MessageCorrelationBuilder;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.folio.spring.messaging.model.Event;
+import org.folio.spring.tenant.storage.ThreadLocalStorage;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -50,16 +51,18 @@ class EventConsumerTest {
   @MethodSource("eventStream")
   @SuppressWarnings("unchecked")
   void testReceive(Event event) throws JsonProcessingException {
-    doReturn(processInstance).when(messageCorrelationBuilder).correlateStartMessage();
-    doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).setVariables(anyMap());
-    doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).tenantId(anyString());
-    doReturn(messageCorrelationBuilder).when(runtimeService).createMessageCorrelation(anyString());
+    try (MockedStatic<ThreadLocalStorage> utility = Mockito.mockStatic(ThreadLocalStorage.class)) {
+      doReturn(processInstance).when(messageCorrelationBuilder).correlateStartMessage();
+      doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).setVariables(anyMap());
+      doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).tenantId(anyString());
+      doReturn(messageCorrelationBuilder).when(runtimeService).createMessageCorrelation(anyString());
 
-    doReturn(new HashMap<String, Object>()).when(objectMapper).convertValue(any(JsonNode.class), any(TypeReference.class));
+      doReturn(new HashMap<String, Object>()).when(objectMapper).convertValue(any(JsonNode.class), any(TypeReference.class));
 
-    eventConsumer.receive(event);
+      eventConsumer.receive(event);
 
-    Mockito.verify(messageCorrelationBuilder).correlateStartMessage();
+      Mockito.verify(messageCorrelationBuilder).correlateStartMessage();
+    }
   }
 
   static Stream<Event> eventStream() {
