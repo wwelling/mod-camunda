@@ -127,7 +127,8 @@ class ProcessorDelegateTest {
       Arguments.of(null, null, null, NullPointerException.class),
       Arguments.of("", "", "",  NullPointerException.class),
       Arguments.of("{}", "[]", "{}", NullPointerException.class),
-      Arguments.of("{\"scriptType\": \"JS\", \"functionName\": \"test\", \"code\": \"console.log('test')\", \"buffer\": 0, \"delay\": 0}", "[]", "{\"key\": \"key\", \"type\": \"LOCAL\", \"spin\": false, \"asJson\": false, \"asTransient\": false }", null)
+      Arguments.of("{\"scriptType\": \"JS\", \"functionName\": \"test\", \"code\": \"console.log('test')\", \"buffer\": 0, \"delay\": 0}", "[]", "{\"key\": \"key\", \"type\": \"LOCAL\", \"spin\": false, \"asJson\": false, \"asTransient\": false }", null),
+      Arguments.of("{\"scriptType\": \"GROOVY\", \"functionName\": \"test\", \"code\": \"console.log('test')\", \"buffer\": 0, \"delay\": 0}", "[]", "{\"key\": \"key\", \"type\": \"PROCESS\", \"spin\": false, \"asJson\": false, \"asTransient\": false }", null)
     );
   }
 
