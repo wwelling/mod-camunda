@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.camunda.service.ScriptEngineService;
+import org.folio.rest.workflow.enums.ScriptType;
 import org.folio.rest.workflow.enums.VariableType;
 import org.folio.rest.workflow.model.EmbeddedProcessor;
 import org.folio.rest.workflow.model.EmbeddedVariable;
@@ -120,14 +122,41 @@ class ProcessorDelegateTest {
    *     - input variables (JSON map of <String, EmbeddedVariable>)
    *     - output variable (JSON of EmbeddedVariable)
    *     - exception that is expected to be thrown for inputs
+   * @throws JsonProcessingException
    */
-  private static Stream<Arguments> executionStream() {
+  private static Stream<Arguments> executionStream() throws JsonProcessingException {
+    ObjectMapper om = new ObjectMapper();
+
+    EmbeddedProcessor jsTest = new EmbeddedProcessor();
+    jsTest.setScriptType(ScriptType.JS);
+    jsTest.setFunctionName("test");
+
+    String js_test = om.writeValueAsString(jsTest);
+
+    EmbeddedProcessor groovyTest = new EmbeddedProcessor();
+    groovyTest.setScriptType(ScriptType.GROOVY);
+    groovyTest.setFunctionName("test");
+
+    String groovy_test = om.writeValueAsString(groovyTest);
+
+    EmbeddedVariable l = new EmbeddedVariable();
+    l.setKey("key");
+    l.setType(VariableType.LOCAL);
+
+    String local = om.writeValueAsString(l);
+
+    EmbeddedVariable p = new EmbeddedVariable();
+    p.setKey("key");
+    p.setType(VariableType.PROCESS);
+
+    String process = om.writeValueAsString(p);
+
     return Stream.of(
       Arguments.of(null, null, null, NullPointerException.class),
       Arguments.of("", "", "",  NullPointerException.class),
       Arguments.of("{}", "[]", "{}", NullPointerException.class),
-      Arguments.of("{\"scriptType\": \"JS\", \"functionName\": \"test\", \"code\": \"console.log('test')\", \"buffer\": 0, \"delay\": 0}", "[]", "{\"key\": \"key\", \"type\": \"LOCAL\", \"spin\": false, \"asJson\": false, \"asTransient\": false }", null),
-      Arguments.of("{\"scriptType\": \"GROOVY\", \"functionName\": \"test\", \"code\": \"console.log('test')\", \"buffer\": 0, \"delay\": 0}", "[]", "{\"key\": \"key\", \"type\": \"PROCESS\", \"spin\": false, \"asJson\": false, \"asTransient\": false }", null)
+      Arguments.of(js_test, "[]", local, null),
+      Arguments.of(groovy_test, "[]", process, null)
     );
   }
 
