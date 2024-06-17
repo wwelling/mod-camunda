@@ -77,6 +77,7 @@ class ProcessorDelegateTest {
 
   @ParameterizedTest
   @MethodSource("executionStream")
+  @SuppressWarnings("unchecked")
   void testExecute(String processorValue, String inputVariablesValue, String outputVariableValue, Class<Exception> exception) throws Exception {
     if (Objects.nonNull(exception)) {
       assertThrows(exception, () -> delegate.execute(execution));
