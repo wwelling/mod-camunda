@@ -67,14 +67,14 @@ class SetupDelegateTest {
   @ParameterizedTest
   @MethodSource("executionStream")
   @SuppressWarnings("unchecked")
-  void testExecute(String name, String initialContextValue, String processorsValue, Class<Exception> exception) throws Exception {
+  void testExecute(String initialContextValue, String processorsValue, Class<Exception> exception) throws Exception {
     if (Objects.nonNull(exception)) {
       assertThrows(exception, () -> delegate.execute(execution));
     } else {
 
       when(execution.getTenantId()).thenReturn("diku");
       when(execution.getBpmnModelElementInstance()).thenReturn(element);
-      when(element.getName()).thenReturn(name);
+      when(element.getName()).thenReturn(delegate.getClass().getSimpleName());
       when(initialContext.getValue(any(DelegateExecution.class))).thenReturn(initialContextValue);
       when(processors.getValue(any(DelegateExecution.class))).thenReturn(processorsValue);
 
@@ -106,21 +106,21 @@ class SetupDelegateTest {
    *
    * @return
    *   The arguments array stream with the stream columns as:
-   *     - delegate name
    *     - initial context variables (JSON map of type Map<String, Object>)
    *     - processors to register (JSON list of type EmbeddedProcessor)
+   *     - exception that is expected to be thrown for inputs
    */
   private static Stream<Arguments> executionStream() {
     return Stream.of(
-      Arguments.of("SetupDelegate", null, null, NullPointerException.class),
-      Arguments.of("SetupDelegate", null, "",   NullPointerException.class),
-      Arguments.of("SetupDelegate", null, "[]", NullPointerException.class),
-      Arguments.of("SetupDelegate", "",   null, NullPointerException.class),
-      Arguments.of("SetupDelegate", "",   "",   NullPointerException.class),
-      Arguments.of("SetupDelegate", "",   "[]", NullPointerException.class),
-      Arguments.of("SetupDelegate", "{}", null, NullPointerException.class),
-      Arguments.of("SetupDelegate", "{}", "",   NullPointerException.class),
-      Arguments.of("SetupDelegate", "{}", "[]", null)
+      Arguments.of(null, null, NullPointerException.class),
+      Arguments.of(null, "",   NullPointerException.class),
+      Arguments.of(null, "[]", NullPointerException.class),
+      Arguments.of("",   null, NullPointerException.class),
+      Arguments.of("",   "",   NullPointerException.class),
+      Arguments.of("",   "[]", NullPointerException.class),
+      Arguments.of("{}", null, NullPointerException.class),
+      Arguments.of("{}", "",   NullPointerException.class),
+      Arguments.of("{}", "[]", null)
     );
   }
 
