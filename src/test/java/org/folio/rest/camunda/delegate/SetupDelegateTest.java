@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,6 +14,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -68,15 +70,15 @@ class SetupDelegateTest {
   @MethodSource("executionStream")
   @SuppressWarnings("unchecked")
   void testExecute(String initialContextValue, String processorsValue, Class<Exception> exception) throws Exception {
+    lenient().when(execution.getTenantId()).thenReturn("diku");
+    lenient().when(execution.getBpmnModelElementInstance()).thenReturn(element);
+    lenient().when(element.getName()).thenReturn(delegate.getClass().getSimpleName());
+    lenient().when(initialContext.getValue(any(DelegateExecution.class))).thenReturn(initialContextValue);
+    lenient().when(processors.getValue(any(DelegateExecution.class))).thenReturn(processorsValue);
+
     if (Objects.nonNull(exception)) {
       assertThrows(exception, () -> delegate.execute(execution));
     } else {
-
-      when(execution.getTenantId()).thenReturn("diku");
-      when(execution.getBpmnModelElementInstance()).thenReturn(element);
-      when(element.getName()).thenReturn(delegate.getClass().getSimpleName());
-      when(initialContext.getValue(any(DelegateExecution.class))).thenReturn(initialContextValue);
-      when(processors.getValue(any(DelegateExecution.class))).thenReturn(processorsValue);
 
       delegate.execute(execution);
 
@@ -115,11 +117,11 @@ class SetupDelegateTest {
       Arguments.of(null, null, NullPointerException.class),
       Arguments.of(null, "",   NullPointerException.class),
       Arguments.of(null, "[]", NullPointerException.class),
-      Arguments.of("",   null, NullPointerException.class),
-      Arguments.of("",   "",   NullPointerException.class),
-      Arguments.of("",   "[]", NullPointerException.class),
+      Arguments.of("",   null, MismatchedInputException.class),
+      Arguments.of("",   "",   MismatchedInputException.class),
+      Arguments.of("",   "[]", MismatchedInputException.class),
       Arguments.of("{}", null, NullPointerException.class),
-      Arguments.of("{}", "",   NullPointerException.class),
+      Arguments.of("{}", "",   MismatchedInputException.class),
       Arguments.of("{}", "[]", null)
     );
   }
