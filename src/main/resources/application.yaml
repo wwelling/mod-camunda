@@ -13,7 +13,7 @@ logging:
       springframework: INFO
 
 server:
-  port: 9000
+  port: 8081
   servlet:
     context-path: /
     encoding:
@@ -55,7 +55,7 @@ spring:
     password: ${DB_PASSWORD:folio_admin}
 
   flyway:
-    enabled: true
+    enabled: false
     encoding: UTF-8
 
   h2:
@@ -71,7 +71,7 @@ spring:
 
     properties.hibernate.jdbc.lob.non_contextual_creation: true
     generate-ddl: false
-    hibernate.ddl-auto: none
+    hibernate.ddl-auto: update
     open-in-view: true
     show-sql: false
 
@@ -102,7 +102,7 @@ camunda:
   bpm:
     auto-deployment-enabled: false
     database:
-      schema-update: false
+      schema-update: true
     filter:
       create: All Tasks
     admin-user:
@@ -157,13 +157,23 @@ tenant:
   # https://github.com/camunda/camunda-bpm-platform/tree/master/engine/src/main/resources/org/camunda/bpm/engine/db/create
   # be sure to match datasource platform
   schema-scripts:
-    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.engine.sql
-    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.history.sql
-    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.identity.sql
-    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.engine.sql
-    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.history.sql
-    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
-    - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.postgres.create.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.postgres.create.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.postgres.create.identity.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.postgres.create.case.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.postgres.create.case.history.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.postgres.create.decision.engine.sql
+    - classpath:/org/camunda/bpm/engine/db/create/activiti.postgres.create.decision.history.sql
+
+  # H2 schema scripts.
+  #schema-scripts:
+  #  - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.engine.sql
+  #  - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.history.sql
+  #  - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.identity.sql
+  #  - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.engine.sql
+  #  - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.case.history.sql
+  #  - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.engine.sql
+  #  - classpath:/org/camunda/bpm/engine/db/create/activiti.h2.create.decision.history.sql
 
 okapi.url: ${OKAPI_URL:http://localhost:9130}
 
