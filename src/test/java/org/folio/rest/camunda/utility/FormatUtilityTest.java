@@ -47,11 +47,11 @@ class FormatUtilityTest {
    *     - expected output String (escaped SQL)
    */
   static Stream<TestData> sqlStream() {
-    return Stream.of(new TestData[] {
+    return Stream.of(
         new TestData(null, null),
         new TestData("", ""),
-        new TestData("'", "''"),
-    });
+        new TestData("'", "''")
+    );
   }
 
   /**
@@ -63,7 +63,7 @@ class FormatUtilityTest {
    *     - expected output String (normalized CQL)
    */
   static Stream<TestData> cqlStream() {
-    return Stream.of(new TestData[] {
+    return Stream.of(
         new TestData(null, "\"\""),
         new TestData("", "\"\""),
         new TestData("simple", "\"simple\""),
@@ -86,8 +86,8 @@ class FormatUtilityTest {
         new TestData("price:[10 TO 100]", "\"price:[10 TO 100]\""),
         new TestData("text:\"appl~\"", "\"text:\\\"appl~\\\"\""),
         new TestData("(text:\"apple\" OR text:\"orange\") AND NOT color:\"green\"",
-            "\"(text:\\\"apple\\\" OR text:\\\"orange\\\") AND NOT color:\\\"green\\\"\""),
-    });
+            "\"(text:\\\"apple\\\" OR text:\\\"orange\\\") AND NOT color:\\\"green\\\"\"")
+    );
   }
 
   /**
@@ -99,13 +99,13 @@ class FormatUtilityTest {
    *     - expected output String (normalized postal code)
    */
   static Stream<TestData> postalCodeStream() {
-    return Stream.of(new TestData[] {
+    return Stream.of(
         new TestData("75201", "75201"),
         new TestData("10001-", "10001"),
         new TestData("60601-4321", "60601-4321"),
         new TestData("981013333", "98101-3333"),
-        new TestData("", ""),
-    });
+        new TestData("", "")
+    );
   }
 
   /**
@@ -117,11 +117,11 @@ class FormatUtilityTest {
    *     - expected output String (normalized phone number)
    */
   static Stream<TestData> phoneNumberStream() {
-    return Stream.of(new TestData[] {
+    return Stream.of(
         new TestData("+1 650-253-0000", "(650) 253-0000"),
-        new TestData("16502530000", "(650) 253-0000"),
-        new TestData("650-253-0000", "(650) 253-0000"),
-        new TestData("(650) 253-0000", "(650) 253-0000"),
+        new TestData("16502530001", "(650) 253-0001"),
+        new TestData("650-253-0002", "(650) 253-0002"),
+        new TestData("(650) 253-0003", "(650) 253-0003"),
         new TestData("+44 20 7031 3000", "+44 20 7031 3000"),
         new TestData("+91 22 2778 2778", "+91 22 2778 2778"),
         new TestData("442070313000", "442070313000"),
@@ -136,8 +136,8 @@ class FormatUtilityTest {
         new TestData("", ""),
         new TestData(null, null),
         new TestData("650-253-0000 ext. 123", "(650) 253-0000 ext. 123"),
-        new TestData("+1-800-FLOWERS", "(800) 356-9377"),
-    });
+        new TestData("+1-800-FLOWERS", "(800) 356-9377")
+    );
   }
 
   static class TestData {

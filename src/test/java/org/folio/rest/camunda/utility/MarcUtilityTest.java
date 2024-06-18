@@ -119,7 +119,8 @@ class MarcUtilityTest {
   @ParameterizedTest
   @MethodSource("testGetFieldsFromRawMarcStream")
   void testGetFieldsFromRawMarc(Parameters<Object, String> data) throws MarcException, IOException {
-    String rawMarc, tagsJson;
+    String rawMarc;
+    String tagsJson;
 
     String[] tags;
 
@@ -148,7 +149,8 @@ class MarcUtilityTest {
   @ParameterizedTest
   @MethodSource("testGetFieldsFromMarcJsonStream")
   void testGetFieldsFromMarcJson(Parameters<Object, String> data) throws MarcException, IOException {
-    String marcJson, tagsJson;
+    String marcJson;
+    String tagsJson;
 
     String[] tags;
 

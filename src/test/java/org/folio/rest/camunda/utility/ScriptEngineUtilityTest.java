@@ -72,13 +72,13 @@ class ScriptEngineUtilityTest {
    *     - input of type String (JSON)
    */
   static Stream<TestInput> validJsonStream() {
-    return Stream.of(new TestInput[] {
+    return Stream.of(
         new TestInput("{}"),
         new TestInput("{\"key\":\"value\"}"),
         new TestInput("{\"outerKey\":{\"innerKey\":\"innerValue\"}}"),
         new TestInput("{\"string\":\"text\",\"number\":123,\"boolean\":true,\"nullValue\":null,\"object\":{\"nestedKey\":\"nestedValue\"},\"array\":[1,2,3]}"),
-        new TestInput("{\"users\":[{\"id\":1,\"name\":\"Alice\",\"roles\":[\"admin\",\"user\"]},{\"id\":2,\"name\":\"Bob\",\"roles\":[\"user\"],\"profile\":{\"age\":30,\"interests\":[\"reading\",\"gaming\"]}}],\"settings\":{\"theme\":\"dark\",\"notifications\":{\"email\":true,\"sms\":false}}}"),
-    });
+        new TestInput("{\"users\":[{\"id\":1,\"name\":\"Alice\",\"roles\":[\"admin\",\"user\"]},{\"id\":2,\"name\":\"Bob\",\"roles\":[\"user\"],\"profile\":{\"age\":30,\"interests\":[\"reading\",\"gaming\"]}}],\"settings\":{\"theme\":\"dark\",\"notifications\":{\"email\":true,\"sms\":false}}}")
+    );
   }
 
   /**
@@ -90,7 +90,7 @@ class ScriptEngineUtilityTest {
    *     - expected error message
    */
   static Stream<TestInput> invalidJsonStream() {
-    return Stream.of(new TestInput[] {
+    return Stream.of(
         new TestInput("", "A JSONObject text must begin with '{' at 0 [character 1 line 1]"),
         new TestInput("{", "A JSONObject text must end with '}' at 1 [character 2 line 1]"),
         new TestInput("}", "A JSONObject text must begin with '{' at 1 [character 2 line 1]"),
@@ -100,8 +100,8 @@ class ScriptEngineUtilityTest {
         new TestInput("null", "A JSONObject text must begin with '{' at 1 [character 2 line 1]"),
         new TestInput("true", "A JSONObject text must begin with '{' at 1 [character 2 line 1]"),
         new TestInput("false", "A JSONObject text must begin with '{' at 1 [character 2 line 1]"),
-        new TestInput("10", "A JSONObject text must begin with '{' at 1 [character 2 line 1]"),
-    });
+        new TestInput("10", "A JSONObject text must begin with '{' at 1 [character 2 line 1]")
+    );
   }
 
 }
