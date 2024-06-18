@@ -32,7 +32,7 @@ public class DelegateExecutionExceptionAspect {
 
   @Autowired
   public DelegateExecutionExceptionAspect(JavaMailSender emailSender) {
-      this.emailSender = emailSender;
+    this.emailSender = emailSender;
   }
 
   @AfterThrowing(pointcut = "execution(* org.camunda.bpm.engine.delegate.JavaDelegate.execute (org.camunda.bpm.engine.delegate.DelegateExecution)) && args(execution))", throwing = "exception")
