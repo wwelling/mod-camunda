@@ -69,9 +69,9 @@ class ProcessorDelegateTest {
   @BeforeEach
   void beforeEach() {
     // input delegate
-    delegate.setProcessor(inputVariables);
+    delegate.setInputVariables(inputVariables);
     // output delegate
-    delegate.setProcessor(outputVariable);
+    delegate.setOutputVariable(outputVariable);
 
     // unique per delegate
     delegate.setProcessor(processor);
