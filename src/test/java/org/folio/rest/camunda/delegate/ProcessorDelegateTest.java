@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -80,18 +82,20 @@ class ProcessorDelegateTest {
   @ParameterizedTest
   @MethodSource("executionStream")
   @SuppressWarnings("unchecked")
-  void testExecute(String processorValue, String inputVariablesValue, String outputVariableValue, Class<Exception> exception) throws Exception {
+  void testExecute(String processorValue, String inputVariablesValue, String outputVariableValue,
+      Class<Exception> exception) throws Exception {
+
+    lenient().when(execution.getBpmnModelElementInstance()).thenReturn(element);
+    lenient().when(element.getName()).thenReturn(delegate.getClass().getSimpleName());
+    lenient().when(processor.getValue(any(DelegateExecution.class))).thenReturn(processorValue);
+    lenient().when(inputVariables.getValue(any(DelegateExecution.class))).thenReturn(inputVariablesValue);
+    lenient().when(outputVariable.getValue(any(DelegateExecution.class))).thenReturn(outputVariableValue);
+
+    lenient().when(scriptEngineService.runScript(anyString(), anyString(), any(JsonNode.class))).thenReturn("");
+
     if (Objects.nonNull(exception)) {
       assertThrows(exception, () -> delegate.execute(execution));
     } else {
-
-      when(execution.getBpmnModelElementInstance()).thenReturn(element);
-      when(element.getName()).thenReturn(delegate.getClass().getSimpleName());
-      when(processor.getValue(any(DelegateExecution.class))).thenReturn(processorValue);
-      when(inputVariables.getValue(any(DelegateExecution.class))).thenReturn(inputVariablesValue);
-      when(outputVariable.getValue(any(DelegateExecution.class))).thenReturn(outputVariableValue);
-
-      when(scriptEngineService.runScript(anyString(), anyString(), any(JsonNode.class))).thenReturn("");
 
       delegate.execute(execution);
 
@@ -117,11 +121,11 @@ class ProcessorDelegateTest {
    * Helper function for parameterized test providing tests with
    *
    * @return
-   *   The arguments array stream with the stream columns as:
-   *     - processors to register (JSON of type processor)
-   *     - input variables (JSON map of <String, EmbeddedVariable>)
-   *     - output variable (JSON of EmbeddedVariable)
-   *     - exception that is expected to be thrown for inputs
+   *         The arguments array stream with the stream columns as:
+   *         - processors to register (JSON of type processor)
+   *         - input variables (JSON map of <String, EmbeddedVariable>)
+   *         - output variable (JSON of EmbeddedVariable)
+   *         - exception that is expected to be thrown for inputs
    * @throws JsonProcessingException
    */
   private static Stream<Arguments> executionStream() throws JsonProcessingException {
@@ -152,12 +156,11 @@ class ProcessorDelegateTest {
     String process = om.writeValueAsString(p);
 
     return Stream.of(
-      Arguments.of(null, null, null, NullPointerException.class),
-      Arguments.of("", "", "",  NullPointerException.class),
-      Arguments.of("{}", "[]", "{}", NullPointerException.class),
-      Arguments.of(js_test, "[]", local, null),
-      Arguments.of(groovy_test, "[]", process, null)
-    );
+        Arguments.of(null, null, null, NullPointerException.class),
+        Arguments.of("", "", "", MismatchedInputException.class),
+        Arguments.of("{}", "[]", "{}", NullPointerException.class),
+        Arguments.of(js_test, "[]", local, null),
+        Arguments.of(groovy_test, "[]", process, null));
   }
 
 }
