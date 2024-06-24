@@ -121,10 +121,7 @@ class FileDelegateTest {
 
       delegate.execute(execution);
 
-      // verify mock method calls were as expected
-
-      // condition against parameters to not verify methods that are not called
-
+      // verify lenient mock method calls were as expected
 
 
     }
