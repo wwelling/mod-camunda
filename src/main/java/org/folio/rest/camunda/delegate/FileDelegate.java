@@ -1,7 +1,5 @@
 package org.folio.rest.camunda.delegate;
 
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +11,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -63,6 +64,34 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     File file = new File(filePath);
 
     switch (fileOp) {
+      case COPY:
+        if (file.exists()) {
+          String targetTemplate = this.target.getValue(execution).toString();
+          templateLoader.putTemplate("target", targetTemplate);
+          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("target"), inputs);
+
+          File targetFile = new File(targetPath);
+
+          FileUtils.copyFile(file, targetFile);
+
+        } else {
+          getLogger().info("{} does not exist", filePath);
+        }
+        break;
+      case MOVE:
+        if (file.exists()) {
+          String targetTemplate = this.target.getValue(execution).toString();
+          templateLoader.putTemplate("target", targetTemplate);
+          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("target"), inputs);
+
+          File targetFile = new File(targetPath);
+
+          FileUtils.moveFile(file, targetFile);
+
+        } else {
+          getLogger().info("{} does not exist", filePath);
+        }
+        break;
       case DELETE:
         if (file.exists()) {
           boolean deleted = file.delete();
