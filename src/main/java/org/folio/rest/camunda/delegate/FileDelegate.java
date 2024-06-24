@@ -157,6 +157,10 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     this.path = path;
   }
 
+  public void setLine(Expression line) {
+      this.line = line;
+  }
+
   public void setOp(Expression op) {
     this.op = op;
   }
