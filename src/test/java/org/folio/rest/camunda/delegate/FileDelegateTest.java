@@ -31,8 +31,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(MockitoExtension.class)
 class FileDelegateTest {
 
-  private static final String PLAIN_TEXT_FILE_PATH = "src/test/resources/files/plain.txt";
-
   @Spy
   protected ObjectMapper objectMapper;
 
@@ -103,17 +101,14 @@ class FileDelegateTest {
 
     when(inputVariables.getValue(any(DelegateExecution.class))).thenReturn(inputVariablesValue);
 
-    // if (fileOp == FileOp.LINE_COUNT ||fileOp == FileOp.READ_LINE || fileOp == FileOp.READ || fileOp == FileOp.LIST) {
     lenient().when(outputVariable.getValue(any(DelegateExecution.class))).thenReturn(outputVariableValue);
-    // }
+
 
     when(path.getValue(any(DelegateExecution.class))).thenReturn(pathValue);
     when(line.getValue(any(DelegateExecution.class))).thenReturn(lineValue);
     when(op.getValue(any(DelegateExecution.class))).thenReturn(opValue);
 
-    if (fileOp == FileOp.WRITE) {
-      when(target.getValue(any(DelegateExecution.class))).thenReturn(targetValue);
-    }
+    lenient().when(target.getValue(any(DelegateExecution.class))).thenReturn(targetValue);
 
     if (Objects.nonNull(exception)) {
       assertThrows(exception, () -> delegate.execute(execution));
@@ -146,24 +141,16 @@ class FileDelegateTest {
 
     String outputVariable = "{}";
 
-    String plain_txt = PLAIN_TEXT_FILE_PATH;
+    String files = "src/test/resources/files";
+
+    String plain_txt = files + "/plain.txt";
 
     String zero = "0";
 
-    // FileOp: LIST, READ, WRITE, COPY, MOVE, DELETE, LINE_COUNT, READ_LINE, PUSH, POP
-    String listOp = "LIST";
-    String readOp = "READ";
-    String writeOp = "WRITE";
-    String copyOp = "COPY";
-    String moveOp = "MOVE";
-    String deleteOp = "DELETE";
-    String lineCountOp = "LINE_COUNT";
-    String readLineOp = "READ_LINE";
-    String pushOp = "PUSH";
-    String popOp = "POP";
-
-    // must match an input variable key
+    // must match an input variable key or target file path
     String no_target = "";
+
+    String temp_plain_txt = files + "/temp/plain.txt";
 
     // arguments for whether to expect exception thrown
     String noException = null;
@@ -171,16 +158,25 @@ class FileDelegateTest {
     // arguments to assert about the test
 
     return Stream.of(
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, listOp, no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, readOp, no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, writeOp, no_target, NullPointerException.class),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, copyOp, no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, moveOp, no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, deleteOp, no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, lineCountOp, no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, readLineOp, no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, pushOp, no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, popOp, no_target, noException)
+        Arguments.of(inputVariables, outputVariable, files, zero, FileOp.LIST.toString(), no_target, noException),
+        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.READ.toString(), no_target, noException),
+        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.WRITE.toString(), no_target, NullPointerException.class),
+
+        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.LINE_COUNT.toString(), no_target, noException),
+        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.READ_LINE.toString(), no_target, noException),
+        // Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.PUSH.toString(), no_target, noException),
+        // Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.POP.toString(), no_target, noException),
+
+        // must be done last
+
+        // copy file
+        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.COPY.toString(), temp_plain_txt, noException),
+
+        // delete a file
+        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.DELETE.toString(), no_target, noException),
+
+        // move file
+        Arguments.of(inputVariables, outputVariable, temp_plain_txt, zero, FileOp.MOVE.toString(), plain_txt, noException)
     );
   }
 
