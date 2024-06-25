@@ -127,8 +127,8 @@ class FileDelegateTest {
    *
    * @return
    *   The arguments array stream with the stream columns as:
-   *         - inputVariables (set of JSON EmbeddedVariable)
-   *         - outputVariable (JSON of EmbeddedVariable)
+   *         - inputVariables (set of EmbeddedVariable as JSON)
+   *         - outputVariable (EmbeddedVariable as JSON)
    *         - path (path of source)
    *         - line (line in file)
    *         - op (GET, PUT)
@@ -137,6 +137,8 @@ class FileDelegateTest {
    */
   private static Stream<Arguments> executionStream() {
     // arguments required for delegate expression
+
+    // read input variables and output variable from files
     String inputVariables = "[]";
 
     String outputVariable = "{}";
@@ -152,6 +154,8 @@ class FileDelegateTest {
 
     String temp_plain_txt = files + "/temp/plain.txt";
 
+    String temp_output = files + "/temp/output";
+
     // arguments for whether to expect exception thrown
     String noException = null;
 
@@ -160,10 +164,16 @@ class FileDelegateTest {
     return Stream.of(
         Arguments.of(inputVariables, outputVariable, files, zero, FileOp.LIST.toString(), no_target, noException),
         Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.READ.toString(), no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.WRITE.toString(), no_target, NullPointerException.class),
 
+        // requires inputVariables with target matching a variable key
+        Arguments.of(inputVariables, outputVariable, temp_output, zero, FileOp.WRITE.toString(), no_target, NullPointerException.class),
+
+        // requires outputVariable to store the line count
         Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.LINE_COUNT.toString(), no_target, noException),
+
+        // requires line and outputVariable to store the line read
         Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.READ_LINE.toString(), no_target, noException),
+
         // Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.PUSH.toString(), no_target, noException),
         // Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.POP.toString(), no_target, noException),
 
