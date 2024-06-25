@@ -123,7 +123,9 @@ class FtpDelegateTest {
       String passwordValue,
       Class<Exception> exception
   ) throws Exception {
-    // mock all expression variables from parameters here
+    // lenient mock all expression variables from parameters here
+    // to avoid mimicking branching behavior of code before executing
+    // this allows for all paths to have all mocks able to be called
     lenient().when(execution.getBpmnModelElementInstance()).thenReturn(element);
     lenient().when(element.getName()).thenReturn(delegate.getClass().getSimpleName());
 
@@ -212,12 +214,12 @@ class FtpDelegateTest {
    *
    * @return
    *   The arguments array stream with the stream columns as:
-   *         - inputVariables (set of JSON EmbeddedVariable)
-   *         - outputVariable (JSON of EmbeddedVariable)
+   *         - inputVariables (set of EmbeddedVariable as JSON)
+   *         - outputVariable (EmbeddedVariable as JSON)
    *         - originPath (path of source)
    *         - destinationPath (path of target)
    *         - op (GET, PUT)
-   *         - scheme
+   *         - scheme [ftp, ftps]
    *         - host
    *         - port
    *         - username
