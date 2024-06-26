@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -24,6 +23,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -158,10 +158,7 @@ class FileDelegateTest {
       // verify lenient mock method calls were as expected
 
       switch (fileOp) {
-        case LIST:
-        case READ:
-        case READ_LINE:
-        case LINE_COUNT:
+        case LIST, READ, READ_LINE, LINE_COUNT:
           EmbeddedVariable output = objectMapper.readValue(outputVariableValue, EmbeddedVariable.class);
           switch (output.getType()) {
             case LOCAL:
@@ -178,12 +175,18 @@ class FileDelegateTest {
           assertTrue(new File(pathValue).exists());
           break;
         case COPY:
-          assertTrue(new File(pathValue).exists());
-          assertTrue(new File(targetValue).exists());
+          // for when file doesn't exist and no exception thrown
+          if (StringUtils.isNotEmpty(pathValue)) {
+            assertTrue(new File(pathValue).exists());
+            assertTrue(new File(targetValue).exists());
+          }
           break;
         case MOVE:
-          assertTrue(!new File(pathValue).exists());
-          assertTrue(new File(targetValue).exists());
+          // for when file doesn't exist and no exception thrown
+          if (StringUtils.isNotEmpty(pathValue)) {
+            assertTrue(!new File(pathValue).exists());
+            assertTrue(new File(targetValue).exists());
+          }
           break;
         case DELETE:
           assertTrue(!new File(pathValue).exists());
@@ -227,6 +230,8 @@ class FileDelegateTest {
     String zero = "0";
     String one = "1";
 
+    String no_path = "";
+
     // must match an input variable key or target file path
     String no_target = "";
 
@@ -250,6 +255,11 @@ class FileDelegateTest {
 
         // Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.PUSH.toString(), no_target, noException),
         // Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.POP.toString(), no_target, noException),
+
+        // fails silently
+        Arguments.of(inputVariables, outputVariable, no_path, zero, FileOp.COPY.toString(), temp_plain_txt, noException),
+        // fails silently
+        Arguments.of(inputVariables, outputVariable, no_path, zero, FileOp.MOVE.toString(), temp_plain_txt, noException),
 
         // must be done last
 
