@@ -42,7 +42,9 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    getLogger().info("{} started", delegateName);
+    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
+
+    getLogger().info("{} {} started", delegateName, fileOp);
 
     String pathTemplate = this.path.getValue(execution).toString();
     String lineTemplate = this.line != null ? this.line.getValue(execution).toString() : "0";
@@ -58,8 +60,6 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
 
     String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
     Integer lineValue = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("line"), inputs));
-
-    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
 
     File file = new File(filePath);
 
@@ -179,7 +179,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     }
 
     long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} {} finished in {} milliseconds", delegateName, fileOp, (endTime - startTime) / (double) 1000000);
   }
 
   public void setPath(Expression path) {
