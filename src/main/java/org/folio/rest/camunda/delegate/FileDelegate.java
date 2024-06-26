@@ -28,6 +28,10 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 @Scope("prototype")
 public class FileDelegate extends AbstractWorkflowIODelegate {
 
+  private static final String LINE = "line";
+  private static final String PATH = "path";
+  private static final String TARGET = "target";
+
   private Expression path;
 
   private Expression line;
@@ -50,16 +54,16 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     String lineTemplate = this.line != null ? this.line.getValue(execution).toString() : "0";
 
     StringTemplateLoader templateLoader = new StringTemplateLoader();
-    templateLoader.putTemplate("path", pathTemplate);
-    templateLoader.putTemplate("line", lineTemplate);
+    templateLoader.putTemplate(PATH, pathTemplate);
+    templateLoader.putTemplate(LINE, lineTemplate);
 
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
     cfg.setTemplateLoader(templateLoader);
 
     Map<String, Object> inputs = getInputs(execution);
 
-    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
-    Integer lineValue = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("line"), inputs));
+    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(PATH), inputs);
+    Integer lineValue = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(LINE), inputs));
 
     File file = new File(filePath);
 
@@ -67,8 +71,8 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
       case COPY:
         if (file.exists()) {
           String targetTemplate = this.target.getValue(execution).toString();
-          templateLoader.putTemplate("target", targetTemplate);
-          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("target"), inputs);
+          templateLoader.putTemplate(TARGET, targetTemplate);
+          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(TARGET), inputs);
 
           File targetFile = new File(targetPath);
 
@@ -81,8 +85,8 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
       case MOVE:
         if (file.exists()) {
           String targetTemplate = this.target.getValue(execution).toString();
-          templateLoader.putTemplate("target", targetTemplate);
-          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("target"), inputs);
+          templateLoader.putTemplate(TARGET, targetTemplate);
+          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(TARGET), inputs);
 
           File targetFile = new File(targetPath);
 
