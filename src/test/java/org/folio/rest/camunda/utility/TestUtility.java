@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
  * Test utility for various input methods for parameterized testing of
  * utilities.
  */
-class TestUtility {
+public class TestUtility {
 
   private final static ObjectMapper om = new ObjectMapper();
 
@@ -33,7 +33,7 @@ class TestUtility {
    * @return ResponseEntity for a expected type to test with
    * @throws IOException when reading file or object mapping fails
    */
-  static <T> ResponseEntity<T> i(String path, Class<T> valueType) throws IOException {
+  public static <T> ResponseEntity<T> i(String path, Class<T> valueType) throws IOException {
     return ResponseEntity.ofNullable(om.readValue(new File("src/test/resources/" + path), valueType));
   }
 
@@ -44,7 +44,7 @@ class TestUtility {
    * @return String of the input file as UTF-8
    * @throws IOException when reading file
    */
-  static String i(String path) throws IOException {
+  public static String i(String path) throws IOException {
     return IOUtils.resourceToString(path, StandardCharsets.UTF_8);
   }
 
@@ -56,7 +56,7 @@ class TestUtility {
    * @return array of strings from the file input
    * @throws IOException
    */
-  static String[] i(String path, String additionalPath) throws IOException {
+  public static String[] i(String path, String additionalPath) throws IOException {
     return new String[] {
         IOUtils.resourceToString(path, StandardCharsets.UTF_8),
         IOUtils.resourceToString(additionalPath, StandardCharsets.UTF_8)
@@ -70,7 +70,7 @@ class TestUtility {
    * @return list of JSON array entries as String
    * @throws IOException when reading file or object mapping fails
    */
-  static List<String> il(String path) throws IOException {
+  public static List<String> il(String path) throws IOException {
     String json = i(path);
     List<String> marcjson = new ArrayList<>();
 
@@ -87,7 +87,7 @@ class TestUtility {
    * @param json JSON String
    * @return JsonNode
    */
-  static JsonNode om(String json) {
+  public static JsonNode om(String json) {
     try {
       return om.readTree(json);
     } catch (JsonProcessingException e) {
@@ -102,7 +102,7 @@ class TestUtility {
    * @param json list of JSON strings
    * @return list of JsonNode
    */
-  static List<JsonNode> oml(List<String> json) {
+  public static List<JsonNode> oml(List<String> json) {
     return json.stream().map(n -> om(n)).toList();
   }
 

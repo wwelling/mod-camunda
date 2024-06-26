@@ -1,14 +1,28 @@
 package org.folio.rest.camunda.delegate;
 
+import static org.folio.rest.camunda.utility.TestUtility.i;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -16,6 +30,7 @@ import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.camunda.service.ScriptEngineService;
 import org.folio.rest.workflow.enums.FileOp;
+import org.folio.rest.workflow.model.EmbeddedVariable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -67,6 +82,15 @@ class FileDelegateTest {
   @InjectMocks
   FileDelegate delegate;
 
+  private final Map<String, Object> mockData = new HashMap<>() {{
+    put("data", new ArrayList<>() {{
+      add("Hello, World!");
+    }});
+    put("path", "/test/path");
+    put("tenandId", "diku");
+    put("timestamp", new Date().getTime());
+  }};
+
   @BeforeEach
   void beforeEach() {
     // input delegate
@@ -101,8 +125,23 @@ class FileDelegateTest {
 
     when(inputVariables.getValue(any(DelegateExecution.class))).thenReturn(inputVariablesValue);
 
-    lenient().when(outputVariable.getValue(any(DelegateExecution.class))).thenReturn(outputVariableValue);
+    Set<EmbeddedVariable> inputs = objectMapper.readValue(inputVariablesValue, new TypeReference<Set<EmbeddedVariable>>() {});
 
+    for (EmbeddedVariable variable : inputs) {
+      Object value = mockData.get(variable.getKey());
+      switch (variable.getType()) {
+        case LOCAL:
+          when(execution.getVariableLocal(variable.getKey())).thenReturn(value);
+          break;
+        case PROCESS:
+          when(execution.getVariable(variable.getKey())).thenReturn(value);
+          break;
+        default:
+          break;
+      }
+    }
+
+    lenient().when(outputVariable.getValue(any(DelegateExecution.class))).thenReturn(outputVariableValue);
 
     when(path.getValue(any(DelegateExecution.class))).thenReturn(pathValue);
     when(line.getValue(any(DelegateExecution.class))).thenReturn(lineValue);
@@ -117,6 +156,43 @@ class FileDelegateTest {
       delegate.execute(execution);
 
       // verify lenient mock method calls were as expected
+
+      switch (fileOp) {
+        case LIST:
+        case READ:
+        case READ_LINE:
+        case LINE_COUNT:
+          EmbeddedVariable output = objectMapper.readValue(outputVariableValue, EmbeddedVariable.class);
+          switch (output.getType()) {
+            case LOCAL:
+              verify(execution, times(1)).setVariableLocal(eq(output.getKey()), any());
+              break;
+            case PROCESS:
+              verify(execution, times(1)).setVariable(eq(output.getKey()), any());
+              break;
+            default:
+              break;
+          }
+          break;
+        case WRITE:
+          assertTrue(new File(pathValue).exists());
+          break;
+        case COPY:
+          assertTrue(new File(pathValue).exists());
+          assertTrue(new File(targetValue).exists());
+          break;
+        case MOVE:
+          assertTrue(!new File(pathValue).exists());
+          assertTrue(new File(targetValue).exists());
+          break;
+        case DELETE:
+          assertTrue(!new File(pathValue).exists());
+          break;
+        // case POP:
+        // case PUSH:
+        default:
+          break;
+      }
 
 
     }
@@ -133,9 +209,10 @@ class FileDelegateTest {
    *         - line (line in file)
    *         - op (GET, PUT)
    *         - target (input variable identifier)
+   * @throws IOException
    * @throws JsonProcessingException
    */
-  private static Stream<Arguments> executionStream() {
+  private static Stream<Arguments> executionStream() throws IOException {
     // arguments required for delegate expression
 
     // read input variables and output variable from files
@@ -148,9 +225,12 @@ class FileDelegateTest {
     String plain_txt = files + "/plain.txt";
 
     String zero = "0";
+    String one = "1";
 
     // must match an input variable key or target file path
     String no_target = "";
+
+    String data_target = "data";
 
     String temp_plain_txt = files + "/temp/plain.txt";
 
@@ -162,17 +242,11 @@ class FileDelegateTest {
     // arguments to assert about the test
 
     return Stream.of(
-        Arguments.of(inputVariables, outputVariable, files, zero, FileOp.LIST.toString(), no_target, noException),
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.READ.toString(), no_target, noException),
-
-        // requires inputVariables with target matching a variable key
-        Arguments.of(inputVariables, outputVariable, temp_output, zero, FileOp.WRITE.toString(), no_target, NullPointerException.class),
-
-        // requires outputVariable to store the line count
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.LINE_COUNT.toString(), no_target, noException),
-
-        // requires line and outputVariable to store the line read
-        Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.READ_LINE.toString(), no_target, noException),
+        Arguments.of(inputVariables, i("/output/file_task/data.json"), files, zero, FileOp.LIST.toString(), no_target, noException),
+        Arguments.of(inputVariables, i("/output/file_task/data.json"), plain_txt, zero, FileOp.READ.toString(), no_target, noException),
+        Arguments.of(inputVariables, i("/output/file_task/data.json"), plain_txt, zero, FileOp.LINE_COUNT.toString(), no_target, noException),
+        Arguments.of(inputVariables, i("/output/file_task/data.json"), plain_txt, one, FileOp.READ_LINE.toString(), no_target, noException),
+        Arguments.of(i("/input/file_task/write.json"), outputVariable, temp_output, zero, FileOp.WRITE.toString(), data_target, noException),
 
         // Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.PUSH.toString(), no_target, noException),
         // Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.POP.toString(), no_target, noException),
@@ -186,7 +260,10 @@ class FileDelegateTest {
         Arguments.of(inputVariables, outputVariable, plain_txt, zero, FileOp.DELETE.toString(), no_target, noException),
 
         // move file
-        Arguments.of(inputVariables, outputVariable, temp_plain_txt, zero, FileOp.MOVE.toString(), plain_txt, noException)
+        Arguments.of(inputVariables, outputVariable, temp_plain_txt, zero, FileOp.MOVE.toString(), plain_txt, noException),
+
+        // delete temp_output
+        Arguments.of(inputVariables, outputVariable, temp_output, zero, FileOp.DELETE.toString(), no_target, noException)
     );
   }
 
