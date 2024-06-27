@@ -79,6 +79,7 @@ public class BpmnModelFactory {
   private List<AbstractWorkflowDelegate> workflowDelegates;
 
   public BpmnModelInstance fromWorkflow(Workflow workflow) throws ScriptTaskDeserializeCodeFailure {
+
     // @formatter:off
     ProcessBuilder processBuilder = Bpmn.createExecutableProcess().name(workflow.getName())
         .camundaHistoryTimeToLive(workflow.getHistoryTimeToLive())
@@ -366,7 +367,6 @@ public class BpmnModelFactory {
 
     Map<String, JsonNode> initialContext = workflow.getInitialContext();
     CamundaField icField = model.newInstance(CamundaField.class);
-
     icField.setCamundaName("initialContext");
     try {
       icField.setCamundaStringValue(objectMapper.writeValueAsString(initialContext));
