@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-
+import io.vertx.core.json.JsonObject;
 import org.folio.AlternativeTitleType;
 import org.folio.Alternativetitletypes;
 import org.folio.CallNumberType;
@@ -72,43 +72,42 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import io.vertx.core.json.JsonObject;
-
 public class MappingUtility {
 
   private static final int SETTING_LIMIT = 1000;
 
-  private static final String IDENTIFIER_TYPES_URL = "/identifier-types?limit=" + SETTING_LIMIT;
-  private static final String CLASSIFICATION_TYPES_URL = "/classification-types?limit=" + SETTING_LIMIT;
-  private static final String INSTANCE_TYPES_URL = "/instance-types?limit=" + SETTING_LIMIT;
-  private static final String INSTANCE_FORMATS_URL = "/instance-formats?limit=" + SETTING_LIMIT;
-  private static final String CONTRIBUTOR_TYPES_URL = "/contributor-types?limit=" + SETTING_LIMIT;
-  private static final String CONTRIBUTOR_NAME_TYPES_URL = "/contributor-name-types?limit=" + SETTING_LIMIT;
-  private static final String ELECTRONIC_ACCESS_URL = "/electronic-access-relationships?limit=" + SETTING_LIMIT;
-  private static final String INSTANCE_NOTE_TYPES_URL = "/instance-note-types?limit=" + SETTING_LIMIT;
-  private static final String INSTANCE_ALTERNATIVE_TITLE_TYPES_URL = "/alternative-title-types?limit=" + SETTING_LIMIT;
-  private static final String ISSUANCE_MODES_URL = "/modes-of-issuance?limit=" + SETTING_LIMIT;
-  private static final String INSTANCE_STATUSES_URL = "/instance-statuses?limit=" + SETTING_LIMIT;
-  private static final String NATURE_OF_CONTENT_TERMS_URL = "/nature-of-content-terms?limit=" + SETTING_LIMIT;
-  private static final String INSTANCE_RELATIONSHIP_TYPES_URL = "/instance-relationship-types?limit=" + SETTING_LIMIT;
-  private static final String HOLDINGS_TYPES_URL = "/holdings-types?limit=" + SETTING_LIMIT;
-  private static final String HOLDINGS_NOTE_TYPES_URL = "/holdings-note-types?limit=" + SETTING_LIMIT;
-  private static final String ILL_POLICIES_URL = "/ill-policies?limit=" + SETTING_LIMIT;
-  private static final String CALL_NUMBER_TYPES_URL = "/call-number-types?limit=" + SETTING_LIMIT;
-  private static final String STATISTICAL_CODES_URL = "/statistical-codes?limit=" + SETTING_LIMIT;
-  private static final String STATISTICAL_CODE_TYPES_URL = "/statistical-code-types?limit=" + SETTING_LIMIT;
-  private static final String LOCATIONS_URL = "/locations?limit=" + SETTING_LIMIT;
-  private static final String MATERIAL_TYPES_URL = "/material-types?limit=" + SETTING_LIMIT;
-  private static final String ITEM_DAMAGED_STATUSES_URL = "/item-damaged-statuses?limit=" + SETTING_LIMIT;
-  private static final String LOAN_TYPES_URL = "/loan-types?limit=" + SETTING_LIMIT;
-  private static final String ITEM_NOTE_TYPES_URL = "/item-note-types?limit=" + SETTING_LIMIT;
-  private static final String FIELD_PROTECTION_SETTINGS_URL = "/field-protection-settings/marc?limit=" + SETTING_LIMIT;
-
-  private static final RestTemplate restTemplate = new RestTemplate();
-
   private static final MarcToInstanceMapper marcToInstanceMapper = new MarcToInstanceMapper();
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  static RestTemplate restTemplate = new RestTemplate();
+
+  static final String MAPPING_RULES_URL = "/mapping-rules/marc-bib";
+  static final String IDENTIFIER_TYPES_URL = "/identifier-types?limit=" + SETTING_LIMIT;
+  static final String CLASSIFICATION_TYPES_URL = "/classification-types?limit=" + SETTING_LIMIT;
+  static final String INSTANCE_TYPES_URL = "/instance-types?limit=" + SETTING_LIMIT;
+  static final String ELECTRONIC_ACCESS_URL = "/electronic-access-relationships?limit=" + SETTING_LIMIT;
+  static final String INSTANCE_FORMATS_URL = "/instance-formats?limit=" + SETTING_LIMIT;
+  static final String CONTRIBUTOR_TYPES_URL = "/contributor-types?limit=" + SETTING_LIMIT;
+  static final String CONTRIBUTOR_NAME_TYPES_URL = "/contributor-name-types?limit=" + SETTING_LIMIT;
+  static final String INSTANCE_NOTE_TYPES_URL = "/instance-note-types?limit=" + SETTING_LIMIT;
+  static final String INSTANCE_ALTERNATIVE_TITLE_TYPES_URL = "/alternative-title-types?limit=" + SETTING_LIMIT;
+  static final String NATURE_OF_CONTENT_TERMS_URL = "/nature-of-content-terms?limit=" + SETTING_LIMIT;
+  static final String INSTANCE_STATUSES_URL = "/instance-statuses?limit=" + SETTING_LIMIT;
+  static final String INSTANCE_RELATIONSHIP_TYPES_URL = "/instance-relationship-types?limit=" + SETTING_LIMIT;
+  static final String HOLDINGS_TYPES_URL = "/holdings-types?limit=" + SETTING_LIMIT;
+  static final String HOLDINGS_NOTE_TYPES_URL = "/holdings-note-types?limit=" + SETTING_LIMIT;
+  static final String ILL_POLICIES_URL = "/ill-policies?limit=" + SETTING_LIMIT;
+  static final String CALL_NUMBER_TYPES_URL = "/call-number-types?limit=" + SETTING_LIMIT;
+  static final String STATISTICAL_CODES_URL = "/statistical-codes?limit=" + SETTING_LIMIT;
+  static final String STATISTICAL_CODE_TYPES_URL = "/statistical-code-types?limit=" + SETTING_LIMIT;
+  static final String LOCATIONS_URL = "/locations?limit=" + SETTING_LIMIT;
+  static final String MATERIAL_TYPES_URL = "/material-types?limit=" + SETTING_LIMIT;
+  static final String ITEM_DAMAGED_STATUSES_URL = "/item-damaged-statuses?limit=" + SETTING_LIMIT;
+  static final String LOAN_TYPES_URL = "/loan-types?limit=" + SETTING_LIMIT;
+  static final String ITEM_NOTE_TYPES_URL = "/item-note-types?limit=" + SETTING_LIMIT;
+  static final String FIELD_PROTECTION_SETTINGS_URL = "/field-protection-settings/marc?limit=" + SETTING_LIMIT;
+  static final String ISSUANCE_MODES_URL = "/modes-of-issuance?limit=" + SETTING_LIMIT;
 
   private MappingUtility() {
 
@@ -119,6 +118,7 @@ public class MappingUtility {
     JsonObject mappingRules = fetchRules(okapiUrl, tenant, token);
     MappingParameters mappingParameters = getMappingParamaters(okapiUrl, tenant, token);
     Instance instance = marcToInstanceMapper.mapRecord(parsedRecord, mappingParameters, mappingRules);
+
     return objectMapper.writeValueAsString(instance);
   }
 
@@ -135,7 +135,7 @@ public class MappingUtility {
 
   private static JsonObject fetchRules(String okapiUrl, String tenant, String token) {
     HttpEntity<?> entity = new HttpEntity<>(headers(tenant, token));
-    String url = okapiUrl + "/mapping-rules/marc-bib";
+    String url = okapiUrl + MAPPING_RULES_URL;
     ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
     return new JsonObject(response.getBody());
   }
@@ -171,7 +171,7 @@ public class MappingUtility {
       .withItemNoteTypes(getItemNoteTypes(okapiUrl, headers))
       .withMarcFieldProtectionSettings(getMarcFieldProtectionSettings(okapiUrl, headers));
   }
-  
+
   private static List<IdentifierType> getIdentifierTypes(String okapiUrl, HttpHeaders headers) {
     HttpEntity<Identifiertypes> entity = new HttpEntity<>(headers);
     String url = okapiUrl + IDENTIFIER_TYPES_URL;

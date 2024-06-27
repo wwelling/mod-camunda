@@ -2,7 +2,6 @@ package org.folio.rest.camunda.delegate;
 
 import static org.folio.spring.test.mock.MockMvcConstant.JSON_OBJECT;
 import static org.folio.spring.test.mock.MockMvcConstant.KEY;
-import static org.folio.spring.test.mock.MockMvcConstant.PATH;
 import static org.folio.spring.test.mock.MockMvcConstant.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,8 +15,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -26,6 +23,9 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.instance.FlowElement;
@@ -153,7 +153,7 @@ class DatabaseQueryDelegateTest {
     when(statement.getUpdateCount()).thenReturn(-1);
     when(statement.getResultSet()).thenReturn(resultSet);
     when(outputVariableExpression.getValue(any())).thenReturn(null);
-    when(outputPathExpression.getValue(any())).thenReturn(PATH);
+    when(outputPathExpression.getValue(any())).thenReturn("target/results");
 
     // Return a mocked enum that is private to the class using reflection.
     Class<?>[] classes = databaseQueryDelegate.getClass().getDeclaredClasses();

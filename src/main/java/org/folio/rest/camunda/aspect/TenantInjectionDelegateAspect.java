@@ -18,7 +18,7 @@ public class TenantInjectionDelegateAspect {
 
   @Autowired
   public TenantInjectionDelegateAspect(TenantProperties tenantProperties) {
-      this.tenantProperties = tenantProperties;
+    this.tenantProperties = tenantProperties;
   }
 
   @Before("execution(* org.camunda.bpm.engine.delegate.JavaDelegate.execute (org.camunda.bpm.engine.delegate.DelegateExecution)) && args(execution)")
