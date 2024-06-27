@@ -1,85 +1,91 @@
 package org.folio.rest.camunda.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
-import com.zaxxer.hikari.HikariDataSource;
-
-import org.junit.jupiter.api.BeforeEach;
+import org.h2.tools.Server;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class DatabaseConnectionServiceTest {
 
-    @InjectMocks
-    private DatabaseConnectionService databaseConnectionService;
+  @InjectMocks
+  private DatabaseConnectionService databaseConnectionService;
 
-    @Mock
-    private HikariDataSource dataSource;
+  private static Server h2Server;
 
-    @Mock
-    private Connection connection;
+  private static final String key = "testPool";
+  private static final String url = "jdbc:h2:mem:testdb";
 
-    @BeforeEach
-    void setUp() throws SQLException {
-      when(dataSource.getConnection()).thenReturn(connection);
-    }
+  private static final String user = "sa";
+  private static final String password = "";
 
-    @Test
-    void testCreatePool() throws SQLException {
-      String key = "testPool";
-      String url = "jdbc:testdb";
-      Properties info = new Properties();
-      info.setProperty("user", "testUser");
-      info.setProperty("password", "testPass");
+  private static final Properties info = new Properties();
 
-      databaseConnectionService.createPool(key, url, info);
+  static {
+    info.setProperty("user", user);
+    info.setProperty("password", password);
+  }
 
-      assertTrue(databaseConnectionService.getConnection(key) != null);
-      verify(dataSource).getConnection();
-    }
-
-    @Test
-    void testCreatePoolAlreadyExists() throws SQLException {
-      String key = "testPool";
-      String url = "jdbc:testdb";
-      Properties info = new Properties();
-      info.setProperty("user", "testUser");
-      info.setProperty("password", "testPass");
-
-      databaseConnectionService.createPool(key, url, info);
-      databaseConnectionService.createPool(key, url, info);
-
-      assertTrue(databaseConnectionService.getConnection(key) != null);
-      verify(dataSource, times(1)).getConnection();
-    }
-
-    @Test
-    void testGetConnection() throws SQLException {
-      String key = "testPool";
-      String url = "jdbc:testdb";
-      Properties info = new Properties();
-      info.setProperty("user", "testUser");
-      info.setProperty("password", "testPass");
-
-      databaseConnectionService.createPool(key, url, info);
-      Connection conn = databaseConnectionService.getConnection(key);
-
-      assertNotNull(conn);
-      verify(dataSource).getConnection();
-    }
-
-    @Test
-    void testDestroyConnection() throws SQLException {
-      String key = "testPool";
-      databaseConnectionService.destroyConnection(key);
+  @BeforeAll
+  public static void startH2() throws SQLException {
+    h2Server = Server.createTcpServer().start();
+    try (Connection conn = DriverManager.getConnection(url + ";INIT=CREATE SCHEMA IF NOT EXISTS testdb", user, password)) {
+      try (Statement stmt = conn.createStatement()) {
+        stmt.execute("CREATE TABLE IF NOT EXISTS testdb.test_table (id INT PRIMARY KEY, name VARCHAR(255))");
+      }
     }
   }
+
+  @AfterAll
+  public static void stopH2() {
+    h2Server.stop();
+  }
+
+  @Test
+  void testCreatePool() throws SQLException {
+    databaseConnectionService.createPool(key, url, info);
+    try (Connection conn = databaseConnectionService.getConnection(key)) {
+      assertNotNull(conn);
+    }
+  }
+
+  @Test
+  void testCreatePoolAlreadyExists() throws SQLException {
+    databaseConnectionService.createPool(key, url, info);
+    databaseConnectionService.createPool(key, url, info);
+    try (Connection conn = databaseConnectionService.getConnection(key)) {
+      assertNotNull(conn);
+    }
+  }
+
+  @Test
+  void testGetConnection() throws SQLException {
+    assertThrows(NullPointerException.class, () -> {
+      databaseConnectionService.getConnection(key);
+    });
+    databaseConnectionService.createPool(key, url, info);
+    try (Connection conn = databaseConnectionService.getConnection(key)) {
+      assertNotNull(conn);
+    }
+  }
+
+  @Test
+  void testDestroyConnection() throws SQLException {
+    databaseConnectionService.destroyConnection(key);
+    assertThrows(NullPointerException.class, () -> {
+      databaseConnectionService.getConnection(key);
+    });
+  }
+}
