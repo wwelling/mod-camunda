@@ -11,10 +11,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
@@ -37,13 +38,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 
-@SuppressWarnings("deprecation")
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @ExtendWith(MockitoExtension.class)
 class BpmnModelFactoryTest {
 
@@ -71,7 +68,7 @@ class BpmnModelFactoryTest {
   @Mock
   private StartEventBuilder startEventBuilder;
 
-  @SpyBean
+  @Spy
   private ObjectMapper objectMapper;
 
   @InjectMocks
