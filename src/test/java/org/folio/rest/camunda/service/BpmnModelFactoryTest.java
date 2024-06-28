@@ -170,7 +170,6 @@ class BpmnModelFactoryTest {
    * A helper function for reducing repeated mock code between test functions.
    */
   private void commonMockingsBasic() {
-    doNothing().when(process).setCamundaHistoryTimeToLive(anyInt());
     when(bpmnModelInstance.newInstance(ArgumentMatchers.<Class<ModelElementInstance>>any())).thenReturn(extensionElements, camundaField);
     doNothing().when(extensionElements).addChildElement(any());
     when(bpmnModelInstance.getModelElementById(anyString())).thenReturn(modelElementInstance);
