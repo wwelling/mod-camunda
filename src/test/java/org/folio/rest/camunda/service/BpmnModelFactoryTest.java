@@ -122,7 +122,7 @@ class BpmnModelFactoryTest {
   }
 
   @Test
-  void testFromWorkflowProcessBuilderGenericNodeThrowsException() throws JsonProcessingException, ScriptTaskDeserializeCodeFailure {
+  void testFromWorkflowProcessBuilderGenericNodeThrowsException() {
     workflow.setNodes(nodes);
 
     try (MockedStatic<Bpmn> utility = Mockito.mockStatic(Bpmn.class)) {
