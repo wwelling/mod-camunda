@@ -35,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class CamundaApiServiceTest {
 
-  private final static String tenant = "testTenant";
+  private static final String TENANT = "testTenant";
 
   @Mock
   private BpmnModelFactory bpmnModelFactory;
@@ -86,7 +86,7 @@ class CamundaApiServiceTest {
       utilityProcessEngines.when(ProcessEngines::getDefaultProcessEngine).thenReturn(processEngine);
       utilityBpmn.when(() -> Bpmn.validateModel(modelInstance)).thenAnswer(answer -> null);
 
-      Workflow result = camundaApiService.deployWorkflow(workflow, tenant);
+      Workflow result = camundaApiService.deployWorkflow(workflow, TENANT);
 
       assertNotNull(result);
       assertTrue(result.isActive());
@@ -102,7 +102,7 @@ class CamundaApiServiceTest {
     testDeployWorkflow();
 
     assertThrows(WorkflowAlreadyActiveException.class, () -> {
-      camundaApiService.deployWorkflow(workflow, tenant);
+      camundaApiService.deployWorkflow(workflow, TENANT);
     });
   }
 
