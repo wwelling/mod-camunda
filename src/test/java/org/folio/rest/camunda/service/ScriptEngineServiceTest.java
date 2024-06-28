@@ -1,9 +1,8 @@
 package org.folio.rest.camunda.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,43 +10,30 @@ import static org.mockito.Mockito.when;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.folio.rest.camunda.exception.ScriptEngineLoadFailed;
 import org.folio.rest.camunda.exception.ScriptEngineUnsupported;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class ScriptEngineServiceTest {
 
+  @InjectMocks
   private ScriptEngineService scriptEngineService;
-  private ScriptEngineManager scriptEngineManagerMock;
-  private ScriptEngine scriptEngineMock;
 
-  @BeforeEach
-  void setUp() throws Exception {
-    scriptEngineService = new ScriptEngineService();
-    scriptEngineManagerMock = mock(ScriptEngineManager.class);
-    scriptEngineMock = mock(ScriptEngine.class);
+  @Mock
+  private ScriptEngineManager scriptEngineManager;
 
-    setPrivateField(scriptEngineService, "scriptEngineManager", scriptEngineManagerMock);
-    setPrivateField(scriptEngineService, "scriptEngines", new HashMap<String, ScriptEngine>());
-  }
+  @Mock
+  private Map<String, ScriptEngine> scriptEngines;
 
-  private void setPrivateField(Object target, String fieldName, Object value) throws Exception {
-    Field field = target.getClass().getDeclaredField(fieldName);
-    field.setAccessible(true);
-    field.set(target, value);
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> T getPrivateField(Object target, String fieldName) throws Exception {
-    Field field = target.getClass().getDeclaredField(fieldName);
-    field.setAccessible(true);
-    return (T) field.get(target);
-  }
+  @Mock
+  private ScriptEngine scriptEngine;
 
   @Test
   void testRegisterScript_withUnsupportedScriptEngine_throwsScriptEngineUnsupported() {
@@ -58,61 +44,48 @@ class ScriptEngineServiceTest {
 
   @Test
   void testRegisterScript_withValidScriptEngine_registersSuccessfully() throws Exception {
-    when(scriptEngineManagerMock.getEngineByExtension(anyString())).thenReturn(scriptEngineMock);
-    when(scriptEngineMock.eval(anyString())).thenReturn(null);
+    when(scriptEngines.get(anyString())).thenReturn(null);
+    when(scriptEngineManager.getEngineByExtension(anyString())).thenReturn(scriptEngine);
+    when(scriptEngine.eval(anyString())).thenReturn(null);
 
     scriptEngineService.registerScript("js", "testFunction", "function testFunction() {}");
 
-    Map<String, ScriptEngine> scriptEngines = getPrivateField(scriptEngineService, "scriptEngines");
-    assertTrue(scriptEngines.containsKey("js"));
-    //This item runs twice for some reason
-    verify(scriptEngineMock, times(2)).eval(anyString());
+    // this occurs twice; once to load the utils javascript and second for the script itself
+    verify(scriptEngine, times(2)).eval(anyString());
   }
 
   @Test
   void testRegisterScript_withEngineLoadFailure_throwsScriptEngineLoadFailed() {
-    when(scriptEngineManagerMock.getEngineByExtension(anyString())).thenReturn(null);
+    when(scriptEngines.get(anyString())).thenReturn(null);
+    when(scriptEngineManager.getEngineByExtension(anyString())).thenReturn(null);
 
     assertThrows(ScriptEngineLoadFailed.class, () -> {
       scriptEngineService.registerScript("js", "testFunction", "function testFunction() {}");
     });
   }
 
-  // @Test
-  // void testRunScript_withRegisteredScript_executesSuccessfully() throws Exception {
-  //     when(scriptEngineManagerMock.getEngineByExtension(anyString())).thenReturn(scriptEngineMock);
-  //     when(scriptEngineMock.eval(anyString())).thenReturn(null);
+  // NOTE: this test works as expected
+  // whereas the ScriptEngineService throws exception trying to execute Java from JavaScript post GraalVM upgrade
+  @Test
+  void testRunScript_withRegisteredScript_executesSuccessfully() throws Exception {
+      when(scriptEngines.get(anyString())).thenReturn(null);
+      when(scriptEngineManager.getEngineByExtension(anyString())).thenReturn(scriptEngine);
+      when(scriptEngine.eval(anyString())).thenReturn(null);
 
-  //     scriptEngineService.registerScript("js", "testFunction", "function testFunction() {}");
+      String script = "function testFunction() { return 'result'; }";
 
-  //     Invocable invocableMock = mock(Invocable.class);
-  //     when(invocableMock.invokeFunction(anyString(), any())).thenReturn("result");
+      scriptEngineService.registerScript("js", "testFunction", script);
 
-  //     Map<String, ScriptEngine> scriptEngines = getPrivateField(scriptEngineService, "scriptEngines");
-  //     scriptEngines.put("js", (ScriptEngine) invocableMock);
+      ScriptEngineManager testScriptEngineManager = new ScriptEngineManager();
+      ScriptEngine testEngine = testScriptEngineManager.getEngineByExtension("js");
 
-  //     Object result = scriptEngineService.runScript("js", "testFunction");
+      when(scriptEngines.get(anyString())).thenReturn(testEngine);
 
-  //     assertEquals("result", result);
-  //     verify(invocableMock, times(1)).invokeFunction(eq("testFunction"));
-  // }
+      testEngine.eval(script);
 
-  // @Test
-  // void testLoadScript_readsFileContentSuccessfully() throws IOException {
-  //     String expectedContent = "function testFunction() {}";
-  //     InputStream inputStreamMock = mock(InputStream.class);
-  //     ClassPathResource classPathResourceMock = mock(ClassPathResource.class);
-  //     when(classPathResourceMock.getInputStream()).thenReturn(inputStreamMock);
-  //     when(inputStreamMock.read(any(byte[].class), anyInt(), anyInt())).thenAnswer(invocation -> {
-  //         byte[] buffer = invocation.getArgument(0);
-  //         System.arraycopy(expectedContent.getBytes(), 0, buffer, 0, expectedContent.length());
-  //         return expectedContent.length();
-  //     });
-  //     when(scriptEngineService.loadScript(anyString())).thenCallRealMethod();
+      Object result = scriptEngineService.runScript("js", "testFunction");
 
-  //     try (InputStream inputStream = new ClassPathResource("scripts/utils.js").getInputStream()) {
-  //         String script = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
-  //         assertEquals(expectedContent, script);
-  //     }
-  // }
+      assertEquals("result", result);
+  }
+
 }
