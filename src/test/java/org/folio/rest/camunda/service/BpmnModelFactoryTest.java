@@ -107,7 +107,7 @@ class BpmnModelFactoryTest {
 
       when(objectMapper.writeValueAsString(any())).thenThrow(new MyException(VALUE));
 
-      bpmnModelFactory.fromWorkflow(workflow);
+      assertNotNull(bpmnModelFactory.fromWorkflow(workflow));
     }
   }
 
@@ -117,7 +117,7 @@ class BpmnModelFactoryTest {
       commonUnmockedProcessBuilder(utility);
       commonMockingsBasic();
 
-      bpmnModelFactory.fromWorkflow(workflow);
+      assertNotNull(bpmnModelFactory.fromWorkflow(workflow));
     }
   }
 
