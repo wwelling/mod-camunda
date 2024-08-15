@@ -1,7 +1,5 @@
 package org.folio.rest.camunda.delegate;
 
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +11,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
@@ -26,6 +27,10 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 @Service
 @Scope("prototype")
 public class FileDelegate extends AbstractWorkflowIODelegate {
+
+  private static final String LINE_KEY = "line";
+  private static final String PATH_KEY = "path";
+  private static final String TARGET_KEY = "target";
 
   private Expression path;
 
@@ -41,28 +46,56 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
     String delegateName = bpmnModelElement.getName();
 
-    getLogger().info("{} started", delegateName);
+    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
+
+    getLogger().info("{} {} started", delegateName, fileOp);
 
     String pathTemplate = this.path.getValue(execution).toString();
     String lineTemplate = this.line != null ? this.line.getValue(execution).toString() : "0";
 
     StringTemplateLoader templateLoader = new StringTemplateLoader();
-    templateLoader.putTemplate("path", pathTemplate);
-    templateLoader.putTemplate("line", lineTemplate);
+    templateLoader.putTemplate(PATH_KEY, pathTemplate);
+    templateLoader.putTemplate(LINE_KEY, lineTemplate);
 
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
     cfg.setTemplateLoader(templateLoader);
 
     Map<String, Object> inputs = getInputs(execution);
 
-    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
-    Integer lineValue = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("line"), inputs));
-
-    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
+    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(PATH_KEY), inputs);
+    Integer lineValue = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(LINE_KEY), inputs));
 
     File file = new File(filePath);
 
     switch (fileOp) {
+      case COPY:
+        if (file.exists()) {
+          String targetTemplate = this.target.getValue(execution).toString();
+          templateLoader.putTemplate(TARGET_KEY, targetTemplate);
+          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(TARGET_KEY), inputs);
+
+          File targetFile = new File(targetPath);
+
+          FileUtils.copyFile(file, targetFile);
+
+        } else {
+          getLogger().info("{} does not exist", filePath);
+        }
+        break;
+      case MOVE:
+        if (file.exists()) {
+          String targetTemplate = this.target.getValue(execution).toString();
+          templateLoader.putTemplate(TARGET_KEY, targetTemplate);
+          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(TARGET_KEY), inputs);
+
+          File targetFile = new File(targetPath);
+
+          FileUtils.moveFile(file, targetFile);
+
+        } else {
+          getLogger().info("{} does not exist", filePath);
+        }
+        break;
       case DELETE:
         if (file.exists()) {
           boolean deleted = file.delete();
@@ -150,11 +183,15 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
     }
 
     long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    getLogger().info("{} {} finished in {} milliseconds", delegateName, fileOp, (endTime - startTime) / (double) 1000000);
   }
 
   public void setPath(Expression path) {
     this.path = path;
+  }
+
+  public void setLine(Expression line) {
+      this.line = line;
   }
 
   public void setOp(Expression op) {
