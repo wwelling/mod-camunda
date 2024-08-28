@@ -1,5 +1,7 @@
 package org.folio.rest.camunda.delegate;
 
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -11,13 +13,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.enums.FileOp;
 import org.folio.rest.workflow.model.FileTask;
 import org.springframework.context.annotation.Scope;
@@ -42,13 +40,8 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
-
-    getLogger().info("{} {} started", delegateName, fileOp);
+    final FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
+    final long startTime = determineStartTime(execution, fileOp);
 
     String pathTemplate = this.path.getValue(execution).toString();
     String lineTemplate = this.line != null ? this.line.getValue(execution).toString() : "0";
@@ -182,8 +175,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         break;
     }
 
-    long endTime = System.nanoTime();
-    getLogger().info("{} {} finished in {} milliseconds", delegateName, fileOp, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setPath(Expression path) {

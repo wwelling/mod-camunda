@@ -10,7 +10,6 @@ import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.VFS;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.enums.SftpOp;
 import org.folio.rest.workflow.model.FtpTask;
 import org.springframework.context.annotation.Scope;
@@ -38,11 +37,7 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    getLogger().info("{} started", delegateName);
+    final long startTime = determineStartTime(execution);
 
     String originPathValue = this.originPath.getValue(execution).toString();
 
@@ -125,10 +120,7 @@ public class FtpDelegate extends AbstractWorkflowIODelegate {
         break;
     }
 
-
-
-    long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setOriginPath(Expression originPath) {

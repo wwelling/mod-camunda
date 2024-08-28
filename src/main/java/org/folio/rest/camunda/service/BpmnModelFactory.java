@@ -33,6 +33,7 @@ import org.folio.rest.workflow.model.EndEvent;
 import org.folio.rest.workflow.model.EventSubprocess;
 import org.folio.rest.workflow.model.ExclusiveGateway;
 import org.folio.rest.workflow.model.InclusiveGateway;
+import org.folio.rest.workflow.model.InputTask;
 import org.folio.rest.workflow.model.MoveToLastGateway;
 import org.folio.rest.workflow.model.MoveToNode;
 import org.folio.rest.workflow.model.Node;
@@ -139,12 +140,11 @@ public class BpmnModelFactory {
       if (node instanceof Event) {
 
         if (node instanceof StartEvent) {
-
-          if (((StartEvent) node).isAsyncBefore()) {
+          if (Boolean.TRUE.equals(((StartEvent) node).getAsyncBefore())) {
             builder = builder.camundaAsyncBefore();
           }
 
-          boolean interrupting = ((StartEvent) node).isInterrupting();
+          boolean interrupting = Boolean.TRUE.equals(((StartEvent) node).getInterrupting());
 
           StartEventType type = ((StartEvent) node).getType();
           String expression = ((StartEvent) node).getExpression();
@@ -214,11 +214,11 @@ public class BpmnModelFactory {
           throw new RuntimeException("Task must have delegate representation!");
         }
 
-        if (((DelegateTask) node).isAsyncBefore()) {
+        if (Boolean.TRUE.equals(((DelegateTask) node).getAsyncBefore())) {
           builder = builder.camundaAsyncBefore();
         }
 
-        if (((DelegateTask) node).isAsyncAfter()) {
+        if (Boolean.TRUE.equals(((DelegateTask) node).getAsyncAfter())) {
           builder = builder.camundaAsyncAfter();
         }
 
@@ -256,11 +256,11 @@ public class BpmnModelFactory {
 
           SubProcessBuilder subProcessBuilder = builder.subProcess(node.getIdentifier()).name(node.getName());
 
-          if (((Subprocess) node).isAsyncBefore()) {
+          if (Boolean.TRUE.equals(((Subprocess) node).getAsyncBefore())) {
             subProcessBuilder = subProcessBuilder.camundaAsyncBefore();
           }
 
-          if (((Subprocess) node).isAsyncAfter()) {
+          if (Boolean.TRUE.equals(((Subprocess) node).getAsyncAfter())) {
             subProcessBuilder = subProcessBuilder.camundaAsyncAfter();
           }
 
@@ -276,7 +276,7 @@ public class BpmnModelFactory {
                   .camundaElementVariable(loopRef.getInputDataName());
             }
 
-            if (loopRef.isParallel()) {
+            if (Boolean.TRUE.equals(loopRef.getParallel())) {
               multiInstanceBuilder = multiInstanceBuilder.parallel();
             } else {
               multiInstanceBuilder = multiInstanceBuilder.sequential();
@@ -325,7 +325,7 @@ public class BpmnModelFactory {
         if (node instanceof Wait) {
           if (node instanceof ReceiveTask) {
             builder = builder.receiveTask(node.getIdentifier()).name(node.getName())
-                .message(((ReceiveTask) node).getMessage());
+              .message(((ReceiveTask) node).getMessage());
           } else {
             logger.warn("Wait Task named {} is of an unknown type.", node.getName());
           }
@@ -338,20 +338,24 @@ public class BpmnModelFactory {
           }
 
           builder = builder.scriptTask(node.getIdentifier()).name(node.getName())
-              .scriptFormat(((ScriptTask) node).getScriptFormat()).scriptText(code);
+            .scriptFormat(((ScriptTask) node).getScriptFormat()).scriptText(code);
 
           if (((ScriptTask) node).hasResultVariable()) {
             builder = ((ScriptTaskBuilder) builder).camundaResultVariable(((ScriptTask) node).getResultVariable());
           }
+        } else if (node instanceof InputTask) {
+          builder = builder
+            .userTask(node.getIdentifier())
+            .name(node.getName());
         } else {
           logger.warn("Script Task named {} is of an unknown type.", node.getName());
         }
 
-        if (((Task) node).isAsyncBefore()) {
+        if (Boolean.TRUE.equals(((Task) node).getAsyncBefore())) {
           builder = builder.camundaAsyncBefore();
         }
 
-        if (((Task) node).isAsyncAfter()) {
+        if (Boolean.TRUE.equals(((Task) node).getAsyncAfter())) {
           builder = builder.camundaAsyncAfter();
         }
       }
@@ -418,9 +422,7 @@ public class BpmnModelFactory {
 
         ModelElementInstance element = model.getModelElementById(node.getIdentifier());
         element.addChildElement(extensions);
-
       } else {
-
         if (node instanceof Branch) {
           expressions(model, ((Branch) node).getNodes());
         } else if (node instanceof Subprocess) {
@@ -472,18 +474,18 @@ public class BpmnModelFactory {
     NONE, SIMPLE, ASYNC_BEFORE, ASYNC_AFTER, ASYNC_BEFORE_AFTER;
 
     public static Setup from(org.folio.rest.workflow.model.Setup setup) {
-      if (setup.isAsyncAfter()) {
-        if (setup.isAsyncBefore()) {
+      if (Boolean.TRUE.equals(setup.getAsyncAfter())) {
+        if (Boolean.TRUE.equals(setup.getAsyncBefore())) {
           return ASYNC_BEFORE_AFTER;
-        } else {
-          return ASYNC_AFTER;
         }
+
+        return ASYNC_AFTER;
       } else {
-        if (setup.isAsyncBefore()) {
+        if (Boolean.TRUE.equals(setup.getAsyncBefore())) {
           return ASYNC_BEFORE;
-        } else {
-          return SIMPLE;
         }
+
+        return SIMPLE;
       }
     }
   }

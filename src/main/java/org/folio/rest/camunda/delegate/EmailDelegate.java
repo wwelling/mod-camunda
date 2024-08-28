@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.EmailTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -50,11 +49,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    getLogger().info("{} started", delegateName);
+    final long startTime = determineStartTime(execution);
 
     String subjectTemplate = this.mailSubject.getValue(execution).toString();
     String textTemplate = this.mailText.getValue(execution).toString();
@@ -135,8 +130,7 @@ public class EmailDelegate extends AbstractWorkflowInputDelegate {
 
     emailSender.send(preparator);
 
-    long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setMailTo(Expression mailTo) {

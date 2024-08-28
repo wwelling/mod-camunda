@@ -19,7 +19,7 @@ public class CamundaApiService {
   private BpmnModelFactory bpmnModelFactory;
 
   public Workflow deployWorkflow(Workflow workflow, String tenant) throws WorkflowAlreadyActiveException, ScriptTaskDeserializeCodeFailure {
-    if (workflow.isActive()) {
+    if (Boolean.TRUE.equals(workflow.getActive())) {
       throw new WorkflowAlreadyActiveException(workflow.getId());
     }
 
@@ -31,10 +31,10 @@ public class CamundaApiService {
     RepositoryService repositoryService = processEngine.getRepositoryService();
 
     Deployment deployment = repositoryService.createDeployment().name(workflow.getName())
-        .addModelInstance(workflow.getName().replace(" ", "") + ".bpmn", modelInstance)
-        .source("mod-workflow")
-        .tenantId(tenant)
-        .deploy();
+      .addModelInstance(workflow.getName().replace(" ", "") + ".bpmn", modelInstance)
+      .source("mod-workflow")
+      .tenantId(tenant)
+      .deploy();
 
     String deploymentId = deployment.getId();
 
@@ -45,7 +45,7 @@ public class CamundaApiService {
   }
 
   public Workflow undeployWorkflow(Workflow workflow) {
-    if (!workflow.isActive()) {
+    if (Boolean.FALSE.equals(workflow.getActive())) {
       return workflow;
     }
 
