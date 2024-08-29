@@ -189,6 +189,7 @@ public class BpmnModelFactory {
               break;
             case NONE:
             case SIMPLE:
+              break;
             default:
               logger.warn("Start Event named {} has an unknown setup type of {}.", node.getName(), setup);
               break;
@@ -407,7 +408,7 @@ public class BpmnModelFactory {
             .filter(df -> Expression.class.isAssignableFrom(df.getType()))
             .map(df -> FieldUtils.getDeclaredField(node.getClass(), df.getName(), true)).forEach(f -> {
               try {
-                Object value = f.get(node);
+                Object value = f == null ? null : f.get(node);
                 if (Objects.nonNull(value)) {
                   CamundaField field = model.newInstance(CamundaField.class);
                   field.setCamundaName(f.getName());
@@ -445,6 +446,8 @@ public class BpmnModelFactory {
         scripts.addAll(getProcessorScripts(((Branch) node).getNodes()));
       } else if (node instanceof Subprocess) {
         scripts.addAll(getProcessorScripts(((Subprocess) node).getNodes()));
+      } else if (node instanceof Task) {
+        logger.warn("Processor Script named {} is a non-processor task.", node.getName());
       }
       else {
         logger.warn("Processor Script named {} is of an unknown type.", node.getName());
