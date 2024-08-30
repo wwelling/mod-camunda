@@ -12,6 +12,9 @@ logging:
       hibernate: INFO
       springframework: INFO
 
+    # Enable logging of BPMN if activation fails.
+    #org.folio.rest.camunda.service.CamundaApiService: DEBUG
+
 server:
   port: 8081
   servlet:
