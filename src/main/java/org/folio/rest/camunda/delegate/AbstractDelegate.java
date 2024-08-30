@@ -20,14 +20,11 @@ public abstract class AbstractDelegate implements JavaDelegate {
   }
 
   /**
-   * Get the delegate name.
-   *
-   * This is used for functions that do not have the delegate execution data.
-   * The delegate name is derived from the class name.
+   * Get the delegate class name.
    *
    * @return The delegate name.
    */
-  protected String getDelegateName() {
+  protected String getDelegateClass() {
     String simpleName = getClass().getSimpleName();
 
     return simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1);
@@ -35,9 +32,6 @@ public abstract class AbstractDelegate implements JavaDelegate {
 
   /**
    * Get the delegate name.
-   *
-   * This is the preferred method to get the delegate name but requires access to the delegate execution.
-   * The delegate execution data is used to derive the delegate name.
    *
    * @param execution The delegate execution data.
    *
@@ -53,7 +47,7 @@ public abstract class AbstractDelegate implements JavaDelegate {
    * @return The formatted expression string.
    */
   public String getExpression() {
-    return String.format("${%s}", getDelegateName());
+    return String.format("${%s}", getDelegateClass());
   }
 
   /**
@@ -97,17 +91,6 @@ public abstract class AbstractDelegate implements JavaDelegate {
    */
   protected void determineEndTime(DelegateExecution execution, long startTime) {
     getLogger().info("{} finished in {} milliseconds", getDelegateName(execution), (System.nanoTime() - startTime) / (double) 1000000);
-  }
-
-  /**
-   * Log that the delegate has started.
-   *
-   * @param execution The delegate execution data.
-   *
-   * @param startTime The time the process started.
-   */
-  protected void logExecutionStart(DelegateExecution execution) {
-    getLogger().info("{} started", getDelegateName(execution));
   }
 
 }
