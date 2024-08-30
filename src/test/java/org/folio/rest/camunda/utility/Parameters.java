@@ -30,7 +30,7 @@ class Parameters<I, O> {
    * @param <O>      generic output
    * @param input    provided to use when calling method to test
    * @param expected output to make assertions against
-   * @return
+   * @return typed Parameter
    */
   public static <I, O> Parameters<I, O> of(I input, O expected) {
     return new Parameters<I, O>(input, expected);

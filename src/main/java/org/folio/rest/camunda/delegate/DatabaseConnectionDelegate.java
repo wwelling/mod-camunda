@@ -1,10 +1,8 @@
 package org.folio.rest.camunda.delegate;
 
 import java.util.Properties;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.DatabaseConnectionTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -19,11 +17,7 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    getLogger().info("{} started", delegateName);
+    final long startTime = determineStartTime(execution);
 
     String urlValue = this.url.getValue(execution).toString();
     String key = this.designation.getValue(execution).toString();
@@ -34,8 +28,7 @@ public class DatabaseConnectionDelegate extends AbstractDatabaseDelegate {
 
     connectionService.createPool(key, urlValue, info);
 
-    long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setUrl(Expression url) {

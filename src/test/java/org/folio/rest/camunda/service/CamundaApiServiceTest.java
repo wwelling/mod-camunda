@@ -89,7 +89,7 @@ class CamundaApiServiceTest {
       Workflow result = camundaApiService.deployWorkflow(workflow, TENANT);
 
       assertNotNull(result);
-      assertTrue(result.isActive());
+      assertTrue(Boolean.TRUE.equals(result.getActive()));
       assertEquals("deploymentId", result.getDeploymentId());
 
       verify(bpmnModelFactory).fromWorkflow(workflow);
@@ -116,7 +116,7 @@ class CamundaApiServiceTest {
       Workflow result = camundaApiService.undeployWorkflow(workflow);
 
       assertNotNull(result);
-      assertFalse(result.isActive());
+      assertFalse(Boolean.TRUE.equals(result.getActive()));
       assertNull(result.getDeploymentId());
 
       verify(repositoryService).deleteDeployment("deploymentId", true);
@@ -131,7 +131,7 @@ class CamundaApiServiceTest {
       Workflow result = camundaApiService.undeployWorkflow(workflow);
 
       assertNotNull(result);
-      assertFalse(result.isActive());
+      assertFalse(Boolean.TRUE.equals(result.getActive()));
       assertNull(result.getDeploymentId());
 
       verify(repositoryService, never()).deleteDeployment(anyString(), anyBoolean());

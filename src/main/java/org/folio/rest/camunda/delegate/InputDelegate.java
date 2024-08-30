@@ -1,28 +1,33 @@
 package org.folio.rest.camunda.delegate;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.folio.rest.workflow.model.DatabaseDisconnectTask;
+import org.folio.rest.workflow.model.RequestTask;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 @Service
 @Scope("prototype")
-public class DatabaseDisconnectDelegate extends AbstractDatabaseDelegate {
+public class InputDelegate extends AbstractWorkflowIODelegate {
+
+  @Value("${okapi.url}")
+  private String okapiUrl;
+
+  @Autowired
+  public InputDelegate() {
+  }
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
     final long startTime = determineStartTime(execution);
-
-    String key = this.designation.getValue(execution).toString();
-
-    connectionService.destroyConnection(key);
 
     determineEndTime(execution, startTime);
   }
 
   @Override
   public Class<?> fromTask() {
-    return DatabaseDisconnectTask.class;
+    return RequestTask.class;
   }
 
 }
