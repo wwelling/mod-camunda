@@ -374,7 +374,8 @@
       { "name": "SPRING_JPA_HIBERNATE_DDLAUTO", "value": "update", "description": "Auto-configure database on startup." },
       { "name": "TENANT_DEFAULTTENANT", "value": "diku", "description": "The name of the default tenant to use." },
       { "name": "TENANT_FORCETENANT", "value": "false", "description": "Forcibly add or overwrite the tenant name using the default tenant." },
-      { "name": "TENANT_INITIALIZEDEFAULTTENANT", "value": "true", "description": "Perform initial auto-creation of tenant in the DB (schema, tables, etc..)." }
+      { "name": "TENANT_INITIALIZEDEFAULTTENANT", "value": "true", "description": "Perform initial auto-creation of tenant in the DB (schema, tables, etc..)." },
+      { "name": "TENANT_RECREATEDEFAULTTENANT", "value": "false", "description": "When TENANT_INITIALIZEDEFAULTTENANT is true and the DB already exists, then drop and re-create." }
     ]
   }
 }
