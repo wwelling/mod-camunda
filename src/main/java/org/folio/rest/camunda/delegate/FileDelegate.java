@@ -139,11 +139,15 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         String targetInputVariable = this.target.getValue(execution).toString();
         StringBuilder content = new StringBuilder();
         Object obj = inputs.get(targetInputVariable);
-        if (obj instanceof List) {
-          List<Object> objects = (List<Object>) obj;
+
+        if (obj == null) {
+          getLogger().warn("The target parameter '{}' of the WRITE operation is missing from the {} '{}'.", targetInputVariable, getDelegateClass(), getDelegateName(execution));
+        } else if (obj instanceof List) {
+          List<?> objects = (List<?>) obj;
           getLogger().info("{} {} has {} entries to write",
             obj.getClass().getSimpleName(), targetInputVariable, objects.size());
-          for (Object value : (List<Object>) objects) {
+
+          for (Object value : objects) {
               if (value instanceof String) {
                 content.append(value);
               } else {
@@ -152,8 +156,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
               content.append("\n");
             }
         } else {
-          getLogger().warn("{} {} unsupported input type for target parameter of WRITE operation",
-            obj.getClass().getSimpleName(), targetInputVariable);
+          getLogger().warn("The target parameter '{}' of the WRITE operation is unsupported for the {} '{}'.", targetInputVariable, getDelegateClass(), getDelegateName(execution));
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
         getLogger().info("{} written", filePath);
