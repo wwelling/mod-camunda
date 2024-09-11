@@ -1,5 +1,10 @@
 package org.folio.rest.camunda.delegate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,21 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.model.DatabaseQueryTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 
 @Service
 @Scope("prototype")
@@ -41,11 +37,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    getLogger().info("{} started", delegateName);
+    final long startTime = determineStartTime(execution);
 
     String queryTemplate = this.query.getValue(execution).toString();
 
@@ -95,7 +87,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
           if (hasOutputVariable(execution)) {
             setOutput(execution, count);
           } else {
-            getLogger().info("{} did not specify output variable for result count", delegateName);
+            getLogger().info("{} did not specify output variable for result count", getDelegateName(execution));
           }
         }
 
@@ -105,8 +97,7 @@ public class DatabaseQueryDelegate extends AbstractDatabaseOutputDelegate {
       conn.close();
     }
 
-    long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setQuery(Expression query) {

@@ -43,7 +43,7 @@ public interface Output {
     }
 
     VariableType type = variable.getType();
-    Object value = variable.isSpin()
+    Object value = Boolean.TRUE.equals(variable.getSpin())
       ? JSON(getObjectMapper().writeValueAsString(output))
       : Variables.objectValue(output, variable.getAsTransient()).create();
 

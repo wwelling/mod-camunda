@@ -1,5 +1,7 @@
 package org.folio.rest.camunda.delegate;
 
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -11,13 +13,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.enums.FileOp;
 import org.folio.rest.workflow.model.FileTask;
 import org.springframework.context.annotation.Scope;
@@ -42,13 +40,8 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
-
-    getLogger().info("{} {} started", delegateName, fileOp);
+    final FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
+    final long startTime = determineStartTime(execution, fileOp);
 
     String pathTemplate = this.path.getValue(execution).toString();
     String lineTemplate = this.line != null ? this.line.getValue(execution).toString() : "0";
@@ -146,11 +139,15 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         String targetInputVariable = this.target.getValue(execution).toString();
         StringBuilder content = new StringBuilder();
         Object obj = inputs.get(targetInputVariable);
-        if (obj instanceof List) {
-          List<Object> objects = (List<Object>) obj;
+
+        if (obj == null) {
+          getLogger().warn("The target parameter '{}' of the WRITE operation is missing from the {} '{}'.", targetInputVariable, getDelegateClass(), getDelegateName(execution));
+        } else if (obj instanceof List) {
+          List<?> objects = (List<?>) obj;
           getLogger().info("{} {} has {} entries to write",
             obj.getClass().getSimpleName(), targetInputVariable, objects.size());
-          for (Object value : (List<Object>) objects) {
+
+          for (Object value : objects) {
               if (value instanceof String) {
                 content.append(value);
               } else {
@@ -159,8 +156,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
               content.append("\n");
             }
         } else {
-          getLogger().warn("{} {} unsupported input type for target parameter of WRITE operation",
-            obj.getClass().getSimpleName(), targetInputVariable);
+          getLogger().warn("The target parameter '{}' of the WRITE operation is unsupported for the {} '{}'.", targetInputVariable, getDelegateClass(), getDelegateName(execution));
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
         getLogger().info("{} written", filePath);
@@ -182,8 +178,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         break;
     }
 
-    long endTime = System.nanoTime();
-    getLogger().info("{} {} finished in {} milliseconds", delegateName, fileOp, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setPath(Expression path) {

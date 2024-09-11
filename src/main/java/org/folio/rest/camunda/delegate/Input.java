@@ -65,7 +65,7 @@ public interface Input {
    * @throws JsonProcessingException Failed to process JSON.
    */
   private void defaultGetInputsLoop(EmbeddedVariable variable, String key, VariableType type, Object value, Map<String, Object> inputs) throws JsonProcessingException {
-    if (!variable.isSpin()) {
+    if (Boolean.FALSE.equals(variable.getSpin())) {
       inputs.put(key, value);
       return;
     }

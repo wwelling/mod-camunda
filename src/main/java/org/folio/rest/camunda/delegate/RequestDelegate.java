@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.dto.Request;
 import org.folio.rest.workflow.enums.VariableType;
 import org.folio.rest.workflow.model.EmbeddedVariable;
@@ -45,11 +44,7 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    getLogger().info("{} started", delegateName);
+    final long startTime = determineStartTime(execution);
 
     Request requestValue = objectMapper.readValue(this.request.getValue(execution).toString(), Request.class);
 
@@ -125,8 +120,7 @@ public class RequestDelegate extends AbstractWorkflowIODelegate {
       }
     });
 
-    long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setRequest(Expression request) {
