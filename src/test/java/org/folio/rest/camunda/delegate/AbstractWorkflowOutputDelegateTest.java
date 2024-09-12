@@ -56,7 +56,7 @@ class AbstractWorkflowOutputDelegateTest {
     assertEquals(embeddedVariable.getKey(), responseVariable.getKey());
     assertEquals(embeddedVariable.getAsJson(), responseVariable.getAsJson());
     assertEquals(embeddedVariable.getAsTransient(), responseVariable.getAsTransient());
-    assertEquals(embeddedVariable.isSpin(), responseVariable.isSpin());
+    assertEquals(Boolean.TRUE.equals(embeddedVariable.getSpin()), Boolean.TRUE.equals(responseVariable.getSpin()));
     assertEquals(embeddedVariable.getType(), responseVariable.getType());
   }
 

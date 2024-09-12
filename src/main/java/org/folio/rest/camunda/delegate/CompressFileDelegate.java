@@ -20,7 +20,6 @@ import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.enums.CompressFileContainer;
 import org.folio.rest.workflow.enums.CompressFileFormat;
 import org.folio.rest.workflow.model.CompressFileTask;
@@ -51,11 +50,7 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    getLogger().info("{} started", delegateName);
+    final long startTime = determineStartTime(execution);
 
     String sourcePathTemplate = this.source.getValue(execution).toString();
     String destinationPathTemplate = this.destination.getValue(execution).toString();
@@ -165,8 +160,7 @@ public class CompressFileDelegate extends AbstractWorkflowIODelegate {
       }
     }
 
-    long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setSource(Expression source) {

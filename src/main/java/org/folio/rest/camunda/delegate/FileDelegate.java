@@ -16,7 +16,6 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.Expression;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.folio.rest.workflow.enums.FileOp;
 import org.folio.rest.workflow.model.FileTask;
 import org.springframework.context.annotation.Scope;
@@ -26,6 +25,10 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 @Service
 @Scope("prototype")
 public class FileDelegate extends AbstractWorkflowIODelegate {
+
+  private static final String LINE_KEY = "line";
+  private static final String PATH_KEY = "path";
+  private static final String TARGET_KEY = "target";
 
   private Expression path;
 
@@ -37,32 +40,55 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
 
   @Override
   public void execute(DelegateExecution execution) throws Exception {
-    long startTime = System.nanoTime();
-    FlowElement bpmnModelElement = execution.getBpmnModelElementInstance();
-    String delegateName = bpmnModelElement.getName();
-
-    getLogger().info("{} started", delegateName);
+    final FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
+    final long startTime = determineStartTime(execution, fileOp);
 
     String pathTemplate = this.path.getValue(execution).toString();
     String lineTemplate = this.line != null ? this.line.getValue(execution).toString() : "0";
 
     StringTemplateLoader templateLoader = new StringTemplateLoader();
-    templateLoader.putTemplate("path", pathTemplate);
-    templateLoader.putTemplate("line", lineTemplate);
+    templateLoader.putTemplate(PATH_KEY, pathTemplate);
+    templateLoader.putTemplate(LINE_KEY, lineTemplate);
 
     Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
     cfg.setTemplateLoader(templateLoader);
 
     Map<String, Object> inputs = getInputs(execution);
 
-    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("path"), inputs);
-    Integer lineValue = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate("line"), inputs));
-
-    FileOp fileOp = FileOp.valueOf(this.op.getValue(execution).toString());
+    String filePath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(PATH_KEY), inputs);
+    Integer lineValue = Integer.parseInt(FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(LINE_KEY), inputs));
 
     File file = new File(filePath);
 
     switch (fileOp) {
+      case COPY:
+        if (file.exists()) {
+          String targetTemplate = this.target.getValue(execution).toString();
+          templateLoader.putTemplate(TARGET_KEY, targetTemplate);
+          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(TARGET_KEY), inputs);
+
+          File targetFile = new File(targetPath);
+
+          FileUtils.copyFile(file, targetFile);
+
+        } else {
+          getLogger().info("{} does not exist", filePath);
+        }
+        break;
+      case MOVE:
+        if (file.exists()) {
+          String targetTemplate = this.target.getValue(execution).toString();
+          templateLoader.putTemplate(TARGET_KEY, targetTemplate);
+          String targetPath = FreeMarkerTemplateUtils.processTemplateIntoString(cfg.getTemplate(TARGET_KEY), inputs);
+
+          File targetFile = new File(targetPath);
+
+          FileUtils.moveFile(file, targetFile);
+
+        } else {
+          getLogger().info("{} does not exist", filePath);
+        }
+        break;
       case DELETE:
         if (file.exists()) {
           boolean deleted = file.delete();
@@ -113,11 +139,15 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         String targetInputVariable = this.target.getValue(execution).toString();
         StringBuilder content = new StringBuilder();
         Object obj = inputs.get(targetInputVariable);
-        if (obj instanceof List) {
-          List<Object> objects = (List<Object>) obj;
+
+        if (obj == null) {
+          getLogger().warn("The target parameter '{}' of the WRITE operation is missing from the {} '{}'.", targetInputVariable, getDelegateClass(), getDelegateName(execution));
+        } else if (obj instanceof List) {
+          List<?> objects = (List<?>) obj;
           getLogger().info("{} {} has {} entries to write",
             obj.getClass().getSimpleName(), targetInputVariable, objects.size());
-          for (Object value : (List<Object>) objects) {
+
+          for (Object value : objects) {
               if (value instanceof String) {
                 content.append(value);
               } else {
@@ -126,8 +156,7 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
               content.append("\n");
             }
         } else {
-          getLogger().warn("{} {} unsupported input type for target parameter of WRITE operation",
-            obj.getClass().getSimpleName(), targetInputVariable);
+          getLogger().warn("The target parameter '{}' of the WRITE operation is unsupported for the {} '{}'.", targetInputVariable, getDelegateClass(), getDelegateName(execution));
         }
         FileUtils.writeStringToFile(file, content.toString(), StandardCharsets.UTF_8);
         getLogger().info("{} written", filePath);
@@ -149,12 +178,15 @@ public class FileDelegate extends AbstractWorkflowIODelegate {
         break;
     }
 
-    long endTime = System.nanoTime();
-    getLogger().info("{} finished in {} milliseconds", delegateName, (endTime - startTime) / (double) 1000000);
+    determineEndTime(execution, startTime);
   }
 
   public void setPath(Expression path) {
     this.path = path;
+  }
+
+  public void setLine(Expression line) {
+      this.line = line;
   }
 
   public void setOp(Expression op) {

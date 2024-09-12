@@ -12,6 +12,9 @@ logging:
       hibernate: INFO
       springframework: INFO
 
+    # Enable logging of BPMN if activation fails.
+    #org.folio.rest.camunda.service.CamundaApiService: DEBUG
+
 server:
   port: 8081
   servlet:
@@ -38,6 +41,8 @@ spring:
     init:
       #platform: h2
       platform: postgres
+
+      #continue-on-error: false
 
   datasource:
     hikari:
@@ -72,6 +77,7 @@ spring:
     properties.hibernate.jdbc.lob.non_contextual_creation: true
     generate-ddl: false
     hibernate.ddl-auto: update
+    #hibernate.hbm2ddl.auto: none
     open-in-view: true
     show-sql: false
 
@@ -152,7 +158,11 @@ tenant:
   header-name: X-Okapi-Tenant
   force-tenant: false
   default-tenant: diku
+
+  # When this and initialize-default-tenant are true, then if the database already exists, then it will be dropped and re-initialized.
+  recreate-default-tenant: false
   initialize-default-tenant: true
+
   domain-packages:
   # https://github.com/camunda/camunda-bpm-platform/tree/master/engine/src/main/resources/org/camunda/bpm/engine/db/create
   # be sure to match datasource platform

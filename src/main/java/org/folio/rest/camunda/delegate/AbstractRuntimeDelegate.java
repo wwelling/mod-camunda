@@ -7,5 +7,4 @@ public abstract class AbstractRuntimeDelegate extends AbstractDelegate {
 
   @Autowired
   protected RuntimeService runtimeService;
-
 }
