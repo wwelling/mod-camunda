@@ -1,13 +1,14 @@
 package org.folio.rest.camunda.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.camunda.bpm.engine.delegate.Expression;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -150,8 +151,8 @@ public class BpmnModelFactory {
           String expression = ((StartEvent) node).getExpression();
 
           if (type != StartEventType.NONE && expression == null) {
-            // TODO: implement and ensure validation
-            throw new RuntimeException(String.format("%s start event requests an expression", type));
+            // TODO: create custom exception and controller advice to handle better
+            throw new RuntimeException(String.format("%s start event requires an expression", type));
           }
 
           builder = ((StartEventBuilder) builder).id(node.getIdentifier()).name(node.getName());
@@ -406,9 +407,11 @@ public class BpmnModelFactory {
 
         FieldUtils.getAllFieldsList(delegate.get().getClass()).stream()
             .filter(df -> Expression.class.isAssignableFrom(df.getType()))
-            .map(df -> FieldUtils.getDeclaredField(node.getClass(), df.getName(), true)).forEach(f -> {
+            .map(df -> FieldUtils.getField(node.getClass(), df.getName(), true))
+            .filter(f -> Objects.nonNull(f))
+            .forEach(f -> {
               try {
-                Object value = f == null ? null : f.get(node);
+                Object value = f.get(node);
                 if (Objects.nonNull(value)) {
                   CamundaField field = model.newInstance(CamundaField.class);
                   field.setCamundaName(f.getName());
@@ -432,7 +435,6 @@ public class BpmnModelFactory {
           // TODO: create custom exception and controller advice to handle better
           throw new RuntimeException("Task must have delegate representation!");
         }
-
       }
     });
   }
