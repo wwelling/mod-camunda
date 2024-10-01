@@ -27,7 +27,7 @@ mvn clean install
 
 cd mod-camunda
 docker build -t folio/mod-camunda .
-docker run -d -p 9000:9000 folio/mod-camunda
+docker run -d -p 9000:8081 folio/mod-camunda
 ```
 
 ### Publish docker image
