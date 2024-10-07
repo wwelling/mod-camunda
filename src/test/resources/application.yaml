@@ -124,7 +124,7 @@ camunda:
       queue-capacity: 3
       wait-increase-factor: 2
       wait-time-in-millis: 15000
-    # see: https://docs.camunda.org/manual/7.20/user-guide/spring-boot-integration/configuration/#generic-properties 
+    # see: https://docs.camunda.org/manual/7.20/user-guide/spring-boot-integration/configuration/#generic-properties
     generic-properties:
       properties:
         telemetry-reporter-activate: false
@@ -141,7 +141,13 @@ springdoc:
     enabled: true
     path: /swagger-ui
 
-event.queue.name: event.queue
+application:
+  kafka:
+    listener:
+      events:
+        concurrency: 1
+        topic-pattern: (${ENV:folio}\.)?(.*\.)?workflow.events
+        group-id: ${ENV:folio}-mod-camunda-workflow-events-group
 
 tenant:
   header-name: X-Okapi-Tenant

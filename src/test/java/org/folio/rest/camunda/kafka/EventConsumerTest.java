@@ -1,4 +1,4 @@
-package org.folio.rest.camunda.jms;
+package org.folio.rest.camunda.kafka;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
