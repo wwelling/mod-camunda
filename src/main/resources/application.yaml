@@ -141,6 +141,8 @@ camunda:
         enable-script-compilation: true
         enable-script-engine-nashorn-compatibility: true
         enable-fetch-script-engine-from-process-application: false
+    metrics:
+      enabled: false
 
 springdoc:
   api-docs:
