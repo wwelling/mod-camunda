@@ -32,6 +32,9 @@ spring:
     returnBodyOnCreate: true
     returnBodyOnUpdate: true
 
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
+
   main:
     allow-bean-definition-overriding: false
     allow-circular-references: false
