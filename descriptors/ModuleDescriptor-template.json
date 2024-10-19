@@ -182,26 +182,6 @@
   ],
   "permissionSets" : [
     {
-      "permissionName": "camunda.workflow-engine.workflows.activate",
-      "displayName": "Camunda - workflow engine - activate workflow",
-      "description": "Activate workflow"
-    },
-    {
-      "permissionName": "camunda.workflow-engine.workflows.deactivate",
-      "displayName": "Camunda - workflow engine - deactivate workflow",
-      "description": "Deactivate workflow"
-    },
-    {
-      "permissionName": "camunda.workflow-engine.workflows.all",
-      "displayName": "Camunda - workflow engine - all permissions",
-      "description": "Entire set of permissions needed to use the camunda workflow engines",
-      "subPermissions": [
-        "camunda.workflow-engine.workflows.activate",
-        "camunda.workflow-engine.workflows.deactivate"
-      ],
-      "visible": false
-    },
-    {
       "permissionName": "camunda.history.process-instance.collection.get",
       "displayName": "Camunda - history - get history process instance collection",
       "description": "Get history process instance collection"
@@ -218,6 +198,38 @@
       "subPermissions": [
         "camunda.history.process-instance.collection.get",
         "camunda.history.incident.collection.get"
+      ],
+      "visible": false
+    },
+    {
+      "permissionName": "camunda.process.collection.get",
+      "displayName": "Camunda - process - get process collection",
+      "description": "Get process collection"
+    },
+    {
+      "permissionName": "camunda.process.item.delete",
+      "displayName": "Camunda - process - delete process",
+      "description": "Delete process"
+    },
+    {
+      "permissionName": "camunda.process.item.get",
+      "displayName": "Camunda - process - get individual process from storage",
+      "description": "Get individual process"
+    },
+    {
+      "permissionName": "camunda.process.item.post",
+      "displayName": "Camunda - process - create process",
+      "description": "Create process"
+    },
+    {
+      "permissionName": "camunda.process.all",
+      "displayName": "Camunda - process - all permissions",
+      "description": "Entire set of permissions needed to use the camunda processes",
+      "subPermissions": [
+        "camunda.process.collection.get",
+        "camunda.process.item.delete",
+        "camunda.process.item.get",
+        "camunda.process.item.post"
       ],
       "visible": false
     },
