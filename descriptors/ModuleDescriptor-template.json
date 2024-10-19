@@ -3,27 +3,43 @@
   "name": "Camnuda BPM Module",
   "provides": [
     {
+      "id": "camunda-history",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/history/process-instance",
+          "permissionsRequired": ["camunda.history.process-instance.item.get"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/history/incident",
+          "permissionsRequired": ["camunda.history.incident.item.get"]
+        }
+      ]
+    },
+    {
       "id": "camunda-process",
       "version": "1.0",
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/camunda/deployment",
+          "pathPattern": "/deployment",
           "permissionsRequired": ["camunda.process.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/camunda/deployment/{id}",
+          "pathPattern": "/deployment/{id}",
           "permissionsRequired": ["camunda.process.item.get"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/camunda/deployment/create",
+          "pathPattern": "/deployment/create",
           "permissionsRequired": ["camunda.process.item.post"]
         },
         {
           "methods": ["DELETE"],
-          "pathPattern": "/camunda/deployment/{id}",
+          "pathPattern": "/deployment/{id}",
           "permissionsRequired": ["camunda.process.item.delete"]
         }
       ]
@@ -34,22 +50,22 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/camunda/process-definition",
+          "pathPattern": "/process-definition",
           "permissionsRequired": ["camunda.process-definition.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/camunda/process-definition/{id}",
+          "pathPattern": "/process-definition/{id}",
           "permissionsRequired": ["camunda.process-definition.item.get"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/camunda/process-definition/{id}/start",
+          "pathPattern": "/process-definition/{id}/start",
           "permissionsRequired": ["camunda.process-definition.start.post"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/camunda/process-definition/key/{key}/tenant-id/{tenant-id}/start",
+          "pathPattern": "/process-definition/key/{key}/tenant-id/{tenant-id}/start",
           "permissionsRequired": ["camunda.process-definition.start.post"]
         }
       ]
@@ -60,12 +76,12 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/camunda/decision-definition",
+          "pathPattern": "/decision-definition",
           "permissionsRequired": ["camunda.decision-definition.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/camunda/decision-definition/{id}",
+          "pathPattern": "/decision-definition/{id}",
           "permissionsRequired": ["camunda.decision-definition.item.get"]
         }
       ]
@@ -76,27 +92,27 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/camunda/task",
+          "pathPattern": "/task",
           "permissionsRequired": ["camunda.task.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/camunda/task/{id}",
+          "pathPattern": "/task/{id}",
           "permissionsRequired": ["camunda.task.item.get"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/camunda/task/{id}/claim",
+          "pathPattern": "/task/{id}/claim",
           "permissionsRequired": ["camunda.task.claim.post"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/camunda/task/{id}/unclaim",
+          "pathPattern": "/task/{id}/unclaim",
           "permissionsRequired": ["camunda.task.unclaim.post"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/camunda/task/{id}/complete",
+          "pathPattern": "/task/{id}/complete",
           "permissionsRequired": ["camunda.task.complete.post"]
         }
       ]
@@ -107,7 +123,7 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/camunda/message",
+          "pathPattern": "/message",
           "permissionsRequired": ["camunda.message.item.post"]
         }
       ]
