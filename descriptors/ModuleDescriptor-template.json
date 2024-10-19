@@ -8,12 +8,12 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/history/process-instance",
+          "pathPattern": "/camunda/history/process-instance",
           "permissionsRequired": ["camunda.history.process-instance.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/history/incident",
+          "pathPattern": "/camunda/history/incident",
           "permissionsRequired": ["camunda.history.incident.collection.get"]
         }
       ]
@@ -24,22 +24,22 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/deployment",
+          "pathPattern": "/camunda/deployment",
           "permissionsRequired": ["camunda.process.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/deployment/{id}",
+          "pathPattern": "/camunda/deployment/{id}",
           "permissionsRequired": ["camunda.process.item.get"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/rest/deployment/create",
+          "pathPattern": "/camunda/deployment/create",
           "permissionsRequired": ["camunda.process.item.post"]
         },
         {
           "methods": ["DELETE"],
-          "pathPattern": "/rest/deployment/{id}",
+          "pathPattern": "/camunda/deployment/{id}",
           "permissionsRequired": ["camunda.process.item.delete"]
         }
       ]
@@ -50,22 +50,22 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/process-definition",
+          "pathPattern": "/camunda/process-definition",
           "permissionsRequired": ["camunda.process-definition.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/process-definition/{id}",
+          "pathPattern": "/camunda/process-definition/{id}",
           "permissionsRequired": ["camunda.process-definition.item.get"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/rest/process-definition/{id}/start",
+          "pathPattern": "/camunda/process-definition/{id}/start",
           "permissionsRequired": ["camunda.process-definition.start.post"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/rest/process-definition/key/{key}/tenant-id/{tenant-id}/start",
+          "pathPattern": "/camunda/process-definition/key/{key}/tenant-id/{tenant-id}/start",
           "permissionsRequired": ["camunda.process-definition.start.post"]
         }
       ]
@@ -76,12 +76,12 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/decision-definition",
+          "pathPattern": "/camunda/decision-definition",
           "permissionsRequired": ["camunda.decision-definition.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/decision-definition/{id}",
+          "pathPattern": "/camunda/decision-definition/{id}",
           "permissionsRequired": ["camunda.decision-definition.item.get"]
         }
       ]
@@ -92,27 +92,27 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/task",
+          "pathPattern": "/camunda/task",
           "permissionsRequired": ["camunda.task.collection.get"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/rest/task/{id}",
+          "pathPattern": "/camunda/task/{id}",
           "permissionsRequired": ["camunda.task.item.get"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/rest/task/{id}/claim",
+          "pathPattern": "/camunda/task/{id}/claim",
           "permissionsRequired": ["camunda.task.claim.post"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/rest/task/{id}/unclaim",
+          "pathPattern": "/camunda/task/{id}/unclaim",
           "permissionsRequired": ["camunda.task.unclaim.post"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/rest/task/{id}/complete",
+          "pathPattern": "/camunda/task/{id}/complete",
           "permissionsRequired": ["camunda.task.complete.post"]
         }
       ]
@@ -123,7 +123,7 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/rest/message",
+          "pathPattern": "/camunda/message",
           "permissionsRequired": ["camunda.message.item.post"]
         }
       ]

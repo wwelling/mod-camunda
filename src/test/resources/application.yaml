@@ -94,7 +94,8 @@ spring:
     mode: TEXT
     suffix: .sql
 
-  jersey.application-path: rest
+  # this must be `camunda` to match module descriptor path patterns
+  jersey.application-path: camunda
 
 camunda:
   # see: https://docs.camunda.org/manual/7.20/user-guide/spring-boot-integration/configuration/
