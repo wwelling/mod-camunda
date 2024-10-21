@@ -246,7 +246,7 @@ rm -rf .vagrant/sync
 | TENANT_RECREATEDEFAULTTENANT      |           false           | When TENANT_INITIALIZEDEFAULTTENANT is true and the DB already exists, then drop and re-create.                                                                                                              |
 
 ### Required Permissions
-Institutional users should be granted the following permissions in order to use this remote storage API:
+Institutional users should be granted the following permissions in order to use this camunda API:
 - `camunda.history.all`
 - `camunda.message.all`
 - `camunda.process.all`
