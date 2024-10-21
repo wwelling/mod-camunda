@@ -24,7 +24,6 @@ server:
       enabled: true
 
 spring:
-  activemq.broker-url: tcp://localhost:61616
   application.name: mod-camunda
   codec.max-in-memory-size: 16777216
   data.rest:
