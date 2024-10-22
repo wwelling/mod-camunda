@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CamundaApiService {
 
-  private final static Logger logger = LoggerFactory.getLogger(CamundaApiService.class);
+  private static final Logger logger = LoggerFactory.getLogger(CamundaApiService.class);
 
   @Autowired
   private BpmnModelFactory bpmnModelFactory;
@@ -53,6 +53,8 @@ public class CamundaApiService {
       if (logger.isDebugEnabled()) {
         Bpmn.writeModelToStream(System.out, modelInstance);
       }
+
+      logger.error("Failed to deploy workflow {}:{}. {}", workflow.getId(), workflow.getName(), e.getMessage(), e);
 
       throw e;
     }

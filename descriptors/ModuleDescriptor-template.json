@@ -3,6 +3,22 @@
   "name": "Camnuda BPM Module",
   "provides": [
     {
+      "id": "camunda-history",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/history/process-instance",
+          "permissionsRequired": ["camunda.history.process-instance.collection.get"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/camunda/history/incident",
+          "permissionsRequired": ["camunda.history.incident.collection.get"]
+        }
+      ]
+    },
+    {
       "id": "camunda-process",
       "version": "1.0",
       "handlers": [
@@ -165,6 +181,26 @@
     }
   ],
   "permissionSets" : [
+    {
+      "permissionName": "camunda.history.process-instance.collection.get",
+      "displayName": "Camunda - history - get history process instance collection",
+      "description": "Get history process instance collection"
+    },
+    {
+      "permissionName": "camunda.history.incident.collection.get",
+      "displayName": "Camunda - history - get history incident collection",
+      "description": "Get history incident collection"
+    },
+    {
+      "permissionName": "camunda.history.all",
+      "displayName": "Camunda - history - all permissions",
+      "description": "Entire set of permissions needed to use the camunda history",
+      "subPermissions": [
+        "camunda.history.process-instance.collection.get",
+        "camunda.history.incident.collection.get"
+      ],
+      "visible": false
+    },
     {
       "permissionName": "camunda.process.collection.get",
       "displayName": "Camunda - process - get process collection",
@@ -348,28 +384,30 @@
       }
     },
     "env": [
-      {
-        "name": "JAVA_OPTIONS",
-        "value": "-XX:MaxRAMPercentage=66.0"
-      },
+      { "name": "JAVA_OPTIONS", "value": "-XX:MaxRAMPercentage=66.0", "description": "Java options" },
       { "name": "CAMUNDA_BPM_ADMINUSER_EMAIL", "value": "admin@localhost", "description": "The e-mail address of the Camunda administration user." },
       { "name": "CAMUNDA_BPM_ADMINUSER_ID", "value": "admin", "description": "The account name of the Camunda administration user." },
       { "name": "CAMUNDA_BPM_ADMINUSER_PASSWORD", "value": "admin", "description": "The password of the Camunda administration user." },
       { "name": "CAMUNDA_BPM_DATABASE_SCHEMAUPDATE", "value": "true", "description": "If Camunda should auto-update the BPM database schema." },
       { "name": "CAMUNDA_BPM_METRICS", "value": "false", "description": "Enable or disable Camunda metrics by default." },
-      { "name": "DB_HOST", "value": "postgres" },
-      { "name": "DB_PORT", "value": "5432" },
-      { "name": "DB_USERNAME", "value": "folio_admin" },
-      { "name": "DB_PASSWORD", "value": "folio_admin" },
-      { "name": "DB_DATABASE", "value": "okapi_modules" },
-      { "name": "DB_QUERYTIMEOUT", "value": "60000" },
-      { "name": "DB_CHARSET", "value": "UTF-8" },
-      { "name": "DB_MAXPOOLSIZE", "value": "16" },
-      { "name": "EVENT_QUEUE_NAME", "value": "event.queue", "description": "The ActiveMQ event queue name." },
+      { "name": "DB_HOST", "value": "postgres", "description": "Postgres hostname" },
+      { "name": "DB_PORT", "value": "5432", "description": "Postgres port" },
+      { "name": "DB_USERNAME", "value": "folio_admin", "description": "Postgres username" },
+      { "name": "DB_PASSWORD", "value": "folio_admin", "description": "Postgres username password" },
+      { "name": "DB_DATABASE", "value": "okapi_modules", "description": "Postgres database name" },
+      { "name": "DB_QUERYTIMEOUT", "value": "60000", "description": "Database query timeout." },
+      { "name": "DB_CHARSET", "value": "UTF-8", "description": "Database charset." },
+      { "name": "DB_MAXPOOLSIZE", "value": "16", "description": "Database max pool size." },
+      { "name": "KAFKA_HOST", "value": "kafka", "description": "Kafka broker hostname" },
+      { "name": "KAFKA_PORT", "value": "9092", "description": "Kafka broker port" },
+      { "name": "KAFKA_SECURITY_PROTOCOL", "value": "PLAINTEXT", "description": "Kafka security protocol used to communicate with brokers (SSL or PLAINTEXT)" },
+      { "name": "KAFKA_SSL_KEYSTORE_LOCATION", "value": "", "description": "The location of the Kafka key store file. This is optional for client and can be used for two-way authentication for client." },
+      { "name": "KAFKA_SSL_KEYSTORE_PASSWORD", "value": "", "description": "The store password for the Kafka key store file. This is optional for client and only needed if 'ssl.keystore.location' is configured." },
+      { "name": "KAFKA_SSL_TRUSTSTORE_LOCATION", "value": "", "description": "The location of the Kafka trust store file." },
+      { "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD", "value": "", "description": "The password for the Kafka trust store file. If a password is not set, trust store file configured will still be used, but integrity checking is disabled." },
       { "name": "OKAPI_URL", "value": "http://10.0.2.15:9130", "description": "The URL to the OKAPI service." },
       { "name": "SERVER_PORT", "value": "8081", "description": "The port to listen on that must match the PortBindings." },
       { "name": "SERVER_SERVLET_CONTEXTPATH", "value": "/", "description": "The context path, or base path, to host at." },
-      { "name": "SPRING_ACTIVEMQ_BROKERURL", "value": "tcp://localhost:61616", "description": "The URL to the ActiveMQ server." },
       { "name": "SPRING_FLYWAY_ENABLED", "value": "false", "description": "Database migration support via Spring Flyway." },
       { "name": "SPRING_JPA_HIBERNATE_DDLAUTO", "value": "update", "description": "Auto-configure database on startup." },
       { "name": "TENANT_DEFAULTTENANT", "value": "diku", "description": "The name of the default tenant to use." },
