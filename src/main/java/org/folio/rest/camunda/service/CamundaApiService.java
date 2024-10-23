@@ -54,7 +54,7 @@ public class CamundaApiService {
         Bpmn.writeModelToStream(System.out, modelInstance);
       }
 
-      logger.error("Failed to deploy workflow {}:{}. {}", workflow.getId(), workflow.getName(), e.getMessage(), e);
+      logger.error("Failed to deploy workflow {}:{}. {}", workflow.getId(), workflow.getName(), e.getMessage());
 
       throw e;
     }
