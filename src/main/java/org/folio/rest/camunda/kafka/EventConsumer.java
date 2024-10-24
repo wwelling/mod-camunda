@@ -2,7 +2,6 @@ package org.folio.rest.camunda.kafka;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.camunda.bpm.engine.RuntimeService;
@@ -10,7 +9,6 @@ import org.folio.spring.messaging.model.Event;
 import org.folio.spring.tenant.storage.ThreadLocalStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -19,11 +17,14 @@ public class EventConsumer {
 
   private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
 
-  @Autowired
   private RuntimeService runtimeService;
 
-  @Autowired
   private ObjectMapper objectMapper;
+
+  public EventConsumer(RuntimeService runtimeService, ObjectMapper objectMapper) {
+    this.runtimeService = runtimeService;
+    this.objectMapper = objectMapper;
+  }
 
   @KafkaListener(
     id = "mod-camunda-events-listener",
@@ -32,9 +33,9 @@ public class EventConsumer {
     groupId = "${application.kafka.listener.events.group-id}",
     concurrency = "${application.kafka.listener.events.concurrency}"
   )
-  public void receive(Event event) throws JsonProcessingException {
+  public void receive(Event event) {
     logger.info("Receive: {}, {}, {}", event.getMethod(), event.getPath(), event.getPayload());
-    logger.info("Event: {}", event.getPathPattern(), event.getTriggerId());
+    logger.info("Event: {}, {}", event.getPathPattern(), event.getTriggerId());
 
     String tenant = event.getTenant();
 
