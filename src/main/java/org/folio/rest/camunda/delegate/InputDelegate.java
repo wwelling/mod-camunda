@@ -1,7 +1,7 @@
 package org.folio.rest.camunda.delegate;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.folio.rest.workflow.model.RequestTask;
+import org.folio.rest.workflow.model.InputTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -27,7 +27,7 @@ public class InputDelegate extends AbstractWorkflowIODelegate {
 
   @Override
   public Class<?> fromTask() {
-    return RequestTask.class;
+    return InputTask.class;
   }
 
 }
