@@ -408,7 +408,7 @@ public class BpmnModelFactory {
         FieldUtils.getAllFieldsList(delegate.get().getClass()).stream()
             .filter(df -> Expression.class.isAssignableFrom(df.getType()))
             .map(df -> FieldUtils.getField(node.getClass(), df.getName(), true))
-            .filter(f -> Objects.nonNull(f))
+            .filter(Objects::nonNull)
             .forEach(f -> {
               try {
                 Object value = f.get(node);
