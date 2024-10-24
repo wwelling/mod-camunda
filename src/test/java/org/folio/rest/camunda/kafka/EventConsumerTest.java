@@ -8,7 +8,6 @@ import static org.mockito.Mockito.doReturn;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,7 +50,7 @@ class EventConsumerTest {
   @ParameterizedTest
   @MethodSource("eventStream")
   @SuppressWarnings("unchecked")
-  void testReceive(Event event) throws JsonProcessingException {
+  void testReceive(Event event) {
     try (MockedStatic<ThreadLocalStorage> utility = Mockito.mockStatic(ThreadLocalStorage.class)) {
       doReturn(processInstance).when(messageCorrelationBuilder).correlateStartMessage();
       doReturn(messageCorrelationBuilder).when(messageCorrelationBuilder).setVariables(anyMap());
